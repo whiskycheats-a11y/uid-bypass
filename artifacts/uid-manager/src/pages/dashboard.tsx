@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useQueryClient } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   useListUids,
   getListUidsQueryKey,
@@ -9,33 +10,94 @@ import {
   useRemoveUid,
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Terminal, Shield, Trash2, Power, Server, Clock, Search, ShieldCheck } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Shield,
+  Trash2,
+  Zap,
+  Users,
+  Monitor,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  Plus,
+  Activity,
+} from "lucide-react";
+import { useState } from "react";
 
 const addUidSchema = z.object({
   uid: z.string().min(1, "UID is required"),
-  days: z.coerce.number().min(1, "Must be at least 1 day").default(30),
+  days: z.coerce.number().min(1).default(30),
   bluestack: z.boolean().default(true),
 });
-
 type AddUidValues = z.infer<typeof addUidSchema>;
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 24, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: "spring", stiffness: 200, damping: 22 },
+  },
+};
+
+const rowVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 200, damping: 24 } },
+  exit: { opacity: 0, x: 20, scale: 0.97, transition: { duration: 0.2 } },
+};
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  color,
+  delay,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: number | string;
+  color: string;
+  delay: number;
+}) {
+  return (
+    <motion.div
+      variants={itemVariants}
+      initial="hidden"
+      animate="visible"
+      transition={{ delay }}
+      className="glass rounded-2xl p-5 relative overflow-hidden group cursor-default"
+    >
+      <div
+        className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${color}`}
+        style={{ filter: "blur(40px)" }}
+      />
+      <div className="relative z-10">
+        <div className={`inline-flex p-2 rounded-xl mb-3 ${color.replace("bg-", "bg-").replace("/5", "/15")}`}>
+          <Icon className="w-4 h-4" style={{ color: "inherit" }} />
+        </div>
+        <div className="text-3xl font-bold font-mono mb-1 text-foreground">{value}</div>
+        <div className="text-xs text-muted-foreground font-medium uppercase tracking-widest">{label}</div>
+      </div>
+    </motion.div>
+  );
+}
 
 export default function Dashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [removingUid, setRemovingUid] = useState<string | null>(null);
 
   const { data: listResponse, isLoading } = useListUids({
     query: { queryKey: getListUidsQueryKey() },
@@ -46,11 +108,7 @@ export default function Dashboard() {
 
   const form = useForm<AddUidValues>({
     resolver: zodResolver(addUidSchema),
-    defaultValues: {
-      uid: "",
-      days: 30,
-      bluestack: true,
-    },
+    defaultValues: { uid: "", days: 30, bluestack: true },
   });
 
   const onSubmit = (values: AddUidValues) => {
@@ -59,281 +117,400 @@ export default function Dashboard() {
       {
         onSuccess: (data) => {
           if (data.success) {
-            toast({
-              title: "ACCESS GRANTED",
-              description: `UID ${values.uid} whitelisted successfully.`,
-              variant: "default",
-            });
+            toast({ title: "Access Granted", description: `UID ${values.uid} whitelisted.` });
             form.reset();
             queryClient.invalidateQueries({ queryKey: getListUidsQueryKey() });
           } else {
-            toast({
-              title: "OPERATION FAILED",
-              description: data.message,
-              variant: "destructive",
-            });
+            toast({ title: "Failed", description: data.message, variant: "destructive" });
           }
         },
         onError: () => {
-          toast({
-            title: "SYSTEM ERROR",
-            description: "Failed to communicate with authorization server.",
-            variant: "destructive",
-          });
+          toast({ title: "Error", description: "Could not reach authorization server.", variant: "destructive" });
         },
       }
     );
   };
 
   const onRemove = (uid: string) => {
+    setRemovingUid(uid);
     removeMutation.mutate(
       { data: { uid } },
       {
         onSuccess: (data) => {
+          setRemovingUid(null);
           if (data.success) {
-            toast({
-              title: "ACCESS REVOKED",
-              description: `UID ${uid} removed from whitelist.`,
-              variant: "default",
-            });
+            toast({ title: "Access Revoked", description: `UID ${uid} removed.` });
             queryClient.invalidateQueries({ queryKey: getListUidsQueryKey() });
           } else {
-            toast({
-              title: "OPERATION FAILED",
-              description: data.message,
-              variant: "destructive",
-            });
+            toast({ title: "Failed", description: data.message, variant: "destructive" });
           }
         },
         onError: () => {
-          toast({
-            title: "SYSTEM ERROR",
-            description: "Failed to communicate with authorization server.",
-            variant: "destructive",
-          });
+          setRemovingUid(null);
+          toast({ title: "Error", description: "Removal failed.", variant: "destructive" });
         },
       }
     );
   };
 
   const uids = listResponse?.success ? listResponse.data : [];
+  const bsCount = uids.filter((u) => u.bluestack).length;
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
-      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Terminal className="w-5 h-5 text-primary" />
-            <h1 className="font-mono text-lg font-bold tracking-tight">NEXUS_CORE // UID_MGR</h1>
+    <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+      {/* Animated background orbs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div
+          className="absolute animate-float-orb rounded-full opacity-20"
+          style={{
+            width: 600,
+            height: 600,
+            background: "radial-gradient(circle, hsl(262 83% 68% / 0.4) 0%, transparent 70%)",
+            top: "-150px",
+            left: "-100px",
+          }}
+        />
+        <div
+          className="absolute animate-float-orb-delay rounded-full opacity-15"
+          style={{
+            width: 500,
+            height: 500,
+            background: "radial-gradient(circle, hsl(192 100% 55% / 0.35) 0%, transparent 70%)",
+            bottom: "-100px",
+            right: "-80px",
+          }}
+        />
+        <div
+          className="absolute rounded-full opacity-10 animate-pulse-glow"
+          style={{
+            width: 300,
+            height: 300,
+            background: "radial-gradient(circle, hsl(320 80% 60% / 0.4) 0%, transparent 70%)",
+            top: "50%",
+            left: "60%",
+          }}
+        />
+        {/* Grid overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(139,92,246,1) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,1) 1px, transparent 1px)",
+            backgroundSize: "60px 60px",
+          }}
+        />
+      </div>
+
+      {/* Header */}
+      <motion.header
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative z-20 glass-strong border-b border-white/5 sticky top-0"
+      >
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <motion.div
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="w-8 h-8 rounded-xl flex items-center justify-center"
+              style={{ background: "linear-gradient(135deg, hsl(262 83% 68%), hsl(192 100% 55%))" }}
+            >
+              <Shield className="w-4 h-4 text-white" />
+            </motion.div>
+            <div>
+              <div className="font-bold text-sm tracking-tight">UID Manager</div>
+              <div className="text-[10px] text-muted-foreground font-mono">Bypass Whitelist System</div>
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-sm font-mono text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-              </span>
-              SYSTEM ONLINE
+
+          <div className="flex items-center gap-6">
+            <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground">
+              <Activity className="w-3 h-3 text-accent" />
+              <span className="font-mono">{uids.length} active</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <motion.span
+                animate={{ scale: [1, 1.3, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="relative flex h-2 w-2"
+              >
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
+              </motion.span>
+              <span className="text-xs font-semibold text-accent tracking-wide">LIVE</span>
             </div>
           </div>
         </div>
-      </header>
+      </motion.header>
 
-      <main className="flex-1 container max-w-6xl mx-auto px-4 py-8 grid md:grid-cols-[350px_1fr] gap-8 items-start">
-        {/* Left Column: Form */}
-        <div className="space-y-6">
-          <Card className="border-primary/20 bg-card/40 backdrop-blur shadow-2xl shadow-primary/5">
-            <CardHeader className="pb-4">
-              <CardTitle className="font-mono text-sm tracking-wider text-primary flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4" />
-                NEW AUTHORIZATION
-              </CardTitle>
-              <CardDescription className="font-mono text-xs">
-                Register a new hardware identifier to the bypass network.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="uid"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-mono text-xs text-muted-foreground uppercase">Target UID</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                            <Input 
-                              placeholder="Enter UID..." 
-                              className="font-mono pl-9 bg-background/50 border-border/50 focus-visible:ring-primary focus-visible:border-primary transition-all" 
-                              {...field} 
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage className="font-mono text-[10px]" />
-                      </FormItem>
+      {/* Main content */}
+      <main className="relative z-10 max-w-7xl mx-auto px-6 py-8">
+        {/* Stats row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <StatCard icon={Users} label="Total UIDs" value={isLoading ? "—" : uids.length} color="bg-violet-500/5" delay={0} />
+          <StatCard icon={Monitor} label="BlueStack" value={isLoading ? "—" : bsCount} color="bg-cyan-500/5" delay={0.05} />
+          <StatCard icon={CheckCircle2} label="Standard" value={isLoading ? "—" : uids.length - bsCount} color="bg-emerald-500/5" delay={0.1} />
+          <StatCard icon={Clock} label="Avg Days" value={isLoading ? "—" : 30} color="bg-pink-500/5" delay={0.15} />
+        </div>
+
+        <div className="grid lg:grid-cols-[380px_1fr] gap-6 items-start">
+          {/* Add UID Form */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2, type: "spring", stiffness: 150 }}
+          >
+            <div className="glass-strong rounded-2xl p-6 glow-primary relative overflow-hidden">
+              {/* Shimmer overlay */}
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/60 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
+
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-1">
+                  <Plus className="w-4 h-4 text-violet-400" />
+                  <h2 className="font-semibold text-sm text-foreground">Add New UID</h2>
+                </div>
+                <p className="text-xs text-muted-foreground">Register a player to the bypass whitelist</p>
+              </div>
+
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                {/* UID Input */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
+                    Player UID
+                  </label>
+                  <div className="relative">
+                    <Input
+                      placeholder="Enter UID number..."
+                      className="font-mono bg-white/[0.03] border-white/10 focus-visible:ring-violet-500/50 focus-visible:border-violet-500/50 input-glow text-sm h-11 rounded-xl transition-all"
+                      {...form.register("uid")}
+                    />
+                    {form.formState.errors.uid && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-[10px] text-destructive mt-1"
+                      >
+                        {form.formState.errors.uid.message}
+                      </motion.p>
                     )}
-                  />
+                  </div>
+                </div>
 
-                  <FormField
-                    control={form.control}
-                    name="days"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-mono text-xs text-muted-foreground uppercase">Duration (Days)</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Clock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                            <Input 
-                              type="number" 
-                              className="font-mono pl-9 bg-background/50 border-border/50 focus-visible:ring-primary transition-all" 
-                              {...field} 
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage className="font-mono text-[10px]" />
-                      </FormItem>
-                    )}
+                {/* Days Input */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
+                    Duration (Days)
+                  </label>
+                  <Input
+                    type="number"
+                    className="font-mono bg-white/[0.03] border-white/10 focus-visible:ring-violet-500/50 focus-visible:border-violet-500/50 input-glow text-sm h-11 rounded-xl"
+                    {...form.register("days")}
                   />
+                </div>
 
-                  <FormField
-                    control={form.control}
-                    name="bluestack"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-md border border-border/50 bg-background/30 p-3 shadow-sm">
-                        <div className="space-y-0.5">
-                          <FormLabel className="font-mono text-xs text-foreground uppercase flex items-center gap-2">
-                            <Server className="w-3.5 h-3.5" />
-                            BlueStack Mode
-                          </FormLabel>
-                          <p className="text-[10px] text-muted-foreground font-mono">
-                            Enable emulator compatibility layer
-                          </p>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            className="data-[state=checked]:bg-primary"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+                {/* BlueStack Toggle */}
+                <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] group hover:border-violet-500/20 transition-all">
+                  <div>
+                    <div className="text-sm font-medium flex items-center gap-2">
+                      <Monitor className="w-3.5 h-3.5 text-cyan-400" />
+                      BlueStack Mode
+                    </div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">Emulator compatibility</div>
+                  </div>
+                  <Switch
+                    checked={form.watch("bluestack")}
+                    onCheckedChange={(v) => form.setValue("bluestack", v)}
+                    className="data-[state=checked]:bg-violet-600"
                   />
+                </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full font-mono text-xs font-bold tracking-widest uppercase mt-2 group relative overflow-hidden" 
-                    disabled={addMutation.isPending}
-                  >
-                    <div className="absolute inset-0 bg-primary/20 group-hover:translate-x-full transition-transform duration-500 ease-out" />
+                {/* Submit Button */}
+                <motion.button
+                  type="submit"
+                  disabled={addMutation.isPending}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  className="w-full btn-gradient text-white font-semibold text-sm h-12 rounded-xl flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
+                >
+                  {/* shine sweep */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12"
+                    animate={{ x: ["-100%", "200%"] }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
+                  />
+                  <AnimatePresence mode="wait">
                     {addMutation.isPending ? (
-                      <span className="flex items-center gap-2">
-                        <Power className="w-4 h-4 animate-spin" />
-                        PROCESSING...
-                      </span>
+                      <motion.span
+                        key="loading"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex items-center gap-2"
+                      >
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Processing...
+                      </motion.span>
                     ) : (
-                      <span className="flex items-center gap-2">
-                        <Shield className="w-4 h-4" />
-                        AUTHORIZE ACCESS
-                      </span>
+                      <motion.span
+                        key="idle"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex items-center gap-2"
+                      >
+                        <Zap className="w-4 h-4" />
+                        Authorize Access
+                      </motion.span>
                     )}
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-
-          {/* Stats Card */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-card/40 border border-border/50 p-4 rounded-lg flex flex-col justify-center">
-              <span className="text-[10px] font-mono text-muted-foreground mb-1 uppercase tracking-wider">Active UIDs</span>
-              <span className="text-2xl font-mono text-foreground font-bold">
-                {isLoading ? <Skeleton className="h-8 w-12" /> : (uids?.length || 0)}
-              </span>
+                  </AnimatePresence>
+                </motion.button>
+              </form>
             </div>
-            <div className="bg-card/40 border border-border/50 p-4 rounded-lg flex flex-col justify-center">
-              <span className="text-[10px] font-mono text-muted-foreground mb-1 uppercase tracking-wider">Emulator Nodes</span>
-              <span className="text-2xl font-mono text-primary font-bold">
-                {isLoading ? <Skeleton className="h-8 w-12" /> : (uids?.filter(u => u.bluestack).length || 0)}
-              </span>
-            </div>
-          </div>
-        </div>
+          </motion.div>
 
-        {/* Right Column: Table */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between border-b border-border/50 pb-2">
-            <h2 className="font-mono text-sm font-bold tracking-wider uppercase text-foreground">Active Authorizations</h2>
-          </div>
+          {/* UID Table */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.25, type: "spring", stiffness: 150 }}
+          >
+            <div className="glass-strong rounded-2xl overflow-hidden relative">
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/60 to-transparent" />
 
-          <div className="bg-card/30 border border-border/50 rounded-lg overflow-hidden backdrop-blur-sm">
-            {isLoading ? (
-              <div className="p-4 space-y-3">
-                {[...Array(5)].map((_, i) => (
-                  <Skeleton key={i} className="h-14 w-full bg-border/20 rounded-md" />
-                ))}
+              {/* Table Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.05]">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-violet-400" />
+                  <h2 className="font-semibold text-sm">Active Authorizations</h2>
+                </div>
+                {!isLoading && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="px-2.5 py-1 rounded-full text-xs font-mono font-bold"
+                    style={{ background: "rgba(139,92,246,0.15)", color: "hsl(262 83% 75%)" }}
+                  >
+                    {uids.length} registered
+                  </motion.div>
+                )}
               </div>
-            ) : uids?.length === 0 ? (
-              <div className="p-12 text-center flex flex-col items-center justify-center text-muted-foreground">
-                <Terminal className="w-8 h-8 mb-3 opacity-20" />
-                <p className="font-mono text-sm">NO ACTIVE AUTHORIZATIONS FOUND</p>
-                <p className="font-mono text-xs opacity-50 mt-1">System is currently empty</p>
-              </div>
-            ) : (
+
+              {/* Table Content */}
               <div className="overflow-x-auto">
-                <table className="w-full text-left font-mono text-sm">
-                  <thead>
-                    <tr className="border-b border-border/50 bg-muted/30">
-                      <th className="px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Identifier</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Status</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Expiry</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Operator</th>
-                      <th className="px-4 py-3 text-right"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {uids?.map((entry) => (
-                      <tr key={entry.uid} className="border-b border-border/20 hover:bg-muted/20 transition-colors group">
-                        <td className="px-4 py-3 font-bold text-foreground">
-                          {entry.uid}
-                        </td>
-                        <td className="px-4 py-3">
-                          {entry.bluestack ? (
-                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[10px] rounded-sm py-0 h-5 font-mono">
-                              BS_ENABLED
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-muted-foreground border-border/50 text-[10px] rounded-sm py-0 h-5 font-mono">
-                              STD_MODE
-                            </Badge>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-muted-foreground text-xs">
-                          {new Date(entry.expiry_date).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-3 text-muted-foreground text-xs">
-                          {entry.adder_name}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all"
-                            onClick={() => onRemove(entry.uid)}
-                            disabled={removeMutation.isPending}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Revoke</span>
-                          </Button>
-                        </td>
-                      </tr>
+                {isLoading ? (
+                  <motion.div variants={containerVariants} initial="hidden" animate="visible" className="p-6 space-y-3">
+                    {[...Array(4)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        variants={itemVariants}
+                        className="h-14 rounded-xl bg-white/[0.02] animate-shimmer"
+                      />
                     ))}
-                  </tbody>
-                </table>
+                  </motion.div>
+                ) : uids.length === 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="py-20 flex flex-col items-center gap-3 text-muted-foreground"
+                  >
+                    <div className="w-16 h-16 rounded-2xl glass flex items-center justify-center mb-2">
+                      <Shield className="w-8 h-8 opacity-30" />
+                    </div>
+                    <p className="text-sm font-medium">No UIDs registered</p>
+                    <p className="text-xs opacity-50">Add a UID to get started</p>
+                  </motion.div>
+                ) : (
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-white/[0.04]">
+                        {["UID", "Status", "Expiry", "Operator", ""].map((h) => (
+                          <th
+                            key={h}
+                            className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
+                          >
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <AnimatePresence>
+                      <tbody>
+                        {uids.map((entry, i) => (
+                          <motion.tr
+                            key={entry.uid}
+                            variants={rowVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            transition={{ delay: i * 0.04 }}
+                            className="border-b border-white/[0.03] row-glow group transition-all"
+                          >
+                            <td className="px-5 py-4">
+                              <span className="font-mono font-bold text-foreground tracking-wider">
+                                {entry.uid}
+                              </span>
+                            </td>
+                            <td className="px-5 py-4">
+                              {entry.bluestack ? (
+                                <span
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold font-mono tracking-wide"
+                                  style={{
+                                    background: "rgba(0,212,255,0.12)",
+                                    color: "hsl(192 100% 65%)",
+                                    border: "1px solid rgba(0,212,255,0.2)",
+                                  }}
+                                >
+                                  <Monitor className="w-2.5 h-2.5" />
+                                  BLUESTACK
+                                </span>
+                              ) : (
+                                <span
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold font-mono tracking-wide"
+                                  style={{
+                                    background: "rgba(139,92,246,0.12)",
+                                    color: "hsl(262 83% 75%)",
+                                    border: "1px solid rgba(139,92,246,0.2)",
+                                  }}
+                                >
+                                  <CheckCircle2 className="w-2.5 h-2.5" />
+                                  STANDARD
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-5 py-4">
+                              <span className="text-xs text-muted-foreground font-mono">
+                                {entry.expiry_date}
+                              </span>
+                            </td>
+                            <td className="px-5 py-4">
+                              <span className="text-xs text-muted-foreground">{entry.adder_name}</span>
+                            </td>
+                            <td className="px-5 py-4 text-right">
+                              <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => onRemove(entry.uid)}
+                                disabled={removingUid === entry.uid}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-400 disabled:opacity-40"
+                              >
+                                {removingUid === entry.uid ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <XCircle className="w-4 h-4" />
+                                )}
+                              </motion.button>
+                            </td>
+                          </motion.tr>
+                        ))}
+                      </tbody>
+                    </AnimatePresence>
+                  </table>
+                )}
               </div>
-            )}
-          </div>
+            </div>
+          </motion.div>
         </div>
       </main>
     </div>
