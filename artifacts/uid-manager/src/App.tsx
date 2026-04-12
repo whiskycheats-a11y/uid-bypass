@@ -1,24 +1,44 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
-import { useEffect } from "react";
+import Login from "@/pages/login";
+import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      retry: false,
-      refetchOnWindowFocus: false,
-    },
+    queries: { retry: false, refetchOnWindowFocus: false },
   },
 });
+
+function AuthGuard({ children }: { children: React.ReactNode }) {
+  const [authed, setAuthed] = useState<boolean | null>(null);
+  const [, navigate] = useLocation();
+
+  useEffect(() => {
+    const ok = sessionStorage.getItem("uid_auth") === "true";
+    setAuthed(ok);
+  }, []);
+
+  if (authed === null) return null;
+
+  if (!authed) {
+    return <Login onLogin={() => setAuthed(true)} />;
+  }
+
+  return <>{children}</>;
+}
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
+      <Route path="/">
+        <AuthGuard>
+          <Dashboard />
+        </AuthGuard>
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
