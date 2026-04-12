@@ -14,3 +14,50 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * Returns all UIDs registered in the bypass system
+ * @summary List all registered UIDs
+ */
+export const ListUidsResponse = zod.object({
+  success: zod.boolean(),
+  data: zod.array(
+    zod.object({
+      uid: zod.string(),
+      expiry_date: zod.string(),
+      bluestack: zod.boolean(),
+      adder_name: zod.string(),
+    }),
+  ),
+});
+
+/**
+ * Adds a UID to the bypass whitelist
+ * @summary Register a new UID
+ */
+export const addUidBodyDaysDefault = 30;
+export const addUidBodyBluestackDefault = true;
+
+export const AddUidBody = zod.object({
+  uid: zod.string(),
+  days: zod.number().default(addUidBodyDaysDefault),
+  bluestack: zod.boolean().default(addUidBodyBluestackDefault),
+});
+
+export const AddUidResponse = zod.object({
+  success: zod.boolean(),
+  message: zod.string(),
+});
+
+/**
+ * Removes a UID from the bypass whitelist
+ * @summary Remove a registered UID
+ */
+export const RemoveUidBody = zod.object({
+  uid: zod.string(),
+});
+
+export const RemoveUidResponse = zod.object({
+  success: zod.boolean(),
+  message: zod.string(),
+});

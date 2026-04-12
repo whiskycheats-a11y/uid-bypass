@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: uid
+    description: UID management
 paths:
   /healthz:
     get:
@@ -24,6 +26,57 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /uid/list:
+    get:
+      operationId: listUids
+      tags: [uid]
+      summary: List all registered UIDs
+      description: Returns all UIDs registered in the bypass system
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UidListResponse"
+  /uid/add:
+    post:
+      operationId: addUid
+      tags: [uid]
+      summary: Register a new UID
+      description: Adds a UID to the bypass whitelist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddUidBody"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UidActionResponse"
+  /uid/remove:
+    post:
+      operationId: removeUid
+      tags: [uid]
+      summary: Remove a registered UID
+      description: Removes a UID from the bypass whitelist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RemoveUidBody"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UidActionResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +86,61 @@ components:
           type: string
       required:
         - status
-
+    UidEntry:
+      type: object
+      properties:
+        uid:
+          type: string
+        expiry_date:
+          type: string
+        bluestack:
+          type: boolean
+        adder_name:
+          type: string
+      required:
+        - uid
+        - expiry_date
+        - bluestack
+        - adder_name
+    UidListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/UidEntry"
+      required:
+        - success
+        - data
+    UidActionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+        - message
+    AddUidBody:
+      type: object
+      properties:
+        uid:
+          type: string
+        days:
+          type: integer
+          default: 30
+        bluestack:
+          type: boolean
+          default: true
+      required:
+        - uid
+    RemoveUidBody:
+      type: object
+      properties:
+        uid:
+          type: string
+      required:
+        - uid

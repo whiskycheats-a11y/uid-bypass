@@ -5,18 +5,27 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
 
-import type { HealthStatus } from "./api.schemas";
+import type {
+  AddUidBody,
+  HealthStatus,
+  RemoveUidBody,
+  UidActionResponse,
+  UidListResponse,
+} from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
-import type { ErrorType } from "../custom-fetch";
+import type { ErrorType, BodyType } from "../custom-fetch";
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -99,3 +108,245 @@ export function useHealthCheck<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * Returns all UIDs registered in the bypass system
+ * @summary List all registered UIDs
+ */
+export const getListUidsUrl = () => {
+  return `/api/uid/list`;
+};
+
+export const listUids = async (
+  options?: RequestInit,
+): Promise<UidListResponse> => {
+  return customFetch<UidListResponse>(getListUidsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListUidsQueryKey = () => {
+  return [`/api/uid/list`] as const;
+};
+
+export const getListUidsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listUids>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof listUids>>, TError, TData>;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListUidsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listUids>>> = ({
+    signal,
+  }) => listUids({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listUids>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListUidsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listUids>>
+>;
+export type ListUidsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all registered UIDs
+ */
+
+export function useListUids<
+  TData = Awaited<ReturnType<typeof listUids>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof listUids>>, TError, TData>;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListUidsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Adds a UID to the bypass whitelist
+ * @summary Register a new UID
+ */
+export const getAddUidUrl = () => {
+  return `/api/uid/add`;
+};
+
+export const addUid = async (
+  addUidBody: AddUidBody,
+  options?: RequestInit,
+): Promise<UidActionResponse> => {
+  return customFetch<UidActionResponse>(getAddUidUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(addUidBody),
+  });
+};
+
+export const getAddUidMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof addUid>>,
+    TError,
+    { data: BodyType<AddUidBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof addUid>>,
+  TError,
+  { data: BodyType<AddUidBody> },
+  TContext
+> => {
+  const mutationKey = ["addUid"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof addUid>>,
+    { data: BodyType<AddUidBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return addUid(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AddUidMutationResult = NonNullable<
+  Awaited<ReturnType<typeof addUid>>
+>;
+export type AddUidMutationBody = BodyType<AddUidBody>;
+export type AddUidMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Register a new UID
+ */
+export const useAddUid = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof addUid>>,
+    TError,
+    { data: BodyType<AddUidBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof addUid>>,
+  TError,
+  { data: BodyType<AddUidBody> },
+  TContext
+> => {
+  return useMutation(getAddUidMutationOptions(options));
+};
+
+/**
+ * Removes a UID from the bypass whitelist
+ * @summary Remove a registered UID
+ */
+export const getRemoveUidUrl = () => {
+  return `/api/uid/remove`;
+};
+
+export const removeUid = async (
+  removeUidBody: RemoveUidBody,
+  options?: RequestInit,
+): Promise<UidActionResponse> => {
+  return customFetch<UidActionResponse>(getRemoveUidUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(removeUidBody),
+  });
+};
+
+export const getRemoveUidMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof removeUid>>,
+    TError,
+    { data: BodyType<RemoveUidBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof removeUid>>,
+  TError,
+  { data: BodyType<RemoveUidBody> },
+  TContext
+> => {
+  const mutationKey = ["removeUid"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof removeUid>>,
+    { data: BodyType<RemoveUidBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return removeUid(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RemoveUidMutationResult = NonNullable<
+  Awaited<ReturnType<typeof removeUid>>
+>;
+export type RemoveUidMutationBody = BodyType<RemoveUidBody>;
+export type RemoveUidMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Remove a registered UID
+ */
+export const useRemoveUid = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof removeUid>>,
+    TError,
+    { data: BodyType<RemoveUidBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof removeUid>>,
+  TError,
+  { data: BodyType<RemoveUidBody> },
+  TContext
+> => {
+  return useMutation(getRemoveUidMutationOptions(options));
+};

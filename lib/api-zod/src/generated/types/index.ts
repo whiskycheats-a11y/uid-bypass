@@ -6,4 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./addUidBody";
 export * from "./healthStatus";
+export * from "./removeUidBody";
+export * from "./uidActionResponse";
+export * from "./uidEntry";
+export * from "./uidListResponse";

@@ -8,3 +8,30 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface UidEntry {
+  uid: string;
+  expiry_date: string;
+  bluestack: boolean;
+  adder_name: string;
+}
+
+export interface UidListResponse {
+  success: boolean;
+  data: UidEntry[];
+}
+
+export interface UidActionResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface AddUidBody {
+  uid: string;
+  days?: number;
+  bluestack?: boolean;
+}
+
+export interface RemoveUidBody {
+  uid: string;
+}
