@@ -1,0 +1,201 @@
+Authentication
+Required on all requests
+Every request must include your API key in the X-API-KEY header. Get your key from Settings.
+
+Header
+Copy
+X-API-KEY: your_api_key_here
+Base URL
+http://152.42.251.212:25568
+POST
+/api/uid/add
+Register a new UID
+Request Body
+JSON
+JSON
+Copy
+{
+  "uid": "123456789",   // required
+  "days": 30,           // optional, default 30
+  "bluestack": true     // optional, default true
+}
+Response
+Success
+Error
+200 OK
+{ "success": true, "message": "UID registered" }
+Full Code Example
+Python
+JavaScript
+cURL
+python
+Copy
+import requests
+
+API_KEY  = "your_api_key_here"
+BASE_URL = "http://152.42.251.212:25568"
+
+def add_uid(uid, days=30, bluestack=True):
+    response = requests.post(
+        f"{BASE_URL}/api/uid/add",
+        headers={
+            "X-API-KEY": API_KEY,
+            "Content-Type": "application/json"
+        },
+        json={
+            "uid": uid,
+            "days": days,
+            "bluestack": bluestack
+        }
+    )
+    data = response.json()
+    if data["success"]:
+        print(f"[+] UID {uid} registered successfully")
+    else:
+        print(f"[-] Failed: {data['message']}")
+    return data
+
+# Usage
+add_uid("123456789", days=30, bluestack=True)
+POST
+/api/uid/remove
+Delete a registered UID
+Request Body
+JSON
+JSON
+Copy
+{ "uid": "123456789" }
+Full Code Example
+Python
+JavaScript
+cURL
+python
+Copy
+import requests
+
+API_KEY  = "your_api_key_here"
+BASE_URL = "http://152.42.251.212:25568"
+
+def remove_uid(uid):
+    response = requests.post(
+        f"{BASE_URL}/api/uid/remove",
+        headers={
+            "X-API-KEY": API_KEY,
+            "Content-Type": "application/json"
+        },
+        json={"uid": uid}
+    )
+    data = response.json()
+    if data["success"]:
+        print(f"[+] UID {uid} removed successfully")
+    else:
+        print(f"[-] Failed: {data['message']}")
+    return data
+
+# Usage
+remove_uid("123456789")
+GET
+/api/uid/list
+List all registered UIDs
+Response
+200 OK
+{
+  "success": true,
+  "data": [
+    {
+      "uid": "123456789",
+      "expiry_date": "04 May 2026",
+      "bluestack": true,
+      "adder_name": "admin"
+    }
+  ]
+}
+Full Code Example
+Python
+JavaScript
+cURL
+python
+Copy
+import requests
+
+API_KEY  = "your_api_key_here"
+BASE_URL = "http://152.42.251.212:25568"
+
+def list_uids():
+    response = requests.get(
+        f"{BASE_URL}/api/uid/list",
+        headers={"X-API-KEY": API_KEY}
+    )
+    data = response.json()
+    if data["success"]:
+        uids = data["data"]
+        print(f"[+] Found {len(uids)} UIDs:")
+        for entry in uids:
+            bs = "BlueStack" if entry["bluestack"] else "Normal"
+            print(f"  - {entry['uid']}  |  Expires: {entry['expiry_date']}  |  {bs}  |  Added by: {entry['adder_name']}")
+    else:
+        print(f"[-] Failed: {data['message']}")
+    return data
+
+# Usage
+list_uids()
+Complete Client Example
+All endpoints
+A ready-to-use client class covering all endpoints.
+
+Python
+JavaScript
+python
+Copy
+import requests
+
+class UIDBypassClient:
+    def __init__(self, api_key, base_url="http://152.42.251.212:25568"):
+        self.base_url = base_url
+        self.headers  = {
+            "X-API-KEY": api_key,
+            "Content-Type": "application/json"
+        }
+
+    def add(self, uid, days=30, bluestack=True):
+        """Register a UID."""
+        r = requests.post(
+            f"{self.base_url}/api/uid/add",
+            headers=self.headers,
+            json={"uid": uid, "days": days, "bluestack": bluestack}
+        )
+        return r.json()
+
+    def remove(self, uid):
+        """Remove a UID."""
+        r = requests.post(
+            f"{self.base_url}/api/uid/remove",
+            headers=self.headers,
+            json={"uid": uid}
+        )
+        return r.json()
+
+    def list(self):
+        """List all UIDs."""
+        r = requests.get(
+            f"{self.base_url}/api/uid/list",
+            headers=self.headers
+        )
+        return r.json().get("data", [])
+
+
+# ── Usage ──────────────────────────────────────────────
+client = UIDBypassClient("your_api_key_here")
+
+# Add a UID
+result = client.add("123456789", days=30, bluestack=True)
+print(result)
+
+# List all UIDs
+uids = client.list()
+for u in uids:
+    print(u["uid"], u["expiry_date"])
+
+# Remove a UID
+result = client.remove("123456789")
+print(result)
