@@ -14,13 +14,17 @@ function getApiKey(): string {
 router.get("/list", async (req, res) => {
   try {
     const response = await fetch(`${EXTERNAL_BASE}/api/uid/list`, {
-      headers: { "X-API-KEY": getApiKey() },
+      headers: {
+        "X-API-KEY": getApiKey(),
+      },
     });
     const data = await response.json();
     res.json(data);
   } catch (err) {
     req.log.error({ err }, "Failed to list UIDs");
-    res.status(500).json({ success: false, message: "Failed to contact external API" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to contact external API" });
   }
 });
 
@@ -43,7 +47,9 @@ router.post("/add", async (req, res) => {
     res.json(data);
   } catch (err) {
     req.log.error({ err }, "Failed to add UID");
-    res.status(500).json({ success: false, message: "Failed to contact external API" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to contact external API" });
   }
 });
 
@@ -66,7 +72,9 @@ router.post("/remove", async (req, res) => {
     res.json(data);
   } catch (err) {
     req.log.error({ err }, "Failed to remove UID");
-    res.status(500).json({ success: false, message: "Failed to contact external API" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to contact external API" });
   }
 });
 
