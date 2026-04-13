@@ -19,21 +19,27 @@ router.get("/", requireAdmin, (_req, res) => {
       username: u.username,
       createdAt: u.createdAt,
       defaultDays: u.defaultDays,
+      isTrial: u.isTrial,
     })),
   });
 });
 
 router.post("/", requireAdmin, (req, res) => {
-  const { username, password, defaultDays } = req.body ?? {};
+  const { username, password, defaultDays, isTrial } = req.body ?? {};
   if (!username || !password) {
     return res.status(400).json({ success: false, error: "Username and password are required" });
   }
   const days = Number(defaultDays) > 0 ? Number(defaultDays) : 30;
-  const result = userStore.add(username, password, days);
+  const result = userStore.add(username, password, days, Boolean(isTrial));
   if (!result.ok) {
     return res.status(409).json({ success: false, error: result.error });
   }
-  return res.json({ success: true, username: result.user.username, defaultDays: result.user.defaultDays });
+  return res.json({
+    success: true,
+    username: result.user.username,
+    defaultDays: result.user.defaultDays,
+    isTrial: result.user.isTrial,
+  });
 });
 
 router.delete("/:username", requireAdmin, (req, res) => {
