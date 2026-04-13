@@ -1,0 +1,18 @@
+import { Router } from "express";
+import { userStore } from "../store";
+
+const router = Router();
+
+router.post("/login", (req, res) => {
+  const { username, password } = req.body ?? {};
+  if (!username || !password) {
+    return res.status(400).json({ success: false, error: "Username and password required" });
+  }
+  const user = userStore.verify(username, password);
+  if (!user) {
+    return res.status(401).json({ success: false, error: "Invalid credentials" });
+  }
+  return res.json({ success: true, username: user.username, role: user.role });
+});
+
+export default router;

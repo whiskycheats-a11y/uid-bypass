@@ -87,7 +87,12 @@ function StatCard({
   );
 }
 
-export default function Dashboard() {
+interface DashboardProps {
+  username?: string;
+  onLogout?: () => void;
+}
+
+export default function Dashboard({ username, onLogout }: DashboardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [removingUid, setRemovingUid] = useState<string | null>(null);
@@ -106,8 +111,12 @@ export default function Dashboard() {
   });
 
   const handleLogout = () => {
-    sessionStorage.removeItem("uid_auth");
-    window.location.reload();
+    if (onLogout) {
+      onLogout();
+    } else {
+      sessionStorage.removeItem("uid_auth");
+      window.location.reload();
+    }
   };
 
   const onSubmit = (values: AddUidValues) => {
@@ -189,6 +198,12 @@ export default function Dashboard() {
           </div>
 
           <div className="flex items-center gap-4">
+            {username && (
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full glass text-xs text-muted-foreground">
+                <User className="w-3 h-3" />
+                <span className="font-mono font-semibold">{username}</span>
+              </div>
+            )}
             <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
               <Activity className="w-3.5 h-3.5" style={{ color: "#06b6d4" }} />
               <span>{isLoading ? "..." : uids.length} active UIDs</span>
