@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Shield, Eye, EyeOff, Loader2, Lock, User, Zap, Sparkles } from "lucide-react";
+import { Shield, Eye, EyeOff, Loader2, Lock, User, Zap } from "lucide-react";
 
 interface LoginProps {
   onLogin: (role: "admin" | "user", username: string) => void;
@@ -22,10 +22,8 @@ export default function Login({ onLogin }: LoginProps) {
     const el = cardRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const dx = (e.clientX - cx) / (rect.width / 2);
-    const dy = (e.clientY - cy) / (rect.height / 2);
+    const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
+    const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
     setTilt({ x: dy * -8, y: dx * 8 });
   };
 
@@ -43,7 +41,10 @@ export default function Login({ onLogin }: LoginProps) {
       });
       const data = await res.json();
       if (data.success) {
-        sessionStorage.setItem("uid_auth", JSON.stringify({ role: data.role, username: data.username, adminKey: password, defaultDays: data.defaultDays ?? 30 }));
+        sessionStorage.setItem("uid_auth", JSON.stringify({
+          role: data.role, username: data.username,
+          adminKey: password, defaultDays: data.defaultDays ?? 30,
+        }));
         onLogin(data.role, data.username);
       } else {
         throw new Error(data.error ?? "Invalid credentials");
@@ -58,22 +59,22 @@ export default function Login({ onLogin }: LoginProps) {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
-      {/* Stars */}
-      <Stars />
+      {/* Canvas star field — mouse parallax */}
+      <StarField />
 
-      {/* Orbs */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute animate-float-orb rounded-full" style={{ width: 800, height: 800, background: "radial-gradient(circle, hsl(262 83% 68% / 0.35) 0%, transparent 70%)", top: "-250px", left: "-200px" }} />
-        <div className="absolute animate-float-orb-delay rounded-full" style={{ width: 600, height: 600, background: "radial-gradient(circle, hsl(192 100% 55% / 0.25) 0%, transparent 70%)", bottom: "-150px", right: "-100px" }} />
-        <div className="absolute animate-pulse-glow rounded-full" style={{ width: 400, height: 400, background: "radial-gradient(circle, hsl(320 80% 55% / 0.2) 0%, transparent 70%)", top: "40%", left: "60%" }} />
-        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: "linear-gradient(rgba(139,92,246,1) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+      {/* Background orbs — CSS only */}
+      <div className="fixed inset-0 pointer-events-none" style={{ contain: "layout paint" }}>
+        <div className="absolute animate-float-orb rounded-full" style={{ width: 800, height: 800, background: "radial-gradient(circle, rgba(139,92,246,0.32) 0%, transparent 68%)", top: "-250px", left: "-200px" }} />
+        <div className="absolute animate-float-orb-delay rounded-full" style={{ width: 600, height: 600, background: "radial-gradient(circle, rgba(6,182,212,0.22) 0%, transparent 68%)", bottom: "-150px", right: "-100px" }} />
+        <div className="absolute animate-pulse-glow rounded-full" style={{ width: 400, height: 400, background: "radial-gradient(circle, rgba(236,72,153,0.18) 0%, transparent 68%)", top: "40%", left: "60%" }} />
+        <div className="absolute inset-0 opacity-[0.018]" style={{ backgroundImage: "linear-gradient(rgba(139,92,246,1) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
       </div>
 
-      {/* Card with 3D tilt */}
+      {/* Card */}
       <motion.div
-        initial={{ opacity: 0, y: 50, scale: 0.9 }}
+        initial={{ opacity: 0, y: 50, scale: 0.88 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.7, type: "spring", stiffness: 120, damping: 18 }}
+        transition={{ duration: 0.65, type: "spring", stiffness: 120, damping: 18 }}
         className="relative z-10 w-full max-w-md mx-4"
         style={{ perspective: "1000px" }}
         onMouseMove={handleMouseMove}
@@ -86,9 +87,9 @@ export default function Login({ onLogin }: LoginProps) {
             rotateX: tilt.x,
             rotateY: tilt.y,
             transformStyle: "preserve-3d",
-            transition: shake ? undefined : "transform 0.3s ease",
+            transition: shake ? undefined : "transform 0.25s ease",
           }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.45 }}
           className="glass-strong rounded-3xl p-8 relative overflow-hidden shadow-2xl"
         >
           {/* Glow borders */}
@@ -96,11 +97,7 @@ export default function Login({ onLogin }: LoginProps) {
           <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
           <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-violet-500/30 to-transparent" />
           <div className="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-cyan-500/20 to-transparent" />
-
-          {/* 3D depth layer */}
-          <div className="absolute -inset-1 rounded-3xl opacity-20" style={{ background: "linear-gradient(135deg, #8b5cf6, transparent, #06b6d4)", filter: "blur(20px)", zIndex: -1 }} />
-
-          {/* Corners */}
+          <div className="absolute -inset-1 rounded-3xl opacity-20 -z-10" style={{ background: "linear-gradient(135deg, #8b5cf6, transparent, #06b6d4)", filter: "blur(20px)" }} />
           <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-violet-500/12 to-transparent rounded-3xl" />
           <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-cyan-500/12 to-transparent rounded-3xl" />
 
@@ -110,63 +107,49 @@ export default function Login({ onLogin }: LoginProps) {
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                className="w-20 h-20 rounded-2xl flex items-center justify-center glow-primary"
+                className="w-20 h-20 rounded-2xl flex items-center justify-center"
                 style={{ background: "linear-gradient(135deg, hsl(262 83% 58%), hsl(292 83% 55%), hsl(192 100% 50%))", boxShadow: "0 0 40px rgba(139,92,246,0.5), inset 0 1px 0 rgba(255,255,255,0.1)" }}
               >
                 <Shield className="w-10 h-10 text-white drop-shadow-lg" />
               </motion.div>
-              <motion.div
-                animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="absolute -inset-2 rounded-3xl"
-                style={{ background: "conic-gradient(from 0deg, #8b5cf6, #06b6d4, #ec4899, #8b5cf6)", filter: "blur(8px)", zIndex: -1, opacity: 0.4 }}
-              />
+              <div className="absolute -inset-2 rounded-3xl -z-10 logo-ring" style={{ background: "conic-gradient(from 0deg, #8b5cf6, #06b6d4, #ec4899, #8b5cf6)", filter: "blur(8px)", opacity: 0.4 }} />
             </div>
             <h1 className="text-3xl font-black text-foreground tracking-tight" style={{ textShadow: "0 0 30px rgba(139,92,246,0.5)" }}>
               UID Manager
             </h1>
             <p className="text-sm text-muted-foreground mt-1 tracking-wide">Bypass Whitelist System</p>
 
-            <motion.div
-              animate={{ y: [0, -2, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-              className="flex items-center gap-2 mt-3 px-4 py-1.5 rounded-full glass"
-              style={{ border: "1px solid rgba(16,185,129,0.3)" }}
-            >
-              <motion.span animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 2, repeat: Infinity }} className="w-2 h-2 rounded-full bg-emerald-400" style={{ boxShadow: "0 0 6px #10b981" }} />
+            <div className="flex items-center gap-2 mt-3 px-4 py-1.5 rounded-full glass secure-badge" style={{ border: "1px solid rgba(16,185,129,0.3)" }}>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 live-dot" style={{ boxShadow: "0 0 6px #10b981" }} />
               <span className="text-[11px] text-emerald-400 font-bold tracking-widest">SECURE CHANNEL</span>
-            </motion.div>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Username */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Username</label>
               <div className="relative group">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-violet-400 transition-colors" />
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-violet-400 transition-colors duration-200" />
                 <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter username"
-                  autoComplete="username"
-                  className="w-full h-12 pl-10 pr-4 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-violet-500/60 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(139,92,246,0.15)] transition-all"
+                  type="text" value={username} onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter username" autoComplete="username"
+                  className="login-input w-full h-12 pl-10 pr-4 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none transition-all"
                 />
               </div>
             </div>
 
+            {/* Password */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Password</label>
               <div className="relative group">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-violet-400 transition-colors" />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-violet-400 transition-colors duration-200" />
                 <input
-                  type={showPass ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password"
-                  autoComplete="current-password"
-                  className="w-full h-12 pl-10 pr-12 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-violet-500/60 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(139,92,246,0.15)] transition-all"
+                  type={showPass ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password" autoComplete="current-password"
+                  className="login-input w-full h-12 pl-10 pr-12 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none transition-all"
                 />
-                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1">
+                <button type="button" onClick={() => setShowPass(!showPass)} className="eyebtn absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground p-1 rounded-lg transition-all">
                   {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -189,22 +172,19 @@ export default function Login({ onLogin }: LoginProps) {
             <motion.button
               type="submit"
               disabled={loading || !username || !password}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.025 }}
+              whileTap={{ scale: 0.975 }}
               className="w-full h-12 rounded-xl btn-gradient text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden mt-2"
-              style={{ boxShadow: "0 0 20px rgba(139,92,246,0.4)" }}
             >
-              <motion.div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12" animate={{ x: ["-100%", "200%"] }} transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 1 }} />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12 btn-shimmer" />
               <AnimatePresence mode="wait">
                 {loading ? (
                   <motion.span key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Authenticating...
+                    <Loader2 className="w-4 h-4 animate-spin" /> Authenticating...
                   </motion.span>
                 ) : (
                   <motion.span key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
-                    <Zap className="w-4 h-4" />
-                    Access System
+                    <Zap className="w-4 h-4" /> Access System
                   </motion.span>
                 )}
               </AnimatePresence>
@@ -220,26 +200,114 @@ export default function Login({ onLogin }: LoginProps) {
   );
 }
 
-function Stars() {
-  const stars = Array.from({ length: 60 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: Math.random() * 2 + 0.5,
-    delay: Math.random() * 4,
-    duration: Math.random() * 3 + 2,
-  }));
+/* ── Canvas Star Field with Mouse Parallax ── */
+function StarField() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouse = useRef({ x: 0, y: 0 });
+  const target = useRef({ x: 0, y: 0 });
+  const raf = useRef(0);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d")!;
+
+    /* Star layers — each has a parallax multiplier */
+    interface Star { x: number; y: number; ox: number; oy: number; r: number; a: number; twinkleSpeed: number; twinklePhase: number; layer: number; }
+    let stars: Star[] = [];
+    const LAYERS = [
+      { count: 120, mult: 0.018, rMin: 0.4, rMax: 1.0, aBase: 0.25 },
+      { count: 60,  mult: 0.038, rMin: 0.9, rMax: 1.8, aBase: 0.55 },
+      { count: 20,  mult: 0.065, rMin: 1.5, rMax: 2.8, aBase: 0.8  },
+    ];
+
+    function buildStars(w: number, h: number) {
+      stars = [];
+      LAYERS.forEach((l, li) => {
+        for (let i = 0; i < l.count; i++) {
+          const ox = Math.random() * w;
+          const oy = Math.random() * h;
+          stars.push({ x: ox, y: oy, ox, oy, r: l.rMin + Math.random() * (l.rMax - l.rMin), a: l.aBase, twinkleSpeed: 0.4 + Math.random() * 1.2, twinklePhase: Math.random() * Math.PI * 2, layer: li });
+        }
+      });
+    }
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      buildStars(canvas.width, canvas.height);
+      mouse.current = { x: canvas.width / 2, y: canvas.height / 2 };
+      target.current = { ...mouse.current };
+    }
+
+    resize();
+
+    const onResize = () => resize();
+    const onMove = (e: MouseEvent) => {
+      target.current = { x: e.clientX, y: e.clientY };
+    };
+
+    window.addEventListener("resize", onResize, { passive: true });
+    window.addEventListener("mousemove", onMove, { passive: true });
+
+    let t = 0;
+    function draw() {
+      raf.current = requestAnimationFrame(draw);
+      t += 0.016;
+
+      /* Smooth lerp toward mouse — feels heavy and cinematic */
+      mouse.current.x += (target.current.x - mouse.current.x) * 0.06;
+      mouse.current.y += (target.current.y - mouse.current.y) * 0.06;
+
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const dx = mouse.current.x - cx;
+      const dy = mouse.current.y - cy;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      stars.forEach((s, i) => {
+        const layer = LAYERS[s.layer];
+        /* Parallax offset */
+        s.x = s.ox + dx * layer.mult;
+        s.y = s.oy + dy * layer.mult;
+
+        /* Twinkle */
+        const alpha = layer.aBase * (0.5 + 0.5 * Math.sin(t * s.twinkleSpeed + s.twinklePhase));
+
+        /* Draw glow for bigger stars */
+        if (s.r > 1.4) {
+          const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 3.5);
+          grad.addColorStop(0, `rgba(200,185,255,${alpha * 0.6})`);
+          grad.addColorStop(1, "rgba(200,185,255,0)");
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r * 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = grad;
+          ctx.fill();
+        }
+
+        /* Core dot */
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(220,210,255,${alpha})`;
+        ctx.fill();
+      });
+    }
+
+    draw();
+
+    return () => {
+      cancelAnimationFrame(raf.current);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("mousemove", onMove);
+    };
+  }, []);
+
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden">
-      {stars.map((s) => (
-        <motion.div
-          key={s.id}
-          className="absolute rounded-full bg-white"
-          style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size, opacity: 0.3 }}
-          animate={{ opacity: [0.1, 0.7, 0.1], scale: [1, 1.5, 1] }}
-          transition={{ duration: s.duration, delay: s.delay, repeat: Infinity, ease: "easeInOut" }}
-        />
-      ))}
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-0"
+      style={{ opacity: 0.85 }}
+    />
   );
 }
