@@ -12,7 +12,12 @@ router.post("/login", (req, res) => {
   if (!user) {
     return res.status(401).json({ success: false, error: "Invalid credentials" });
   }
-  return res.json({ success: true, username: user.username, role: user.role });
+  return res.json({
+    success: true,
+    username: user.username,
+    role: user.role,
+    defaultDays: user.defaultDays,
+  });
 });
 
 export default router;

@@ -17,6 +17,7 @@ const queryClient = new QueryClient({
 interface AuthState {
   role: "admin" | "user";
   username: string;
+  defaultDays: number;
 }
 
 function readSession(): AuthState | null {
@@ -24,7 +25,7 @@ function readSession(): AuthState | null {
     const raw = sessionStorage.getItem("uid_auth");
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (parsed?.role && parsed?.username) return { role: parsed.role, username: parsed.username };
+    if (parsed?.role && parsed?.username) return { role: parsed.role, username: parsed.username, defaultDays: parsed.defaultDays ?? 30 };
     return null;
   } catch {
     return null;
@@ -41,7 +42,9 @@ function AppRoot() {
   }, []);
 
   const handleLogin = (role: "admin" | "user", username: string) => {
-    setAuth({ role, username });
+    const raw = sessionStorage.getItem("uid_auth");
+    const defaultDays = raw ? (JSON.parse(raw).defaultDays ?? 30) : 30;
+    setAuth({ role, username, defaultDays });
   };
 
   const handleLogout = () => {
@@ -59,7 +62,7 @@ function AppRoot() {
     return <Admin adminUsername={auth.username} onLogout={handleLogout} />;
   }
 
-  return <Dashboard username={auth.username} onLogout={handleLogout} />;
+  return <Dashboard username={auth.username} defaultDays={auth.defaultDays} onLogout={handleLogout} />;
 }
 
 function App() {

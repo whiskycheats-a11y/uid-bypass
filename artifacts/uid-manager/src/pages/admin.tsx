@@ -11,6 +11,7 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 interface ClientUser {
   username: string;
   createdAt: string;
+  defaultDays: number;
 }
 
 interface AdminProps {
@@ -329,11 +330,18 @@ function UserRow({ user, index, deleting, copied, onDelete, onCopy }: {
         </motion.div>
         <div>
           <div className="font-mono font-bold text-sm text-foreground tracking-wide">{user.username}</div>
-          <div className="text-[11px] text-muted-foreground">Created {new Date(user.createdAt).toLocaleDateString()}</div>
+          <div className="text-[11px] text-muted-foreground">Created {new Date(user.createdAt).toLocaleDateString()} · <span className="text-violet-400 font-semibold">{user.defaultDays}d</span></div>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
+        <motion.span
+          animate={{ opacity: hovered ? 1 : 0.6 }}
+          className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold"
+          style={{ background: "rgba(139,92,246,0.12)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.25)" }}
+        >
+          {user.defaultDays}d
+        </motion.span>
         <motion.span
           animate={{ opacity: hovered ? 1 : 0.6 }}
           className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold"
@@ -376,6 +384,7 @@ function CreateUserModal({ onClose, onCreate }: {
 }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [days, setDays] = useState(30);
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -390,13 +399,13 @@ function CreateUserModal({ onClose, onCreate }: {
       const res = await fetch(`${BASE}/api/users`, {
         method: "POST",
         headers: adminHeaders(),
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, defaultDays: days }),
       });
       const data = await res.json();
       if (data.success) {
         setSuccess(true);
         setTimeout(() => {
-          onCreate({ username, createdAt: new Date().toISOString() });
+          onCreate({ username, createdAt: new Date().toISOString(), defaultDays: days });
         }, 1000);
       } else {
         setError(data.error ?? "Failed to create user");
@@ -484,6 +493,40 @@ function CreateUserModal({ onClose, onCreate }: {
                   <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1">
                     {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">UID Duration (Days)</label>
+                <div className="relative">
+                  {/* quick preset buttons */}
+                  <div className="flex gap-2 mb-2">
+                    {[7, 15, 30, 60, 90].map((d) => (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => setDays(d)}
+                        className="flex-1 h-8 rounded-lg text-[11px] font-bold transition-all"
+                        style={{
+                          background: days === d ? "linear-gradient(135deg, #8b5cf6, #06b6d4)" : "rgba(255,255,255,0.04)",
+                          color: days === d ? "#fff" : "#6b7280",
+                          border: days === d ? "1px solid rgba(139,92,246,0.5)" : "1px solid rgba(255,255,255,0.07)",
+                          boxShadow: days === d ? "0 0 12px rgba(139,92,246,0.3)" : "none",
+                        }}
+                      >
+                        {d}d
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="number"
+                    min={1}
+                    max={365}
+                    value={days}
+                    onChange={(e) => setDays(Math.max(1, Number(e.target.value)))}
+                    className="w-full h-11 px-4 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-foreground focus:outline-none focus:border-violet-500/60 focus:shadow-[0_0_0_3px_rgba(139,92,246,0.12)] transition-all text-center font-bold"
+                  />
+                  <div className="text-[10px] text-muted-foreground text-center mt-1">Client ke UID is whitelist duration pe honge</div>
                 </div>
               </div>
 

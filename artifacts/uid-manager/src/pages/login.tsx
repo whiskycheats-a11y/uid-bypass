@@ -43,7 +43,7 @@ export default function Login({ onLogin }: LoginProps) {
       });
       const data = await res.json();
       if (data.success) {
-        sessionStorage.setItem("uid_auth", JSON.stringify({ role: data.role, username: data.username, adminKey: password }));
+        sessionStorage.setItem("uid_auth", JSON.stringify({ role: data.role, username: data.username, adminKey: password, defaultDays: data.defaultDays ?? 30 }));
         onLogin(data.role, data.username);
       } else {
         throw new Error(data.error ?? "Invalid credentials");

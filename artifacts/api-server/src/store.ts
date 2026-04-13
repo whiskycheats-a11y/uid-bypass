@@ -3,6 +3,7 @@ export interface AppUser {
   password: string;
   role: "admin" | "user";
   createdAt: string;
+  defaultDays: number;
 }
 
 const users = new Map<string, AppUser>();
@@ -15,6 +16,7 @@ users.set(adminUsername, {
   password: adminPassword,
   role: "admin",
   createdAt: new Date().toISOString(),
+  defaultDays: 30,
 });
 
 export const userStore = {
@@ -26,11 +28,17 @@ export const userStore = {
     return Array.from(users.values()).filter((u) => u.role !== "admin");
   },
 
-  add(username: string, password: string): { ok: true; user: AppUser } | { ok: false; error: string } {
+  add(username: string, password: string, defaultDays: number): { ok: true; user: AppUser } | { ok: false; error: string } {
     if (users.has(username)) {
       return { ok: false, error: "Username already exists" };
     }
-    const user: AppUser = { username, password, role: "user", createdAt: new Date().toISOString() };
+    const user: AppUser = {
+      username,
+      password,
+      role: "user",
+      createdAt: new Date().toISOString(),
+      defaultDays,
+    };
     users.set(username, user);
     return { ok: true, user };
   },

@@ -89,10 +89,11 @@ function StatCard({
 
 interface DashboardProps {
   username?: string;
+  defaultDays?: number;
   onLogout?: () => void;
 }
 
-export default function Dashboard({ username, onLogout }: DashboardProps) {
+export default function Dashboard({ username, defaultDays = 30, onLogout }: DashboardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [removingUid, setRemovingUid] = useState<string | null>(null);
@@ -107,7 +108,7 @@ export default function Dashboard({ username, onLogout }: DashboardProps) {
 
   const form = useForm<AddUidValues>({
     resolver: zodResolver(addUidSchema),
-    defaultValues: { uid: "", days: 30, bluestack: true },
+    defaultValues: { uid: "", days: defaultDays, bluestack: true },
   });
 
   const handleLogout = () => {
