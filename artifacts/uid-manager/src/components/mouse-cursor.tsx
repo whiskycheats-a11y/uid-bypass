@@ -26,16 +26,16 @@ export function MouseCursor() {
           dot.style.transform = "translate(-50%,-50%) scale(2)";
           dot.style.backgroundColor = "rgba(139,92,246,0.4)";
           dot.style.border = "1px solid rgba(200,180,255,0.8)";
-          ringEl.style.width = "52px";
-          ringEl.style.height = "52px";
+          ringEl.style.width = "34px";
+          ringEl.style.height = "34px";
           ringEl.style.borderColor = "rgba(139,92,246,0.7)";
           ringEl.style.boxShadow = "0 0 20px rgba(139,92,246,0.35)";
         } else {
           dot.style.transform = "translate(-50%,-50%) scale(1)";
           dot.style.backgroundColor = "rgba(200,185,255,0.9)";
           dot.style.border = "none";
-          ringEl.style.width = "36px";
-          ringEl.style.height = "36px";
+          ringEl.style.width = "22px";
+          ringEl.style.height = "22px";
           ringEl.style.borderColor = "rgba(160,130,255,0.4)";
           ringEl.style.boxShadow = "none";
         }
@@ -107,8 +107,8 @@ export function MouseCursor() {
         ref={ringRef}
         style={{
           position: "fixed",
-          width: 36,
-          height: 36,
+          width: 22,
+          height: 22,
           borderRadius: "50%",
           border: "1.5px solid rgba(160,130,255,0.4)",
           pointerEvents: "none",
