@@ -17,6 +17,7 @@ router.post("/login", (req, res) => {
     username: user.username,
     role: user.role,
     defaultDays: user.defaultDays,
+    isTrial: user.isTrial,
   });
 });
 

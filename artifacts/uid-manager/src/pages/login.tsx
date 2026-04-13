@@ -44,6 +44,7 @@ export default function Login({ onLogin }: LoginProps) {
         sessionStorage.setItem("uid_auth", JSON.stringify({
           role: data.role, username: data.username,
           adminKey: password, defaultDays: data.defaultDays ?? 30,
+          isTrial: data.isTrial ?? false,
         }));
         onLogin(data.role, data.username);
       } else {

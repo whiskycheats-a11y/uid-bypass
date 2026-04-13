@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
 import Login from "@/pages/login";
+import { MouseCursor } from "@/components/mouse-cursor";
 import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient({
@@ -18,6 +19,7 @@ interface AuthState {
   role: "admin" | "user";
   username: string;
   defaultDays: number;
+  isTrial: boolean;
 }
 
 function readSession(): AuthState | null {
@@ -25,7 +27,7 @@ function readSession(): AuthState | null {
     const raw = sessionStorage.getItem("uid_auth");
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (parsed?.role && parsed?.username) return { role: parsed.role, username: parsed.username, defaultDays: parsed.defaultDays ?? 30 };
+    if (parsed?.role && parsed?.username) return { role: parsed.role, username: parsed.username, defaultDays: parsed.defaultDays ?? 30, isTrial: parsed.isTrial ?? false };
     return null;
   } catch {
     return null;
@@ -43,8 +45,10 @@ function AppRoot() {
 
   const handleLogin = (role: "admin" | "user", username: string) => {
     const raw = sessionStorage.getItem("uid_auth");
-    const defaultDays = raw ? (JSON.parse(raw).defaultDays ?? 30) : 30;
-    setAuth({ role, username, defaultDays });
+    const parsed = raw ? JSON.parse(raw) : {};
+    const defaultDays = parsed.defaultDays ?? 30;
+    const isTrial = parsed.isTrial ?? false;
+    setAuth({ role, username, defaultDays, isTrial });
   };
 
   const handleLogout = () => {
@@ -62,17 +66,20 @@ function AppRoot() {
     return <Admin adminUsername={auth.username} onLogout={handleLogout} />;
   }
 
-  return <Dashboard username={auth.username} defaultDays={auth.defaultDays} onLogout={handleLogout} />;
+  return <Dashboard username={auth.username} defaultDays={auth.defaultDays} isTrial={auth.isTrial} onLogout={handleLogout} />;
 }
 
 function App() {
   useEffect(() => {
     document.documentElement.classList.add("dark");
+    document.body.style.cursor = "none";
+    return () => { document.body.style.cursor = ""; };
   }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <MouseCursor />
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
           <Switch>
             <Route path="/" component={AppRoot} />
