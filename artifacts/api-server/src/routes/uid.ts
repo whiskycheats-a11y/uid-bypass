@@ -1,23 +1,13 @@
 import { Router } from "express";
-import { logger } from "../lib/logger";
 import { userStore, trialStore } from "../store";
+import { config, getApiKey } from "../config";
 
 const router = Router();
 
-const EXTERNAL_BASE = "http://152.42.251.212:25568";
-
-function getApiKey(): string {
-  const key = process.env["UID_API_KEY"];
-  if (!key) throw new Error("UID_API_KEY is not set");
-  return key;
-}
-
 router.get("/list", async (req, res) => {
   try {
-    const response = await fetch(`${EXTERNAL_BASE}/api/uid/list`, {
-      headers: {
-        "X-API-KEY": getApiKey(),
-      },
+    const response = await fetch(`${config.EXTERNAL_API_URL}/api/uid/list`, {
+      headers: { "X-API-KEY": getApiKey() },
     });
     const data = await response.json();
     res.json(data);
@@ -47,7 +37,7 @@ router.post("/add", async (req, res) => {
   }
 
   try {
-    const response = await fetch(`${EXTERNAL_BASE}/api/uid/add`, {
+    const response = await fetch(`${config.EXTERNAL_API_URL}/api/uid/add`, {
       method: "POST",
       headers: {
         "X-API-KEY": getApiKey(),
@@ -59,9 +49,7 @@ router.post("/add", async (req, res) => {
 
     if (data.success && username) {
       const user = userStore.find(username);
-      if (user?.isTrial) {
-        trialStore.increment(username);
-      }
+      if (user?.isTrial) trialStore.increment(username);
     }
 
     res.json(data);
@@ -78,7 +66,7 @@ router.post("/remove", async (req, res) => {
     return;
   }
   try {
-    const response = await fetch(`${EXTERNAL_BASE}/api/uid/remove`, {
+    const response = await fetch(`${config.EXTERNAL_API_URL}/api/uid/remove`, {
       method: "POST",
       headers: {
         "X-API-KEY": getApiKey(),

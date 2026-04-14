@@ -328,13 +328,21 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                     </div>
                     <div className="relative group">
                       <CalendarDays className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                      <Input
-                        type="number"
-                        readOnly={isTrial}
-                        value={isTrial ? 1 : undefined}
-                        className={`pl-10 h-11 rounded-xl text-sm ${isTrial ? "bg-white/[0.02] border-white/[0.06] cursor-not-allowed opacity-70 select-none" : "bg-white/[0.03] border-white/10 focus-visible:ring-violet-500/40 focus-visible:border-violet-500/50"}`}
-                        {...(isTrial ? {} : form.register("days"))}
-                      />
+                      {isTrial ? (
+                        <Input
+                          type="number"
+                          readOnly
+                          value={1}
+                          onChange={() => {}}
+                          className="pl-10 h-11 rounded-xl text-sm bg-white/[0.02] border-white/[0.06] cursor-not-allowed opacity-70 select-none"
+                        />
+                      ) : (
+                        <Input
+                          type="number"
+                          className="pl-10 h-11 rounded-xl bg-white/[0.03] border-white/10 focus-visible:ring-violet-500/40 focus-visible:border-violet-500/50 text-sm"
+                          {...form.register("days")}
+                        />
+                      )}
                     </div>
                   </div>
 
