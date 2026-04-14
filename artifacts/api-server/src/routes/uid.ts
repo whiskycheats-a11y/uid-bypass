@@ -34,11 +34,15 @@ router.post("/add", async (req, res) => {
     return;
   }
 
+  let effectiveDays = days;
   if (username) {
     const user = userStore.find(username);
-    if (user?.isTrial && trialStore.getCount(username) >= 1) {
-      res.json({ success: false, message: "TRIAL_LIMIT_REACHED" });
-      return;
+    if (user?.isTrial) {
+      if (trialStore.getCount(username) >= 1) {
+        res.json({ success: false, message: "TRIAL_LIMIT_REACHED" });
+        return;
+      }
+      effectiveDays = 1;
     }
   }
 
@@ -49,7 +53,7 @@ router.post("/add", async (req, res) => {
         "X-API-KEY": getApiKey(),
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ uid, days, bluestack }),
+      body: JSON.stringify({ uid, days: effectiveDays, bluestack }),
     });
     const data = await response.json();
 
