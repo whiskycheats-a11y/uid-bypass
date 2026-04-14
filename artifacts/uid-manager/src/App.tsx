@@ -7,6 +7,7 @@ import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
 import Login from "@/pages/login";
 import { MouseCursor } from "@/components/mouse-cursor";
+import { WelcomeSplash } from "@/components/welcome-splash";
 import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient({
@@ -37,6 +38,8 @@ function readSession(): AuthState | null {
 function AppRoot() {
   const [auth, setAuth] = useState<AuthState | null>(null);
   const [ready, setReady] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
+  const [splashUser, setSplashUser] = useState("");
 
   useEffect(() => {
     setAuth(readSession());
@@ -48,25 +51,36 @@ function AppRoot() {
     const parsed = raw ? JSON.parse(raw) : {};
     const defaultDays = parsed.defaultDays ?? 30;
     const isTrial = parsed.isTrial ?? false;
-    setAuth({ role, username, defaultDays, isTrial });
+    const newAuth = { role, username, defaultDays, isTrial };
+    if (role === "user") {
+      setSplashUser(username);
+      setShowSplash(true);
+      setTimeout(() => setAuth(newAuth), 200);
+    } else {
+      setAuth(newAuth);
+    }
   };
 
   const handleLogout = () => {
     sessionStorage.removeItem("uid_auth");
     setAuth(null);
+    setShowSplash(false);
   };
 
   if (!ready) return null;
 
-  if (!auth) {
-    return <Login onLogin={handleLogin} />;
-  }
-
-  if (auth.role === "admin") {
-    return <Admin adminUsername={auth.username} onLogout={handleLogout} />;
-  }
-
-  return <Dashboard username={auth.username} defaultDays={auth.defaultDays} isTrial={auth.isTrial} onLogout={handleLogout} />;
+  return (
+    <>
+      <WelcomeSplash username={splashUser} visible={showSplash} onDone={() => setShowSplash(false)} />
+      {!auth ? (
+        <Login onLogin={handleLogin} />
+      ) : auth.role === "admin" ? (
+        <Admin adminUsername={auth.username} onLogout={handleLogout} />
+      ) : (
+        <Dashboard username={auth.username} defaultDays={auth.defaultDays} isTrial={auth.isTrial} onLogout={handleLogout} />
+      )}
+    </>
+  );
 }
 
 function App() {
