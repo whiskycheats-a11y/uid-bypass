@@ -26,7 +26,7 @@ router.post("/add", async (req, res) => {
 
   let effectiveDays = days;
   if (username) {
-    const user = userStore.find(username);
+    const user = await userStore.find(username);
     if (user?.isTrial) {
       if (trialStore.getCount(username) >= 1) {
         res.json({ success: false, message: "TRIAL_LIMIT_REACHED" });
@@ -48,7 +48,7 @@ router.post("/add", async (req, res) => {
     const data = await response.json();
 
     if (data.success && username) {
-      const user = userStore.find(username);
+      const user = await userStore.find(username);
       if (user?.isTrial) trialStore.increment(username);
     }
 

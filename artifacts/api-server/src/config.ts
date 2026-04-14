@@ -7,8 +7,14 @@ export const config = {
   EXTERNAL_API_URL: "http://152.42.251.212:25568",
 
   // API key — value is read from the UID_API_KEY environment secret
-  // To change the key, update the secret named UID_API_KEY in Replit Secrets
   API_KEY_ENV: "UID_API_KEY",
+
+  // MongoDB connection string
+  MONGODB_URI: process.env["MONGODB_URI"] ?? "mongodb+srv://baunemonff_db_user:BVGUWJCSc7lOjqBJ@cluster0.qo77nxw.mongodb.net/?appName=Cluster0",
+
+  // Admin credentials
+  ADMIN_USERNAME: process.env["ADMIN_USERNAME"] ?? "admin",
+  ADMIN_PASSWORD: process.env["ADMIN_PASSWORD"] ?? "UID@Admin2024",
 };
 
 export function getApiKey(): string {

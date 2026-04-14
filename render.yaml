@@ -11,6 +11,8 @@ services:
         value: production
       - key: UID_API_KEY
         sync: false
+      - key: MONGODB_URI
+        sync: false
       - key: ADMIN_USERNAME
         sync: false
       - key: ADMIN_PASSWORD
