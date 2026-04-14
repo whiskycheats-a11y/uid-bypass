@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userStore, trialStore } from "../store";
+import { userStore, trialStore, uidStore } from "../store";
 import { config, getApiKey } from "../config";
 
 const router = Router();
@@ -47,9 +47,12 @@ router.post("/add", async (req, res) => {
     });
     const data = await response.json();
 
-    if (data.success && username) {
-      const user = await userStore.find(username);
-      if (user?.isTrial) trialStore.increment(username);
+    if (data.success) {
+      if (username) {
+        const user = await userStore.find(username);
+        if (user?.isTrial) trialStore.increment(username);
+      }
+      await uidStore.save(uid, effectiveDays, bluestack, username ?? "");
     }
 
     res.json(data);
@@ -75,6 +78,9 @@ router.post("/remove", async (req, res) => {
       body: JSON.stringify({ uid }),
     });
     const data = await response.json();
+    if (data.success) {
+      await uidStore.remove(uid);
+    }
     res.json(data);
   } catch (err) {
     req.log.error({ err }, "Failed to remove UID");

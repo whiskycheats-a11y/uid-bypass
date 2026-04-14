@@ -2,6 +2,59 @@ import mongoose, { Schema, model, Document } from "mongoose";
 import { config } from "./config";
 import { logger } from "./lib/logger";
 
+// ── Whitelisted UID model ──────────────────────────────────────────────
+export interface WhitelistedUid {
+  uid: string;
+  days: number;
+  bluestack: boolean;
+  addedBy: string;
+  addedAt: string;
+}
+
+interface UidDoc extends WhitelistedUid, Document {}
+
+const uidSchema = new Schema<UidDoc>({
+  uid:       { type: String, required: true, unique: true },
+  days:      { type: Number, default: 30 },
+  bluestack: { type: Boolean, default: true },
+  addedBy:   { type: String, default: "" },
+  addedAt:   { type: String, default: () => new Date().toISOString() },
+});
+
+const UidModel = model<UidDoc>("WhitelistedUid", uidSchema);
+
+export const uidStore = {
+  async save(uid: string, days: number, bluestack: boolean, addedBy: string): Promise<void> {
+    await ensureConnection();
+    if (!connected) return;
+    try {
+      await UidModel.updateOne({ uid }, { uid, days, bluestack, addedBy, addedAt: new Date().toISOString() }, { upsert: true });
+      logger.info({ uid, addedBy }, "UID saved to MongoDB");
+    } catch (err) {
+      logger.error({ err, uid }, "Failed to save UID to MongoDB");
+    }
+  },
+
+  async remove(uid: string): Promise<void> {
+    await ensureConnection();
+    if (!connected) return;
+    try {
+      await UidModel.deleteOne({ uid });
+      logger.info({ uid }, "UID removed from MongoDB");
+    } catch (err) {
+      logger.error({ err, uid }, "Failed to remove UID from MongoDB");
+    }
+  },
+
+  async list(): Promise<WhitelistedUid[]> {
+    await ensureConnection();
+    if (!connected) return [];
+    const docs = await UidModel.find({});
+    return docs.map(d => ({ uid: d.uid, days: d.days, bluestack: d.bluestack, addedBy: d.addedBy, addedAt: d.addedAt }));
+  },
+};
+
+// ── App user model ─────────────────────────────────────────────────────
 export interface AppUser {
   username: string;
   password: string;
