@@ -7,6 +7,17 @@ export interface AppUser {
   isTrial: boolean;
 }
 
+const trialUidCounts = new Map<string, number>();
+
+export const trialStore = {
+  getCount(username: string): number {
+    return trialUidCounts.get(username) ?? 0;
+  },
+  increment(username: string): void {
+    trialUidCounts.set(username, (trialUidCounts.get(username) ?? 0) + 1);
+  },
+};
+
 const users = new Map<string, AppUser>();
 
 const adminUsername = process.env.ADMIN_USERNAME ?? "admin";

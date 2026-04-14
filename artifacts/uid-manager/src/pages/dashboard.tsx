@@ -124,22 +124,36 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   const uids = listResponse?.success ? listResponse.data : [];
   const bsCount = uids.filter((u) => u.bluestack).length;
 
-  const myUids = username ? uids.filter((u) => u.adder_name === username) : uids;
-  const trialLimitReached = isTrial && myUids.length >= 1;
-
   const DISCORD_URL = "https://discord.gg/QTwupjcKre";
+  const TRIAL_USED_KEY = `trial_uid_used_${username}`;
+  const [trialUsed, setTrialUsed] = useState(() => isTrial && sessionStorage.getItem(TRIAL_USED_KEY) === "true");
+  const trialLimitReached = isTrial && trialUsed;
+
+  const triggerTrialBlock = () => {
+    setShowTrialMessage(true);
+    window.open(DISCORD_URL, "_blank");
+  };
 
   const onSubmit = (values: AddUidValues) => {
     if (trialLimitReached) {
-      setShowTrialMessage(true);
-      window.open(DISCORD_URL, "_blank");
+      triggerTrialBlock();
       return;
     }
     addMutation.mutate(
-      { data: values },
+      { data: { ...values, username } as typeof values },
       {
         onSuccess: (data) => {
+          if (data.message === "TRIAL_LIMIT_REACHED") {
+            sessionStorage.setItem(TRIAL_USED_KEY, "true");
+            setTrialUsed(true);
+            triggerTrialBlock();
+            return;
+          }
           if (data.success) {
+            if (isTrial) {
+              sessionStorage.setItem(TRIAL_USED_KEY, "true");
+              setTrialUsed(true);
+            }
             toast({ title: "Access Granted", description: `UID ${values.uid} whitelisted successfully.` });
             form.reset();
             queryClient.invalidateQueries({ queryKey: getListUidsQueryKey() });

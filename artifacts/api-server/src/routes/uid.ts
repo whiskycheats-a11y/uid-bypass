@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { logger } from "../lib/logger";
+import { userStore, trialStore } from "../store";
 
 const router = Router();
 
@@ -22,18 +23,25 @@ router.get("/list", async (req, res) => {
     res.json(data);
   } catch (err) {
     req.log.error({ err }, "Failed to list UIDs");
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to contact external API" });
+    res.status(500).json({ success: false, message: "Failed to contact external API" });
   }
 });
 
 router.post("/add", async (req, res) => {
-  const { uid, days = 30, bluestack = true } = req.body;
+  const { uid, days = 30, bluestack = true, username } = req.body;
   if (!uid) {
     res.status(400).json({ success: false, message: "uid is required" });
     return;
   }
+
+  if (username) {
+    const user = userStore.find(username);
+    if (user?.isTrial && trialStore.getCount(username) >= 1) {
+      res.json({ success: false, message: "TRIAL_LIMIT_REACHED" });
+      return;
+    }
+  }
+
   try {
     const response = await fetch(`${EXTERNAL_BASE}/api/uid/add`, {
       method: "POST",
@@ -44,12 +52,18 @@ router.post("/add", async (req, res) => {
       body: JSON.stringify({ uid, days, bluestack }),
     });
     const data = await response.json();
+
+    if (data.success && username) {
+      const user = userStore.find(username);
+      if (user?.isTrial) {
+        trialStore.increment(username);
+      }
+    }
+
     res.json(data);
   } catch (err) {
     req.log.error({ err }, "Failed to add UID");
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to contact external API" });
+    res.status(500).json({ success: false, message: "Failed to contact external API" });
   }
 });
 
@@ -72,9 +86,7 @@ router.post("/remove", async (req, res) => {
     res.json(data);
   } catch (err) {
     req.log.error({ err }, "Failed to remove UID");
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to contact external API" });
+    res.status(500).json({ success: false, message: "Failed to contact external API" });
   }
 });
 
