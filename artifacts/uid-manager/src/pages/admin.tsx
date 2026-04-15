@@ -331,7 +331,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated 
    ▸ Access granted instantly ✅
 
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-💎  SG71 Developer Zone
+💎  SG71 Developer Zone Velocira Cheats
 🔥  Premium Bypass Service
 ━━━━━━━━━━━━━━━━━━━━━━━━━━`;
     navigator.clipboard.writeText(msg);
