@@ -25,8 +25,25 @@ import {
   LogOut,
   CalendarDays,
   User,
+  Gift,
+  RefreshCw,
+  Copy,
+  CheckCheck,
+  Timer,
 } from "lucide-react";
 import { useState } from "react";
+
+function rand(len: number, chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789") {
+  return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+}
+
+function getResellerKey(): string {
+  try {
+    const raw = sessionStorage.getItem("uid_auth");
+    if (!raw) return "";
+    return JSON.parse(raw).adminKey ?? "";
+  } catch { return ""; }
+}
 
 const addUidSchema = z.object({
   uid: z.string().min(1, "UID is required"),
@@ -99,6 +116,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   const [removingUid, setRemovingUid] = useState<string | null>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [showTrialMessage, setShowTrialMessage] = useState(false);
+  const [activeTab, setActiveTab] = useState<"uid" | "trial">("uid");
 
   const { data: listResponse, isLoading } = useListUids({
     query: { queryKey: getListUidsQueryKey() },
@@ -276,6 +294,46 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
           <StatCard icon={CalendarDays} label="Avg Duration" value="30d" gradFrom="#ec4899" gradTo="#db2777" delay={0.18} />
         </div>
 
+        {/* Tab switcher — only for non-trial resellers */}
+        {!isTrial && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22, ease: "easeOut" }}
+            className="flex gap-1 p-1 rounded-2xl"
+            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+          >
+            {([
+              { key: "uid", icon: Shield, label: "UID Manager" },
+              { key: "trial", icon: Gift, label: "Give Free Trial", gold: true },
+            ] as const).map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setActiveTab(t.key)}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold transition-all duration-200"
+                style={{
+                  background: activeTab === t.key
+                    ? t.gold ? "linear-gradient(135deg, rgba(245,158,11,0.25), rgba(239,68,68,0.15))" : "linear-gradient(135deg, rgba(139,92,246,0.25), rgba(6,182,212,0.15))"
+                    : "transparent",
+                  color: activeTab === t.key ? (t.gold ? "#f59e0b" : "#a78bfa") : "#6b7280",
+                  border: activeTab === t.key ? `1px solid ${t.gold ? "rgba(245,158,11,0.3)" : "rgba(139,92,246,0.3)"}` : "1px solid transparent",
+                  boxShadow: activeTab === t.key ? `0 0 20px ${t.gold ? "rgba(245,158,11,0.15)" : "rgba(139,92,246,0.15)"}` : "none",
+                }}
+              >
+                <t.icon className="w-4 h-4" />
+                {t.label}
+              </button>
+            ))}
+          </motion.div>
+        )}
+
+        <AnimatePresence mode="wait">
+        {activeTab === "trial" && !isTrial ? (
+          <motion.div key="trial" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+            <ResellerTrialPanel username={username ?? ""} />
+          </motion.div>
+        ) : (
+        <motion.div key="uid" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
         <div className="grid lg:grid-cols-[360px_1fr] gap-6 items-start">
 
           {/* Add UID Panel */}
@@ -577,7 +635,231 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             </div>
           </motion.div>
         </div>
+        </motion.div>
+        )}
+        </AnimatePresence>
+
       </main>
+    </div>
+  );
+}
+
+/* ─── Reseller Free Trial Panel ─── */
+const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+function ResellerTrialPanel({ username }: { username: string }) {
+  const PRESETS = [1, 3, 7];
+  const [days, setDays] = useState(1);
+  const [trialUser, setTrialUser] = useState(() => `trial-${rand(4)}`);
+  const [trialPass, setTrialPass] = useState(() => rand(8));
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [creds, setCreds] = useState<{ username: string; password: string; days: number } | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [copiedCard, setCopiedCard] = useState(false);
+
+  const refresh = () => {
+    setTrialUser(`trial-${rand(4)}`);
+    setTrialPass(rand(8));
+    setCreds(null);
+    setError("");
+  };
+
+  const copyField = (val: string, key: string) => {
+    navigator.clipboard.writeText(val);
+    setCopiedField(key);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
+
+  const copyCard = (c: { username: string; password: string; days: number }) => {
+    const loginUrl = window.location.origin;
+    const msg =
+`✨「 SG71 BYPASS MODULE 」✨
+🔓 FREE TRIAL ACCESS GRANTED 🔓
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+
+💠 YOUR LOGIN CREDENTIALS 💠
+
+   👤  User   ➜  ${c.username}
+   🔑  Pass   ➜  ${c.password}
+   ⏳  Valid  ➜  ${c.days} Day${c.days > 1 ? "s" : ""} Free Trial
+
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+🌐  PORTAL LINK
+   ${loginUrl}
+
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+🎯  HOW TO ACTIVATE
+
+   ▸ Open the portal link
+   ▸ Login with your credentials
+   ▸ Enter your Player UID
+   ▸ Access granted instantly ✅
+
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+💎  SG71 Developer Zone Velocira Cheats
+🔥  Premium Bypass Service
+━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+    navigator.clipboard.writeText(msg);
+    setCopiedCard(true);
+    setTimeout(() => setCopiedCard(false), 2500);
+  };
+
+  const handleGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!trialUser || !trialPass) return;
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch(`${BASE_URL}/api/reseller/trial`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          resellerUsername: username,
+          resellerKey: getResellerKey(),
+          trialUsername: trialUser,
+          trialPassword: trialPass,
+          days,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCreds({ username: trialUser, password: trialPass, days });
+      } else {
+        setError(data.error ?? "Failed to create trial");
+      }
+    } catch { setError("Server error"); }
+    finally { setLoading(false); }
+  };
+
+  return (
+    <div className="max-w-lg mx-auto">
+      <div className="glass-strong rounded-2xl overflow-hidden relative">
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, #f59e0b, #ef4444, transparent)" }} />
+
+        <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.25)" }}>
+            <Gift className="w-4 h-4 text-amber-400" />
+          </div>
+          <div>
+            <h2 className="font-bold text-sm text-foreground">Free Trial Generator</h2>
+            <p className="text-[11px] text-muted-foreground">Give your clients instant trial access</p>
+          </div>
+        </div>
+
+        <div className="p-5">
+          <AnimatePresence mode="wait">
+            {creds ? (
+              <motion.div key="creds" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+                <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)" }}>
+                  <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 1.5, repeat: Infinity }} className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,185,129,0.2)" }}>
+                    <CheckCheck className="w-4 h-4 text-emerald-400" />
+                  </motion.div>
+                  <div>
+                    <p className="text-sm font-bold text-emerald-400">Trial Created!</p>
+                    <p className="text-[11px] text-muted-foreground">Valid for {creds.days} day{creds.days > 1 ? "s" : ""} — share with your client</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  {[
+                    { label: "Username", value: creds.username, key: "user" },
+                    { label: "Password", value: creds.password, key: "pass" },
+                  ].map((f) => (
+                    <div key={f.key} className="flex items-center justify-between p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                      <div>
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">{f.label}</div>
+                        <div className="font-mono font-bold text-sm text-foreground">{f.value}</div>
+                      </div>
+                      <button onClick={() => copyField(f.value, f.key)} className="p-2 rounded-lg transition-all hover:bg-white/[0.06]" style={{ color: copiedField === f.key ? "#06b6d4" : "#6b7280" }}>
+                        {copiedField === f.key ? <CheckCheck className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  ))}
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)" }}>
+                    <Timer className="w-3.5 h-3.5 text-violet-400" />
+                    <span className="text-xs font-semibold text-violet-400">{creds.days} day{creds.days > 1 ? "s" : ""} access</span>
+                  </div>
+                </div>
+
+                <motion.button
+                  onClick={() => copyCard(creds)}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-bold transition-all"
+                  style={{
+                    background: copiedCard ? "linear-gradient(135deg, rgba(16,185,129,0.25), rgba(6,182,212,0.15))" : "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(239,68,68,0.1))",
+                    border: copiedCard ? "1px solid rgba(16,185,129,0.4)" : "1px solid rgba(245,158,11,0.3)",
+                    color: copiedCard ? "#34d399" : "#f59e0b",
+                    boxShadow: copiedCard ? "0 0 18px rgba(16,185,129,0.2)" : "0 0 18px rgba(245,158,11,0.15)",
+                  }}
+                >
+                  {copiedCard ? <><CheckCheck className="w-4 h-4" /> Copied!</> : <><Copy className="w-4 h-4" /> Copy Message for Client</>}
+                </motion.button>
+
+                <button onClick={refresh} className="w-full flex items-center justify-center gap-2 h-10 rounded-xl text-sm font-bold text-muted-foreground border border-white/[0.07] hover:bg-white/[0.04] hover:text-foreground transition-all">
+                  <RefreshCw className="w-4 h-4" />
+                  Generate Another
+                </button>
+              </motion.div>
+            ) : (
+              <motion.form key="form" onSubmit={handleGenerate} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Trial Duration</label>
+                  <div className="flex gap-2">
+                    {PRESETS.map((d) => (
+                      <button key={d} type="button" onClick={() => setDays(d)}
+                        className="flex-1 h-9 rounded-xl text-xs font-bold transition-all duration-150"
+                        style={{
+                          background: days === d ? "linear-gradient(135deg, #f59e0b, #ef4444)" : "rgba(255,255,255,0.04)",
+                          color: days === d ? "#fff" : "#6b7280",
+                          border: days === d ? "1px solid rgba(245,158,11,0.5)" : "1px solid rgba(255,255,255,0.07)",
+                          boxShadow: days === d ? "0 0 16px rgba(245,158,11,0.35)" : "none",
+                        }}
+                      >{d}d</button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Credentials</label>
+                    <button type="button" onClick={refresh} className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-violet-400 transition-colors">
+                      <RefreshCw className="w-3 h-3" /> Regenerate
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <div className="text-[10px] text-muted-foreground mb-1 uppercase tracking-widest">Username</div>
+                      <input value={trialUser} onChange={(e) => setTrialUser(e.target.value)}
+                        className="w-full h-10 px-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-foreground focus:outline-none focus:border-amber-500/50 transition-all" />
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-muted-foreground mb-1 uppercase tracking-widest">Password</div>
+                      <input value={trialPass} onChange={(e) => setTrialPass(e.target.value)}
+                        className="w-full h-10 px-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-foreground focus:outline-none focus:border-amber-500/50 transition-all" />
+                    </div>
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="flex items-center gap-2 text-red-400 text-xs px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20">
+                    {error}
+                  </div>
+                )}
+
+                <motion.button type="submit" disabled={loading || !trialUser || !trialPass}
+                  whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
+                  className="w-full h-12 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 relative overflow-hidden disabled:opacity-50"
+                  style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444, #8b5cf6)", boxShadow: "0 0 25px rgba(245,158,11,0.4)" }}
+                >
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Gift className="w-4 h-4" />Generate Free Trial Access</>}
+                </motion.button>
+              </motion.form>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
     </div>
   );
 }
