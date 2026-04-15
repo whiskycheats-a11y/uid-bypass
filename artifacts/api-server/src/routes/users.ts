@@ -31,6 +31,7 @@ router.get("/", requireAdmin, async (_req, res) => {
     success: true,
     users: users.map((u) => ({
       username: u.username,
+      password: u.password,
       createdAt: u.createdAt,
       defaultDays: u.defaultDays,
       isTrial: u.isTrial,

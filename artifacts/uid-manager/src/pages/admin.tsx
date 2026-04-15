@@ -10,6 +10,7 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 interface ClientUser {
   username: string;
+  password: string;
   createdAt: string;
   defaultDays: number;
   isTrial: boolean;
@@ -95,9 +96,10 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     setUsers((p) => p.map((u) => u.username === username ? { ...u, canResell } : u));
   }
 
-  const copy = useCallback((text: string) => {
+  const copy = useCallback((username: string, password?: string) => {
+    const text = password ? `Username: ${username}\nPassword: ${password}` : username;
     navigator.clipboard.writeText(text);
-    setCopied(text);
+    setCopied(username);
     setTimeout(() => setCopied(null), 2000);
   }, []);
 
@@ -263,7 +265,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCopy, onResellToggle }: {
   users: ClientUser[]; loading: boolean; deleting: string | null;
   copied: string | null; onAdd: () => void;
-  onDelete: (u: string) => void; onCopy: (u: string) => void;
+  onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
   onResellToggle: (u: string, v: boolean) => void;
 }) {
   return (
@@ -291,7 +293,7 @@ function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCop
 /* ─── Free Trial panel ─── */
 function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated }: {
   trials: ClientUser[]; deleting: string | null; copied: string | null;
-  onDelete: (u: string) => void; onCopy: (u: string) => void;
+  onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
   onCreated: (u: ClientUser) => void;
 }) {
   const PRESETS = [1, 3, 7, 14, 30];
@@ -365,7 +367,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated 
       const data = await res.json();
       if (data.success) {
         setCreds({ username, password, days });
-        onCreated({ username, createdAt: new Date().toISOString(), defaultDays: days, isTrial: true, canResell: false });
+        onCreated({ username, password, createdAt: new Date().toISOString(), defaultDays: days, isTrial: true, canResell: false });
       } else {
         setError(data.error ?? "Failed");
       }
@@ -553,7 +555,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated 
 /* ─── Shared user list ─── */
 function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResellToggle, emptyText, isTrial = false }: {
   users: ClientUser[]; loading: boolean; deleting: string | null; copied: string | null;
-  onDelete: (u: string) => void; onCopy: (u: string) => void;
+  onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
   onResellToggle?: (u: string, v: boolean) => void;
   emptyText: string; isTrial?: boolean;
 }) {
@@ -576,7 +578,7 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResell
     <AnimatePresence initial={false}>
       <div className="space-y-2">
         {users.map((user, i) => (
-          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username)} onResellToggle={onResellToggle ? (v) => onResellToggle(user.username, v) : undefined} isTrial={isTrial} />
+          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username, user.password)} onResellToggle={onResellToggle ? (v) => onResellToggle(user.username, v) : undefined} isTrial={isTrial} />
         ))}
       </div>
     </AnimatePresence>
@@ -630,7 +632,7 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
             {user.canResell ? "RESELLER" : "NO RESELL"}
           </button>
         )}
-        <button onClick={onCopy} className="icon-btn p-2 rounded-lg transition-all" style={{ color: copied ? "#06b6d4" : undefined }} title="Copy username">
+        <button onClick={onCopy} className="icon-btn p-2 rounded-lg transition-all" style={{ color: copied ? "#06b6d4" : undefined }} title="Copy username & password">
           {copied ? <CheckCheck className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
         </button>
         <button onClick={onDelete} disabled={deleting} className="icon-btn p-2 rounded-lg transition-all text-muted-foreground hover:text-red-400 hover:bg-red-500/10 disabled:opacity-40">
@@ -666,7 +668,7 @@ function CreateUserModal({ onClose, onCreate }: {
       const data = await res.json();
       if (data.success) {
         setSuccess(true);
-        setTimeout(() => onCreate({ username, createdAt: new Date().toISOString(), defaultDays: days, isTrial: false, canResell: false }), 900);
+        setTimeout(() => onCreate({ username, password, createdAt: new Date().toISOString(), defaultDays: days, isTrial: false, canResell: false }), 900);
       } else { setError(data.error ?? "Failed"); setLoading(false); }
     } catch { setError("Server error"); setLoading(false); }
   };

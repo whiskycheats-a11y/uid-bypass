@@ -192,7 +192,7 @@ export const userStore = {
       u.canResell = canResell;
       return true;
     }
-    const result = await UserModel.updateOne({ username, role: "user" }, { canResell });
+    const result = await UserModel.updateOne({ username, role: "user" }, { $set: { canResell } });
     return result.modifiedCount > 0;
   },
 
