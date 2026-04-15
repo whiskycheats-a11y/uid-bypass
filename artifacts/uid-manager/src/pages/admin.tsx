@@ -308,23 +308,32 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated 
   const copyCard = (c: { username: string; password: string; days: number }) => {
     const loginUrl = window.location.origin;
     const msg =
-`╔══════════════════════════════════╗
-       🎮  SG71 BYPASS — FREE TRIAL
-╚══════════════════════════════════╝
+`✨「 SG71 BYPASS MODULE 」✨
+🔓 FREE TRIAL ACCESS GRANTED 🔓
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
 
-👤  Username  :  ${c.username}
-🔑  Password  :  ${c.password}
-⏱️  Access    :  ${c.days} Day${c.days > 1 ? "s" : ""} Free Trial
-🔗  Login     :  ${loginUrl}
+💠 YOUR LOGIN CREDENTIALS 💠
 
-📋  Steps:
-  1️⃣  Open the link above
-  2️⃣  Login with your credentials
-  3️⃣  Add your Player UID
-  4️⃣  Enjoy Bypass Access!
+   👤  User   ➜  ${c.username}
+   🔑  Pass   ➜  ${c.password}
+   ⏳  Valid  ➜  ${c.days} Day${c.days > 1 ? "s" : ""} Free Trial
 
-⚡  Powered by SG71 Developer Zone
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+🌐  PORTAL LINK
+   ${loginUrl}
+
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+🎯  HOW TO ACTIVATE
+
+   ▸ Open the portal link
+   ▸ Login with your credentials
+   ▸ Enter your Player UID
+   ▸ Access granted instantly ✅
+
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+💎  SG71 Developer Zone
+🔥  Premium Bypass Service
+━━━━━━━━━━━━━━━━━━━━━━━━━━`;
     navigator.clipboard.writeText(msg);
     setCopiedCard(true);
     setTimeout(() => setCopiedCard(false), 2500);
