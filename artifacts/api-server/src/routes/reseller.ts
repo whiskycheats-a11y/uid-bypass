@@ -14,8 +14,8 @@ router.post("/trial", async (req, res) => {
   if (!reseller) {
     return res.status(401).json({ success: false, error: "Invalid reseller credentials" });
   }
-  if (reseller.isTrial) {
-    return res.status(403).json({ success: false, error: "Trial users cannot create sub-trials" });
+  if (reseller.isTrial || !reseller.canResell) {
+    return res.status(403).json({ success: false, error: "You do not have permission to create free trials" });
   }
 
   const trialDays = Number(days) > 0 ? Number(days) : 1;

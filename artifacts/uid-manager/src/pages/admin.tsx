@@ -13,6 +13,7 @@ interface ClientUser {
   createdAt: string;
   defaultDays: number;
   isTrial: boolean;
+  canResell: boolean;
 }
 
 interface AdminProps {
@@ -83,6 +84,15 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       });
       setUsers((p) => p.filter((u) => u.username !== username));
     } finally { setDeleting(null); }
+  }
+
+  async function handleResellToggle(username: string, canResell: boolean) {
+    await fetch(`${BASE}/api/users/${encodeURIComponent(username)}/resell`, {
+      method: "PATCH",
+      headers: adminHeaders(),
+      body: JSON.stringify({ canResell }),
+    });
+    setUsers((p) => p.map((u) => u.username === username ? { ...u, canResell } : u));
   }
 
   const copy = useCallback((text: string) => {
@@ -219,6 +229,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                 onAdd={() => setShowModal(true)}
                 onDelete={handleDelete}
                 onCopy={copy}
+                onResellToggle={handleResellToggle}
               />
             </motion.div>
           ) : (
@@ -249,10 +260,11 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 }
 
 /* ─── Clients panel ─── */
-function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCopy }: {
+function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCopy, onResellToggle }: {
   users: ClientUser[]; loading: boolean; deleting: string | null;
   copied: string | null; onAdd: () => void;
   onDelete: (u: string) => void; onCopy: (u: string) => void;
+  onResellToggle: (u: string, v: boolean) => void;
 }) {
   return (
     <div className="panel rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -270,7 +282,7 @@ function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCop
         <GlowButton onClick={onAdd} icon={<Plus className="w-4 h-4" />} label="Add Client" />
       </div>
       <div className="p-4">
-        <UserList users={users} loading={loading} deleting={deleting} copied={copied} onDelete={onDelete} onCopy={onCopy} emptyText="No clients yet — click Add Client" />
+        <UserList users={users} loading={loading} deleting={deleting} copied={copied} onDelete={onDelete} onCopy={onCopy} onResellToggle={onResellToggle} emptyText="No clients yet — click Add Client" />
       </div>
     </div>
   );
@@ -353,7 +365,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated 
       const data = await res.json();
       if (data.success) {
         setCreds({ username, password, days });
-        onCreated({ username, createdAt: new Date().toISOString(), defaultDays: days, isTrial: true });
+        onCreated({ username, createdAt: new Date().toISOString(), defaultDays: days, isTrial: true, canResell: false });
       } else {
         setError(data.error ?? "Failed");
       }
@@ -539,9 +551,11 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated 
 }
 
 /* ─── Shared user list ─── */
-function UserList({ users, loading, deleting, copied, onDelete, onCopy, emptyText, isTrial = false }: {
+function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResellToggle, emptyText, isTrial = false }: {
   users: ClientUser[]; loading: boolean; deleting: string | null; copied: string | null;
-  onDelete: (u: string) => void; onCopy: (u: string) => void; emptyText: string; isTrial?: boolean;
+  onDelete: (u: string) => void; onCopy: (u: string) => void;
+  onResellToggle?: (u: string, v: boolean) => void;
+  emptyText: string; isTrial?: boolean;
 }) {
   if (loading) return (
     <div className="space-y-3">
@@ -562,7 +576,7 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, emptyTex
     <AnimatePresence initial={false}>
       <div className="space-y-2">
         {users.map((user, i) => (
-          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username)} isTrial={isTrial} />
+          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username)} onResellToggle={onResellToggle ? (v) => onResellToggle(user.username, v) : undefined} isTrial={isTrial} />
         ))}
       </div>
     </AnimatePresence>
@@ -570,9 +584,9 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, emptyTex
 }
 
 /* ─── User row — CSS hover, no continuous framer motion ─── */
-const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete, onCopy, isTrial }: {
+const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete, onCopy, onResellToggle, isTrial }: {
   user: ClientUser; index: number; deleting: boolean; copied: boolean;
-  onDelete: () => void; onCopy: () => void; isTrial: boolean;
+  onDelete: () => void; onCopy: () => void; onResellToggle?: (v: boolean) => void; isTrial: boolean;
 }) {
   return (
     <motion.div
@@ -600,6 +614,22 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
         >
           {isTrial ? "TRIAL" : "ACTIVE"}
         </span>
+        {/* Resell toggle — only for non-trial clients */}
+        {!isTrial && onResellToggle && (
+          <button
+            onClick={() => onResellToggle(!user.canResell)}
+            title={user.canResell ? "Revoke trial permission" : "Allow free trial generation"}
+            className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all"
+            style={{
+              background: user.canResell ? "rgba(245,158,11,0.15)" : "rgba(255,255,255,0.04)",
+              color: user.canResell ? "#f59e0b" : "#6b7280",
+              border: user.canResell ? "1px solid rgba(245,158,11,0.3)" : "1px solid rgba(255,255,255,0.08)",
+            }}
+          >
+            <Gift className="w-3 h-3" />
+            {user.canResell ? "RESELLER" : "NO RESELL"}
+          </button>
+        )}
         <button onClick={onCopy} className="icon-btn p-2 rounded-lg transition-all" style={{ color: copied ? "#06b6d4" : undefined }} title="Copy username">
           {copied ? <CheckCheck className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
         </button>
@@ -636,7 +666,7 @@ function CreateUserModal({ onClose, onCreate }: {
       const data = await res.json();
       if (data.success) {
         setSuccess(true);
-        setTimeout(() => onCreate({ username, createdAt: new Date().toISOString(), defaultDays: days, isTrial: false }), 900);
+        setTimeout(() => onCreate({ username, createdAt: new Date().toISOString(), defaultDays: days, isTrial: false, canResell: false }), 900);
       } else { setError(data.error ?? "Failed"); setLoading(false); }
     } catch { setError("Server error"); setLoading(false); }
   };

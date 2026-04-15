@@ -45,6 +45,7 @@ export default function Login({ onLogin }: LoginProps) {
           role: data.role, username: data.username,
           adminKey: password, defaultDays: data.defaultDays ?? 30,
           isTrial: data.isTrial ?? false,
+          canResell: data.canResell ?? false,
         }));
         onLogin(data.role, data.username);
       } else {

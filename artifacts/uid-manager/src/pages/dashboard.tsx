@@ -107,10 +107,11 @@ interface DashboardProps {
   username?: string;
   defaultDays?: number;
   isTrial?: boolean;
+  canResell?: boolean;
   onLogout?: () => void;
 }
 
-export default function Dashboard({ username, defaultDays = 30, isTrial = false, onLogout }: DashboardProps) {
+export default function Dashboard({ username, defaultDays = 30, isTrial = false, canResell = false, onLogout }: DashboardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [removingUid, setRemovingUid] = useState<string | null>(null);
@@ -294,8 +295,8 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
           <StatCard icon={CalendarDays} label="Avg Duration" value="30d" gradFrom="#ec4899" gradTo="#db2777" delay={0.18} />
         </div>
 
-        {/* Tab switcher — only for non-trial resellers */}
-        {!isTrial && (
+        {/* Tab switcher — only for resellers with canResell permission */}
+        {canResell && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -328,7 +329,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
         )}
 
         <AnimatePresence mode="wait">
-        {activeTab === "trial" && !isTrial ? (
+        {activeTab === "trial" && canResell ? (
           <motion.div key="trial" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
             <ResellerTrialPanel username={username ?? ""} />
           </motion.div>

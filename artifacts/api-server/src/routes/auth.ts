@@ -18,6 +18,7 @@ router.post("/login", async (req, res) => {
     role: user.role,
     defaultDays: user.defaultDays,
     isTrial: user.isTrial,
+    canResell: user.canResell ?? false,
   });
 });
 

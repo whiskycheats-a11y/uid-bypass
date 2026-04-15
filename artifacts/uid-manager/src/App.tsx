@@ -21,6 +21,7 @@ interface AuthState {
   username: string;
   defaultDays: number;
   isTrial: boolean;
+  canResell: boolean;
 }
 
 function readSession(): AuthState | null {
@@ -28,7 +29,7 @@ function readSession(): AuthState | null {
     const raw = sessionStorage.getItem("uid_auth");
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (parsed?.role && parsed?.username) return { role: parsed.role, username: parsed.username, defaultDays: parsed.defaultDays ?? 30, isTrial: parsed.isTrial ?? false };
+    if (parsed?.role && parsed?.username) return { role: parsed.role, username: parsed.username, defaultDays: parsed.defaultDays ?? 30, isTrial: parsed.isTrial ?? false, canResell: parsed.canResell ?? false };
     return null;
   } catch {
     return null;
@@ -51,7 +52,8 @@ function AppRoot() {
     const parsed = raw ? JSON.parse(raw) : {};
     const defaultDays = parsed.defaultDays ?? 30;
     const isTrial = parsed.isTrial ?? false;
-    const newAuth = { role, username, defaultDays, isTrial };
+    const canResell = parsed.canResell ?? false;
+    const newAuth = { role, username, defaultDays, isTrial, canResell };
     if (role === "user") {
       setSplashUser(username);
       setShowSplash(true);
@@ -77,7 +79,7 @@ function AppRoot() {
       ) : auth.role === "admin" ? (
         <Admin adminUsername={auth.username} onLogout={handleLogout} />
       ) : (
-        <Dashboard username={auth.username} defaultDays={auth.defaultDays} isTrial={auth.isTrial} onLogout={handleLogout} />
+        <Dashboard username={auth.username} defaultDays={auth.defaultDays} isTrial={auth.isTrial} canResell={auth.canResell} onLogout={handleLogout} />
       )}
     </>
   );

@@ -34,8 +34,18 @@ router.get("/", requireAdmin, async (_req, res) => {
       createdAt: u.createdAt,
       defaultDays: u.defaultDays,
       isTrial: u.isTrial,
+      canResell: u.canResell ?? false,
     })),
   });
+});
+
+router.patch("/:username/resell", requireAdmin, async (req, res) => {
+  const { canResell } = req.body ?? {};
+  const updated = await userStore.setCanResell(req.params.username, Boolean(canResell));
+  if (!updated) {
+    return res.status(404).json({ success: false, error: "User not found" });
+  }
+  return res.json({ success: true, canResell: Boolean(canResell) });
 });
 
 router.post("/", requireAdmin, async (req, res) => {

@@ -78,6 +78,7 @@ export interface AppUser {
   username: string;
   password: string;
   role: "admin" | "user";
+  canResell: boolean;
   createdAt: string;
   defaultDays: number;
   isTrial: boolean;
@@ -92,6 +93,7 @@ const userSchema = new Schema<UserDoc>({
   createdAt:   { type: String, default: () => new Date().toISOString() },
   defaultDays: { type: Number, default: 30 },
   isTrial:     { type: Boolean, default: false },
+  canResell:   { type: Boolean, default: false },
 });
 
 const UserModel = model<UserDoc>("User", userSchema);
@@ -134,6 +136,7 @@ fallbackUsers.set(config.ADMIN_USERNAME, {
   username: config.ADMIN_USERNAME,
   password: config.ADMIN_PASSWORD,
   role: "admin",
+  canResell: false,
   createdAt: new Date().toISOString(),
   defaultDays: 30,
   isTrial: false,
@@ -170,15 +173,27 @@ export const userStore = {
     await ensureConnection();
     if (!connected) {
       if (fallbackUsers.has(username)) return { ok: false, error: "Username already exists" };
-      const user: AppUser = { username, password, role: "user", createdAt: new Date().toISOString(), defaultDays, isTrial };
+      const user: AppUser = { username, password, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial };
       fallbackUsers.set(username, user);
       return { ok: true, user };
     }
     const exists = await UserModel.findOne({ username });
     if (exists) return { ok: false, error: "Username already exists" };
-    const user: AppUser = { username, password, role: "user", createdAt: new Date().toISOString(), defaultDays, isTrial };
+    const user: AppUser = { username, password, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial };
     await UserModel.create(user);
     return { ok: true, user };
+  },
+
+  async setCanResell(username: string, canResell: boolean): Promise<boolean> {
+    await ensureConnection();
+    if (!connected) {
+      const u = fallbackUsers.get(username);
+      if (!u) return false;
+      u.canResell = canResell;
+      return true;
+    }
+    const result = await UserModel.updateOne({ username, role: "user" }, { canResell });
+    return result.modifiedCount > 0;
   },
 
   async remove(username: string): Promise<boolean> {
@@ -209,6 +224,7 @@ function toPlain(doc: UserDoc): AppUser {
     username:    doc.username,
     password:    doc.password,
     role:        doc.role,
+    canResell:   doc.canResell ?? false,
     createdAt:   doc.createdAt,
     defaultDays: doc.defaultDays,
     isTrial:     doc.isTrial,
