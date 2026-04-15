@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { userStore } from "../store";
-import { config } from "../config";
+import { userStore, uidStore, purgeExpiredTrials } from "../store";
+import { config, getApiKey } from "../config";
+import { logger } from "../lib/logger";
 
 const router = Router();
 
@@ -10,6 +11,18 @@ function requireAdmin(req: any, res: any, next: any) {
     return res.status(403).json({ success: false, error: "Forbidden" });
   }
   next();
+}
+
+async function removeUidFromExternal(uid: string): Promise<void> {
+  try {
+    await fetch(`${config.EXTERNAL_API_URL}/api/uid/remove`, {
+      method: "POST",
+      headers: { "X-API-KEY": getApiKey(), "Content-Type": "application/json" },
+      body: JSON.stringify({ uid }),
+    });
+  } catch (err) {
+    logger.warn({ err, uid }, "Failed to remove UID from external API during user cleanup");
+  }
 }
 
 router.get("/", requireAdmin, async (_req, res) => {
@@ -44,11 +57,33 @@ router.post("/", requireAdmin, async (req, res) => {
 });
 
 router.delete("/:username", requireAdmin, async (req, res) => {
-  const removed = await userStore.remove(req.params.username);
+  const { username } = req.params;
+
+  const uidsToRemove = await uidStore.removeByUser(username);
+  await Promise.all(uidsToRemove.map(removeUidFromExternal));
+
+  const removed = await userStore.remove(username);
   if (!removed) {
     return res.status(404).json({ success: false, error: "User not found or cannot be removed" });
   }
-  return res.json({ success: true });
+  return res.json({ success: true, uidsRemoved: uidsToRemove.length });
 });
+
+async function runPurge() {
+  try {
+    const purged = await purgeExpiredTrials();
+    if (purged.length > 0) {
+      for (const { uids } of purged) {
+        await Promise.all(uids.map(removeUidFromExternal));
+      }
+      logger.info({ count: purged.length }, "Auto-purge: expired trials deleted");
+    }
+  } catch (err) {
+    logger.error({ err }, "Auto-purge failed");
+  }
+}
+
+runPurge();
+setInterval(runPurge, 30 * 60 * 1000);
 
 export default router;

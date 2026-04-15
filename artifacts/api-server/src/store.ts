@@ -46,6 +46,25 @@ export const uidStore = {
     }
   },
 
+  async listByUser(username: string): Promise<WhitelistedUid[]> {
+    await ensureConnection();
+    if (!connected) return [];
+    const docs = await UidModel.find({ addedBy: username });
+    return docs.map(d => ({ uid: d.uid, days: d.days, bluestack: d.bluestack, addedBy: d.addedBy, addedAt: d.addedAt }));
+  },
+
+  async removeByUser(username: string): Promise<string[]> {
+    await ensureConnection();
+    if (!connected) return [];
+    const docs = await UidModel.find({ addedBy: username });
+    const uids = docs.map(d => d.uid);
+    if (uids.length > 0) {
+      await UidModel.deleteMany({ addedBy: username });
+      logger.info({ username, count: uids.length }, "UIDs removed for deleted user");
+    }
+    return uids;
+  },
+
   async list(): Promise<WhitelistedUid[]> {
     await ensureConnection();
     if (!connected) return [];
@@ -194,6 +213,28 @@ function toPlain(doc: UserDoc): AppUser {
     defaultDays: doc.defaultDays,
     isTrial:     doc.isTrial,
   };
+}
+
+// ── Purge expired trial users ───────────────────────────────────────────
+export async function purgeExpiredTrials(): Promise<{ username: string; uids: string[] }[]> {
+  await ensureConnection();
+  if (!connected) return [];
+  const now = Date.now();
+  const trialUsers = await UserModel.find({ isTrial: true, role: "user" });
+  const expired = trialUsers.filter((u) => {
+    const expiresAt = new Date(u.createdAt).getTime() + u.defaultDays * 24 * 60 * 60 * 1000;
+    return expiresAt <= now;
+  });
+  const purged: { username: string; uids: string[] }[] = [];
+  for (const u of expired) {
+    const uidDocs = await UidModel.find({ addedBy: u.username });
+    const uids = uidDocs.map((d) => d.uid);
+    await UidModel.deleteMany({ addedBy: u.username });
+    await UserModel.deleteOne({ _id: u._id });
+    logger.info({ username: u.username, uids }, "Expired trial purged");
+    purged.push({ username: u.username, uids });
+  }
+  return purged;
 }
 
 // Start connection immediately on import

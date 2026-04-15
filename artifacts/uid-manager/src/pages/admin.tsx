@@ -290,6 +290,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated 
   const [error, setError] = useState("");
   const [creds, setCreds] = useState<{ username: string; password: string; days: number } | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [copiedCard, setCopiedCard] = useState(false);
 
   const refresh = () => {
     setUsername(`trial-${rand(4)}`);
@@ -302,6 +303,31 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated 
     navigator.clipboard.writeText(val);
     setCopiedField(key);
     setTimeout(() => setCopiedField(null), 2000);
+  };
+
+  const copyCard = (c: { username: string; password: string; days: number }) => {
+    const loginUrl = window.location.origin;
+    const msg =
+`╔══════════════════════════════════╗
+       🎮  SG71 BYPASS — FREE TRIAL
+╚══════════════════════════════════╝
+
+👤  Username  :  ${c.username}
+🔑  Password  :  ${c.password}
+⏱️  Access    :  ${c.days} Day${c.days > 1 ? "s" : ""} Free Trial
+🔗  Login     :  ${loginUrl}
+
+📋  Steps:
+  1️⃣  Open the link above
+  2️⃣  Login with your credentials
+  3️⃣  Add your Player UID
+  4️⃣  Enjoy Bypass Access!
+
+⚡  Powered by SG71 Developer Zone
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+    navigator.clipboard.writeText(msg);
+    setCopiedCard(true);
+    setTimeout(() => setCopiedCard(false), 2500);
   };
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -377,6 +403,28 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated 
                     <span className="text-xs font-semibold text-violet-400">{creds.days} days access</span>
                   </div>
                 </div>
+
+                {/* Reseller copy card */}
+                <motion.button
+                  onClick={() => copyCard(creds)}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-bold relative overflow-hidden transition-all"
+                  style={{
+                    background: copiedCard
+                      ? "linear-gradient(135deg, rgba(16,185,129,0.25), rgba(6,182,212,0.15))"
+                      : "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(239,68,68,0.1))",
+                    border: copiedCard ? "1px solid rgba(16,185,129,0.4)" : "1px solid rgba(245,158,11,0.3)",
+                    color: copiedCard ? "#34d399" : "#f59e0b",
+                    boxShadow: copiedCard ? "0 0 18px rgba(16,185,129,0.2)" : "0 0 18px rgba(245,158,11,0.15)",
+                  }}
+                >
+                  {copiedCard ? (
+                    <><CheckCheck className="w-4 h-4" /> Copied to Clipboard!</>
+                  ) : (
+                    <><Copy className="w-4 h-4" /> Copy Message for Client</>
+                  )}
+                </motion.button>
 
                 <button
                   onClick={refresh}
