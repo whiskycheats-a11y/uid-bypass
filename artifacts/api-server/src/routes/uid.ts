@@ -63,7 +63,7 @@ router.post("/add", async (req, res) => {
     const response = await fetch(url);
     const data = await response.json();
 
-    const success = data.success === true || data.status === "success";
+    const success = data.success === true || data.status === "success" || data.error === false;
     if (success) {
       if (username) {
         const user = await userStore.find(username);
@@ -92,7 +92,7 @@ router.post("/remove", async (req, res) => {
     const response = await fetch(url);
     const data = await response.json();
 
-    const success = data.success === true || data.status === "success";
+    const success = data.success === true || data.status === "success" || data.error === false;
     if (success) {
       await uidStore.remove(uid);
     }
