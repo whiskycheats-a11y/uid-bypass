@@ -663,11 +663,17 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                               </td>
 
                               <td className="px-5 py-4">
-                                <span className="text-xs text-muted-foreground font-mono">{entry.expiry_date}</span>
+                                <span className="text-xs text-muted-foreground font-mono">
+                                  {entry.addedAt
+                                    ? new Date(new Date(entry.addedAt).getTime() + entry.days * 86400000).toLocaleDateString()
+                                    : "—"}
+                                </span>
                               </td>
 
                               <td className="px-5 py-4">
-                                <span className="text-xs text-muted-foreground">{entry.adder_name}</span>
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(139,92,246,0.1)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.2)" }}>
+                                  {entry.addedBy || "—"}
+                                </span>
                               </td>
 
                               <td className="px-5 py-4 text-right">
