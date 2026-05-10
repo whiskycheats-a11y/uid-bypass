@@ -140,7 +140,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
     }
   };
 
-  const uids = listResponse?.success ? listResponse.data : [];
+  const uids = listResponse?.success ? (listResponse.data ?? []) : [];
   const bsCount = uids.filter((u) => u.bluestack).length;
 
   const DISCORD_URL = "https://discord.gg/QTwupjcKre";
