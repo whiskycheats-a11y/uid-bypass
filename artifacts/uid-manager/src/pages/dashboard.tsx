@@ -30,8 +30,9 @@ import {
   Copy,
   CheckCheck,
   Timer,
+  Coins,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function rand(len: number, chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789") {
   return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
@@ -111,6 +112,17 @@ interface DashboardProps {
   onLogout?: () => void;
 }
 
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+function userHeaders() {
+  try {
+    const raw = sessionStorage.getItem("uid_auth");
+    if (!raw) return {};
+    const { username, adminKey } = JSON.parse(raw);
+    return { "x-username": username ?? "", "x-password": adminKey ?? "" };
+  } catch { return {}; }
+}
+
 export default function Dashboard({ username, defaultDays = 30, isTrial = false, canResell = false, onLogout }: DashboardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -118,6 +130,15 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [showTrialMessage, setShowTrialMessage] = useState(false);
   const [activeTab, setActiveTab] = useState<"uid" | "trial">("uid");
+  const [balance, setBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (isTrial || !username) return;
+    fetch(`${BASE}/api/credits/me`, { headers: userHeaders() })
+      .then(r => r.json())
+      .then(d => { if (d.success) setBalance(d.balance); })
+      .catch(() => {});
+  }, [username, isTrial]);
 
   const { data: listResponse, isLoading } = useListUids({
     query: { queryKey: getListUidsQueryKey() },
@@ -154,9 +175,17 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
     window.open(DISCORD_URL, "_blank");
   };
 
+  const watchedDays = form.watch("days");
+  const tokenCost = isTrial ? 0 : (Number(watchedDays) || 0);
+  const hasEnoughBalance = isTrial || balance === null || balance >= tokenCost;
+
   const onSubmit = (values: AddUidValues) => {
     if (trialLimitReached) {
       triggerTrialBlock();
+      return;
+    }
+    if (!isTrial && balance !== null && balance < tokenCost) {
+      toast({ title: "Insufficient Tokens", description: `You need ${tokenCost} tokens but only have ${balance}. Contact admin to top up.`, variant: "destructive" });
       return;
     }
     const payload = isTrial ? { ...values, days: 1, username } : { ...values, username };
@@ -164,10 +193,14 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
       { data: payload as typeof values },
       {
         onSuccess: (data) => {
-          if (data.message === "TRIAL_LIMIT_REACHED") {
+          if ((data as any).message === "TRIAL_LIMIT_REACHED") {
             sessionStorage.setItem(TRIAL_USED_KEY, "true");
             setTrialUsed(true);
             triggerTrialBlock();
+            return;
+          }
+          if ((data as any).message === "INSUFFICIENT_BALANCE") {
+            toast({ title: "Insufficient Tokens", description: "Not enough tokens. Ask admin to add more.", variant: "destructive" });
             return;
           }
           if (data.success) {
@@ -175,11 +208,13 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
               sessionStorage.setItem(TRIAL_USED_KEY, "true");
               setTrialUsed(true);
             }
+            // Deduct from local balance state
+            if (!isTrial && balance !== null) setBalance(b => b !== null ? Math.max(0, b - tokenCost) : null);
             toast({ title: "Access Granted", description: `UID ${values.uid} whitelisted successfully.` });
             form.reset();
             queryClient.invalidateQueries({ queryKey: getListUidsQueryKey() });
           } else {
-            toast({ title: "Failed", description: data.message, variant: "destructive" });
+            toast({ title: "Failed", description: (data as any).message, variant: "destructive" });
           }
         },
         onError: () => {
@@ -256,6 +291,12 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                     TRIAL
                   </span>
                 )}
+              </div>
+            )}
+            {!isTrial && balance !== null && (
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold" style={{ background: balance > 0 ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", color: balance > 0 ? "#10b981" : "#ef4444", border: `1px solid ${balance > 0 ? "rgba(16,185,129,0.25)" : "rgba(239,68,68,0.25)"}` }}>
+                <Coins className="w-3 h-3" />
+                <span>{balance} tokens</span>
               </div>
             )}
             <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -421,9 +462,24 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                     />
                   </div>
 
+                  {/* Token cost preview */}
+                  {!isTrial && (
+                    <div className="flex items-center justify-between px-3 py-2 rounded-xl text-[11px]" style={{ background: hasEnoughBalance ? "rgba(16,185,129,0.06)" : "rgba(239,68,68,0.08)", border: `1px solid ${hasEnoughBalance ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.25)"}` }}>
+                      <div className="flex items-center gap-1.5" style={{ color: hasEnoughBalance ? "#10b981" : "#ef4444" }}>
+                        <Coins className="w-3.5 h-3.5" />
+                        <span className="font-bold">Cost: {tokenCost} token{tokenCost !== 1 ? "s" : ""}</span>
+                      </div>
+                      {balance !== null && (
+                        <span style={{ color: hasEnoughBalance ? "#6b7280" : "#ef4444" }} className="font-semibold">
+                          {hasEnoughBalance ? `${balance} available` : `Only ${balance} — need ${tokenCost}`}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   <motion.button
                     type="submit"
-                    disabled={addMutation.isPending}
+                    disabled={addMutation.isPending || !hasEnoughBalance}
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
                     className="w-full h-12 rounded-xl btn-gradient text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"

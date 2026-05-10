@@ -44,6 +44,9 @@ router.post("/add", async (req, res) => {
   }
 
   let effectiveDays = days;
+  let isTrial = false;
+  let skipBalanceCheck = false;
+
   if (username) {
     const user = await userStore.find(username);
     if (user?.isTrial) {
@@ -52,6 +55,20 @@ router.post("/add", async (req, res) => {
         return;
       }
       effectiveDays = 1;
+      isTrial = true;
+      skipBalanceCheck = true;
+    }
+  }
+
+  // Token cost: 1 token per day
+  const cost = effectiveDays;
+
+  // Deduct balance before calling external API (unless trial)
+  if (!skipBalanceCheck && username) {
+    const deduct = await userStore.deductBalance(username, cost);
+    if (!deduct.ok) {
+      res.json({ success: false, message: deduct.error === "INSUFFICIENT_BALANCE" ? "INSUFFICIENT_BALANCE" : "User not found" });
+      return;
     }
   }
 
@@ -65,15 +82,19 @@ router.post("/add", async (req, res) => {
 
     const success = data.success === true || data.status === "success" || data.error === false;
     if (success) {
-      if (username) {
-        const user = await userStore.find(username);
-        if (user?.isTrial) trialStore.increment(username);
-      }
+      if (username && isTrial) trialStore.increment(username);
       await uidStore.save(uid, effectiveDays, bluestack, username ?? "");
+    } else if (!skipBalanceCheck && username) {
+      // Refund tokens if external API failed
+      await userStore.adjustBalance(username, cost);
     }
 
     res.json({ ...data, success });
   } catch (err) {
+    // Refund tokens on network error
+    if (!skipBalanceCheck && username) {
+      await userStore.adjustBalance(username, cost);
+    }
     req.log.error({ err }, "Failed to add UID");
     res.status(500).json({ success: false, message: "Failed to contact external API" });
   }

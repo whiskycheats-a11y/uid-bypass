@@ -5,6 +5,7 @@ import authRouter from "./auth";
 import usersRouter from "./users";
 import resellerRouter from "./reseller";
 import settingsRouter from "./settings";
+import creditsRouter from "./credits";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use("/auth", authRouter);
 router.use("/users", usersRouter);
 router.use("/reseller", resellerRouter);
 router.use("/settings", settingsRouter);
+router.use("/credits", creditsRouter);
 
 export default router;

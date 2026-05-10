@@ -4,6 +4,7 @@ import {
   Users, Plus, Trash2, LogOut, Eye, EyeOff, Loader2, Crown,
   UserCheck, Activity, Sparkles, Copy, CheckCheck, X, Zap,
   Lock, User as UserIcon, Gift, RefreshCw, Shield, Timer, Settings,
+  Coins, Wallet,
 } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -15,6 +16,7 @@ interface ClientUser {
   defaultDays: number;
   isTrial: boolean;
   canResell: boolean;
+  balance: number;
 }
 
 interface AdminProps {
@@ -94,6 +96,18 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       body: JSON.stringify({ canResell }),
     });
     setUsers((p) => p.map((u) => u.username === username ? { ...u, canResell } : u));
+  }
+
+  async function handleAddCredits(username: string, amount: number) {
+    const res = await fetch(`${BASE}/api/credits/${encodeURIComponent(username)}`, {
+      method: "PATCH",
+      headers: adminHeaders(),
+      body: JSON.stringify({ amount }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      setUsers((p) => p.map((u) => u.username === username ? { ...u, balance: data.balance } : u));
+    }
   }
 
   const copy = useCallback((username: string, password?: string) => {
@@ -233,6 +247,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                 onDelete={handleDelete}
                 onCopy={copy}
                 onResellToggle={handleResellToggle}
+                onAddCredits={handleAddCredits}
               />
             </motion.div>
           ) : tab === "trial" ? (
@@ -267,11 +282,12 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 }
 
 /* ─── Clients panel ─── */
-function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCopy, onResellToggle }: {
+function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCopy, onResellToggle, onAddCredits }: {
   users: ClientUser[]; loading: boolean; deleting: string | null;
   copied: string | null; onAdd: () => void;
   onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
   onResellToggle: (u: string, v: boolean) => void;
+  onAddCredits: (u: string, amount: number) => Promise<void>;
 }) {
   return (
     <div className="panel rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -283,13 +299,13 @@ function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCop
           </div>
           <div>
             <h2 className="font-bold text-sm text-foreground">Client Accounts</h2>
-            <p className="text-[11px] text-muted-foreground">Full access users</p>
+            <p className="text-[11px] text-muted-foreground">Full access users · 1 token = 1 day</p>
           </div>
         </div>
         <GlowButton onClick={onAdd} icon={<Plus className="w-4 h-4" />} label="Add Client" />
       </div>
       <div className="p-4">
-        <UserList users={users} loading={loading} deleting={deleting} copied={copied} onDelete={onDelete} onCopy={onCopy} onResellToggle={onResellToggle} emptyText="No clients yet — click Add Client" />
+        <UserList users={users} loading={loading} deleting={deleting} copied={copied} onDelete={onDelete} onCopy={onCopy} onResellToggle={onResellToggle} onAddCredits={onAddCredits} emptyText="No clients yet — click Add Client" />
       </div>
     </div>
   );
@@ -537,10 +553,11 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated 
 }
 
 /* ─── Shared user list ─── */
-function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResellToggle, emptyText, isTrial = false }: {
+function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResellToggle, onAddCredits, emptyText, isTrial = false }: {
   users: ClientUser[]; loading: boolean; deleting: string | null; copied: string | null;
   onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
   onResellToggle?: (u: string, v: boolean) => void;
+  onAddCredits?: (u: string, amount: number) => Promise<void>;
   emptyText: string; isTrial?: boolean;
 }) {
   if (loading) return (
@@ -562,7 +579,7 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResell
     <AnimatePresence initial={false}>
       <div className="space-y-2">
         {users.map((user, i) => (
-          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username, user.password)} onResellToggle={onResellToggle ? (v) => onResellToggle(user.username, v) : undefined} isTrial={isTrial} />
+          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username, user.password)} onResellToggle={onResellToggle ? (v) => onResellToggle(user.username, v) : undefined} onAddCredits={onAddCredits ? (amt) => onAddCredits(user.username, amt) : undefined} isTrial={isTrial} />
         ))}
       </div>
     </AnimatePresence>
@@ -570,59 +587,109 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResell
 }
 
 /* ─── User row — CSS hover, no continuous framer motion ─── */
-const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete, onCopy, onResellToggle, isTrial }: {
+const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete, onCopy, onResellToggle, onAddCredits, isTrial }: {
   user: ClientUser; index: number; deleting: boolean; copied: boolean;
-  onDelete: () => void; onCopy: () => void; onResellToggle?: (v: boolean) => void; isTrial: boolean;
+  onDelete: () => void; onCopy: () => void; onResellToggle?: (v: boolean) => void;
+  onAddCredits?: (amount: number) => Promise<void>; isTrial: boolean;
 }) {
+  const [showCredits, setShowCredits] = useState(false);
+  const [creditInput, setCreditInput] = useState("");
+  const [crediting, setCrediting] = useState(false);
+
+  const handleCredit = async () => {
+    const n = parseInt(creditInput);
+    if (!n || n === 0 || !onAddCredits) return;
+    setCrediting(true);
+    await onAddCredits(n);
+    setCreditInput("");
+    setShowCredits(false);
+    setCrediting(false);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -16 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 16, height: 0, marginBottom: 0 }}
       transition={{ delay: index * 0.04, type: "spring", stiffness: 260, damping: 28 }}
-      className="user-row relative flex items-center justify-between px-4 py-3.5 rounded-xl"
+      className="rounded-xl overflow-hidden"
     >
-      <div className="user-row-bar absolute left-0 top-2 bottom-2 w-0.5 rounded-full" style={{ background: isTrial ? "linear-gradient(180deg, #f59e0b, #ef4444)" : "linear-gradient(180deg, #8b5cf6, #06b6d4)" }} />
-      <div className="flex items-center gap-3 ml-2">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 user-row-icon" style={{ background: isTrial ? "rgba(245,158,11,0.12)" : "rgba(139,92,246,0.12)", border: `1px solid ${isTrial ? "rgba(245,158,11,0.2)" : "rgba(139,92,246,0.2)"}` }}>
-          {isTrial ? <Gift className="w-4 h-4 text-amber-400" /> : <UserIcon className="w-4 h-4 text-violet-400" />}
-        </div>
-        <div>
-          <div className="font-mono font-bold text-sm text-foreground">{user.username}</div>
-          <div className="text-[11px] text-muted-foreground">
-            {new Date(user.createdAt).toLocaleDateString()} · <span className="font-semibold" style={{ color: isTrial ? "#f59e0b" : "#a78bfa" }}>{user.defaultDays}d</span>
+      <div className="user-row relative flex items-center justify-between px-4 py-3.5">
+        <div className="user-row-bar absolute left-0 top-2 bottom-2 w-0.5 rounded-full" style={{ background: isTrial ? "linear-gradient(180deg, #f59e0b, #ef4444)" : "linear-gradient(180deg, #8b5cf6, #06b6d4)" }} />
+        <div className="flex items-center gap-3 ml-2 min-w-0">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 user-row-icon" style={{ background: isTrial ? "rgba(245,158,11,0.12)" : "rgba(139,92,246,0.12)", border: `1px solid ${isTrial ? "rgba(245,158,11,0.2)" : "rgba(139,92,246,0.2)"}` }}>
+            {isTrial ? <Gift className="w-4 h-4 text-amber-400" /> : <UserIcon className="w-4 h-4 text-violet-400" />}
+          </div>
+          <div className="min-w-0">
+            <div className="font-mono font-bold text-sm text-foreground truncate">{user.username}</div>
+            <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 flex-wrap">
+              <span>{new Date(user.createdAt).toLocaleDateString()} · <span className="font-semibold" style={{ color: isTrial ? "#f59e0b" : "#a78bfa" }}>{user.defaultDays}d</span></span>
+              {!isTrial && (
+                <span className="flex items-center gap-0.5 font-bold" style={{ color: (user.balance ?? 0) > 0 ? "#10b981" : "#ef4444" }}>
+                  <Coins className="w-2.5 h-2.5" />{user.balance ?? 0} tokens
+                </span>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold user-row-badge"
-          style={{ background: isTrial ? "rgba(245,158,11,0.1)" : "rgba(16,185,129,0.1)", color: isTrial ? "#fbbf24" : "#34d399", border: `1px solid ${isTrial ? "rgba(245,158,11,0.2)" : "rgba(16,185,129,0.2)"}` }}
-        >
-          {isTrial ? "TRIAL" : "ACTIVE"}
-        </span>
-        {/* Resell toggle — only for non-trial clients */}
-        {!isTrial && onResellToggle && (
-          <button
-            onClick={() => onResellToggle(!user.canResell)}
-            title={user.canResell ? "Revoke trial permission" : "Allow free trial generation"}
-            className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all"
-            style={{
-              background: user.canResell ? "rgba(245,158,11,0.15)" : "rgba(255,255,255,0.04)",
-              color: user.canResell ? "#f59e0b" : "#6b7280",
-              border: user.canResell ? "1px solid rgba(245,158,11,0.3)" : "1px solid rgba(255,255,255,0.08)",
-            }}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold user-row-badge"
+            style={{ background: isTrial ? "rgba(245,158,11,0.1)" : "rgba(16,185,129,0.1)", color: isTrial ? "#fbbf24" : "#34d399", border: `1px solid ${isTrial ? "rgba(245,158,11,0.2)" : "rgba(16,185,129,0.2)"}` }}
           >
-            <Gift className="w-3 h-3" />
-            {user.canResell ? "RESELLER" : "NO RESELL"}
+            {isTrial ? "TRIAL" : "ACTIVE"}
+          </span>
+          {/* Resell toggle */}
+          {!isTrial && onResellToggle && (
+            <button onClick={() => onResellToggle(!user.canResell)} title={user.canResell ? "Revoke reseller" : "Allow reseller"}
+              className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all"
+              style={{ background: user.canResell ? "rgba(245,158,11,0.15)" : "rgba(255,255,255,0.04)", color: user.canResell ? "#f59e0b" : "#6b7280", border: user.canResell ? "1px solid rgba(245,158,11,0.3)" : "1px solid rgba(255,255,255,0.08)" }}
+            >
+              <Gift className="w-3 h-3" />
+              {user.canResell ? "RESELLER" : "NO RESELL"}
+            </button>
+          )}
+          {/* Add credits button */}
+          {!isTrial && onAddCredits && (
+            <button onClick={() => setShowCredits(!showCredits)} title="Add tokens"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all"
+              style={{ background: showCredits ? "rgba(16,185,129,0.2)" : "rgba(16,185,129,0.08)", color: "#10b981", border: showCredits ? "1px solid rgba(16,185,129,0.4)" : "1px solid rgba(16,185,129,0.2)" }}
+            >
+              <Wallet className="w-3 h-3" />
+              +Tokens
+            </button>
+          )}
+          <button onClick={onCopy} className="icon-btn p-2 rounded-lg transition-all" style={{ color: copied ? "#06b6d4" : undefined }} title="Copy credentials">
+            {copied ? <CheckCheck className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
           </button>
-        )}
-        <button onClick={onCopy} className="icon-btn p-2 rounded-lg transition-all" style={{ color: copied ? "#06b6d4" : undefined }} title="Copy username & password">
-          {copied ? <CheckCheck className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-        </button>
-        <button onClick={onDelete} disabled={deleting} className="icon-btn p-2 rounded-lg transition-all text-muted-foreground hover:text-red-400 hover:bg-red-500/10 disabled:opacity-40">
-          {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-        </button>
+          <button onClick={onDelete} disabled={deleting} className="icon-btn p-2 rounded-lg transition-all text-muted-foreground hover:text-red-400 hover:bg-red-500/10 disabled:opacity-40">
+            {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+          </button>
+        </div>
       </div>
+
+      {/* Inline credits panel */}
+      <AnimatePresence>
+        {showCredits && !isTrial && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
+            <div className="px-4 pb-3 pt-0 flex items-center gap-2" style={{ background: "rgba(16,185,129,0.04)", borderTop: "1px solid rgba(16,185,129,0.12)" }}>
+              <Coins className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span className="text-[11px] text-muted-foreground">Current: <b className="text-emerald-400">{user.balance ?? 0}</b> tokens</span>
+              <input
+                type="number"
+                value={creditInput}
+                onChange={(e) => setCreditInput(e.target.value)}
+                placeholder="e.g. 30 or -10"
+                className="flex-1 h-8 px-2.5 rounded-lg bg-white/[0.04] border border-emerald-500/20 text-xs font-mono text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-emerald-500/50 transition-all"
+                onKeyDown={(e) => e.key === "Enter" && handleCredit()}
+              />
+              <button onClick={handleCredit} disabled={crediting || !creditInput} className="h-8 px-3 rounded-lg text-[11px] font-bold text-white disabled:opacity-40 transition-all flex items-center gap-1" style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}>
+                {crediting ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Coins className="w-3 h-3" />Apply</>}
+              </button>
+              <span className="text-[10px] text-muted-foreground/50">Use negative to deduct</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 });

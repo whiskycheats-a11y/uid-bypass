@@ -82,6 +82,7 @@ export interface AppUser {
   createdAt: string;
   defaultDays: number;
   isTrial: boolean;
+  balance: number;
 }
 
 interface UserDoc extends AppUser, Document {}
@@ -94,6 +95,7 @@ const userSchema = new Schema<UserDoc>({
   defaultDays: { type: Number, default: 30 },
   isTrial:     { type: Boolean, default: false },
   canResell:   { type: Boolean, default: false },
+  balance:     { type: Number, default: 0 },
 });
 
 const UserModel = model<UserDoc>("User", userSchema);
@@ -140,6 +142,7 @@ fallbackUsers.set(config.ADMIN_USERNAME, {
   createdAt: new Date().toISOString(),
   defaultDays: 30,
   isTrial: false,
+  balance: 0,
 });
 
 // ── Trial UID count (in-memory, not persisted) ──
@@ -173,15 +176,57 @@ export const userStore = {
     await ensureConnection();
     if (!connected) {
       if (fallbackUsers.has(username)) return { ok: false, error: "Username already exists" };
-      const user: AppUser = { username, password, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial };
+      const user: AppUser = { username, password, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0 };
       fallbackUsers.set(username, user);
       return { ok: true, user };
     }
     const exists = await UserModel.findOne({ username });
     if (exists) return { ok: false, error: "Username already exists" };
-    const user: AppUser = { username, password, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial };
+    const user: AppUser = { username, password, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0 };
     await UserModel.create(user);
     return { ok: true, user };
+  },
+
+  async adjustBalance(username: string, amount: number): Promise<{ ok: boolean; balance: number }> {
+    await ensureConnection();
+    if (!connected) {
+      const u = fallbackUsers.get(username);
+      if (!u) return { ok: false, balance: 0 };
+      u.balance = Math.max(0, (u.balance ?? 0) + amount);
+      return { ok: true, balance: u.balance };
+    }
+    const doc = await UserModel.findOneAndUpdate(
+      { username, role: "user" },
+      { $inc: { balance: amount } },
+      { new: true }
+    );
+    if (!doc) return { ok: false, balance: 0 };
+    if (doc.balance < 0) {
+      await UserModel.updateOne({ username }, { $set: { balance: 0 } });
+      return { ok: true, balance: 0 };
+    }
+    return { ok: true, balance: doc.balance };
+  },
+
+  async deductBalance(username: string, cost: number): Promise<{ ok: boolean; balance: number; error?: string }> {
+    await ensureConnection();
+    if (!connected) {
+      const u = fallbackUsers.get(username);
+      if (!u) return { ok: false, balance: 0, error: "User not found" };
+      if ((u.balance ?? 0) < cost) return { ok: false, balance: u.balance ?? 0, error: "INSUFFICIENT_BALANCE" };
+      u.balance = (u.balance ?? 0) - cost;
+      return { ok: true, balance: u.balance };
+    }
+    const doc = await UserModel.findOne({ username });
+    if (!doc) return { ok: false, balance: 0, error: "User not found" };
+    if ((doc.balance ?? 0) < cost) return { ok: false, balance: doc.balance ?? 0, error: "INSUFFICIENT_BALANCE" };
+    const updated = await UserModel.findOneAndUpdate(
+      { username, balance: { $gte: cost } },
+      { $inc: { balance: -cost } },
+      { new: true }
+    );
+    if (!updated) return { ok: false, balance: doc.balance ?? 0, error: "INSUFFICIENT_BALANCE" };
+    return { ok: true, balance: updated.balance };
   },
 
   async setCanResell(username: string, canResell: boolean): Promise<boolean> {
@@ -228,6 +273,7 @@ function toPlain(doc: UserDoc): AppUser {
     createdAt:   doc.createdAt,
     defaultDays: doc.defaultDays,
     isTrial:     doc.isTrial,
+    balance:     doc.balance ?? 0,
   };
 }
 

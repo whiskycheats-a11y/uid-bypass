@@ -36,6 +36,7 @@ router.get("/", requireAdmin, async (_req, res) => {
       defaultDays: u.defaultDays,
       isTrial: u.isTrial,
       canResell: u.canResell ?? false,
+      balance: u.balance ?? 0,
     })),
   });
 });
