@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Users, Plus, Trash2, LogOut, Eye, EyeOff, Loader2, Crown,
   UserCheck, Activity, Sparkles, Copy, CheckCheck, X, Zap,
-  Lock, User as UserIcon, Gift, RefreshCw, Shield, Timer,
+  Lock, User as UserIcon, Gift, RefreshCw, Shield, Timer, Settings,
 } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -41,7 +41,7 @@ function rand(len: number, chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvw
 export default function Admin({ adminUsername, onLogout }: AdminProps) {
   const [users, setUsers] = useState<ClientUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"clients" | "trial">("clients");
+  const [tab, setTab] = useState<"clients" | "trial" | "settings">("clients");
   const [showModal, setShowModal] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
@@ -196,21 +196,22 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           {([
             { key: "clients", icon: Users, label: "Client Accounts", count: regular.length },
             { key: "trial", icon: Gift, label: "Free Trial", count: trials.length, gold: true },
+            { key: "settings", icon: Settings, label: "Settings", count: null, teal: true },
           ] as const).map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
               className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold transition-all duration-200 relative overflow-hidden"
               style={{
-                background: tab === t.key ? (t.gold ? "linear-gradient(135deg, rgba(245,158,11,0.25), rgba(239,68,68,0.15))" : "linear-gradient(135deg, rgba(139,92,246,0.25), rgba(6,182,212,0.15))") : "transparent",
-                color: tab === t.key ? (t.gold ? "#f59e0b" : "#a78bfa") : "#6b7280",
-                border: tab === t.key ? `1px solid ${t.gold ? "rgba(245,158,11,0.3)" : "rgba(139,92,246,0.3)"}` : "1px solid transparent",
-                boxShadow: tab === t.key ? `0 0 20px ${t.gold ? "rgba(245,158,11,0.15)" : "rgba(139,92,246,0.15)"}` : "none",
+                background: tab === t.key ? ("teal" in t && t.teal ? "linear-gradient(135deg, rgba(6,182,212,0.25), rgba(16,185,129,0.15))" : t.gold ? "linear-gradient(135deg, rgba(245,158,11,0.25), rgba(239,68,68,0.15))" : "linear-gradient(135deg, rgba(139,92,246,0.25), rgba(6,182,212,0.15))") : "transparent",
+                color: tab === t.key ? ("teal" in t && t.teal ? "#06b6d4" : t.gold ? "#f59e0b" : "#a78bfa") : "#6b7280",
+                border: tab === t.key ? `1px solid ${"teal" in t && t.teal ? "rgba(6,182,212,0.3)" : t.gold ? "rgba(245,158,11,0.3)" : "rgba(139,92,246,0.3)"}` : "1px solid transparent",
+                boxShadow: tab === t.key ? `0 0 20px ${"teal" in t && t.teal ? "rgba(6,182,212,0.15)" : t.gold ? "rgba(245,158,11,0.15)" : "rgba(139,92,246,0.15)"}` : "none",
               }}
             >
               <t.icon className="w-4 h-4" />
               {t.label}
-              {!loading && (
+              {!loading && t.count !== null && (
                 <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-black" style={{ background: tab === t.key ? (t.gold ? "rgba(245,158,11,0.2)" : "rgba(139,92,246,0.2)") : "rgba(255,255,255,0.05)" }}>
                   {t.count}
                 </span>
@@ -234,7 +235,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                 onResellToggle={handleResellToggle}
               />
             </motion.div>
-          ) : (
+          ) : tab === "trial" ? (
             <motion.div key="trial" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
               <FreeTrialPanel
                 trials={trials}
@@ -244,6 +245,10 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                 onCopy={copy}
                 onCreated={(u) => setUsers((p) => [...p, u])}
               />
+            </motion.div>
+          ) : (
+            <motion.div key="settings" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+              <SettingsPanel />
             </motion.div>
           )}
         </AnimatePresence>
@@ -822,6 +827,162 @@ function DurationPicker({ value, onChange, presets, min = 1, max = 90, theme = "
             </button>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Settings panel ─── */
+function SettingsPanel() {
+  const [apiUrl, setApiUrl] = useState("");
+  const [apiKey, setApiKey] = useState("");
+  const [hasCustomKey, setHasCustomKey] = useState(false);
+  const [showKey, setShowKey] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch(`${BASE}/api/settings`, { headers: adminHeaders() })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success) {
+          setApiUrl(d.externalApiUrl ?? "");
+          setHasCustomKey(d.hasCustomKey ?? false);
+        }
+      })
+      .catch(() => setError("Failed to load settings"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true); setError(""); setSaved(false);
+    try {
+      const body: Record<string, string> = { externalApiUrl: apiUrl };
+      if (apiKey) body.externalApiKey = apiKey;
+      const res = await fetch(`${BASE}/api/settings`, {
+        method: "PATCH", headers: adminHeaders(), body: JSON.stringify(body),
+      });
+      const d = await res.json();
+      if (d.success) {
+        setSaved(true);
+        if (apiKey) { setHasCustomKey(true); setApiKey(""); }
+        setTimeout(() => setSaved(false), 2500);
+      } else { setError(d.error ?? "Failed to save"); }
+    } catch { setError("Network error"); }
+    finally { setSaving(false); }
+  }
+
+  const HOUR_PRESETS = [
+    { h: 24, label: "1 Day" }, { h: 72, label: "3 Days" },
+    { h: 168, label: "1 Week" }, { h: 336, label: "2 Weeks" },
+    { h: 720, label: "1 Month" },
+  ];
+
+  return (
+    <div className="space-y-4">
+      {/* API Config card */}
+      <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(6,182,212,0.15)" }}>
+        <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #06b6d4, #10b981, transparent)" }} />
+        <div className="px-5 py-4 flex items-center gap-3 border-b border-white/[0.04]">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(6,182,212,0.15)", border: "1px solid rgba(6,182,212,0.25)" }}>
+            <Settings className="w-4 h-4 text-cyan-400" />
+          </div>
+          <div>
+            <h2 className="font-bold text-sm text-foreground">External API Configuration</h2>
+            <p className="text-[11px] text-muted-foreground">UID bypass API endpoint &amp; authentication</p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="p-6 flex items-center gap-3 text-muted-foreground text-sm">
+            <Loader2 className="w-4 h-4 animate-spin" /> Loading settings…
+          </div>
+        ) : (
+          <form onSubmit={handleSave} className="p-5 space-y-4">
+            {/* API URL */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">API Base URL</label>
+              <div className="relative group">
+                <Shield className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-cyan-400 transition-colors" />
+                <input
+                  type="url" value={apiUrl} onChange={(e) => setApiUrl(e.target.value)}
+                  placeholder="https://your-api.example.com/api/endpoint.php"
+                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all font-mono text-[12px]"
+                />
+              </div>
+            </div>
+
+            {/* API Key */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">API Key</label>
+                {hasCustomKey && (
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-400">
+                    <CheckCheck className="w-3 h-3" /> Custom key active
+                  </span>
+                )}
+              </div>
+              <div className="relative group">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-cyan-400 transition-colors" />
+                <input
+                  type={showKey ? "text" : "password"} value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder={hasCustomKey ? "Enter new key to replace current…" : "Paste your API key here"}
+                  className="w-full h-11 pl-10 pr-12 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all font-mono text-[12px]"
+                />
+                <button type="button" onClick={() => setShowKey(!showKey)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1">
+                  {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <p className="text-[10px] text-muted-foreground/50 pl-1">Leave blank to keep the current key unchanged</p>
+            </div>
+
+            {error && (
+              <div className="flex items-center gap-2 text-red-400 text-xs px-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20">
+                <X className="w-3.5 h-3.5 shrink-0" />{error}
+              </div>
+            )}
+
+            <motion.button type="submit" disabled={saving || !apiUrl} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
+              className="w-full h-11 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 relative overflow-hidden"
+              style={{ background: "linear-gradient(135deg, #06b6d4, #10b981)", boxShadow: "0 0 20px rgba(6,182,212,0.25)" }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/12 to-transparent -skew-x-12 btn-shimmer" />
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <><CheckCheck className="w-4 h-4" />Saved!</> : <><Settings className="w-4 h-4" />Save Settings</>}
+            </motion.button>
+          </form>
+        )}
+      </div>
+
+      {/* Duration info card */}
+      <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="px-5 py-4 border-b border-white/[0.04]">
+          <h3 className="font-bold text-sm text-foreground">Allowed Duration Values</h3>
+          <p className="text-[11px] text-muted-foreground mt-0.5">The external API accepts these exact hour values</p>
+        </div>
+        <div className="p-4 grid grid-cols-5 gap-2">
+          {HOUR_PRESETS.map(({ h, label }) => (
+            <div key={h} className="flex flex-col items-center gap-1 py-3 rounded-xl" style={{ background: "rgba(6,182,212,0.06)", border: "1px solid rgba(6,182,212,0.12)" }}>
+              <span className="text-xl font-black text-cyan-400">{h}</span>
+              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">hrs</span>
+              <span className="text-[10px] text-muted-foreground/60">{label}</span>
+            </div>
+          ))}
+        </div>
+        <div className="px-5 pb-4">
+          <div className="rounded-xl px-4 py-3 text-[11px] font-mono" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "#6b7280" }}>
+            <span className="text-cyan-400/70">{"{base_url}"}</span>
+            <span className="text-muted-foreground/40">?api=</span>
+            <span className="text-amber-400/70">{"{key}"}</span>
+            <span className="text-muted-foreground/40">&action=create&uid=</span>
+            <span className="text-violet-400/70">{"{uid}"}</span>
+            <span className="text-muted-foreground/40">&duration=</span>
+            <span className="text-emerald-400/70">{"{hours}"}</span>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,19 +1,38 @@
 import { Router } from "express";
-import { userStore, trialStore, uidStore } from "../store";
-import { config, getApiKey } from "../config";
+import { userStore, trialStore, uidStore, settingsStore } from "../store";
+import { config } from "../config";
 
 const router = Router();
 
+const ALLOWED_HOURS = [24, 72, 168, 336, 720];
+
+function daysToHours(days: number): number {
+  const hours = days * 24;
+  return ALLOWED_HOURS.reduce((best, h) =>
+    Math.abs(h - hours) < Math.abs(best - hours) ? h : best
+  );
+}
+
+async function getApiBase(): Promise<string> {
+  const settings = await settingsStore.get();
+  return settings.externalApiUrl || config.EXTERNAL_API_URL;
+}
+
+async function getKey(): Promise<string> {
+  const settings = await settingsStore.get();
+  if (settings.externalApiKey) return settings.externalApiKey;
+  const key = process.env[config.API_KEY_ENV];
+  if (!key) throw new Error("API key not configured");
+  return key;
+}
+
 router.get("/list", async (req, res) => {
   try {
-    const response = await fetch(`${config.EXTERNAL_API_URL}/api/uid/list`, {
-      headers: { "X-API-KEY": getApiKey() },
-    });
-    const data = await response.json();
-    res.json(data);
+    const uids = await uidStore.list();
+    res.json({ success: true, uids });
   } catch (err) {
     req.log.error({ err }, "Failed to list UIDs");
-    res.status(500).json({ success: false, message: "Failed to contact external API" });
+    res.status(500).json({ success: false, message: "Failed to list UIDs" });
   }
 });
 
@@ -37,17 +56,15 @@ router.post("/add", async (req, res) => {
   }
 
   try {
-    const response = await fetch(`${config.EXTERNAL_API_URL}/api/uid/add`, {
-      method: "POST",
-      headers: {
-        "X-API-KEY": getApiKey(),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ uid, days: effectiveDays, bluestack }),
-    });
+    const base = await getApiBase();
+    const key = await getKey();
+    const hours = daysToHours(effectiveDays);
+    const url = `${base}?api=${encodeURIComponent(key)}&action=create&uid=${encodeURIComponent(uid)}&duration=${hours}`;
+    const response = await fetch(url);
     const data = await response.json();
 
-    if (data.success) {
+    const success = data.success === true || data.status === "success";
+    if (success) {
       if (username) {
         const user = await userStore.find(username);
         if (user?.isTrial) trialStore.increment(username);
@@ -55,7 +72,7 @@ router.post("/add", async (req, res) => {
       await uidStore.save(uid, effectiveDays, bluestack, username ?? "");
     }
 
-    res.json(data);
+    res.json({ ...data, success });
   } catch (err) {
     req.log.error({ err }, "Failed to add UID");
     res.status(500).json({ success: false, message: "Failed to contact external API" });
@@ -69,19 +86,17 @@ router.post("/remove", async (req, res) => {
     return;
   }
   try {
-    const response = await fetch(`${config.EXTERNAL_API_URL}/api/uid/remove`, {
-      method: "POST",
-      headers: {
-        "X-API-KEY": getApiKey(),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ uid }),
-    });
+    const base = await getApiBase();
+    const key = await getKey();
+    const url = `${base}?api=${encodeURIComponent(key)}&action=delete&uid=${encodeURIComponent(uid)}`;
+    const response = await fetch(url);
     const data = await response.json();
-    if (data.success) {
+
+    const success = data.success === true || data.status === "success";
+    if (success) {
       await uidStore.remove(uid);
     }
-    res.json(data);
+    res.json({ ...data, success });
   } catch (err) {
     req.log.error({ err }, "Failed to remove UID");
     res.status(500).json({ success: false, message: "Failed to contact external API" });

@@ -4,7 +4,7 @@
 
 export const config = {
   // External UID backend — change IP/port here only
-  EXTERNAL_API_URL: "https://uid.sg71developerzone.online",
+  EXTERNAL_API_URL: "https://dev-armorauidbypass.pantheonsite.io/api/bypassapi.php",
 
   // API key — value is read from the UID_API_KEY environment secret
   API_KEY_ENV: "UID_API_KEY",

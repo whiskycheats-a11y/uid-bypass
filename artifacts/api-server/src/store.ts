@@ -253,5 +253,42 @@ export async function purgeExpiredTrials(): Promise<{ username: string; uids: st
   return purged;
 }
 
+// ── App settings model ──────────────────────────────────────────────────
+interface SettingsDoc extends Document {
+  key: string;
+  externalApiUrl: string;
+  externalApiKey: string;
+}
+
+const settingsSchema = new Schema<SettingsDoc>({
+  key:            { type: String, default: "main" },
+  externalApiUrl: { type: String, default: "" },
+  externalApiKey: { type: String, default: "" },
+});
+
+const SettingsModel = model<SettingsDoc>("AppSettings", settingsSchema);
+
+let settingsCache: { externalApiUrl: string; externalApiKey: string } | null = null;
+
+export const settingsStore = {
+  async get(): Promise<{ externalApiUrl: string; externalApiKey: string }> {
+    await ensureConnection();
+    if (!connected) return { externalApiUrl: "", externalApiKey: "" };
+    if (settingsCache) return settingsCache;
+    const doc = await SettingsModel.findOne({ key: "main" });
+    settingsCache = {
+      externalApiUrl: doc?.externalApiUrl ?? "",
+      externalApiKey: doc?.externalApiKey ?? "",
+    };
+    return settingsCache;
+  },
+  async update(data: { externalApiUrl?: string; externalApiKey?: string }): Promise<void> {
+    await ensureConnection();
+    if (!connected) return;
+    await SettingsModel.updateOne({ key: "main" }, { $set: data }, { upsert: true });
+    settingsCache = null;
+  },
+};
+
 // Start connection immediately on import
 ensureConnection().catch(() => {});
