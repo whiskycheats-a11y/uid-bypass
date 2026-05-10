@@ -336,5 +336,78 @@ export const settingsStore = {
   },
 };
 
+// ── Payment Request model ──────────────────────────────────────────────
+export interface PaymentRequest {
+  _id?: string;
+  username: string;
+  packageTokens: number;
+  packagePrice: string;
+  txNote: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+}
+
+interface PaymentDoc extends PaymentRequest, Document {}
+
+const paymentSchema = new Schema<PaymentDoc>({
+  username:      { type: String, required: true },
+  packageTokens: { type: Number, required: true },
+  packagePrice:  { type: String, required: true },
+  txNote:        { type: String, default: "" },
+  status:        { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
+  createdAt:     { type: String, default: () => new Date().toISOString() },
+});
+
+const PaymentModel = model<PaymentDoc>("PaymentRequest", paymentSchema);
+
+const fallbackPayments: (PaymentRequest & { _id: string })[] = [];
+let _payFallbackId = 0;
+
+export const paymentStore = {
+  async create(username: string, packageTokens: number, packagePrice: string, txNote: string): Promise<PaymentRequest> {
+    await ensureConnection();
+    const req: PaymentRequest = { username, packageTokens, packagePrice, txNote, status: "pending", createdAt: new Date().toISOString() };
+    if (!connected) {
+      const entry = { ...req, _id: String(++_payFallbackId) };
+      fallbackPayments.push(entry);
+      return entry;
+    }
+    const doc = await PaymentModel.create(req);
+    return { ...req, _id: doc._id.toString() };
+  },
+
+  async list(): Promise<PaymentRequest[]> {
+    await ensureConnection();
+    if (!connected) return [...fallbackPayments].reverse();
+    const docs = await PaymentModel.find({}).sort({ createdAt: -1 });
+    return docs.map(d => ({ _id: d._id.toString(), username: d.username, packageTokens: d.packageTokens, packagePrice: d.packagePrice, txNote: d.txNote, status: d.status, createdAt: d.createdAt }));
+  },
+
+  async approve(id: string): Promise<PaymentRequest | null> {
+    await ensureConnection();
+    if (!connected) {
+      const r = fallbackPayments.find(x => x._id === id);
+      if (!r || r.status !== "pending") return null;
+      r.status = "approved";
+      return r;
+    }
+    const doc = await PaymentModel.findByIdAndUpdate(id, { status: "approved" }, { new: true });
+    if (!doc) return null;
+    return { _id: doc._id.toString(), username: doc.username, packageTokens: doc.packageTokens, packagePrice: doc.packagePrice, txNote: doc.txNote, status: doc.status, createdAt: doc.createdAt };
+  },
+
+  async reject(id: string): Promise<boolean> {
+    await ensureConnection();
+    if (!connected) {
+      const r = fallbackPayments.find(x => x._id === id);
+      if (!r) return false;
+      r.status = "rejected";
+      return true;
+    }
+    const res = await PaymentModel.findByIdAndUpdate(id, { status: "rejected" });
+    return !!res;
+  },
+};
+
 // Start connection immediately on import
 ensureConnection().catch(() => {});

@@ -31,6 +31,9 @@ import {
   CheckCheck,
   Timer,
   Coins,
+  Wallet,
+  QrCode,
+  SendHorizonal,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -131,6 +134,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   const [showTrialMessage, setShowTrialMessage] = useState(false);
   const [activeTab, setActiveTab] = useState<"uid" | "trial">("uid");
   const [balance, setBalance] = useState<number | null>(null);
+  const [showFunds, setShowFunds] = useState(false);
 
   useEffect(() => {
     if (isTrial || !username) return;
@@ -293,10 +297,24 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                 )}
               </div>
             )}
-            {!isTrial && balance !== null && (
-              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold" style={{ background: balance > 0 ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", color: balance > 0 ? "#10b981" : "#ef4444", border: `1px solid ${balance > 0 ? "rgba(16,185,129,0.25)" : "rgba(239,68,68,0.25)"}` }}>
-                <Coins className="w-3 h-3" />
-                <span>{balance} tokens</span>
+            {!isTrial && (
+              <div className="hidden sm:flex items-center gap-2">
+                {balance !== null && (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold" style={{ background: balance > 0 ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", color: balance > 0 ? "#10b981" : "#ef4444", border: `1px solid ${balance > 0 ? "rgba(16,185,129,0.25)" : "rgba(239,68,68,0.25)"}` }}>
+                    <Coins className="w-3 h-3" />
+                    <span>{balance} tokens</span>
+                  </div>
+                )}
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowFunds(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+                  style={{ background: "linear-gradient(135deg, rgba(236,72,153,0.2), rgba(139,92,246,0.15))", color: "#f472b6", border: "1px solid rgba(236,72,153,0.3)", boxShadow: "0 0 12px rgba(236,72,153,0.15)" }}
+                >
+                  <Wallet className="w-3 h-3" />
+                  Add Funds
+                </motion.button>
               </div>
             )}
             <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -709,7 +727,202 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
         </AnimatePresence>
 
       </main>
+
+      <AnimatePresence>
+        {showFunds && (
+          <AddFundsModal
+            username={username ?? ""}
+            onClose={() => setShowFunds(false)}
+            onSuccess={() => {
+              fetch(`${BASE}/api/credits/me`, { headers: userHeaders() })
+                .then(r => r.json())
+                .then(d => { if (d.success) setBalance(d.balance); })
+                .catch(() => {});
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
+  );
+}
+
+/* ─── Token packages ─── */
+const TOKEN_PACKAGES = [
+  { tokens: 10,  price: "$0.50",  label: "Starter",  color: "#10b981" },
+  { tokens: 30,  price: "$1.30",  label: "Basic",    color: "#06b6d4" },
+  { tokens: 70,  price: "$2.33",  label: "Standard", color: "#8b5cf6" },
+  { tokens: 150, price: "$3.50",  label: "Pro",      color: "#f59e0b" },
+  { tokens: 300, price: "$5.20",  label: "Ultimate", color: "#ec4899" },
+];
+
+/* ─── Add Funds Modal ─── */
+function AddFundsModal({ username, onClose, onSuccess }: { username: string; onClose: () => void; onSuccess: () => void }) {
+  const BASE_M = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const { toast } = useToast();
+  const [selected, setSelected] = useState<typeof TOKEN_PACKAGES[0] | null>(null);
+  const [txNote, setTxNote] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  function userHdrs() {
+    try {
+      const raw = sessionStorage.getItem("uid_auth");
+      if (!raw) return {};
+      const { username: u, adminKey } = JSON.parse(raw);
+      return { "Content-Type": "application/json", "x-username": u ?? "", "x-password": adminKey ?? "" };
+    } catch { return { "Content-Type": "application/json" }; }
+  }
+
+  const handleSubmit = async () => {
+    if (!selected) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`${BASE_M}/api/payments/request`, {
+        method: "POST",
+        headers: userHdrs(),
+        body: JSON.stringify({ packageTokens: selected.tokens, packagePrice: selected.price, txNote }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSubmitted(true);
+        onSuccess();
+      } else {
+        toast({ title: "Error", description: data.error ?? "Request failed", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Error", description: "Could not reach server", variant: "destructive" });
+    } finally { setLoading(false); }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(12px)" }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <motion.div
+        initial={{ scale: 0.92, opacity: 0, y: 24 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.92, opacity: 0, y: 24 }}
+        transition={{ type: "spring", stiffness: 260, damping: 24 }}
+        className="glass-strong rounded-2xl w-full max-w-md overflow-hidden relative"
+        style={{ border: "1px solid rgba(236,72,153,0.2)", boxShadow: "0 0 60px rgba(236,72,153,0.12)" }}
+      >
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, #ec4899, #8b5cf6, transparent)" }} />
+
+        <div className="px-6 py-5 border-b border-white/[0.04] flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, rgba(236,72,153,0.2), rgba(139,92,246,0.15))", border: "1px solid rgba(236,72,153,0.3)" }}>
+              <Wallet className="w-4 h-4 text-pink-400" />
+            </div>
+            <div>
+              <h2 className="font-bold text-sm text-foreground">Add Tokens</h2>
+              <p className="text-[11px] text-muted-foreground">Purchase tokens to authorize UIDs</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/[0.05] text-muted-foreground hover:text-foreground transition-all">
+            <XCircle className="w-4 h-4" />
+          </button>
+        </div>
+
+        <AnimatePresence mode="wait">
+          {submitted ? (
+            <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="p-6 flex flex-col items-center gap-4 text-center">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)" }}>
+                <CheckCheck className="w-8 h-8 text-emerald-400" />
+              </div>
+              <div>
+                <p className="font-bold text-foreground text-lg">Request Submitted!</p>
+                <p className="text-sm text-muted-foreground mt-1">Your payment request for <span className="text-pink-400 font-bold">{selected?.tokens} tokens ({selected?.price})</span> has been sent to admin.</p>
+                <p className="text-xs text-muted-foreground mt-2">Tokens will be added once admin verifies your payment.</p>
+              </div>
+              <button onClick={onClose} className="mt-2 px-6 py-2.5 rounded-xl text-sm font-bold text-foreground border border-white/[0.1] hover:bg-white/[0.05] transition-all">
+                Close
+              </button>
+            </motion.div>
+          ) : (
+            <motion.div key="form" className="p-6 space-y-5">
+              {/* QR Section */}
+              <div className="flex gap-4 p-4 rounded-2xl" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <div className="shrink-0">
+                  <img
+                    src={`${BASE_M}/qr-payment.png`}
+                    alt="Payment QR Code"
+                    className="w-24 h-24 rounded-xl object-cover"
+                    style={{ border: "2px solid rgba(236,72,153,0.3)" }}
+                  />
+                </div>
+                <div className="flex flex-col justify-center gap-1">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <QrCode className="w-3.5 h-3.5 text-pink-400" />
+                    <span className="text-xs font-bold text-foreground">Scan to Pay</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">Scan the QR code to send payment. After paying, select your package and submit your request below.</p>
+                  <p className="text-[10px] text-pink-400 font-semibold mt-1">Admin will verify & add tokens within minutes</p>
+                </div>
+              </div>
+
+              {/* Package selection */}
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2 block">Select Package</label>
+                <div className="grid grid-cols-5 gap-1.5">
+                  {TOKEN_PACKAGES.map(pkg => (
+                    <button
+                      key={pkg.tokens}
+                      onClick={() => setSelected(pkg)}
+                      className="flex flex-col items-center p-2.5 rounded-xl transition-all duration-150"
+                      style={{
+                        background: selected?.tokens === pkg.tokens ? `${pkg.color}18` : "rgba(255,255,255,0.03)",
+                        border: selected?.tokens === pkg.tokens ? `1px solid ${pkg.color}50` : "1px solid rgba(255,255,255,0.07)",
+                        boxShadow: selected?.tokens === pkg.tokens ? `0 0 14px ${pkg.color}25` : "none",
+                      }}
+                    >
+                      <span className="text-lg font-black" style={{ color: selected?.tokens === pkg.tokens ? pkg.color : "#9ca3af" }}>{pkg.tokens}</span>
+                      <span className="text-[8px] text-muted-foreground uppercase tracking-wide">tokens</span>
+                      <span className="text-[10px] font-bold mt-1" style={{ color: selected?.tokens === pkg.tokens ? pkg.color : "#6b7280" }}>{pkg.price}</span>
+                      <span className="text-[8px] text-muted-foreground">{pkg.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tx note */}
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2 block">Transaction Note (optional)</label>
+                <input
+                  value={txNote}
+                  onChange={e => setTxNote(e.target.value)}
+                  placeholder="e.g. last 4 digits, screenshot ID…"
+                  className="w-full h-10 px-3 rounded-xl text-sm font-mono text-foreground focus:outline-none transition-all"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }}
+                />
+              </div>
+
+              {selected && (
+                <div className="flex items-center justify-between px-3 py-2 rounded-xl" style={{ background: `${selected.color}10`, border: `1px solid ${selected.color}25` }}>
+                  <span className="text-xs font-semibold" style={{ color: selected.color }}>Selected: {selected.tokens} tokens</span>
+                  <span className="text-xs font-bold" style={{ color: selected.color }}>{selected.price}</span>
+                </div>
+              )}
+
+              <motion.button
+                onClick={handleSubmit}
+                disabled={!selected || loading}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full h-12 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 relative overflow-hidden disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ background: "linear-gradient(135deg, #ec4899, #8b5cf6)", boxShadow: selected ? "0 0 25px rgba(236,72,153,0.4)" : "none" }}
+              >
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><SendHorizonal className="w-4 h-4" />Submit Payment Request</>}
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
   );
 }
 

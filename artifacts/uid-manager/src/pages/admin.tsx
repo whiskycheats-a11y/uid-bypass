@@ -4,10 +4,20 @@ import {
   Users, Plus, Trash2, LogOut, Eye, EyeOff, Loader2, Crown,
   UserCheck, Activity, Sparkles, Copy, CheckCheck, X, Zap,
   Lock, User as UserIcon, Gift, RefreshCw, Shield, Timer, Settings,
-  Coins, Wallet,
+  Coins, Wallet, CreditCard, Check, XCircle, Clock,
 } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+interface PaymentItem {
+  _id: string;
+  username: string;
+  packageTokens: number;
+  packagePrice: string;
+  txNote: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+}
 
 interface ClientUser {
   username: string;
@@ -43,14 +53,40 @@ function rand(len: number, chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvw
 export default function Admin({ adminUsername, onLogout }: AdminProps) {
   const [users, setUsers] = useState<ClientUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"clients" | "trial" | "settings">("clients");
+  const [tab, setTab] = useState<"clients" | "trial" | "payments" | "settings">("clients");
+  const [payments, setPayments] = useState<PaymentItem[]>([]);
+  const [paymentsLoading, setPaymentsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number>(0);
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => { fetchUsers(); fetchPayments(); }, []);
+
+  async function fetchPayments() {
+    setPaymentsLoading(true);
+    try {
+      const res = await fetch(`${BASE}/api/payments`, { headers: adminHeaders() });
+      const data = await res.json();
+      if (data.success) setPayments(data.requests);
+    } finally { setPaymentsLoading(false); }
+  }
+
+  async function handleApprovePayment(id: string) {
+    const res = await fetch(`${BASE}/api/payments/${encodeURIComponent(id)}/approve`, { method: "PATCH", headers: adminHeaders() });
+    const data = await res.json();
+    if (data.success) {
+      setPayments(p => p.map(x => x._id === id ? { ...x, status: "approved" } : x));
+      setUsers(u => u.map(x => x.username === data.username ? { ...x, balance: data.balance } : x));
+    }
+  }
+
+  async function handleRejectPayment(id: string) {
+    const res = await fetch(`${BASE}/api/payments/${encodeURIComponent(id)}/reject`, { method: "PATCH", headers: adminHeaders() });
+    const data = await res.json();
+    if (data.success) setPayments(p => p.map(x => x._id === id ? { ...x, status: "rejected" } : x));
+  }
 
   /* RAF-throttled spotlight — zero layout thrash */
   useEffect(() => {
@@ -210,6 +246,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           {([
             { key: "clients", icon: Users, label: "Client Accounts", count: regular.length },
             { key: "trial", icon: Gift, label: "Free Trial", count: trials.length, gold: true },
+            { key: "payments", icon: CreditCard, label: "Payments", count: payments.filter(p => p.status === "pending").length, rose: true },
             { key: "settings", icon: Settings, label: "Settings", count: null, teal: true },
           ] as const).map((t) => (
             <button
@@ -217,10 +254,10 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
               onClick={() => setTab(t.key)}
               className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold transition-all duration-200 relative overflow-hidden"
               style={{
-                background: tab === t.key ? ("teal" in t && t.teal ? "linear-gradient(135deg, rgba(6,182,212,0.25), rgba(16,185,129,0.15))" : t.gold ? "linear-gradient(135deg, rgba(245,158,11,0.25), rgba(239,68,68,0.15))" : "linear-gradient(135deg, rgba(139,92,246,0.25), rgba(6,182,212,0.15))") : "transparent",
-                color: tab === t.key ? ("teal" in t && t.teal ? "#06b6d4" : t.gold ? "#f59e0b" : "#a78bfa") : "#6b7280",
-                border: tab === t.key ? `1px solid ${"teal" in t && t.teal ? "rgba(6,182,212,0.3)" : t.gold ? "rgba(245,158,11,0.3)" : "rgba(139,92,246,0.3)"}` : "1px solid transparent",
-                boxShadow: tab === t.key ? `0 0 20px ${"teal" in t && t.teal ? "rgba(6,182,212,0.15)" : t.gold ? "rgba(245,158,11,0.15)" : "rgba(139,92,246,0.15)"}` : "none",
+                background: tab === t.key ? ("teal" in t && t.teal ? "linear-gradient(135deg, rgba(6,182,212,0.25), rgba(16,185,129,0.15))" : "rose" in t && t.rose ? "linear-gradient(135deg, rgba(236,72,153,0.25), rgba(239,68,68,0.15))" : t.gold ? "linear-gradient(135deg, rgba(245,158,11,0.25), rgba(239,68,68,0.15))" : "linear-gradient(135deg, rgba(139,92,246,0.25), rgba(6,182,212,0.15))") : "transparent",
+                color: tab === t.key ? ("teal" in t && t.teal ? "#06b6d4" : "rose" in t && t.rose ? "#f472b6" : t.gold ? "#f59e0b" : "#a78bfa") : "#6b7280",
+                border: tab === t.key ? `1px solid ${"teal" in t && t.teal ? "rgba(6,182,212,0.3)" : "rose" in t && t.rose ? "rgba(236,72,153,0.3)" : t.gold ? "rgba(245,158,11,0.3)" : "rgba(139,92,246,0.3)"}` : "1px solid transparent",
+                boxShadow: tab === t.key ? `0 0 20px ${"teal" in t && t.teal ? "rgba(6,182,212,0.15)" : "rose" in t && t.rose ? "rgba(236,72,153,0.15)" : t.gold ? "rgba(245,158,11,0.15)" : "rgba(139,92,246,0.15)"}` : "none",
               }}
             >
               <t.icon className="w-4 h-4" />
@@ -259,6 +296,16 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                 onDelete={handleDelete}
                 onCopy={copy}
                 onCreated={(u) => setUsers((p) => [...p, u])}
+              />
+            </motion.div>
+          ) : tab === "payments" ? (
+            <motion.div key="payments" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+              <PaymentsPanel
+                payments={payments}
+                loading={paymentsLoading}
+                onApprove={handleApprovePayment}
+                onReject={handleRejectPayment}
+                onRefresh={fetchPayments}
               />
             </motion.div>
           ) : (
@@ -1049,6 +1096,136 @@ function SettingsPanel() {
             <span className="text-muted-foreground/40">&duration=</span>
             <span className="text-emerald-400/70">{"{hours}"}</span>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Payments Panel ─── */
+const PACKAGES = [
+  { tokens: 10,  price: "$0.50",  label: "Starter" },
+  { tokens: 30,  price: "$1.30",  label: "Basic" },
+  { tokens: 70,  price: "$2.33",  label: "Standard" },
+  { tokens: 150, price: "$3.50",  label: "Pro" },
+  { tokens: 300, price: "$5.20",  label: "Ultimate" },
+];
+
+function PaymentsPanel({
+  payments, loading, onApprove, onReject, onRefresh
+}: {
+  payments: PaymentItem[];
+  loading: boolean;
+  onApprove: (id: string) => void;
+  onReject: (id: string) => void;
+  onRefresh: () => void;
+}) {
+  const [acting, setActing] = useState<string | null>(null);
+
+  const pending = payments.filter(p => p.status === "pending");
+  const done = payments.filter(p => p.status !== "pending");
+
+  const act = async (id: string, fn: (id: string) => void) => {
+    setActing(id);
+    await fn(id);
+    setActing(null);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="glass-strong rounded-2xl overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, #ec4899, transparent)" }} />
+
+        <div className="px-5 py-4 border-b border-white/[0.04] flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(236,72,153,0.15)", border: "1px solid rgba(236,72,153,0.25)" }}>
+              <CreditCard className="w-4 h-4 text-pink-400" />
+            </div>
+            <div>
+              <h2 className="font-bold text-sm text-foreground">Payment Requests</h2>
+              <p className="text-[11px] text-muted-foreground">{pending.length} pending approval</p>
+            </div>
+          </div>
+          <button onClick={onRefresh} disabled={loading} className="p-2 rounded-lg hover:bg-white/[0.04] text-muted-foreground hover:text-foreground transition-all">
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : payments.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+            <CreditCard className="w-10 h-10 mb-3 opacity-20" />
+            <p className="text-sm">No payment requests yet</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-white/[0.03]">
+            {[...pending, ...done].map((p) => (
+              <div key={p._id} className="px-5 py-4 flex items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-mono font-bold text-sm text-foreground">{p.username}</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(236,72,153,0.12)", color: "#f472b6", border: "1px solid rgba(236,72,153,0.2)" }}>
+                      <Coins className="w-2.5 h-2.5" />{p.packageTokens} tokens
+                    </span>
+                    <span className="text-[11px] font-bold text-emerald-400">{p.packagePrice}</span>
+                  </div>
+                  {p.txNote && (
+                    <div className="text-[11px] text-muted-foreground font-mono truncate">Note: {p.txNote}</div>
+                  )}
+                  <div className="text-[10px] text-muted-foreground mt-0.5">{new Date(p.createdAt).toLocaleString()}</div>
+                </div>
+
+                {p.status === "pending" ? (
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => act(p._id, onApprove)}
+                      disabled={acting === p._id}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+                      style={{ background: "rgba(16,185,129,0.15)", color: "#10b981", border: "1px solid rgba(16,185,129,0.3)" }}
+                    >
+                      {acting === p._id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => act(p._id, onReject)}
+                      disabled={acting === p._id}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+                      style={{ background: "rgba(239,68,68,0.1)", color: "#f87171", border: "1px solid rgba(239,68,68,0.25)" }}
+                    >
+                      <XCircle className="w-3 h-3" />
+                      Reject
+                    </button>
+                  </div>
+                ) : (
+                  <span className={`shrink-0 flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold ${p.status === "approved" ? "text-emerald-400" : "text-red-400"}`} style={{ background: p.status === "approved" ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", border: `1px solid ${p.status === "approved" ? "rgba(16,185,129,0.25)" : "rgba(239,68,68,0.2)"}` }}>
+                    {p.status === "approved" ? <Check className="w-2.5 h-2.5" /> : <XCircle className="w-2.5 h-2.5" />}
+                    {p.status === "approved" ? "Approved" : "Rejected"}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Pricing reference */}
+      <div className="glass-strong rounded-2xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Coins className="w-4 h-4 text-amber-400" />
+          <span className="text-sm font-bold text-foreground">Token Packages</span>
+        </div>
+        <div className="grid grid-cols-5 gap-2">
+          {PACKAGES.map(pkg => (
+            <div key={pkg.tokens} className="flex flex-col items-center p-3 rounded-xl text-center" style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)" }}>
+              <div className="text-lg font-black text-foreground">{pkg.tokens}</div>
+              <div className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">tokens</div>
+              <div className="text-xs font-bold text-emerald-400">{pkg.price}</div>
+              <div className="text-[9px] text-muted-foreground mt-0.5">{pkg.label}</div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
