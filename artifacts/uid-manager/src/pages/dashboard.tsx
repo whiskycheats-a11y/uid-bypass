@@ -334,7 +334,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
           <StatCard icon={Users} label="Total UIDs" value={isLoading ? "—" : uids.length} gradFrom="#8b5cf6" gradTo="#6d28d9" delay={0} />
           <StatCard icon={Monitor} label="BlueStack" value={isLoading ? "—" : bsCount} gradFrom="#06b6d4" gradTo="#0891b2" delay={0.06} />
           <StatCard icon={CheckCircle2} label="Standard" value={isLoading ? "—" : uids.length - bsCount} gradFrom="#10b981" gradTo="#059669" delay={0.12} />
-          <StatCard icon={CalendarDays} label="Avg Duration" value="30d" gradFrom="#ec4899" gradTo="#db2777" delay={0.18} />
+          <StatCard icon={Coins} label="Tokens" value={isTrial ? "FREE" : (balance === null ? "—" : balance)} gradFrom="#ec4899" gradTo="#db2777" delay={0.18} />
         </div>
 
         {/* Tab switcher — only for resellers with canResell permission */}
@@ -421,9 +421,14 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Duration (Days)</label>
-                      {isTrial && (
+                      {isTrial ? (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(236,72,153,0.15)", color: "#f472b6", border: "1px solid rgba(236,72,153,0.25)" }}>
                           1 DAY TRIAL
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: hasEnoughBalance ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.12)", color: hasEnoughBalance ? "#10b981" : "#ef4444", border: `1px solid ${hasEnoughBalance ? "rgba(16,185,129,0.25)" : "rgba(239,68,68,0.3)"}` }}>
+                          <Coins className="w-2.5 h-2.5" />
+                          {tokenCost} token{tokenCost !== 1 ? "s" : ""}
                         </span>
                       )}
                     </div>
