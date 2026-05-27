@@ -49,6 +49,14 @@ function getResellerKey(): string {
   } catch { return ""; }
 }
 
+const DURATION_OPTIONS = [
+  { label: "24 Hours", days: 1,  price: "$0.50" },
+  { label: "3 Days",   days: 3,  price: "$1.30" },
+  { label: "7 Days",   days: 7,  price: "$2.33" },
+  { label: "14 Days",  days: 14, price: "$3.50" },
+  { label: "30 Days",  days: 30, price: "$5.20" },
+];
+
 const addUidSchema = z.object({
   uid: z.string().min(1, "UID is required"),
   days: z.coerce.number().min(1).default(30),
@@ -438,7 +446,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
 
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Duration (Days)</label>
+                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Duration</label>
                       {isTrial ? (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(236,72,153,0.15)", color: "#f472b6", border: "1px solid rgba(236,72,153,0.25)" }}>
                           1 DAY TRIAL
@@ -450,24 +458,31 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                         </span>
                       )}
                     </div>
-                    <div className="relative group">
-                      <CalendarDays className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                      {isTrial ? (
-                        <Input
-                          type="number"
-                          readOnly
-                          value={1}
-                          onChange={() => {}}
-                          className="pl-10 h-11 rounded-xl text-sm bg-white/[0.02] border-white/[0.06] cursor-not-allowed opacity-70 select-none"
-                        />
-                      ) : (
-                        <Input
-                          type="number"
-                          className="pl-10 h-11 rounded-xl bg-white/[0.03] border-white/10 focus-visible:ring-violet-500/40 focus-visible:border-violet-500/50 text-sm"
-                          {...form.register("days")}
-                        />
-                      )}
-                    </div>
+                    {isTrial ? (
+                      <div className="flex items-center gap-3 h-11 px-4 rounded-xl text-sm opacity-60 cursor-not-allowed" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                        <CalendarDays className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">24 Hours — Free Trial</span>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <CalendarDays className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
+                        <select
+                          value={form.watch("days")}
+                          onChange={(e) => form.setValue("days", Number(e.target.value))}
+                          className="w-full h-11 pl-10 pr-9 rounded-xl text-sm font-medium appearance-none cursor-pointer transition-all outline-none"
+                          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--foreground)" }}
+                        >
+                          {DURATION_OPTIONS.map((opt) => (
+                            <option key={opt.days} value={opt.days} style={{ background: "#0f0f1a" }}>
+                              {opt.label} — {opt.price}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                          <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] group hover:border-violet-500/20 hover:bg-white/[0.04] transition-all">
