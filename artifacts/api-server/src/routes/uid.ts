@@ -4,6 +4,8 @@ import { config } from "../config";
 
 const router = Router();
 
+// ── Helpers ───────────────────────────────────────────────────────────────
+
 const ALLOWED_HOURS = [24, 72, 168, 336, 720];
 
 function daysToHours(days: number): number {
@@ -13,18 +15,38 @@ function daysToHours(days: number): number {
   );
 }
 
-async function getApiBase(): Promise<string> {
-  const settings = await settingsStore.get();
-  return settings.externalApiUrl || config.EXTERNAL_API_URL;
+async function getBase(): Promise<string> {
+  const s = await settingsStore.get();
+  return (s.externalApiUrl || config.EXTERNAL_API_URL).replace(/\/$/, "");
 }
 
 async function getKey(): Promise<string> {
-  const settings = await settingsStore.get();
-  if (settings.externalApiKey) return settings.externalApiKey;
+  const s = await settingsStore.get();
+  if (s.externalApiKey) return s.externalApiKey;
   const key = process.env[config.API_KEY_ENV];
   if (!key) throw new Error("API key not configured");
   return key;
 }
+
+function authHeaders(key: string): Record<string, string> {
+  return {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${key}`,
+    "X-API-Key": key,
+  };
+}
+
+function isSuccess(data: Record<string, unknown>): boolean {
+  return (
+    data.success === true ||
+    data.status === "success" ||
+    data.status === "ok" ||
+    data.error === false ||
+    data.result === "success"
+  );
+}
+
+// ── Routes ────────────────────────────────────────────────────────────────
 
 router.get("/list", async (req, res) => {
   try {
@@ -60,38 +82,41 @@ router.post("/add", async (req, res) => {
     }
   }
 
-  // Token cost: 1 token per day
   const cost = effectiveDays;
 
-  // Deduct balance before calling external API (unless trial)
   if (!skipBalanceCheck && username) {
     const deduct = await userStore.deductBalance(username, cost);
     if (!deduct.ok) {
-      res.json({ success: false, message: deduct.error === "INSUFFICIENT_BALANCE" ? "INSUFFICIENT_BALANCE" : "User not found" });
+      res.json({
+        success: false,
+        message: deduct.error === "INSUFFICIENT_BALANCE" ? "INSUFFICIENT_BALANCE" : "User not found",
+      });
       return;
     }
   }
 
   try {
-    const base = await getApiBase();
+    const base = await getBase();
     const key = await getKey();
     const hours = daysToHours(effectiveDays);
-    const url = `${base}?api=${encodeURIComponent(key)}&action=create&uid=${encodeURIComponent(uid)}&duration=${hours}`;
-    const response = await fetch(url);
-    const data = await response.json();
 
-    const success = data.success === true || data.status === "success" || data.error === false;
+    const response = await fetch(`${base}/api/v1/uids/add`, {
+      method: "POST",
+      headers: authHeaders(key),
+      body: JSON.stringify({ uid, duration: hours, bluestack }),
+    });
+    const data = await response.json() as Record<string, unknown>;
+    const success = isSuccess(data);
+
     if (success) {
       if (username && isTrial) trialStore.increment(username);
       await uidStore.save(uid, effectiveDays, bluestack, username ?? "");
     } else if (!skipBalanceCheck && username) {
-      // Refund tokens if external API failed
       await userStore.adjustBalance(username, cost);
     }
 
     res.json({ ...data, success });
   } catch (err) {
-    // Refund tokens on network error
     if (!skipBalanceCheck && username) {
       await userStore.adjustBalance(username, cost);
     }
@@ -107,13 +132,17 @@ router.post("/remove", async (req, res) => {
     return;
   }
   try {
-    const base = await getApiBase();
+    const base = await getBase();
     const key = await getKey();
-    const url = `${base}?api=${encodeURIComponent(key)}&action=delete&uid=${encodeURIComponent(uid)}`;
-    const response = await fetch(url);
-    const data = await response.json();
 
-    const success = data.success === true || data.status === "success" || data.error === false;
+    const response = await fetch(`${base}/api/v1/uids/remove`, {
+      method: "POST",
+      headers: authHeaders(key),
+      body: JSON.stringify({ uid, action: "remove" }),
+    });
+    const data = await response.json() as Record<string, unknown>;
+    const success = isSuccess(data);
+
     if (success) {
       await uidStore.remove(uid);
     }
