@@ -4,7 +4,9 @@ import { userStore } from "../store";
 const router = Router();
 
 router.post("/login", async (req, res) => {
-  const { username, password } = req.body ?? {};
+  const username = req.body?.username?.trim();
+  const password = req.body?.password?.trim();
+  
   if (!username || !password) {
     return res.status(400).json({ success: false, error: "Username and password required" });
   }

@@ -714,25 +714,65 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
         </div>
       </div>
 
-      {/* Inline credits panel */}
+      {/* Inline credits panel (Premium 3D Design) */}
       <AnimatePresence>
         {showCredits && !isTrial && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-            <div className="px-4 pb-3 pt-0 flex items-center gap-2" style={{ background: "rgba(16,185,129,0.04)", borderTop: "1px solid rgba(16,185,129,0.12)" }}>
-              <Coins className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span className="text-[11px] text-muted-foreground">Current: <b className="text-emerald-400">{user.balance ?? 0}</b> tokens</span>
-              <input
-                type="number"
-                value={creditInput}
-                onChange={(e) => setCreditInput(e.target.value)}
-                placeholder="e.g. 30 or -10"
-                className="flex-1 h-8 px-2.5 rounded-lg bg-white/[0.04] border border-emerald-500/20 text-xs font-mono text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-emerald-500/50 transition-all"
-                onKeyDown={(e) => e.key === "Enter" && handleCredit()}
-              />
-              <button onClick={handleCredit} disabled={crediting || !creditInput} className="h-8 px-3 rounded-lg text-[11px] font-bold text-white disabled:opacity-40 transition-all flex items-center gap-1" style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}>
-                {crediting ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Coins className="w-3 h-3" />Apply</>}
-              </button>
-              <span className="text-[10px] text-muted-foreground/50">Use negative to deduct</span>
+          <motion.div 
+            initial={{ height: 0, opacity: 0, y: -10 }} 
+            animate={{ height: "auto", opacity: 1, y: 0 }} 
+            exit={{ height: 0, opacity: 0, y: -10 }} 
+            transition={{ type: "spring", stiffness: 300, damping: 25 }} 
+            className="overflow-hidden"
+          >
+            <div className="mx-4 mb-3 p-3 rounded-xl relative overflow-hidden" 
+                 style={{ 
+                   background: "linear-gradient(145deg, rgba(16,185,129,0.06) 0%, rgba(6,182,212,0.03) 100%)", 
+                   border: "1px solid rgba(16,185,129,0.2)",
+                   boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 20px rgba(0,0,0,0.1)"
+                 }}>
+              
+              {/* Glow effects */}
+              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
+              <div className="absolute -left-10 -top-10 w-24 h-24 bg-emerald-500/20 rounded-full blur-2xl" />
+              <div className="absolute -right-10 -bottom-10 w-24 h-24 bg-cyan-500/10 rounded-full blur-2xl" />
+
+              <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                
+                {/* Balance Badge */}
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg shrink-0" 
+                     style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
+                  <Coins className="w-4 h-4 text-emerald-400" />
+                  <span className="text-xs font-semibold text-emerald-400">
+                    {user.balance ?? 0} <span className="text-emerald-500/70 font-normal">Tokens</span>
+                  </span>
+                </div>
+
+                {/* Input & Action */}
+                <div className="flex-1 w-full flex items-center gap-2 relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent rounded-lg blur-md opacity-0 group-focus-within:opacity-100 transition-opacity duration-300" />
+                  
+                  <input
+                    type="number"
+                    value={creditInput}
+                    onChange={(e) => setCreditInput(e.target.value)}
+                    placeholder="Enter amount (e.g. 30 or -10)"
+                    className="relative z-10 flex-1 h-9 px-3 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-emerald-500/60 focus:bg-white/[0.03] transition-all shadow-inner"
+                    onKeyDown={(e) => e.key === "Enter" && handleCredit()}
+                  />
+                  
+                  <motion.button 
+                    onClick={handleCredit} 
+                    disabled={crediting || !creditInput} 
+                    whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(16,185,129,0.3)" }}
+                    whileTap={{ scale: 0.98 }}
+                    className="relative z-10 h-9 px-4 rounded-lg text-xs font-bold text-white disabled:opacity-40 transition-all flex items-center gap-1.5 shrink-0 overflow-hidden" 
+                    style={{ background: "linear-gradient(135deg, #10b981, #059669)", border: "1px solid rgba(255,255,255,0.1)" }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-150%] animate-[shimmer_2s_infinite]" />
+                    {crediting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Sparkles className="w-3.5 h-3.5" /> Apply</>}
+                  </motion.button>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
