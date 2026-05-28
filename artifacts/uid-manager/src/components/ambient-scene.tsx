@@ -1,16 +1,9 @@
 import { useEffect, useRef } from "react";
-import { Activity, Fingerprint, Radar, ShieldCheck } from "lucide-react";
 
 interface AmbientSceneProps {
   variant?: "public" | "user" | "admin";
   compact?: boolean;
 }
-
-const variantLabels = {
-  public: ["Gateway", "Auth Mesh", "Live Scan"],
-  user: ["UID Queue", "Token Core", "Access Relay"],
-  admin: ["Clients", "Payments", "Policy"],
-};
 
 export function AmbientScene({ variant = "public", compact = false }: AmbientSceneProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -32,8 +25,6 @@ export function AmbientScene({ variant = "public", compact = false }: AmbientSce
     return () => window.removeEventListener("pointermove", onMove);
   }, []);
 
-  const labels = variantLabels[variant];
-
   return (
     <div ref={ref} className={`ambient-scene ambient-${variant} ${compact ? "ambient-compact" : ""}`} aria-hidden="true">
       <div className="ambient-spotlight" />
@@ -44,23 +35,6 @@ export function AmbientScene({ variant = "public", compact = false }: AmbientSce
         <div className="core-ring core-ring-a" />
         <div className="core-ring core-ring-b" />
         <div className="core-ring core-ring-c" />
-        <div className="core-orb">
-          <div className="orb-shell" />
-          <div className="orb-icon orb-icon-a"><ShieldCheck /></div>
-          <div className="orb-icon orb-icon-b"><Fingerprint /></div>
-          <div className="orb-icon orb-icon-c"><Radar /></div>
-          <div className="orb-icon orb-icon-d"><Activity /></div>
-        </div>
-      </div>
-
-      <div className="ambient-node node-a">
-        <span>{labels[0]}</span>
-      </div>
-      <div className="ambient-node node-b">
-        <span>{labels[1]}</span>
-      </div>
-      <div className="ambient-node node-c">
-        <span>{labels[2]}</span>
       </div>
     </div>
   );
