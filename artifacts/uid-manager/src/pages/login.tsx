@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   Sparkles,
   User,
+  UserRoundCheck,
   Zap,
 } from "lucide-react";
 import { AmbientScene } from "@/components/ambient-scene";
@@ -63,7 +64,18 @@ export default function Login({ onLogin }: LoginProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
-      const data = await res.json();
+      const raw = await res.text();
+      let data: any = null;
+      try {
+        data = raw ? JSON.parse(raw) : null;
+      } catch {
+        throw new Error("Login server response is invalid. Please try again.");
+      }
+
+      if (!res.ok) {
+        throw new Error(data?.error ?? "Login request failed. Please try again.");
+      }
+
       if (data.success) {
         sessionStorage.setItem("uid_auth", JSON.stringify({
           role: data.role,
@@ -79,7 +91,7 @@ export default function Login({ onLogin }: LoginProps) {
       }
     } catch (err: any) {
       setLoading(false);
-      setError(err.message ?? "Access denied.");
+      setError(err.message && !String(err.message).includes("JSON") ? err.message : "Login failed. Please check your username and password.");
       setShake(true);
       setTimeout(() => setShake(false), 600);
     }
@@ -183,6 +195,22 @@ export default function Login({ onLogin }: LoginProps) {
             className="login-card"
           >
             <div className="login-card-glow" />
+            <div className="login-character" aria-hidden="true">
+              <div className="character-halo" />
+              <motion.div
+                className="character-avatar"
+                animate={{ y: [0, -8, 0], rotateZ: [0, 2, 0, -2, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <div className="character-face">
+                  <span className="character-eye" />
+                  <span className="character-eye" />
+                </div>
+                <div className="character-body">
+                  <UserRoundCheck className="h-5 w-5" />
+                </div>
+              </motion.div>
+            </div>
             <div className="login-card-header">
               <motion.div
                 animate={{ rotateY: [0, 12, 0, -12, 0], rotateZ: [0, 4, 0, -4, 0], y: [0, -8, 0] }}
