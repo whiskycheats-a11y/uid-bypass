@@ -599,40 +599,53 @@ body {
   animation: ring-c 7s linear infinite;
 }
 
-.core-cube {
+.core-orb {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 96px;
-  height: 96px;
-  margin: -48px;
+  width: 116px;
+  height: 116px;
+  margin: -58px;
   transform-style: preserve-3d;
-  animation: cube-spin 10s linear infinite;
+  animation: orb-float 5s ease-in-out infinite;
 }
 
-.cube-face {
+.orb-shell {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: linear-gradient(145deg, rgba(34, 211, 238, 0.16), rgba(139, 92, 246, 0.12));
-  box-shadow: inset 0 0 34px rgba(255, 255, 255, 0.04), 0 16px 44px rgba(0, 0, 0, 0.28);
-  color: #cffafe;
+  border-radius: 34px;
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.32), transparent 18%),
+    linear-gradient(145deg, rgba(34, 211, 238, 0.22), rgba(20, 184, 166, 0.12) 48%, rgba(251, 191, 36, 0.16));
+  box-shadow: inset 0 0 34px rgba(255, 255, 255, 0.05), 0 22px 54px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(12px);
+  transform: rotateX(58deg) rotateZ(-14deg);
 }
 
-.cube-face svg {
-  width: 34px;
-  height: 34px;
+.orb-icon {
+  position: absolute;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 14px;
+  color: #dffcff;
+  background: rgba(5, 12, 24, 0.72);
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.22);
+  animation: node-float 5s ease-in-out infinite;
 }
 
-.cube-front { transform: translateZ(48px); }
-.cube-back { transform: rotateY(180deg) translateZ(48px); }
-.cube-right { transform: rotateY(90deg) translateZ(48px); }
-.cube-left { transform: rotateY(-90deg) translateZ(48px); }
-.cube-top { transform: rotateX(90deg) translateZ(48px); }
-.cube-bottom { transform: rotateX(-90deg) translateZ(48px); }
+.orb-icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+.orb-icon-a { left: -6px; top: 36px; color: #67e8f9; }
+.orb-icon-b { right: 3px; top: 0; color: #a78bfa; animation-delay: -1s; }
+.orb-icon-c { right: -12px; bottom: 24px; color: #fbbf24; animation-delay: -2s; }
+.orb-icon-d { left: 42px; bottom: -12px; color: #34d399; animation-delay: -3s; }
 
 .ambient-node {
   position: absolute;
@@ -747,6 +760,134 @@ body {
   border-radius: 24px;
   padding: 18px;
 }
+
+.home-login-button {
+  position: relative;
+  display: inline-flex;
+  min-height: 58px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  overflow: hidden;
+  border-radius: 20px;
+  padding: 0 30px;
+  color: #fff;
+  background: linear-gradient(135deg, #14b8a6, #2563eb 48%, #f59e0b);
+  box-shadow: 0 22px 52px rgba(37, 99, 235, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.home-login-note {
+  color: rgba(203, 213, 225, 0.58);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.landing-visual-card {
+  position: relative;
+  width: min(100%, 520px);
+  min-height: 570px;
+  overflow: hidden;
+  border-radius: 34px;
+  border: 1px solid rgba(226, 232, 240, 0.12);
+  background:
+    radial-gradient(circle at 50% 38%, rgba(34, 211, 238, 0.22), transparent 26%),
+    radial-gradient(circle at 85% 78%, rgba(20, 184, 166, 0.14), transparent 30%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.095), rgba(255, 255, 255, 0.025));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(22px) saturate(140%);
+}
+
+.landing-visual-card::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    linear-gradient(rgba(125, 211, 252, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 211, 252, 0.06) 1px, transparent 1px);
+  background-size: 52px 52px;
+  transform: rotateX(68deg) rotateZ(-18deg);
+  animation: deck-drift 15s ease-in-out infinite;
+}
+
+.landing-orbit {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 330px;
+  height: 330px;
+  transform: translate(-50%, -50%);
+}
+
+.landing-orbit span {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(125, 211, 252, 0.17);
+  animation: radar-spin 14s linear infinite;
+}
+
+.landing-orbit span:nth-child(2) {
+  inset: 38px;
+  border-color: rgba(52, 211, 153, 0.16);
+  animation-duration: 11s;
+  animation-direction: reverse;
+}
+
+.landing-orbit span:nth-child(3) {
+  inset: 78px;
+  border-color: rgba(251, 191, 36, 0.15);
+  animation-duration: 8s;
+}
+
+.landing-shield {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  width: 132px;
+  height: 132px;
+  place-items: center;
+  color: #e0fbff;
+  border-radius: 34px;
+  background: linear-gradient(145deg, rgba(34, 211, 238, 0.88), rgba(99, 102, 241, 0.76), rgba(251, 191, 36, 0.82));
+  box-shadow: 0 28px 70px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.36);
+  transform: translate(-50%, -50%);
+  animation: orb-float 4.8s ease-in-out infinite;
+}
+
+.landing-panel {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 145px;
+  border-radius: 22px;
+  border: 1px solid rgba(226, 232, 240, 0.12);
+  background: rgba(5, 12, 24, 0.66);
+  padding: 18px;
+  color: #fff;
+  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(16px);
+}
+
+.landing-panel strong {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.landing-panel span {
+  color: rgba(203, 213, 225, 0.7);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.panel-a { left: 32px; top: 42px; }
+.panel-b { right: 30px; top: 330px; }
+.panel-c { left: 62px; bottom: 46px; }
 
 .login-shell {
   width: 100%;
@@ -1001,9 +1142,9 @@ body {
   color: #fca5a5;
 }
 
-@keyframes cube-spin {
-  from { transform: rotateX(-18deg) rotateY(0deg) rotateZ(8deg); }
-  to { transform: rotateX(-18deg) rotateY(360deg) rotateZ(8deg); }
+@keyframes orb-float {
+  0%, 100% { transform: translate3d(0, 0, 0) rotateZ(-2deg); }
+  50% { transform: translate3d(0, -14px, 0) rotateZ(3deg); }
 }
 
 @keyframes ring-a {
@@ -1115,12 +1256,9 @@ body {
     margin: -36px;
   }
 
-  .cube-front { transform: translateZ(36px); }
-  .cube-back { transform: rotateY(180deg) translateZ(36px); }
-  .cube-right { transform: rotateY(90deg) translateZ(36px); }
-  .cube-left { transform: rotateY(-90deg) translateZ(36px); }
-  .cube-top { transform: rotateX(90deg) translateZ(36px); }
-  .cube-bottom { transform: rotateX(-90deg) translateZ(36px); }
+  .landing-visual-card {
+    min-height: 430px;
+  }
 
   .home-title {
     font-size: clamp(2.35rem, 15vw, 4rem);

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Activity, Database, Fingerprint, Radar, ShieldCheck } from "lucide-react";
+import { Activity, Fingerprint, Radar, ShieldCheck } from "lucide-react";
 
 interface AmbientSceneProps {
   variant?: "public" | "user" | "admin";
@@ -44,13 +44,12 @@ export function AmbientScene({ variant = "public", compact = false }: AmbientSce
         <div className="core-ring core-ring-a" />
         <div className="core-ring core-ring-b" />
         <div className="core-ring core-ring-c" />
-        <div className="core-cube">
-          <span className="cube-face cube-front"><ShieldCheck /></span>
-          <span className="cube-face cube-back"><Fingerprint /></span>
-          <span className="cube-face cube-right"><Radar /></span>
-          <span className="cube-face cube-left"><Activity /></span>
-          <span className="cube-face cube-top"><Database /></span>
-          <span className="cube-face cube-bottom"><ShieldCheck /></span>
+        <div className="core-orb">
+          <div className="orb-shell" />
+          <div className="orb-icon orb-icon-a"><ShieldCheck /></div>
+          <div className="orb-icon orb-icon-b"><Fingerprint /></div>
+          <div className="orb-icon orb-icon-c"><Radar /></div>
+          <div className="orb-icon orb-icon-d"><Activity /></div>
         </div>
       </div>
 

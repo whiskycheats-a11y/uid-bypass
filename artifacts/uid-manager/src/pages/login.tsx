@@ -10,6 +10,7 @@ import {
   Gauge,
   KeyRound,
   Loader2,
+  LogIn,
   Lock,
   Orbit,
   Shield,
@@ -40,6 +41,7 @@ export default function Login({ onLogin }: LoginProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [shake, setShake] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -139,6 +141,22 @@ export default function Login({ onLogin }: LoginProps) {
               </p>
             </div>
 
+            <div className="flex flex-wrap items-center gap-3">
+              <motion.button
+                type="button"
+                onClick={() => setShowLogin(true)}
+                whileHover={{ y: -3, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="home-login-button"
+              >
+                <span className="btn-shimmer" />
+                <LogIn className="relative h-5 w-5" />
+                <span className="relative">Login</span>
+                <ArrowRight className="relative h-5 w-5" />
+              </motion.button>
+              <span className="home-login-note">Authorized users only</span>
+            </div>
+
             <div className="grid max-w-2xl gap-3 sm:grid-cols-3">
               {statusCards.map((item, index) => (
                 <motion.div
@@ -173,60 +191,93 @@ export default function Login({ onLogin }: LoginProps) {
           </motion.div>
         </section>
 
-        <motion.section
-          initial={{ opacity: 0, x: 30, scale: 0.96 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
-          transition={{ duration: 0.65, type: "spring", stiffness: 110, damping: 18 }}
-          className="login-shell"
-          style={{ perspective: "1200px" }}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-        >
-          <motion.div
-            ref={cardRef}
-            animate={shake ? { x: [-12, 12, -8, 8, -4, 4, 0] } : {}}
-            style={{
-              rotateX: tilt.x,
-              rotateY: tilt.y,
-              transformStyle: "preserve-3d",
-              transition: shake ? undefined : "transform 0.25s ease",
-            }}
-            transition={{ duration: 0.45 }}
-            className="login-card"
-          >
-            <div className="login-card-glow" />
-            <div className="login-character" aria-hidden="true">
-              <div className="character-halo" />
+        <section className="login-shell" style={{ perspective: "1200px" }}>
+          <AnimatePresence mode="wait">
+            {!showLogin ? (
               <motion.div
-                className="character-avatar"
-                animate={{ y: [0, -8, 0], rotateZ: [0, 2, 0, -2, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                key="landing-visual"
+                initial={{ opacity: 0, x: 30, scale: 0.96 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: 24, scale: 0.94 }}
+                transition={{ duration: 0.55, type: "spring", stiffness: 110, damping: 18 }}
+                className="landing-visual-card"
               >
-                <div className="character-face">
-                  <span className="character-eye" />
-                  <span className="character-eye" />
+                <div className="landing-orbit">
+                  <span />
+                  <span />
+                  <span />
+                  <div className="landing-shield">
+                    <ShieldCheck className="h-14 w-14" />
+                  </div>
                 </div>
-                <div className="character-body">
-                  <UserRoundCheck className="h-5 w-5" />
+                <div className="landing-panel panel-a">
+                  <strong>5900</strong>
+                  <span>Tokens Ready</span>
+                </div>
+                <div className="landing-panel panel-b">
+                  <strong>LIVE</strong>
+                  <span>Secure Channel</span>
+                </div>
+                <div className="landing-panel panel-c">
+                  <strong>UID</strong>
+                  <span>Instant Access</span>
                 </div>
               </motion.div>
-            </div>
-            <div className="login-card-header">
+            ) : (
               <motion.div
-                animate={{ rotateY: [0, 12, 0, -12, 0], rotateZ: [0, 4, 0, -4, 0], y: [0, -8, 0] }}
-                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
-                className="login-logo-3d"
+                key="login-form"
+                initial={{ opacity: 0, x: 30, scale: 0.96 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: 24, scale: 0.94 }}
+                transition={{ duration: 0.55, type: "spring", stiffness: 110, damping: 18 }}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
               >
-                <Fingerprint className="h-10 w-10" />
-              </motion.div>
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.28em] text-cyan-200/65">Secure Login</p>
-                <h2 className="mt-2 text-3xl font-black tracking-tight text-white">Access Portal</h2>
-                <p className="mt-1 text-sm text-slate-400">Enter your assigned credentials.</p>
-              </div>
-            </div>
+                <motion.div
+                  ref={cardRef}
+                  animate={shake ? { x: [-12, 12, -8, 8, -4, 4, 0] } : {}}
+                  style={{
+                    rotateX: tilt.x,
+                    rotateY: tilt.y,
+                    transformStyle: "preserve-3d",
+                    transition: shake ? undefined : "transform 0.25s ease",
+                  }}
+                  transition={{ duration: 0.45 }}
+                  className="login-card"
+                >
+                  <div className="login-card-glow" />
+                  <div className="login-character" aria-hidden="true">
+                    <div className="character-halo" />
+                    <motion.div
+                      className="character-avatar"
+                      animate={{ y: [0, -8, 0], rotateZ: [0, 2, 0, -2, 0] }}
+                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <div className="character-face">
+                        <span className="character-eye" />
+                        <span className="character-eye" />
+                      </div>
+                      <div className="character-body">
+                        <UserRoundCheck className="h-5 w-5" />
+                      </div>
+                    </motion.div>
+                  </div>
+                  <div className="login-card-header">
+                    <motion.div
+                      animate={{ rotateY: [0, 12, 0, -12, 0], rotateZ: [0, 4, 0, -4, 0], y: [0, -8, 0] }}
+                      transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+                      className="login-logo-3d"
+                    >
+                      <Fingerprint className="h-10 w-10" />
+                    </motion.div>
+                    <div>
+                      <p className="text-[11px] font-black uppercase tracking-[0.28em] text-cyan-200/65">Secure Login</p>
+                      <h2 className="mt-2 text-3xl font-black tracking-tight text-white">Access Portal</h2>
+                      <p className="mt-1 text-sm text-slate-400">Enter your assigned credentials.</p>
+                    </div>
+                  </div>
 
-            <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+                  <form onSubmit={handleSubmit} className="mt-8 space-y-5">
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase tracking-[0.22em] text-slate-400">Username</label>
                 <div className="login-field">
@@ -294,14 +345,17 @@ export default function Login({ onLogin }: LoginProps) {
                   )}
                 </AnimatePresence>
               </motion.button>
-            </form>
+                  </form>
 
-            <div className="mt-6 flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.035] px-4 py-3 text-xs font-bold text-slate-400">
-              <span className="flex items-center gap-2"><Zap className="h-4 w-4 text-cyan-300" /> Encrypted session</span>
-              <span>v3.0</span>
-            </div>
-          </motion.div>
-        </motion.section>
+                  <div className="mt-6 flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.035] px-4 py-3 text-xs font-bold text-slate-400">
+                    <span className="flex items-center gap-2"><Zap className="h-4 w-4 text-cyan-300" /> Encrypted session</span>
+                    <button type="button" onClick={() => setShowLogin(false)} className="text-cyan-200/70 transition hover:text-white">Back</button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </section>
       </main>
     </div>
   );
