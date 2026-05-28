@@ -3,7 +3,7 @@ services:
     name: uid-api-server
     runtime: node
     plan: free
-    buildCommand: corepack enable && pnpm install --no-frozen-lockfile && pnpm --filter @workspace/uid-manager run build && pnpm --filter @workspace/api-server run build
+    buildCommand: npx pnpm install --no-frozen-lockfile && npx pnpm --filter @workspace/uid-manager run build && npx pnpm --filter @workspace/api-server run build
     startCommand: node --enable-source-maps ./artifacts/api-server/dist/index.mjs
     envVars:
       - key: NODE_ENV
