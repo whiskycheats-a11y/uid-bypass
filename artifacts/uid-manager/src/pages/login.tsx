@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   CheckCircle2,
@@ -44,10 +44,6 @@ export default function Login({ onLogin }: LoginProps) {
   const [showLogin, setShowLogin] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll();
-  const dragonY = useTransform(scrollYProgress, [0, 1], [0, -320]);
-  const dragonX = useTransform(scrollYProgress, [0, 1], [0, 140]);
-  const dragonRotate = useTransform(scrollYProgress, [0, 1], [-8, 18]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = cardRef.current;
@@ -123,7 +119,7 @@ export default function Login({ onLogin }: LoginProps) {
         </div>
       </header>
 
-      <main className="home-main relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 px-5 pb-10 sm:px-8 lg:grid-cols-[0.95fr_1.05fr]">
+      <main className={`home-main relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 px-5 pb-10 sm:px-8 ${showLogin ? "home-main-login" : "home-main-landing"}`}>
         <section className="home-hero">
           <motion.div
             initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
@@ -200,53 +196,9 @@ export default function Login({ onLogin }: LoginProps) {
           </motion.div>
         </section>
 
-        <section className="login-shell" style={{ perspective: "1200px" }}>
-          <AnimatePresence mode="wait">
-            {!showLogin ? (
-              <motion.div
-                key="landing-visual"
-                initial={{ opacity: 0, x: 30, scale: 0.96 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: 24, scale: 0.94 }}
-                transition={{ duration: 0.55, type: "spring", stiffness: 110, damping: 18 }}
-                className="landing-dragon-scene"
-              >
-                <div className="landing-orbit">
-                  <span />
-                  <span />
-                  <span />
-                  <motion.div
-                    className="dragon-stage"
-                    aria-hidden="true"
-                    drag
-                    dragElastic={0.18}
-                    dragMomentum={false}
-                    whileDrag={{ scale: 1.07, rotate: -4 }}
-                    style={{ x: dragonX, y: dragonY, rotate: dragonRotate }}
-                  >
-                    <div className="dragon-aura" />
-                    <div className="dragon-wing dragon-wing-left" />
-                    <div className="dragon-wing dragon-wing-right" />
-                    <div className="dragon-tail" />
-                    <div className="dragon-body">
-                      <div className="dragon-spine" />
-                      <div className="dragon-scale scale-a" />
-                      <div className="dragon-scale scale-b" />
-                      <div className="dragon-scale scale-c" />
-                    </div>
-                    <div className="dragon-neck" />
-                    <div className="dragon-head">
-                      <span className="dragon-horn horn-a" />
-                      <span className="dragon-horn horn-b" />
-                      <span className="dragon-eye" />
-                    </div>
-                    <div className="dragon-leg leg-a" />
-                    <div className="dragon-leg leg-b" />
-                  </motion.div>
-                </div>
-                <div className="dragon-hint">Drag the dragon</div>
-              </motion.div>
-            ) : (
+        <AnimatePresence>
+          {showLogin && (
+            <section className="login-shell" style={{ perspective: "1200px" }}>
               <motion.div
                 key="login-form"
                 initial={{ opacity: 0, x: 30, scale: 0.96 }}
@@ -376,9 +328,9 @@ export default function Login({ onLogin }: LoginProps) {
                   </div>
                 </motion.div>
               </motion.div>
-            )}
-          </AnimatePresence>
-        </section>
+            </section>
+          )}
+        </AnimatePresence>
       </main>
 
       <section className="home-deep-section relative z-10 mx-auto w-full max-w-7xl px-5 pb-20 sm:px-8">
