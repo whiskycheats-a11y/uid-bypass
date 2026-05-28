@@ -85,7 +85,7 @@ function StatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, type: "spring", stiffness: 200, damping: 22 }}
       whileHover={{ y: -4, scale: 1.02 }}
-      className="glass-3d-strong stat-card-3d rounded-2xl p-5 relative overflow-hidden cursor-default group"
+      className="glass-3d-strong stat-card-3d rounded-2xl p-3.5 sm:p-5 relative overflow-hidden cursor-default group"
     >
       <div
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-2xl"
@@ -98,16 +98,16 @@ function StatCard({
       <div className="relative z-10 flex items-start justify-between">
         <div>
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center mb-3"
+            className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-3"
             style={{ background: `linear-gradient(135deg, ${gradFrom}25, ${gradTo}15)`, border: `1px solid ${gradFrom}30` }}
           >
-            <Icon className="w-4 h-4" style={{ color: gradFrom }} />
+            <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: gradFrom }} />
           </div>
-          <div className="text-3xl font-bold text-foreground tracking-tight">{value}</div>
-          <div className="text-xs font-medium text-muted-foreground mt-1 tracking-wide">{label}</div>
+          <div className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{value}</div>
+          <div className="text-[10px] sm:text-xs font-medium text-muted-foreground mt-0.5 sm:mt-1 tracking-wide">{label}</div>
         </div>
         <motion.div
-          className="w-12 h-12 rounded-full opacity-[0.06] group-hover:opacity-[0.12] transition-opacity"
+          className="w-8 h-8 sm:w-12 sm:h-12 rounded-full opacity-[0.06] group-hover:opacity-[0.12] transition-opacity"
           style={{ background: gradFrom }}
         />
       </div>
@@ -517,12 +517,12 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
         transition={{ duration: 0.5 }}
         className="relative z-20 glass-3d border-b border-white/[0.05] sticky top-0"
       >
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0"
               style={{ background: "linear-gradient(135deg, #8b5cf6, #ec4899, #06b6d4)" }}
             >
               <Shield className="w-4 h-4 text-white" />
@@ -533,9 +533,9 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {username && (
-              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full glass text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full glass text-[10px] sm:text-xs text-muted-foreground">
                 <User className="w-3 h-3" />
                 <span className="font-mono font-semibold">{username}</span>
                 {isTrial && (
@@ -583,7 +583,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleLogout}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-muted-foreground hover:text-red-400 hover:bg-red-500/10 border border-white/[0.05] hover:border-red-500/20 transition-all"
+              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-[10px] sm:text-xs text-muted-foreground hover:text-red-400 hover:bg-red-500/10 border border-white/[0.05] hover:border-red-500/20 transition-all"
             >
               <LogOut className="w-3.5 h-3.5" />
               Logout
@@ -593,10 +593,10 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
       </motion.header>
 
       {/* Main */}
-      <main className="relative z-10 max-w-7xl mx-auto px-6 py-8 space-y-6">
+      <main className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6">
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           <StatCard icon={Users} label="Total UIDs" value={isLoading ? "—" : uids.length} gradFrom="#8b5cf6" gradTo="#6d28d9" delay={0} />
           <StatCard icon={Monitor} label="BlueStack" value={isLoading ? "—" : bsCount} gradFrom="#06b6d4" gradTo="#0891b2" delay={0.06} />
           <StatCard icon={CheckCircle2} label="Standard" value={isLoading ? "—" : uids.length - bsCount} gradFrom="#10b981" gradTo="#059669" delay={0.12} />
@@ -643,7 +643,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             </motion.div>
           ) : (
             <motion.div key="uid" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-              <div className="grid lg:grid-cols-[360px_1fr] gap-6 items-start">
+              <div className="grid lg:grid-cols-[360px_1fr] gap-4 sm:gap-6 items-start">
 
                 {/* Add UID Panel */}
                 <motion.div
@@ -653,7 +653,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                   className="w-full"
                 >
                   <TiltWrapper>
-                    <div className="glass-3d-strong rounded-2xl p-6 relative overflow-hidden">
+                    <div className="glass-3d-strong rounded-2xl p-4 sm:p-6 relative overflow-hidden">
                       <ParticleExplosion active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
                       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/70 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
@@ -750,7 +750,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                           disabled={addMutation.isPending || !hasEnoughBalance}
                           whileHover={{ scale: 1.01 }}
                           whileTap={{ scale: 0.99 }}
-                          className="w-full h-12 rounded-xl btn-viral-3d text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
+                          className="w-full h-14 sm:h-12 rounded-xl btn-viral-3d text-white font-bold text-sm sm:text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
                         >
                           <motion.div
                             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12"
@@ -819,7 +819,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                   <div className="glass-3d-strong rounded-2xl overflow-hidden relative">
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/70 to-transparent" />
 
-                    <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.05]">
+                    <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-white/[0.05]">
                       <div className="flex items-center gap-2">
                         <Shield className="w-4 h-4 text-violet-400" />
                         <h2 className="font-semibold text-sm text-foreground">Active Authorizations</h2>

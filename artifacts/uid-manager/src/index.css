@@ -177,3 +177,161 @@
 /* ── Miscellaneous Viral Utils ── */
 .animate-neon-pulse { animation: neon-pulse 2s infinite alternate; }
 .skeleton { background: rgba(255,255,255,0.05); border-radius: 12px; animation: neon-pulse 1.5s infinite; }
+
+/* ══════════════════════════════════════════════════════════════
+   MOBILE PERFORMANCE & UX — Zero Lag, 100% Smooth
+   ══════════════════════════════════════════════════════════════ */
+
+/* Smooth native scrolling everywhere */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fix touch targets — minimum 44px for all interactive elements */
+@media (max-width: 768px) {
+  button, a, [role="button"], input, select, textarea, [type="checkbox"], [type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+  }
+}
+
+/* ── Mobile Glass — lighter blur = no lag ── */
+@media (max-width: 768px) {
+  .glass-3d {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.3);
+  }
+  .glass-3d-strong {
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ── Mobile Stat Cards — disable 3D transforms, use simple scale ── */
+@media (max-width: 768px) {
+  .stat-card-3d {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transform-style: flat;
+  }
+  .stat-card-3d:hover,
+  .stat-card-3d:active {
+    transform: scale(1.03);
+    box-shadow: 0 8px 20px rgba(162, 0, 255, 0.2);
+  }
+}
+
+/* ── Mobile Orbs — smaller, less blur = smooth ── */
+@media (max-width: 768px) {
+  .orb-3d {
+    filter: blur(50px);
+    animation: none !important; /* Kill orb animation on mobile */
+    opacity: 0.6;
+  }
+  .orb-1 { width: 50vw; height: 50vw; top: -15%; left: -20%; }
+  .orb-2 { width: 40vw; height: 40vw; }
+  .orb-3 { width: 30vw; height: 30vw; }
+}
+
+/* ── Mobile Buttons — bigger, chunkier, easier to tap ── */
+@media (max-width: 768px) {
+  .btn-viral-3d {
+    min-height: 48px;
+    font-size: 15px;
+    border-radius: 14px;
+    box-shadow: 0 6px 14px rgba(168, 85, 247, 0.35);
+    animation: none; /* Kill gradient-shift on mobile for perf */
+  }
+  .btn-viral-3d:active {
+    transform: scale(0.97);
+    box-shadow: 0 3px 8px rgba(168, 85, 247, 0.25);
+  }
+  .btn-viral-3d:hover {
+    transform: none; /* No hover on touch devices */
+  }
+}
+
+/* ── Mobile Text Gradient — disable animation for perf ── */
+@media (max-width: 768px) {
+  .text-gradient-viral {
+    animation: none;
+    background-size: 100% auto;
+  }
+}
+
+/* ── Mobile Body — simpler background ── */
+@media (max-width: 768px) {
+  body {
+    background-attachment: scroll !important; /* fixed bg causes lag on mobile */
+  }
+}
+
+/* ── Mobile Header ── */
+@media (max-width: 640px) {
+  .glass-3d[class*="sticky"] {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+/* ── Mobile Grid Background (the faint lines) — hide on mobile ── */
+@media (max-width: 768px) {
+  [style*="backgroundImage"][style*="linear-gradient"] {
+    opacity: 0 !important;
+  }
+}
+
+/* ── GPU Acceleration for animated elements ── */
+.orb-3d,
+.btn-viral-3d,
+.stat-card-3d,
+.glass-3d,
+.glass-3d-strong {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ── Mobile table — card layout instead of table ── */
+@media (max-width: 640px) {
+  table {
+    display: block;
+  }
+  thead {
+    display: none;
+  }
+  tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+  }
+  tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 12px !important;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.02) !important;
+    border: 1px solid rgba(255,255,255,0.06) !important;
+  }
+  tbody td {
+    padding: 2px 4px !important;
+    border: none !important;
+  }
+  tbody td:first-child {
+    display: none;
+  }
+}
+
+/* ── Smooth transitions for everything ── */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
