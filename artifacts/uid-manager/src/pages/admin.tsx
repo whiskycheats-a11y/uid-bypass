@@ -163,10 +163,10 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 
       {/* Background orbs — pure CSS, zero JS */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" style={{ contain: "layout paint" }}>
-        <div className="animate-float-orb absolute rounded-full" style={{ width: 800, height: 800, background: "radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 65%)", top: "-250px", left: "-180px" }} />
-        <div className="animate-float-orb-delay absolute rounded-full" style={{ width: 650, height: 650, background: "radial-gradient(circle, rgba(6,182,212,0.16) 0%, transparent 65%)", bottom: "-180px", right: "-130px" }} />
-        <div className="animate-pulse-glow absolute rounded-full" style={{ width: 280, height: 280, background: "radial-gradient(circle, rgba(245,158,11,0.14) 0%, transparent 70%)", top: "50%", left: "72%" }} />
-        <div className="absolute inset-0 opacity-[0.018]" style={{ backgroundImage: "linear-gradient(rgba(139,92,246,1) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,1) 1px, transparent 1px)", backgroundSize: "55px 55px" }} />
+        <div className="orb-3d orb-1" />
+        <div className="orb-3d orb-2" />
+        <div className="orb-3d orb-3" />
+        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: "linear-gradient(rgba(162,0,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
         <CssParticles />
       </div>
 
@@ -175,8 +175,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-20 sticky top-0"
-        style={{ background: "rgba(6,6,18,0.85)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(139,92,246,0.12)" }}
+        className="relative z-20 sticky top-0 glass-3d border-b border-white/[0.05]"
       >
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -220,7 +219,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.07, ease: "easeOut" }}
-              className="stat-card relative rounded-2xl p-4 overflow-hidden"
+              className="stat-card-3d relative rounded-2xl p-4 overflow-hidden"
               style={{ background: "rgba(255,255,255,0.025)", border: `1px solid ${s.color}20` }}
             >
               <div className="absolute inset-0 opacity-0 stat-card-glow rounded-2xl transition-opacity duration-300" style={{ background: `radial-gradient(circle at 80% 20%, ${s.color}25, transparent 65%)` }} />
@@ -570,8 +569,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated 
                   disabled={loading || !username || !password}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="w-full h-12 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 relative overflow-hidden disabled:opacity-50"
-                  style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444, #8b5cf6)", boxShadow: "0 0 25px rgba(245,158,11,0.4)" }}
+                  className="w-full h-12 rounded-xl btn-viral-3d text-white font-bold text-sm flex items-center justify-center gap-2 relative overflow-hidden disabled:opacity-50"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12 btn-shimmer" />
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Gift className="w-4 h-4" />Generate Free Trial Access</>}
