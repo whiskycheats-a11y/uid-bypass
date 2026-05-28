@@ -120,6 +120,7 @@ export default function Login({ onLogin }: LoginProps) {
       </header>
 
       <main className={`home-main relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 px-5 pb-10 sm:px-8 ${showLogin ? "home-main-login" : "home-main-landing"}`}>
+        {!showLogin && (
         <section className="home-hero">
           <motion.div
             initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
@@ -136,7 +137,7 @@ export default function Login({ onLogin }: LoginProps) {
               <h1 className="home-title">
                 UID control with a real-time 3D security interface.
               </h1>
-              <p className="max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+              <p className="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
                 Manage client access, token balance, trials, payments, and admin controls from one fast responsive portal built for desktop and mobile.
               </p>
             </div>
@@ -144,7 +145,10 @@ export default function Login({ onLogin }: LoginProps) {
             <div className="flex flex-wrap items-center gap-3">
               <motion.button
                 type="button"
-                onClick={() => setShowLogin(true)}
+                onClick={() => {
+                  setError("");
+                  setShowLogin(true);
+                }}
                 whileHover={{ y: -3, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="home-login-button"
@@ -157,7 +161,7 @@ export default function Login({ onLogin }: LoginProps) {
               <span className="home-login-note">Authorized users only</span>
             </div>
 
-            <div className="grid max-w-2xl gap-3 sm:grid-cols-3">
+            <div className="grid max-w-4xl gap-3 sm:grid-cols-3">
               {statusCards.map((item, index) => (
                 <motion.div
                   key={item.label}
@@ -195,6 +199,7 @@ export default function Login({ onLogin }: LoginProps) {
             </div>
           </motion.div>
         </section>
+        )}
 
         <AnimatePresence>
           {showLogin && (
@@ -260,7 +265,10 @@ export default function Login({ onLogin }: LoginProps) {
                   <input
                     type="text"
                     value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    onChange={(e) => {
+                      setUsername(e.target.value);
+                      if (error) setError("");
+                    }}
                     placeholder="Enter username"
                     autoComplete="username"
                   />
@@ -274,7 +282,10 @@ export default function Login({ onLogin }: LoginProps) {
                   <input
                     type={showPass ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (error) setError("");
+                    }}
                     placeholder="Enter password"
                     autoComplete="current-password"
                   />
@@ -324,7 +335,16 @@ export default function Login({ onLogin }: LoginProps) {
 
                   <div className="mt-6 flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.035] px-4 py-3 text-xs font-bold text-slate-400">
                     <span className="flex items-center gap-2"><Zap className="h-4 w-4 text-cyan-300" /> Encrypted session</span>
-                    <button type="button" onClick={() => setShowLogin(false)} className="text-cyan-200/70 transition hover:text-white">Back</button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setError("");
+                        setShowLogin(false);
+                      }}
+                      className="text-cyan-200/70 transition hover:text-white"
+                    >
+                      Back
+                    </button>
                   </div>
                 </motion.div>
               </motion.div>
@@ -332,31 +352,6 @@ export default function Login({ onLogin }: LoginProps) {
           )}
         </AnimatePresence>
       </main>
-
-      <section className="home-deep-section relative z-10 mx-auto w-full max-w-7xl px-5 pb-20 sm:px-8">
-        <div className="home-deep-grid">
-          <div className="home-deep-copy">
-            <p className="home-kicker">Control layer</p>
-            <h2>Built for fast UID checks, tokens, and admin control.</h2>
-            <p>
-              The dashboard keeps the important actions close: add clients, review payments, copy credentials, and manage access without hunting through extra screens.
-            </p>
-          </div>
-          <div className="home-feature-grid">
-            {[
-              { label: "Client Access", value: "Instant UID setup", icon: UserRoundCheck },
-              { label: "Token Flow", value: "Balance tracking", icon: Sparkles },
-              { label: "Admin Guard", value: "Secure controls", icon: ShieldCheck },
-            ].map((item) => (
-              <div key={item.label} className="home-feature-tile">
-                <item.icon className="h-5 w-5" />
-                <span>{item.label}</span>
-                <strong>{item.value}</strong>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
