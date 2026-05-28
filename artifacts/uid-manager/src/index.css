@@ -665,6 +665,25 @@ body {
 .node-b { right: 18vw; bottom: 18vh; animation: node-float 7s ease-in-out -2s infinite; }
 .node-c { left: 22vw; bottom: 12vh; animation: node-float 8s ease-in-out -4s infinite; }
 
+.ambient-public .ambient-node {
+  opacity: 0.18;
+}
+
+.ambient-public .node-a {
+  left: 53vw;
+  top: 17vh;
+}
+
+.ambient-public .node-b {
+  right: 5vw;
+  bottom: 12vh;
+}
+
+.ambient-public .node-c {
+  left: 48vw;
+  bottom: 18vh;
+}
+
 .ambient-admin .ambient-node::before { background: #fbbf24; box-shadow: 0 0 16px #fbbf24; }
 .ambient-user .ambient-node::before { background: #34d399; box-shadow: 0 0 16px #34d399; }
 

@@ -185,8 +185,8 @@ export default function Login({ onLogin }: LoginProps) {
             <div className="login-card-glow" />
             <div className="login-card-header">
               <motion.div
-                animate={{ rotateY: [0, 360], y: [0, -8, 0] }}
-                transition={{ rotateY: { duration: 8, repeat: Infinity, ease: "linear" }, y: { duration: 3, repeat: Infinity, ease: "easeInOut" } }}
+                animate={{ rotateY: [0, 12, 0, -12, 0], rotateZ: [0, 4, 0, -4, 0], y: [0, -8, 0] }}
+                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
                 className="login-logo-3d"
               >
                 <Fingerprint className="h-10 w-10" />
