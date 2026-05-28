@@ -11,14 +11,14 @@ export interface WhitelistedUid {
   addedAt: string;
 }
 
-interface UidDoc extends WhitelistedUid, Document {}
+interface UidDoc extends WhitelistedUid, Document { }
 
 const uidSchema = new Schema<UidDoc>({
-  uid:       { type: String, required: true, unique: true },
-  days:      { type: Number, default: 30 },
+  uid: { type: String, required: true, unique: true },
+  days: { type: Number, default: 30 },
   bluestack: { type: Boolean, default: true },
-  addedBy:   { type: String, default: "" },
-  addedAt:   { type: String, default: () => new Date().toISOString() },
+  addedBy: { type: String, default: "" },
+  addedAt: { type: String, default: () => new Date().toISOString() },
 });
 
 const UidModel = model<UidDoc>("WhitelistedUid", uidSchema);
@@ -85,17 +85,17 @@ export interface AppUser {
   balance: number;
 }
 
-interface UserDoc extends AppUser, Document {}
+interface UserDoc extends AppUser, Document { }
 
 const userSchema = new Schema<UserDoc>({
-  username:    { type: String, required: true, unique: true },
-  password:    { type: String, required: true },
-  role:        { type: String, enum: ["admin", "user"], default: "user" },
-  createdAt:   { type: String, default: () => new Date().toISOString() },
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ["admin", "user"], default: "user" },
+  createdAt: { type: String, default: () => new Date().toISOString() },
   defaultDays: { type: Number, default: 30 },
-  isTrial:     { type: Boolean, default: false },
-  canResell:   { type: Boolean, default: false },
-  balance:     { type: Number, default: 0 },
+  isTrial: { type: Boolean, default: false },
+  canResell: { type: Boolean, default: false },
+  balance: { type: Number, default: 0 },
 });
 
 const UserModel = model<UserDoc>("User", userSchema);
@@ -105,11 +105,14 @@ let connected = false;
 async function ensureConnection() {
   if (connected) return;
   try {
-    await mongoose.connect(config.MONGODB_URI);
+    await mongoose.connect(config.MONGODB_URI, {
+      serverSelectionTimeoutMS: 4000,
+    });
     connected = true;
     logger.info("MongoDB connected");
     await seedAdmin();
   } catch (err) {
+    connected = false;
     logger.error({ err }, "MongoDB connection failed — using fallback in-memory store");
   }
 }
@@ -118,12 +121,12 @@ async function seedAdmin() {
   const exists = await UserModel.findOne({ role: "admin" });
   if (!exists) {
     await UserModel.create({
-      username:    config.ADMIN_USERNAME,
-      password:    config.ADMIN_PASSWORD,
-      role:        "admin",
-      createdAt:   new Date().toISOString(),
+      username: config.ADMIN_USERNAME,
+      password: config.ADMIN_PASSWORD,
+      role: "admin",
+      createdAt: new Date().toISOString(),
       defaultDays: 30,
-      isTrial:     false,
+      isTrial: false,
     });
     logger.info("Admin user seeded");
   } else if (exists.username !== config.ADMIN_USERNAME || exists.password !== config.ADMIN_PASSWORD) {
@@ -266,14 +269,14 @@ export const userStore = {
 
 function toPlain(doc: UserDoc): AppUser {
   return {
-    username:    doc.username,
-    password:    doc.password,
-    role:        doc.role,
-    canResell:   doc.canResell ?? false,
-    createdAt:   doc.createdAt,
+    username: doc.username,
+    password: doc.password,
+    role: doc.role,
+    canResell: doc.canResell ?? false,
+    createdAt: doc.createdAt,
     defaultDays: doc.defaultDays,
-    isTrial:     doc.isTrial,
-    balance:     doc.balance ?? 0,
+    isTrial: doc.isTrial,
+    balance: doc.balance ?? 0,
   };
 }
 
@@ -307,7 +310,7 @@ interface SettingsDoc extends Document {
 }
 
 const settingsSchema = new Schema<SettingsDoc>({
-  key:            { type: String, default: "main" },
+  key: { type: String, default: "main" },
   externalApiUrl: { type: String, default: "" },
   externalApiKey: { type: String, default: "" },
 });
@@ -347,15 +350,15 @@ export interface PaymentRequest {
   createdAt: string;
 }
 
-interface PaymentDoc extends PaymentRequest, Document {}
+interface PaymentDoc extends Omit<PaymentRequest, "_id">, Document { }
 
 const paymentSchema = new Schema<PaymentDoc>({
-  username:      { type: String, required: true },
+  username: { type: String, required: true },
   packageTokens: { type: Number, required: true },
-  packagePrice:  { type: String, required: true },
-  txNote:        { type: String, default: "" },
-  status:        { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
-  createdAt:     { type: String, default: () => new Date().toISOString() },
+  packagePrice: { type: String, required: true },
+  txNote: { type: String, default: "" },
+  status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
+  createdAt: { type: String, default: () => new Date().toISOString() },
 });
 
 const PaymentModel = model<PaymentDoc>("PaymentRequest", paymentSchema);
@@ -410,4 +413,4 @@ export const paymentStore = {
 };
 
 // Start connection immediately on import
-ensureConnection().catch(() => {});
+ensureConnection().catch(() => { });

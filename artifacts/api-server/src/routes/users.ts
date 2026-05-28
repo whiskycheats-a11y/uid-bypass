@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userStore, uidStore, purgeExpiredTrials } from "../store";
+import { userStore, uidStore, purgeExpiredTrials, settingsStore } from "../store";
 import { config, getApiKey } from "../config";
 import { logger } from "../lib/logger";
 
@@ -15,9 +15,21 @@ function requireAdmin(req: any, res: any, next: any) {
 
 async function removeUidFromExternal(uid: string): Promise<void> {
   try {
-    await fetch(`${config.EXTERNAL_API_URL}/api/uid/remove`, {
+    const s = await settingsStore.get();
+    let base = (s.externalApiUrl || config.EXTERNAL_API_URL).replace(/\/$/, "");
+    base = base.replace(/\/api\/v1\/uids\/(add|remove|list)$/i, "");
+    base = base.replace(/\/api\/v1\/uids$/i, "");
+    let key = s.externalApiKey;
+    if (!key) {
+      try {
+        key = getApiKey();
+      } catch {
+        key = "";
+      }
+    }
+    await fetch(`${base}/api/v1/uids/remove`, {
       method: "POST",
-      headers: { "X-API-KEY": getApiKey(), "Content-Type": "application/json" },
+      headers: { "X-AUTH-KEY": key, "Content-Type": "application/json" },
       body: JSON.stringify({ uid }),
     });
   } catch (err) {

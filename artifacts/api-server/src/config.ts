@@ -4,13 +4,13 @@
 
 export const config = {
   // External UID backend — change IP/port here only
-  EXTERNAL_API_URL: "https://dev-armorauidbypass.pantheonsite.io",
+  EXTERNAL_API_URL: "https://uidbypass-livid.vercel.app",
 
   // API key — value is read from the UID_API_KEY environment secret
   API_KEY_ENV: "UID_API_KEY",
 
   // MongoDB connection string
-  MONGODB_URI: process.env["MONGODB_URI"] ?? "mongodb+srv://baunemonff_db_user:BVGUWJCSc7lOjqBJ@cluster0.qo77nxw.mongodb.net/?appName=Cluster0",
+  MONGODB_URI: process.env["MONGODB_URI"] ?? "mongodb+srv://uidbypass:uidbypass@cluster0.igrfjw8.mongodb.net/?appName=Cluster0",
 
   // Admin credentials
   ADMIN_USERNAME: process.env["ADMIN_USERNAME"] ?? "admin",

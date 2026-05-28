@@ -7,7 +7,7 @@ import {
   Coins, Wallet, CreditCard, Check, XCircle, Clock,
 } from "lucide-react";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
 interface PaymentItem {
   _id: string;
@@ -244,10 +244,10 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
         >
           {([
-            { key: "clients", icon: Users, label: "Client Accounts", count: regular.length },
-            { key: "trial", icon: Gift, label: "Free Trial", count: trials.length, gold: true },
-            { key: "payments", icon: CreditCard, label: "Payments", count: payments.filter(p => p.status === "pending").length, rose: true },
-            { key: "settings", icon: Settings, label: "Settings", count: null, teal: true },
+            { key: "clients", icon: Users, label: "Client Accounts", count: regular.length, gold: false, rose: false, teal: false },
+            { key: "trial", icon: Gift, label: "Free Trial", count: trials.length, gold: true, rose: false, teal: false },
+            { key: "payments", icon: CreditCard, label: "Payments", count: payments.filter(p => p.status === "pending").length, gold: false, rose: true, teal: false },
+            { key: "settings", icon: Settings, label: "Settings", count: null, gold: false, rose: false, teal: true },
           ] as const).map((t) => (
             <button
               key={t.key}
@@ -435,7 +435,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated 
       const data = await res.json();
       if (data.success) {
         setCreds({ username, password, days });
-        onCreated({ username, password, createdAt: new Date().toISOString(), defaultDays: days, isTrial: true, canResell: false });
+        onCreated({ username, password, createdAt: new Date().toISOString(), defaultDays: days, isTrial: true, canResell: false, balance: 0 });
       } else {
         setError(data.error ?? "Failed");
       }
@@ -766,7 +766,7 @@ function CreateUserModal({ onClose, onCreate }: {
       const data = await res.json();
       if (data.success) {
         setSuccess(true);
-        setTimeout(() => onCreate({ username, password, createdAt: new Date().toISOString(), defaultDays: days, isTrial: false, canResell: false }), 900);
+        setTimeout(() => onCreate({ username, password, createdAt: new Date().toISOString(), defaultDays: days, isTrial: false, canResell: false, balance: 0 }), 900);
       } else { setError(data.error ?? "Failed"); setLoading(false); }
     } catch { setError("Server error"); setLoading(false); }
   };
@@ -1170,7 +1170,6 @@ function PaymentsPanel({
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(236,72,153,0.12)", color: "#f472b6", border: "1px solid rgba(236,72,153,0.2)" }}>
                       <Coins className="w-2.5 h-2.5" />{p.packageTokens} tokens
                     </span>
-                    <span className="text-[11px] font-bold text-emerald-400">{p.packagePrice}</span>
                   </div>
                   {p.txNote && (
                     <div className="text-[11px] text-muted-foreground font-mono truncate">Note: {p.txNote}</div>
@@ -1222,7 +1221,6 @@ function PaymentsPanel({
             <div key={pkg.tokens} className="flex flex-col items-center p-3 rounded-xl text-center" style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)" }}>
               <div className="text-lg font-black text-foreground">{pkg.tokens}</div>
               <div className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">tokens</div>
-              <div className="text-xs font-bold text-emerald-400">{pkg.price}</div>
               <div className="text-[9px] text-muted-foreground mt-0.5">{pkg.label}</div>
             </div>
           ))}
