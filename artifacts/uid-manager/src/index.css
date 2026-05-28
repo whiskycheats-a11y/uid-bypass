@@ -856,7 +856,7 @@ body {
   background: linear-gradient(145deg, rgba(34, 211, 238, 0.88), rgba(99, 102, 241, 0.76), rgba(251, 191, 36, 0.82));
   box-shadow: 0 28px 70px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.36);
   transform: translate(-50%, -50%);
-  animation: orb-float 4.8s ease-in-out infinite;
+  animation: landing-shield-float 4.8s ease-in-out infinite;
 }
 
 .landing-panel {
@@ -1147,6 +1147,11 @@ body {
   50% { transform: translate3d(0, -14px, 0) rotateZ(3deg); }
 }
 
+@keyframes landing-shield-float {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0) rotateZ(-2deg); }
+  50% { transform: translate(-50%, -50%) translateY(-14px) rotateZ(3deg); }
+}
+
 @keyframes ring-a {
   from { transform: rotateX(72deg) rotateZ(0deg); }
   to { transform: rotateX(72deg) rotateZ(360deg); }
@@ -1248,12 +1253,6 @@ body {
     right: -5.5rem;
     width: 240px;
     opacity: 0.38;
-  }
-
-  .core-cube {
-    width: 72px;
-    height: 72px;
-    margin: -36px;
   }
 
   .landing-visual-card {
