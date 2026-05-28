@@ -100,7 +100,7 @@ export default function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen overflow-hidden bg-background text-foreground relative">
+    <div className="min-h-screen overflow-x-hidden bg-background text-foreground relative">
       <AmbientScene variant="public" />
 
       <header className="relative z-20 mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-5 sm:px-8">
@@ -119,7 +119,7 @@ export default function Login({ onLogin }: LoginProps) {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto grid min-h-[calc(100vh-5rem)] w-full max-w-7xl items-center gap-8 px-5 pb-8 sm:px-8 lg:grid-cols-[1.06fr_0.94fr]">
+      <main className="relative z-10 mx-auto grid min-h-[calc(100vh-5rem)] w-full max-w-7xl items-center gap-8 px-5 pb-10 sm:px-8 lg:grid-cols-[1.06fr_0.94fr]">
         <section className="home-hero">
           <motion.div
             initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
@@ -188,6 +188,11 @@ export default function Login({ onLogin }: LoginProps) {
                 ))}
               </div>
             </div>
+
+            <div className="home-scroll-cue">
+              <span />
+              Scroll for system details
+            </div>
           </motion.div>
         </section>
 
@@ -206,8 +211,25 @@ export default function Login({ onLogin }: LoginProps) {
                   <span />
                   <span />
                   <span />
-                  <div className="landing-shield">
-                    <ShieldCheck className="h-14 w-14" />
+                  <div className="dragon-stage" aria-hidden="true">
+                    <div className="dragon-aura" />
+                    <div className="dragon-wing dragon-wing-left" />
+                    <div className="dragon-wing dragon-wing-right" />
+                    <div className="dragon-tail" />
+                    <div className="dragon-body">
+                      <div className="dragon-spine" />
+                      <div className="dragon-scale scale-a" />
+                      <div className="dragon-scale scale-b" />
+                      <div className="dragon-scale scale-c" />
+                    </div>
+                    <div className="dragon-neck" />
+                    <div className="dragon-head">
+                      <span className="dragon-horn horn-a" />
+                      <span className="dragon-horn horn-b" />
+                      <span className="dragon-eye" />
+                    </div>
+                    <div className="dragon-leg leg-a" />
+                    <div className="dragon-leg leg-b" />
                   </div>
                 </div>
                 <div className="landing-panel panel-a">
@@ -357,6 +379,31 @@ export default function Login({ onLogin }: LoginProps) {
           </AnimatePresence>
         </section>
       </main>
+
+      <section className="home-deep-section relative z-10 mx-auto w-full max-w-7xl px-5 pb-20 sm:px-8">
+        <div className="home-deep-grid">
+          <div className="home-deep-copy">
+            <p className="home-kicker">Control layer</p>
+            <h2>Built for fast UID checks, tokens, and admin control.</h2>
+            <p>
+              The dashboard keeps the important actions close: add clients, review payments, copy credentials, and manage access without hunting through extra screens.
+            </p>
+          </div>
+          <div className="home-feature-grid">
+            {[
+              { label: "Client Access", value: "Instant UID setup", icon: UserRoundCheck },
+              { label: "Token Flow", value: "Balance tracking", icon: Sparkles },
+              { label: "Admin Guard", value: "Secure controls", icon: ShieldCheck },
+            ].map((item) => (
+              <div key={item.label} className="home-feature-tile">
+                <item.icon className="h-5 w-5" />
+                <span>{item.label}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
