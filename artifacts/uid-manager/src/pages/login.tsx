@@ -228,11 +228,7 @@ export default function Login({ onLogin }: LoginProps) {
                   <div className="login-card-glow" />
                   <div className="login-character" aria-hidden="true">
                     <div className="character-halo" />
-                    <motion.div
-                      className="character-avatar"
-                      animate={{ y: [0, -8, 0], rotateZ: [0, 2, 0, -2, 0] }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    >
+                    <div className="character-avatar">
                       <div className="character-face">
                         <span className="character-eye" />
                         <span className="character-eye" />
@@ -240,16 +236,12 @@ export default function Login({ onLogin }: LoginProps) {
                       <div className="character-body">
                         <UserRoundCheck className="h-5 w-5" />
                       </div>
-                    </motion.div>
+                    </div>
                   </div>
                   <div className="login-card-header">
-                    <motion.div
-                      animate={{ rotateY: [0, 12, 0, -12, 0], rotateZ: [0, 4, 0, -4, 0], y: [0, -8, 0] }}
-                      transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
-                      className="login-logo-3d"
-                    >
+                    <div className="login-logo-3d">
                       <Fingerprint className="h-10 w-10" />
-                    </motion.div>
+                    </div>
                     <div>
                       <p className="text-[11px] font-black uppercase tracking-[0.28em] text-cyan-200/65">Secure Login</p>
                       <h2 className="mt-2 text-3xl font-black tracking-tight text-white">Access Portal</h2>

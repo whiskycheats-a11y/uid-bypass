@@ -6,7 +6,6 @@ import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
 import Login from "@/pages/login";
-import { MouseCursor } from "@/components/mouse-cursor";
 import { WelcomeSplash } from "@/components/welcome-splash";
 import { useEffect, useState } from "react";
 
@@ -88,14 +87,11 @@ function AppRoot() {
 function App() {
   useEffect(() => {
     document.documentElement.classList.add("dark");
-    document.body.style.cursor = "none";
-    return () => { document.body.style.cursor = ""; };
   }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <MouseCursor />
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
           <Switch>
             <Route path="/" component={AppRoot} />
