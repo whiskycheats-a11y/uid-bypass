@@ -23,10 +23,15 @@ const uidSchema = new Schema<UidDoc>({
 
 const UidModel = model<UidDoc>("WhitelistedUid", uidSchema);
 
+const fallbackUids = new Map<string, WhitelistedUid>();
+
 export const uidStore = {
   async save(uid: string, days: number, bluestack: boolean, addedBy: string): Promise<void> {
     await ensureConnection();
-    if (!connected) return;
+    if (!connected) {
+      fallbackUids.set(uid, { uid, days, bluestack, addedBy, addedAt: new Date().toISOString() });
+      return;
+    }
     try {
       await UidModel.updateOne({ uid }, { uid, days, bluestack, addedBy, addedAt: new Date().toISOString() }, { upsert: true });
       logger.info({ uid, addedBy }, "UID saved to MongoDB");
@@ -37,7 +42,10 @@ export const uidStore = {
 
   async remove(uid: string): Promise<void> {
     await ensureConnection();
-    if (!connected) return;
+    if (!connected) {
+      fallbackUids.delete(uid);
+      return;
+    }
     try {
       await UidModel.deleteOne({ uid });
       logger.info({ uid }, "UID removed from MongoDB");
@@ -48,14 +56,25 @@ export const uidStore = {
 
   async listByUser(username: string): Promise<WhitelistedUid[]> {
     await ensureConnection();
-    if (!connected) return [];
+    if (!connected) {
+      return Array.from(fallbackUids.values()).filter(u => u.addedBy === username);
+    }
     const docs = await UidModel.find({ addedBy: username });
     return docs.map(d => ({ uid: d.uid, days: d.days, bluestack: d.bluestack, addedBy: d.addedBy, addedAt: d.addedAt }));
   },
 
   async removeByUser(username: string): Promise<string[]> {
     await ensureConnection();
-    if (!connected) return [];
+    if (!connected) {
+      const uidsToRemove: string[] = [];
+      for (const [uid, data] of fallbackUids.entries()) {
+        if (data.addedBy === username) {
+          uidsToRemove.push(uid);
+          fallbackUids.delete(uid);
+        }
+      }
+      return uidsToRemove;
+    }
     const docs = await UidModel.find({ addedBy: username });
     const uids = docs.map(d => d.uid);
     if (uids.length > 0) {
@@ -67,7 +86,9 @@ export const uidStore = {
 
   async list(): Promise<WhitelistedUid[]> {
     await ensureConnection();
-    if (!connected) return [];
+    if (!connected) {
+      return Array.from(fallbackUids.values());
+    }
     const docs = await UidModel.find({});
     return docs.map(d => ({ uid: d.uid, days: d.days, bluestack: d.bluestack, addedBy: d.addedBy, addedAt: d.addedAt }));
   },
