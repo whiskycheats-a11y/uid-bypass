@@ -245,7 +245,9 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-4 rounded-xl text-[10px] sm:text-sm font-bold transition-all duration-200 relative overflow-hidden"
+              aria-label={t.label}
+              title={t.label}
+              className="flex-1 flex items-center justify-center gap-1 py-2 sm:py-2.5 px-2 sm:px-4 rounded-xl text-[10px] sm:text-sm font-bold transition-all duration-200 relative overflow-hidden"
               style={{
                 background: tab === t.key ? ("teal" in t && t.teal ? "linear-gradient(135deg, rgba(6,182,212,0.25), rgba(16,185,129,0.15))" : "rose" in t && t.rose ? "linear-gradient(135deg, rgba(236,72,153,0.25), rgba(239,68,68,0.15))" : t.gold ? "linear-gradient(135deg, rgba(245,158,11,0.25), rgba(239,68,68,0.15))" : "linear-gradient(135deg, rgba(139,92,246,0.25), rgba(6,182,212,0.15))") : "transparent",
                 color: tab === t.key ? ("teal" in t && t.teal ? "#06b6d4" : "rose" in t && t.rose ? "#f472b6" : t.gold ? "#f59e0b" : "#a78bfa") : "#6b7280",
@@ -254,8 +256,6 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
               }}
             >
               <t.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">{t.label}</span>
-              <span className="sm:hidden">{t.label.split(' ')[0]}</span>
               {!loading && t.count !== null && (
                 <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-black" style={{ background: tab === t.key ? (t.gold ? "rgba(245,158,11,0.2)" : "rgba(139,92,246,0.2)") : "rgba(255,255,255,0.05)" }}>
                   {t.count}
