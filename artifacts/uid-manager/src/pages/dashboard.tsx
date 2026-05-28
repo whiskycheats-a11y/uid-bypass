@@ -35,7 +35,7 @@ import {
   QrCode,
   SendHorizonal,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 function rand(len: number, chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789") {
   return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
@@ -50,11 +50,11 @@ function getResellerKey(): string {
 }
 
 const DURATION_OPTIONS = [
-  { label: "24 Hours", days: 1,  price: "$0.50" },
-  { label: "3 Days",   days: 3,  price: "$1.30" },
-  { label: "7 Days",   days: 7,  price: "$2.33" },
-  { label: "14 Days",  days: 14, price: "$3.50" },
-  { label: "30 Days",  days: 30, price: "$5.20" },
+  { label: "24 Hours", days: 1, price: "$0.50", tokens: 10 },
+  { label: "3 Days", days: 3, price: "$1.30", tokens: 30 },
+  { label: "7 Days", days: 7, price: "$2.33", tokens: 70 },
+  { label: "14 Days", days: 14, price: "$3.50", tokens: 150 },
+  { label: "30 Days", days: 30, price: "$5.20", tokens: 300 },
 ];
 
 const addUidSchema = z.object({
@@ -123,15 +123,252 @@ interface DashboardProps {
   onLogout?: () => void;
 }
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
-function userHeaders() {
+function userHeaders(): Record<string, string> {
   try {
     const raw = sessionStorage.getItem("uid_auth");
     if (!raw) return {};
     const { username, adminKey } = JSON.parse(raw);
     return { "x-username": username ?? "", "x-password": adminKey ?? "" };
   } catch { return {}; }
+}
+
+function CustomDurationSelect({
+  value,
+  onChange,
+  options,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  options: typeof DURATION_OPTIONS;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selected = options.find((o) => o.days === value) || options[0];
+
+  useEffect(() => {
+    const handleClose = () => setIsOpen(false);
+    window.addEventListener("click", handleClose);
+    return () => window.removeEventListener("click", handleClose);
+  }, []);
+
+  return (
+    <div className="relative" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full h-11 pl-10 pr-4 rounded-xl text-sm font-semibold transition-all outline-none flex items-center justify-between group"
+        style={{
+          background: "rgba(255,255,255,0.03)",
+          border: isOpen ? "1px solid rgba(139,92,246,0.5)" : "1px solid rgba(255,255,255,0.08)",
+          boxShadow: isOpen ? "0 0 15px rgba(139,92,246,0.15)" : "none",
+          color: "var(--foreground)",
+        }}
+      >
+        <CalendarDays className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-hover:text-violet-400 transition-colors" />
+        <span className="truncate">{selected.label}</span>
+        <motion.span
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+          className="text-muted-foreground group-hover:text-foreground shrink-0 ml-2"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </motion.span>
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 5, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="absolute z-50 w-full rounded-2xl overflow-hidden p-1.5 space-y-1"
+            style={{
+              background: "rgba(10, 8, 20, 0.95)",
+              backdropFilter: "blur(20px)",
+              border: "1px solid rgba(139,92,246,0.25)",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(139,92,246,0.1)",
+            }}
+          >
+            {options.map((opt) => {
+              const active = opt.days === value;
+              return (
+                <button
+                  key={opt.days}
+                  type="button"
+                  onClick={() => {
+                    onChange(opt.days);
+                    setIsOpen(false);
+                  }}
+                  className="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all"
+                  style={{
+                    background: active
+                      ? "linear-gradient(135deg, rgba(139,92,246,0.2), rgba(6,182,212,0.15))"
+                      : "transparent",
+                    color: active ? "#a78bfa" : "rgba(255,255,255,0.7)",
+                    border: active ? "1px solid rgba(139,92,246,0.3)" : "1px solid transparent",
+                  }}
+                >
+                  <span className="font-bold">{opt.label}</span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="px-2 py-0.5 rounded-full text-[9px] font-black"
+                      style={{
+                        background: active ? "rgba(139,92,246,0.25)" : "rgba(255,255,255,0.05)",
+                        color: active ? "#c084fc" : "rgba(255,255,255,0.5)",
+                      }}
+                    >
+                      {opt.tokens} TOKENS
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function ParticleExplosion({ active, onComplete }: { active: boolean; onComplete: () => void }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (!active) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = canvas.parentElement?.clientWidth || 400;
+    canvas.height = canvas.parentElement?.clientHeight || 500;
+
+    interface Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      radius: number;
+      color: string;
+      alpha: number;
+      decay: number;
+      rotation: number;
+      rotationSpeed: number;
+    }
+
+    const particles: Particle[] = [];
+    const colors = ["#8b5cf6", "#06b6d4", "#ec4899", "#10b981", "#fbbf24"];
+
+    const startX = canvas.width / 2;
+    const startY = canvas.height - 50;
+
+    for (let i = 0; i < 60; i++) {
+      const angle = -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI / 1.5);
+      const speed = 2 + Math.random() * 6;
+      particles.push({
+        x: startX,
+        y: startY,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        radius: 2 + Math.random() * 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: 1,
+        decay: 0.015 + Math.random() * 0.02,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.2,
+      });
+    }
+
+    let animationFrameId: number;
+
+    function render() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      let alive = false;
+
+      particles.forEach((p) => {
+        if (p.alpha <= 0) return;
+
+        alive = true;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.05; // gravity
+        p.alpha -= p.decay;
+        p.rotation += p.rotationSpeed;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.globalAlpha = p.alpha;
+
+        ctx.beginPath();
+        for (let i = 0; i < 4; i++) {
+          ctx.lineTo(0, -p.radius * 2);
+          ctx.rotate(Math.PI / 2);
+        }
+        ctx.closePath();
+
+        ctx.fillStyle = p.color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = p.color;
+        ctx.fill();
+        ctx.restore();
+      });
+
+      if (alive) {
+        animationFrameId = requestAnimationFrame(render);
+      } else {
+        onComplete();
+      }
+    }
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [active, onComplete]);
+
+  if (!active) return null;
+
+  return <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none z-30" />;
+}
+
+function TiltWrapper({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
+    const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
+    setTilt({ x: dy * -6, y: dx * 6 });
+  };
+
+  const handleMouseLeave = () => setTilt({ x: 0, y: 0 });
+
+  return (
+    <div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={className}
+      style={{
+        transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+        transformStyle: "preserve-3d",
+        transition: "transform 0.25s ease-out",
+      }}
+    >
+      {children}
+    </div>
+  );
 }
 
 export default function Dashboard({ username, defaultDays = 30, isTrial = false, canResell = false, onLogout }: DashboardProps) {
@@ -143,13 +380,14 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   const [activeTab, setActiveTab] = useState<"uid" | "trial">("uid");
   const [balance, setBalance] = useState<number | null>(null);
   const [showFunds, setShowFunds] = useState(false);
+  const [showSuccessBlast, setShowSuccessBlast] = useState(false);
 
   useEffect(() => {
     if (isTrial || !username) return;
     fetch(`${BASE}/api/credits/me`, { headers: userHeaders() })
       .then(r => r.json())
       .then(d => { if (d.success) setBalance(d.balance); })
-      .catch(() => {});
+      .catch(() => { });
   }, [username, isTrial]);
 
   const { data: listResponse, isLoading } = useListUids({
@@ -188,7 +426,8 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   };
 
   const watchedDays = form.watch("days");
-  const tokenCost = isTrial ? 0 : (Number(watchedDays) || 0);
+  const selectedOpt = DURATION_OPTIONS.find((o) => o.days === Number(watchedDays));
+  const tokenCost = isTrial ? 0 : (selectedOpt ? selectedOpt.tokens : 0);
   const hasEnoughBalance = isTrial || balance === null || balance >= tokenCost;
 
   const onSubmit = (values: AddUidValues) => {
@@ -222,6 +461,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             }
             // Deduct from local balance state
             if (!isTrial && balance !== null) setBalance(b => b !== null ? Math.max(0, b - tokenCost) : null);
+            setShowSuccessBlast(true);
             toast({ title: "Access Granted", description: `UID ${values.uid} whitelisted successfully.` });
             form.reset();
             queryClient.invalidateQueries({ queryKey: getListUidsQueryKey() });
@@ -373,7 +613,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
           >
             {([
-              { key: "uid", icon: Shield, label: "UID Manager" },
+              { key: "uid", icon: Shield, label: "UID Manager", gold: false },
               { key: "trial", icon: Gift, label: "Give Free Trial", gold: true },
             ] as const).map((t) => (
               <button
@@ -397,348 +637,339 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
         )}
 
         <AnimatePresence mode="wait">
-        {activeTab === "trial" && canResell ? (
-          <motion.div key="trial" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-            <ResellerTrialPanel username={username ?? ""} />
-          </motion.div>
-        ) : (
-        <motion.div key="uid" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-        <div className="grid lg:grid-cols-[360px_1fr] gap-6 items-start">
+          {activeTab === "trial" && canResell ? (
+            <motion.div key="trial" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+              <ResellerTrialPanel username={username ?? ""} />
+            </motion.div>
+          ) : (
+            <motion.div key="uid" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+              <div className="grid lg:grid-cols-[360px_1fr] gap-6 items-start">
 
-          {/* Add UID Panel */}
-          <motion.div
-            initial={{ opacity: 0, x: -24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.25, type: "spring", stiffness: 160, damping: 22 }}
-          >
-            <div className="glass-strong rounded-2xl p-6 relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/70 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
+                {/* Add UID Panel */}
+                <motion.div
+                  initial={{ opacity: 0, x: -24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.25, type: "spring", stiffness: 160, damping: 22 }}
+                  className="w-full"
+                >
+                  <TiltWrapper>
+                    <div className="glass-strong rounded-2xl p-6 relative overflow-hidden">
+                      <ParticleExplosion active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
+                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/70 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
 
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(139,92,246,0.15)" }}>
-                  <Plus className="w-3.5 h-3.5 text-violet-400" />
-                </div>
-                <h2 className="font-semibold text-base text-foreground">Add New UID</h2>
-                {isTrial && (
-                  <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(236,72,153,0.15)", color: "#f472b6", border: "1px solid rgba(236,72,153,0.25)" }}>
-                    {trialLimitReached ? "LIMIT REACHED" : `1 UID LEFT`}
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground mb-6">Register a player to the bypass whitelist</p>
-
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Player UID</label>
-                    <div className="relative group">
-                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-violet-400 transition-colors pointer-events-none" />
-                      <Input
-                        placeholder="Enter UID number..."
-                        className="pl-10 h-11 rounded-xl bg-white/[0.03] border-white/10 focus-visible:ring-violet-500/40 focus-visible:border-violet-500/50 text-sm transition-all"
-                        {...form.register("uid")}
-                      />
-                    </div>
-                    {form.formState.errors.uid && (
-                      <p className="text-[11px] text-red-400">{form.formState.errors.uid.message}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Duration</label>
-                      {isTrial ? (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(236,72,153,0.15)", color: "#f472b6", border: "1px solid rgba(236,72,153,0.25)" }}>
-                          1 DAY TRIAL
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: hasEnoughBalance ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.12)", color: hasEnoughBalance ? "#10b981" : "#ef4444", border: `1px solid ${hasEnoughBalance ? "rgba(16,185,129,0.25)" : "rgba(239,68,68,0.3)"}` }}>
-                          <Coins className="w-2.5 h-2.5" />
-                          {tokenCost} token{tokenCost !== 1 ? "s" : ""}
-                        </span>
-                      )}
-                    </div>
-                    {isTrial ? (
-                      <div className="flex items-center gap-3 h-11 px-4 rounded-xl text-sm opacity-60 cursor-not-allowed" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                        <CalendarDays className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">24 Hours — Free Trial</span>
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(139,92,246,0.15)" }}>
+                          <Plus className="w-3.5 h-3.5 text-violet-400" />
+                        </div>
+                        <h2 className="font-semibold text-base text-foreground">Add New UID</h2>
+                        {isTrial && (
+                          <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(236,72,153,0.15)", color: "#f472b6", border: "1px solid rgba(236,72,153,0.25)" }}>
+                            {trialLimitReached ? "LIMIT REACHED" : `1 UID LEFT`}
+                          </span>
+                        )}
                       </div>
-                    ) : (
-                      <div className="relative">
-                        <CalendarDays className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                        <select
-                          value={form.watch("days")}
-                          onChange={(e) => form.setValue("days", Number(e.target.value))}
-                          className="w-full h-11 pl-10 pr-9 rounded-xl text-sm font-medium appearance-none cursor-pointer transition-all outline-none"
-                          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--foreground)" }}
+                      <p className="text-xs text-muted-foreground mb-6">Register a player to the bypass whitelist</p>
+
+                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Player UID</label>
+                          <div className="relative group">
+                            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-violet-400 transition-colors pointer-events-none" />
+                            <Input
+                              placeholder="Enter UID number..."
+                              className="pl-10 h-11 rounded-xl bg-white/[0.03] border-white/10 focus-visible:ring-violet-500/40 focus-visible:border-violet-500/50 text-sm transition-all"
+                              {...form.register("uid")}
+                            />
+                          </div>
+                          {form.formState.errors.uid && (
+                            <p className="text-[11px] text-red-400">{form.formState.errors.uid.message}</p>
+                          )}
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Duration</label>
+                            {isTrial ? (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(236,72,153,0.15)", color: "#f472b6", border: "1px solid rgba(236,72,153,0.25)" }}>
+                                1 DAY TRIAL
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: hasEnoughBalance ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.12)", color: hasEnoughBalance ? "#10b981" : "#ef4444", border: `1px solid ${hasEnoughBalance ? "rgba(16,185,129,0.25)" : "rgba(239,68,68,0.3)"}` }}>
+                                <Coins className="w-2.5 h-2.5" />
+                                {tokenCost} token{tokenCost !== 1 ? "s" : ""}
+                              </span>
+                            )}
+                          </div>
+                          {isTrial ? (
+                            <div className="flex items-center gap-3 h-11 px-4 rounded-xl text-sm opacity-60 cursor-not-allowed" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                              <CalendarDays className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-muted-foreground">24 Hours — Free Trial</span>
+                            </div>
+                          ) : (
+                            <CustomDurationSelect
+                              value={form.watch("days")}
+                              onChange={(val) => form.setValue("days", val)}
+                              options={DURATION_OPTIONS}
+                            />
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] group hover:border-violet-500/20 hover:bg-white/[0.04] transition-all">
+                          <div>
+                            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                              <Monitor className="w-3.5 h-3.5 text-cyan-400" />
+                              BlueStack Mode
+                            </div>
+                            <div className="text-[11px] text-muted-foreground mt-0.5">Emulator compatibility layer</div>
+                          </div>
+                          <Switch
+                            checked={form.watch("bluestack")}
+                            onCheckedChange={(v) => form.setValue("bluestack", v)}
+                            className="data-[state=checked]:bg-violet-600"
+                          />
+                        </div>
+
+                        {/* Token cost preview */}
+                        {!isTrial && (
+                          <div className="flex items-center justify-between px-3 py-2 rounded-xl text-[11px]" style={{ background: hasEnoughBalance ? "rgba(16,185,129,0.06)" : "rgba(239,68,68,0.08)", border: `1px solid ${hasEnoughBalance ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.25)"}` }}>
+                            <div className="flex items-center gap-1.5" style={{ color: hasEnoughBalance ? "#10b981" : "#ef4444" }}>
+                              <Coins className="w-3.5 h-3.5" />
+                              <span className="font-bold">Cost: {tokenCost} token{tokenCost !== 1 ? "s" : ""}</span>
+                            </div>
+                            {balance !== null && (
+                              <span style={{ color: hasEnoughBalance ? "#6b7280" : "#ef4444" }} className="font-semibold">
+                                {hasEnoughBalance ? `${balance} available` : `Only ${balance} — need ${tokenCost}`}
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        <motion.button
+                          type="submit"
+                          disabled={addMutation.isPending || !hasEnoughBalance}
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.99 }}
+                          className="w-full h-12 rounded-xl btn-gradient text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
                         >
-                          {DURATION_OPTIONS.map((opt) => (
-                            <option key={opt.days} value={opt.days} style={{ background: "#0f0f1a" }}>
-                              {opt.label} — {opt.price}
-                            </option>
-                          ))}
-                        </select>
-                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
-                          <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12"
+                            animate={{ x: ["-100%", "200%"] }}
+                            transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
+                          />
+                          <AnimatePresence mode="wait">
+                            {addMutation.isPending ? (
+                              <motion.span key="l" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Processing...
+                              </motion.span>
+                            ) : (
+                              <motion.span key="i" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                                <Zap className="w-4 h-4" />
+                                Authorize Access
+                              </motion.span>
+                            )}
+                          </AnimatePresence>
+                        </motion.button>
 
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] group hover:border-violet-500/20 hover:bg-white/[0.04] transition-all">
-                    <div>
-                      <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                        <Monitor className="w-3.5 h-3.5 text-cyan-400" />
-                        BlueStack Mode
-                      </div>
-                      <div className="text-[11px] text-muted-foreground mt-0.5">Emulator compatibility layer</div>
-                    </div>
-                    <Switch
-                      checked={form.watch("bluestack")}
-                      onCheckedChange={(v) => form.setValue("bluestack", v)}
-                      className="data-[state=checked]:bg-violet-600"
-                    />
-                  </div>
-
-                  {/* Token cost preview */}
-                  {!isTrial && (
-                    <div className="flex items-center justify-between px-3 py-2 rounded-xl text-[11px]" style={{ background: hasEnoughBalance ? "rgba(16,185,129,0.06)" : "rgba(239,68,68,0.08)", border: `1px solid ${hasEnoughBalance ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.25)"}` }}>
-                      <div className="flex items-center gap-1.5" style={{ color: hasEnoughBalance ? "#10b981" : "#ef4444" }}>
-                        <Coins className="w-3.5 h-3.5" />
-                        <span className="font-bold">Cost: {tokenCost} token{tokenCost !== 1 ? "s" : ""}</span>
-                      </div>
-                      {balance !== null && (
-                        <span style={{ color: hasEnoughBalance ? "#6b7280" : "#ef4444" }} className="font-semibold">
-                          {hasEnoughBalance ? `${balance} available` : `Only ${balance} — need ${tokenCost}`}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  <motion.button
-                    type="submit"
-                    disabled={addMutation.isPending || !hasEnoughBalance}
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                    className="w-full h-12 rounded-xl btn-gradient text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
-                  >
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12"
-                      animate={{ x: ["-100%", "200%"] }}
-                      transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
-                    />
-                    <AnimatePresence mode="wait">
-                      {addMutation.isPending ? (
-                        <motion.span key="l" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Processing...
-                        </motion.span>
-                      ) : (
-                        <motion.span key="i" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
-                          <Zap className="w-4 h-4" />
-                          Authorize Access
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </motion.button>
-
-                  {/* Trial limit message */}
-                  <AnimatePresence>
-                    {showTrialMessage && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -8, height: 0 }}
-                        animate={{ opacity: 1, y: 0, height: "auto" }}
-                        exit={{ opacity: 0, y: -8, height: 0 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="rounded-xl p-4 text-center space-y-3" style={{ background: "rgba(88,101,242,0.1)", border: "1px solid rgba(88,101,242,0.25)" }}>
-                          <p className="text-sm font-semibold text-white leading-snug">
-                            Contact to <span style={{ color: "#a78bfa" }}>Zytronexd</span> for purchase
-                            <br />
-                            <span className="text-xs font-normal text-muted-foreground">Its Free Trial — 1 UID only</span>
-                          </p>
-                          <motion.a
-                            href="https://discord.gg/QTwupjcKre"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            whileHover={{ scale: 1.03 }}
-                            whileTap={{ scale: 0.97 }}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-white"
-                            style={{ background: "linear-gradient(135deg, #5865F2, #8b5cf6)" }}
-                          >
-                            <svg width="14" height="14" viewBox="0 0 127.14 96.36" fill="white">
-                              <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
-                            </svg>
-                            Join Discord
-                          </motion.a>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </form>
-            </div>
-          </motion.div>
-
-          {/* UID Table */}
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3, type: "spring", stiffness: 160, damping: 22 }}
-          >
-            <div className="glass-strong rounded-2xl overflow-hidden relative">
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/70 to-transparent" />
-
-              <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.05]">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-violet-400" />
-                  <h2 className="font-semibold text-sm text-foreground">Active Authorizations</h2>
-                </div>
-                {!isLoading && (
-                  <motion.span
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="px-3 py-1 rounded-full text-[11px] font-bold"
-                    style={{ background: "rgba(139,92,246,0.15)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.2)" }}
-                  >
-                    {uids.length} registered
-                  </motion.span>
-                )}
-              </div>
-
-              <div className="overflow-x-auto">
-                {isLoading ? (
-                  <div className="p-6 space-y-3">
-                    {[...Array(5)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: [0.3, 0.6, 0.3] }}
-                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
-                        className="h-14 rounded-xl bg-white/[0.03]"
-                      />
-                    ))}
-                  </div>
-                ) : uids.length === 0 ? (
-                  <div className="py-20 flex flex-col items-center gap-3 text-muted-foreground">
-                    <div className="w-16 h-16 rounded-2xl glass flex items-center justify-center">
-                      <Shield className="w-8 h-8 opacity-20" />
-                    </div>
-                    <p className="text-sm font-medium">No UIDs registered</p>
-                    <p className="text-xs opacity-50">Add a UID using the form</p>
-                  </div>
-                ) : (
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-white/[0.04]">
-                        {["UID", "Status", "Expiry", "Operator", ""].map((h, i) => (
-                          <th key={i} className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <AnimatePresence initial={false}>
-                      <tbody>
-                        {uids.map((entry, i) => {
-                          const isHovered = hoveredRow === entry.uid;
-                          return (
-                            <motion.tr
-                              key={entry.uid}
-                              initial={{ opacity: 0, x: -16 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              exit={{ opacity: 0, x: 16, height: 0 }}
-                              transition={{ delay: i * 0.035, type: "spring", stiffness: 220, damping: 26 }}
-                              onMouseEnter={() => setHoveredRow(entry.uid)}
-                              onMouseLeave={() => setHoveredRow(null)}
-                              className="border-b border-white/[0.03] relative"
-                              style={{
-                                background: isHovered
-                                  ? "linear-gradient(90deg, rgba(139,92,246,0.07), rgba(6,182,212,0.04), transparent)"
-                                  : "transparent",
-                                transition: "background 0.3s ease",
-                              }}
+                        {/* Trial limit message */}
+                        <AnimatePresence>
+                          {showTrialMessage && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -8, height: 0 }}
+                              animate={{ opacity: 1, y: 0, height: "auto" }}
+                              exit={{ opacity: 0, y: -8, height: 0 }}
+                              className="overflow-hidden"
                             >
-                              <td className="relative pl-5 pr-3 py-4 w-0">
-                                <motion.div
-                                  animate={{ scaleY: isHovered ? 1 : 0, opacity: isHovered ? 1 : 0 }}
-                                  transition={{ duration: 0.2 }}
-                                  className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full"
-                                  style={{ background: "linear-gradient(180deg, #8b5cf6, #06b6d4)", transformOrigin: "top" }}
-                                />
-                              </td>
-
-                              <td className="px-3 py-4">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-mono font-bold text-foreground tracking-wider text-sm">{entry.uid}</span>
-                                </div>
-                              </td>
-
-                              <td className="px-5 py-4">
-                                {entry.bluestack ? (
-                                  <motion.span
-                                    whileHover={{ scale: 1.05 }}
-                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide cursor-default"
-                                    style={{ background: "rgba(6,182,212,0.12)", color: "#22d3ee", border: "1px solid rgba(6,182,212,0.25)" }}
-                                  >
-                                    <Monitor className="w-2.5 h-2.5" />
-                                    BLUESTACK
-                                  </motion.span>
-                                ) : (
-                                  <motion.span
-                                    whileHover={{ scale: 1.05 }}
-                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide cursor-default"
-                                    style={{ background: "rgba(139,92,246,0.12)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.25)" }}
-                                  >
-                                    <CheckCircle2 className="w-2.5 h-2.5" />
-                                    STANDARD
-                                  </motion.span>
-                                )}
-                              </td>
-
-                              <td className="px-5 py-4">
-                                <span className="text-xs text-muted-foreground font-mono">
-                                  {entry.addedAt
-                                    ? new Date(new Date(entry.addedAt).getTime() + entry.days * 86400000).toLocaleDateString()
-                                    : "—"}
-                                </span>
-                              </td>
-
-                              <td className="px-5 py-4">
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(139,92,246,0.1)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.2)" }}>
-                                  {entry.addedBy || "—"}
-                                </span>
-                              </td>
-
-                              <td className="px-5 py-4 text-right">
-                                <motion.button
-                                  initial={{ opacity: 0, scale: 0.8 }}
-                                  animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.8 }}
-                                  whileHover={{ scale: 1.15 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  onClick={() => onRemove(entry.uid)}
-                                  disabled={removingUid === entry.uid}
-                                  className="p-2 rounded-lg hover:bg-red-500/15 text-muted-foreground hover:text-red-400 transition-colors disabled:opacity-40"
+                              <div className="rounded-xl p-4 text-center space-y-3" style={{ background: "rgba(88,101,242,0.1)", border: "1px solid rgba(88,101,242,0.25)" }}>
+                                <p className="text-sm font-semibold text-white leading-snug">
+                                  Contact to <span style={{ color: "#a78bfa" }}>Zytronexd</span> for purchase
+                                  <br />
+                                  <span className="text-xs font-normal text-muted-foreground">Its Free Trial — 1 UID only</span>
+                                </p>
+                                <motion.a
+                                  href="https://discord.gg/QTwupjcKre"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  whileHover={{ scale: 1.03 }}
+                                  whileTap={{ scale: 0.97 }}
+                                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-white"
+                                  style={{ background: "linear-gradient(135deg, #5865F2, #8b5cf6)" }}
                                 >
-                                  {removingUid === entry.uid ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                  ) : (
-                                    <XCircle className="w-4 h-4" />
-                                  )}
-                                </motion.button>
-                              </td>
-                            </motion.tr>
-                          );
-                        })}
-                      </tbody>
-                    </AnimatePresence>
-                  </table>
-                )}
+                                  <svg width="14" height="14" viewBox="0 0 127.14 96.36" fill="white">
+                                    <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z" />
+                                  </svg>
+                                  Join Discord
+                                </motion.a>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </form>
+                    </div>
+                  </TiltWrapper>
+                </motion.div>
+
+                {/* UID Table */}
+                <motion.div
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3, type: "spring", stiffness: 160, damping: 22 }}
+                >
+                  <div className="glass-strong rounded-2xl overflow-hidden relative">
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/70 to-transparent" />
+
+                    <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.05]">
+                      <div className="flex items-center gap-2">
+                        <Shield className="w-4 h-4 text-violet-400" />
+                        <h2 className="font-semibold text-sm text-foreground">Active Authorizations</h2>
+                      </div>
+                      {!isLoading && (
+                        <motion.span
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className="px-3 py-1 rounded-full text-[11px] font-bold"
+                          style={{ background: "rgba(139,92,246,0.15)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.2)" }}
+                        >
+                          {uids.length} registered
+                        </motion.span>
+                      )}
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      {isLoading ? (
+                        <div className="p-6 space-y-3">
+                          {[...Array(5)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: [0.3, 0.6, 0.3] }}
+                              transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                              className="h-14 rounded-xl bg-white/[0.03]"
+                            />
+                          ))}
+                        </div>
+                      ) : uids.length === 0 ? (
+                        <div className="py-20 flex flex-col items-center gap-3 text-muted-foreground">
+                          <div className="w-16 h-16 rounded-2xl glass flex items-center justify-center">
+                            <Shield className="w-8 h-8 opacity-20" />
+                          </div>
+                          <p className="text-sm font-medium">No UIDs registered</p>
+                          <p className="text-xs opacity-50">Add a UID using the form</p>
+                        </div>
+                      ) : (
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-white/[0.04]">
+                              {["UID", "Status", "Expiry", "Operator", ""].map((h, i) => (
+                                <th key={i} className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                                  {h}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <AnimatePresence initial={false}>
+                            <tbody>
+                              {uids.map((entry, i) => {
+                                const isHovered = hoveredRow === entry.uid;
+                                return (
+                                  <motion.tr
+                                    key={entry.uid}
+                                    initial={{ opacity: 0, x: -16 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 16, height: 0 }}
+                                    transition={{ delay: i * 0.035, type: "spring", stiffness: 220, damping: 26 }}
+                                    onMouseEnter={() => setHoveredRow(entry.uid)}
+                                    onMouseLeave={() => setHoveredRow(null)}
+                                    className="border-b border-white/[0.03] relative"
+                                    style={{
+                                      background: isHovered
+                                        ? "linear-gradient(90deg, rgba(139,92,246,0.07), rgba(6,182,212,0.04), transparent)"
+                                        : "transparent",
+                                      transition: "background 0.3s ease",
+                                    }}
+                                  >
+                                    <td className="relative pl-5 pr-3 py-4 w-0">
+                                      <motion.div
+                                        animate={{ scaleY: isHovered ? 1 : 0, opacity: isHovered ? 1 : 0 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full"
+                                        style={{ background: "linear-gradient(180deg, #8b5cf6, #06b6d4)", transformOrigin: "top" }}
+                                      />
+                                    </td>
+
+                                    <td className="px-3 py-4">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-mono font-bold text-foreground tracking-wider text-sm">{entry.uid}</span>
+                                      </div>
+                                    </td>
+
+                                    <td className="px-5 py-4">
+                                      {entry.bluestack ? (
+                                        <motion.span
+                                          whileHover={{ scale: 1.05 }}
+                                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide cursor-default"
+                                          style={{ background: "rgba(6,182,212,0.12)", color: "#22d3ee", border: "1px solid rgba(6,182,212,0.25)" }}
+                                        >
+                                          <Monitor className="w-2.5 h-2.5" />
+                                          BLUESTACK
+                                        </motion.span>
+                                      ) : (
+                                        <motion.span
+                                          whileHover={{ scale: 1.05 }}
+                                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide cursor-default"
+                                          style={{ background: "rgba(139,92,246,0.12)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.25)" }}
+                                        >
+                                          <CheckCircle2 className="w-2.5 h-2.5" />
+                                          STANDARD
+                                        </motion.span>
+                                      )}
+                                    </td>
+
+                                    <td className="px-5 py-4">
+                                      <span className="text-xs text-muted-foreground font-mono">
+                                        {entry.addedAt
+                                          ? new Date(new Date(entry.addedAt).getTime() + entry.days * 86400000).toLocaleDateString()
+                                          : "—"}
+                                      </span>
+                                    </td>
+
+                                    <td className="px-5 py-4">
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(139,92,246,0.1)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.2)" }}>
+                                        {entry.addedBy || "—"}
+                                      </span>
+                                    </td>
+
+                                    <td className="px-5 py-4 text-right">
+                                      <motion.button
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.8 }}
+                                        whileHover={{ scale: 1.15 }}
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={() => onRemove(entry.uid)}
+                                        disabled={removingUid === entry.uid}
+                                        className="p-2 rounded-lg hover:bg-red-500/15 text-muted-foreground hover:text-red-400 transition-colors disabled:opacity-40"
+                                      >
+                                        {removingUid === entry.uid ? (
+                                          <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                          <XCircle className="w-4 h-4" />
+                                        )}
+                                      </motion.button>
+                                    </td>
+                                  </motion.tr>
+                                );
+                              })}
+                            </tbody>
+                          </AnimatePresence>
+                        </table>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
               </div>
-            </div>
-          </motion.div>
-        </div>
-        </motion.div>
-        )}
+            </motion.div>
+          )}
         </AnimatePresence>
 
       </main>
@@ -752,7 +983,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
               fetch(`${BASE}/api/credits/me`, { headers: userHeaders() })
                 .then(r => r.json())
                 .then(d => { if (d.success) setBalance(d.balance); })
-                .catch(() => {});
+                .catch(() => { });
             }}
           />
         )}
@@ -763,11 +994,11 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
 
 /* ─── Token packages ─── */
 const TOKEN_PACKAGES = [
-  { tokens: 10,  price: "$0.50",  label: "Starter",  color: "#10b981" },
-  { tokens: 30,  price: "$1.30",  label: "Basic",    color: "#06b6d4" },
-  { tokens: 70,  price: "$2.33",  label: "Standard", color: "#8b5cf6" },
-  { tokens: 150, price: "$3.50",  label: "Pro",      color: "#f59e0b" },
-  { tokens: 300, price: "$5.20",  label: "Ultimate", color: "#ec4899" },
+  { tokens: 10, price: "$0.50", label: "Starter", color: "#10b981" },
+  { tokens: 30, price: "$1.30", label: "Basic", color: "#06b6d4" },
+  { tokens: 70, price: "$2.33", label: "Standard", color: "#8b5cf6" },
+  { tokens: 150, price: "$3.50", label: "Pro", color: "#f59e0b" },
+  { tokens: 300, price: "$5.20", label: "Ultimate", color: "#ec4899" },
 ];
 
 /* ─── Add Funds Modal ─── */
@@ -779,10 +1010,10 @@ function AddFundsModal({ username, onClose, onSuccess }: { username: string; onC
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  function userHdrs() {
+  function userHdrs(): Record<string, string> {
     try {
       const raw = sessionStorage.getItem("uid_auth");
-      if (!raw) return {};
+      if (!raw) return { "Content-Type": "application/json" };
       const { username: u, adminKey } = JSON.parse(raw);
       return { "Content-Type": "application/json", "x-username": u ?? "", "x-password": adminKey ?? "" };
     } catch { return { "Content-Type": "application/json" }; }
@@ -792,7 +1023,7 @@ function AddFundsModal({ username, onClose, onSuccess }: { username: string; onC
     if (!selected) return;
     setLoading(true);
     try {
-      const res = await fetch(`${BASE_M}/api/payments/request`, {
+      const res = await fetch(`${BASE}/api/payments/request`, {
         method: "POST",
         headers: userHdrs(),
         body: JSON.stringify({ packageTokens: selected.tokens, packagePrice: selected.price, txNote }),
@@ -897,8 +1128,7 @@ function AddFundsModal({ username, onClose, onSuccess }: { username: string; onC
                     >
                       <span className="text-lg font-black" style={{ color: selected?.tokens === pkg.tokens ? pkg.color : "#9ca3af" }}>{pkg.tokens}</span>
                       <span className="text-[8px] text-muted-foreground uppercase tracking-wide">tokens</span>
-                      <span className="text-[10px] font-bold mt-1" style={{ color: selected?.tokens === pkg.tokens ? pkg.color : "#6b7280" }}>{pkg.price}</span>
-                      <span className="text-[8px] text-muted-foreground">{pkg.label}</span>
+                      <span className="text-[8px] text-muted-foreground mt-1">{pkg.label}</span>
                     </button>
                   ))}
                 </div>
@@ -971,7 +1201,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
   const copyCard = (c: { username: string; password: string; days: number }) => {
     const loginUrl = window.location.origin;
     const msg =
-`✨「 SG71 BYPASS MODULE 」✨
+      `✨「 SG71 BYPASS MODULE 」✨
 🔓 FREE TRIAL ACCESS GRANTED 🔓
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
 
@@ -1008,7 +1238,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch(`${BASE_URL}/api/reseller/trial`, {
+      const res = await fetch(`${BASE}/api/reseller/trial`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

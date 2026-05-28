@@ -6,7 +6,7 @@ interface LoginProps {
   onLogin: (role: "admin" | "user", username: string) => void;
 }
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
 export default function Login({ onLogin }: LoginProps) {
   const [username, setUsername] = useState("");
@@ -235,10 +235,12 @@ function StarField() {
     }
 
     function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      buildStars(canvas.width, canvas.height);
-      mouse.current = { x: canvas.width / 2, y: canvas.height / 2 };
+      const cvs = canvasRef.current;
+      if (!cvs) return;
+      cvs.width = window.innerWidth;
+      cvs.height = window.innerHeight;
+      buildStars(cvs.width, cvs.height);
+      mouse.current = { x: cvs.width / 2, y: cvs.height / 2 };
       target.current = { ...mouse.current };
     }
 
@@ -254,6 +256,8 @@ function StarField() {
 
     let t = 0;
     function draw() {
+      const cvs = canvasRef.current;
+      if (!cvs) return;
       raf.current = requestAnimationFrame(draw);
       t += 0.016;
 
@@ -261,12 +265,12 @@ function StarField() {
       mouse.current.x += (target.current.x - mouse.current.x) * 0.06;
       mouse.current.y += (target.current.y - mouse.current.y) * 0.06;
 
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
+      const cx = cvs.width / 2;
+      const cy = cvs.height / 2;
       const dx = mouse.current.x - cx;
       const dy = mouse.current.y - cy;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
 
       stars.forEach((s, i) => {
         const layer = LAYERS[s.layer];
