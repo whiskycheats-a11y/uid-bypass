@@ -85,7 +85,7 @@ function StatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, type: "spring", stiffness: 200, damping: 22 }}
       whileHover={{ y: -4, scale: 1.02 }}
-      className="glass-strong rounded-2xl p-5 relative overflow-hidden cursor-default group"
+      className="glass-3d-strong stat-card-3d rounded-2xl p-5 relative overflow-hidden cursor-default group"
     >
       <div
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-2xl"
@@ -503,10 +503,10 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
 
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute animate-float-orb rounded-full" style={{ width: 700, height: 700, background: "radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 70%)", top: "-200px", left: "-150px" }} />
-        <div className="absolute animate-float-orb-delay rounded-full" style={{ width: 600, height: 600, background: "radial-gradient(circle, rgba(0,212,255,0.18) 0%, transparent 70%)", bottom: "-150px", right: "-100px" }} />
-        <div className="absolute animate-pulse-glow rounded-full" style={{ width: 350, height: 350, background: "radial-gradient(circle, rgba(236,72,153,0.15) 0%, transparent 70%)", top: "45%", left: "65%" }} />
-        <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: "linear-gradient(rgba(139,92,246,1) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+        <div className="orb-3d orb-1" />
+        <div className="orb-3d orb-2" />
+        <div className="orb-3d orb-3" />
+        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: "linear-gradient(rgba(162,0,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
       </div>
 
 
@@ -515,7 +515,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative z-20 glass-strong border-b border-white/[0.05] sticky top-0"
+        className="relative z-20 glass-3d border-b border-white/[0.05] sticky top-0"
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -528,7 +528,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
               <Shield className="w-4 h-4 text-white" />
             </motion.div>
             <div>
-              <div className="font-bold text-sm text-foreground">UID Manager</div>
+              <div className="font-bold text-sm text-gradient-viral">UID Manager</div>
               <div className="text-[11px] text-muted-foreground">Bypass Whitelist System</div>
             </div>
           </div>
@@ -653,7 +653,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                   className="w-full"
                 >
                   <TiltWrapper>
-                    <div className="glass-strong rounded-2xl p-6 relative overflow-hidden">
+                    <div className="glass-3d-strong rounded-2xl p-6 relative overflow-hidden">
                       <ParticleExplosion active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
                       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/70 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
@@ -750,7 +750,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                           disabled={addMutation.isPending || !hasEnoughBalance}
                           whileHover={{ scale: 1.01 }}
                           whileTap={{ scale: 0.99 }}
-                          className="w-full h-12 rounded-xl btn-gradient text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
+                          className="w-full h-12 rounded-xl btn-viral-3d text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
                         >
                           <motion.div
                             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12"
@@ -816,7 +816,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3, type: "spring", stiffness: 160, damping: 22 }}
                 >
-                  <div className="glass-strong rounded-2xl overflow-hidden relative">
+                  <div className="glass-3d-strong rounded-2xl overflow-hidden relative">
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/70 to-transparent" />
 
                     <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.05]">
