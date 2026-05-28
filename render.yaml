@@ -3,7 +3,8 @@ services:
     name: uid-api-server
     runtime: node
     plan: free
-    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter @workspace/api-server run build
+    rootDir: .                          # Important for monorepo
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @workspace/api-server build
     startCommand: node --enable-source-maps ./artifacts/api-server/dist/index.mjs
     envVars:
       - key: NODE_ENV
@@ -20,7 +21,9 @@ services:
   - type: web
     name: uid-frontend
     env: static
-    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter @workspace/uid-manager run build
+    plan: free
+    rootDir: .                          # Important for monorepo
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @workspace/uid-manager build
     staticPublishPath: ./artifacts/uid-manager/dist/public
     envVars:
       - key: VITE_API_URL
