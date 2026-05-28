@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import {
   ArrowRight,
   CheckCircle2,
@@ -44,6 +44,10 @@ export default function Login({ onLogin }: LoginProps) {
   const [showLogin, setShowLogin] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll();
+  const dragonY = useTransform(scrollYProgress, [0, 1], [0, -320]);
+  const dragonX = useTransform(scrollYProgress, [0, 1], [0, 140]);
+  const dragonRotate = useTransform(scrollYProgress, [0, 1], [-8, 18]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = cardRef.current;
@@ -119,7 +123,7 @@ export default function Login({ onLogin }: LoginProps) {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto grid min-h-[calc(100vh-5rem)] w-full max-w-7xl items-center gap-8 px-5 pb-10 sm:px-8 lg:grid-cols-[1.06fr_0.94fr]">
+      <main className="home-main relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 px-5 pb-10 sm:px-8 lg:grid-cols-[0.95fr_1.05fr]">
         <section className="home-hero">
           <motion.div
             initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
@@ -205,13 +209,21 @@ export default function Login({ onLogin }: LoginProps) {
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 24, scale: 0.94 }}
                 transition={{ duration: 0.55, type: "spring", stiffness: 110, damping: 18 }}
-                className="landing-visual-card"
+                className="landing-dragon-scene"
               >
                 <div className="landing-orbit">
                   <span />
                   <span />
                   <span />
-                  <div className="dragon-stage" aria-hidden="true">
+                  <motion.div
+                    className="dragon-stage"
+                    aria-hidden="true"
+                    drag
+                    dragElastic={0.18}
+                    dragMomentum={false}
+                    whileDrag={{ scale: 1.07, rotate: -4 }}
+                    style={{ x: dragonX, y: dragonY, rotate: dragonRotate }}
+                  >
                     <div className="dragon-aura" />
                     <div className="dragon-wing dragon-wing-left" />
                     <div className="dragon-wing dragon-wing-right" />
@@ -230,20 +242,9 @@ export default function Login({ onLogin }: LoginProps) {
                     </div>
                     <div className="dragon-leg leg-a" />
                     <div className="dragon-leg leg-b" />
-                  </div>
+                  </motion.div>
                 </div>
-                <div className="landing-panel panel-a">
-                  <strong>5900</strong>
-                  <span>Tokens Ready</span>
-                </div>
-                <div className="landing-panel panel-b">
-                  <strong>LIVE</strong>
-                  <span>Secure Channel</span>
-                </div>
-                <div className="landing-panel panel-c">
-                  <strong>UID</strong>
-                  <span>Instant Access</span>
-                </div>
+                <div className="dragon-hint">Drag the dragon</div>
               </motion.div>
             ) : (
               <motion.div
