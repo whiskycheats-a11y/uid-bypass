@@ -6,6 +6,7 @@ import {
   Lock, User as UserIcon, Gift, RefreshCw, Shield, Timer, Settings,
   Coins, Wallet, CreditCard, Check, XCircle, Clock,
 } from "lucide-react";
+import { AmbientScene } from "@/components/ambient-scene";
 
 const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
@@ -157,25 +158,18 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
   const trials = users.filter((u) => u.isTrial);
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+    <div className="app-screen min-h-screen bg-background text-foreground relative overflow-hidden">
       {/* Spotlight — GPU layer, no JS re-render */}
       <div ref={spotlightRef} className="fixed inset-0 pointer-events-none z-0" style={{ willChange: "background" }} />
 
-      {/* Background orbs — pure CSS, zero JS */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" style={{ contain: "layout paint" }}>
-        <div className="orb-3d orb-1" />
-        <div className="orb-3d orb-2" />
-        <div className="orb-3d orb-3" />
-        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: "linear-gradient(rgba(162,0,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
-        <CssParticles />
-      </div>
+      <AmbientScene variant="admin" compact />
 
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-20 sticky top-0 glass-3d border-b border-white/[0.05]"
+        className="app-header relative z-20 sticky top-0 glass-3d border-b border-white/[0.05]"
       >
         <div className="max-w-5xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -205,7 +199,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
         </div>
       </motion.header>
 
-      <main className="relative z-10 max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6">
+      <main className="app-main relative z-10 max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
           {[

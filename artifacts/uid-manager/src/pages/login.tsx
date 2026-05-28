@@ -1,12 +1,36 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Shield, Eye, EyeOff, Loader2, Lock, User, Zap } from "lucide-react";
+import { useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Cpu,
+  Eye,
+  EyeOff,
+  Fingerprint,
+  Gauge,
+  KeyRound,
+  Loader2,
+  Lock,
+  Orbit,
+  Shield,
+  ShieldCheck,
+  Sparkles,
+  User,
+  Zap,
+} from "lucide-react";
+import { AmbientScene } from "@/components/ambient-scene";
 
 interface LoginProps {
   onLogin: (role: "admin" | "user", username: string) => void;
 }
 
 const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
+
+const statusCards = [
+  { icon: ShieldCheck, label: "Secure Relay", value: "Online" },
+  { icon: Gauge, label: "Latency", value: "12 ms" },
+  { icon: Cpu, label: "Core Load", value: "18%" },
+];
 
 export default function Login({ onLogin }: LoginProps) {
   const [username, setUsername] = useState("");
@@ -24,7 +48,7 @@ export default function Login({ onLogin }: LoginProps) {
     const rect = el.getBoundingClientRect();
     const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
     const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
-    setTilt({ x: dy * -8, y: dx * 8 });
+    setTilt({ x: dy * -7, y: dx * 7 });
   };
 
   const handleMouseLeave = () => setTilt({ x: 0, y: 0 });
@@ -42,8 +66,10 @@ export default function Login({ onLogin }: LoginProps) {
       const data = await res.json();
       if (data.success) {
         sessionStorage.setItem("uid_auth", JSON.stringify({
-          role: data.role, username: data.username,
-          adminKey: password, defaultDays: data.defaultDays ?? 30,
+          role: data.role,
+          username: data.username,
+          adminKey: password,
+          defaultDays: data.defaultDays ?? 30,
           isTrial: data.isTrial ?? false,
           canResell: data.canResell ?? false,
         }));
@@ -60,260 +86,195 @@ export default function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
-      {/* Canvas star field — mouse parallax */}
-      <StarField />
+    <div className="min-h-screen overflow-hidden bg-background text-foreground relative">
+      <AmbientScene variant="public" />
 
-      {/* Background orbs — CSS only */}
-      <div className="fixed inset-0 pointer-events-none" style={{ contain: "layout paint" }}>
-        <div className="orb-3d orb-1" />
-        <div className="orb-3d orb-2" />
-        <div className="orb-3d orb-3" />
-        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: "linear-gradient(rgba(162,0,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
-      </div>
-
-      {/* Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 50, scale: 0.88 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.65, type: "spring", stiffness: 120, damping: 18 }}
-        className="relative z-10 w-full max-w-md mx-4"
-        style={{ perspective: "1000px" }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-      >
-        <motion.div
-          ref={cardRef}
-          animate={shake ? { x: [-12, 12, -8, 8, -4, 4, 0] } : {}}
-          style={{
-            rotateX: tilt.x,
-            rotateY: tilt.y,
-            transformStyle: "preserve-3d",
-            transition: shake ? undefined : "transform 0.25s ease",
-          }}
-          transition={{ duration: 0.45 }}
-          className="glass-3d-strong rounded-3xl p-8 relative overflow-hidden shadow-2xl"
-        >
-          {/* Glow borders */}
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/90 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
-          <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-violet-500/30 to-transparent" />
-          <div className="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-cyan-500/20 to-transparent" />
-          <div className="absolute -inset-1 rounded-3xl opacity-20 -z-10" style={{ background: "linear-gradient(135deg, #8b5cf6, transparent, #06b6d4)", filter: "blur(20px)" }} />
-          <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-violet-500/12 to-transparent rounded-3xl" />
-          <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-cyan-500/12 to-transparent rounded-3xl" />
-
-          {/* Logo */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="relative mb-4">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                className="w-20 h-20 rounded-2xl flex items-center justify-center"
-                style={{ background: "linear-gradient(135deg, hsl(262 83% 58%), hsl(292 83% 55%), hsl(192 100% 50%))", boxShadow: "0 0 40px rgba(139,92,246,0.5), inset 0 1px 0 rgba(255,255,255,0.1)" }}
-              >
-                <Shield className="w-10 h-10 text-white drop-shadow-lg" />
-              </motion.div>
-              <div className="absolute -inset-2 rounded-3xl -z-10 logo-ring" style={{ background: "conic-gradient(from 0deg, #8b5cf6, #06b6d4, #ec4899, #8b5cf6)", filter: "blur(8px)", opacity: 0.4 }} />
-            </div>
-            <h1 className="text-3xl font-black text-gradient-viral tracking-tight" style={{ textShadow: "0 0 30px rgba(162, 0, 255,0.5)" }}>
-              UID Manager
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1 tracking-wide">Bypass Whitelist System</p>
-
-            <div className="flex items-center gap-2 mt-3 px-4 py-1.5 rounded-full glass secure-badge" style={{ border: "1px solid rgba(16,185,129,0.3)" }}>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 live-dot" style={{ boxShadow: "0 0 6px #10b981" }} />
-              <span className="text-[11px] text-emerald-400 font-bold tracking-widest">SECURE CHANNEL</span>
-            </div>
+      <header className="relative z-20 mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-5 sm:px-8">
+        <div className="flex items-center gap-3">
+          <div className="brand-mark">
+            <Shield className="h-5 w-5" />
           </div>
+          <div>
+            <p className="text-sm font-black tracking-wide text-white">UID Manager</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/55">Access Console</p>
+          </div>
+        </div>
+        <div className="hidden items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/8 px-4 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-emerald-300 sm:flex">
+          <span className="live-dot h-2 w-2 rounded-full bg-emerald-300" />
+          Live Network
+        </div>
+      </header>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Username</label>
-              <div className="relative group">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-violet-400 transition-colors duration-200" />
-                <input
-                  type="text" value={username} onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter username" autoComplete="username"
-                  className="login-input w-full h-12 pl-10 pr-4 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none transition-all"
-                />
-              </div>
+      <main className="relative z-10 mx-auto grid min-h-[calc(100vh-5rem)] w-full max-w-7xl items-center gap-8 px-5 pb-8 sm:px-8 lg:grid-cols-[1.06fr_0.94fr]">
+        <section className="home-hero">
+          <motion.div
+            initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.65, ease: "easeOut" }}
+            className="space-y-7"
+          >
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200/15 bg-cyan-200/7 px-4 py-2 text-xs font-bold text-cyan-100 shadow-[0_0_32px_rgba(34,211,238,0.12)]">
+              <Sparkles className="h-4 w-4 text-cyan-300" />
+              Professional whitelist command center
             </div>
 
-            {/* Password */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Password</label>
-              <div className="relative group">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-violet-400 transition-colors duration-200" />
-                <input
-                  type={showPass ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password" autoComplete="current-password"
-                  className="login-input w-full h-12 pl-10 pr-12 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none transition-all"
-                />
-                <button type="button" onClick={() => setShowPass(!showPass)} className="eyebtn absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground p-1 rounded-lg transition-all">
-                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
+            <div className="space-y-5">
+              <h1 className="home-title">
+                UID control with a real-time 3D security interface.
+              </h1>
+              <p className="max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+                Manage client access, token balance, trials, payments, and admin controls from one fast responsive portal built for desktop and mobile.
+              </p>
             </div>
 
-            <AnimatePresence>
-              {error && (
+            <div className="grid max-w-2xl gap-3 sm:grid-cols-3">
+              {statusCards.map((item, index) => (
                 <motion.div
-                  initial={{ opacity: 0, y: -8, height: 0 }}
-                  animate={{ opacity: 1, y: 0, height: "auto" }}
-                  exit={{ opacity: 0, y: -8, height: 0 }}
-                  className="flex items-center gap-2 text-red-400 text-sm px-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20"
+                  key={item.label}
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + index * 0.08, duration: 0.5 }}
+                  whileHover={{ y: -6, rotateX: 5, rotateY: -5 }}
+                  className="home-status-card"
                 >
-                  <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
-                  {error}
+                  <item.icon className="h-4 w-4 text-cyan-200" />
+                  <span>{item.label}</span>
+                  <strong>{item.value}</strong>
                 </motion.div>
-              )}
-            </AnimatePresence>
+              ))}
+            </div>
 
-            <motion.button
-              type="submit"
-              disabled={loading || !username || !password}
-              whileHover={{ scale: 1.025 }}
-              whileTap={{ scale: 0.975 }}
-              className="w-full h-12 rounded-xl btn-viral-3d text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden mt-2"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12 btn-shimmer" />
-              <AnimatePresence mode="wait">
-                {loading ? (
-                  <motion.span key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" /> Authenticating...
-                  </motion.span>
-                ) : (
-                  <motion.span key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
-                    <Zap className="w-4 h-4" /> Access System
-                  </motion.span>
+            <div className="home-console">
+              <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.24em] text-violet-200/70">
+                <Orbit className="h-4 w-4 text-violet-300" />
+                Interactive Core
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                {["Token guarded", "UID synced", "Admin ready"].map((item) => (
+                  <div key={item} className="flex items-center gap-2 rounded-xl border border-white/8 bg-white/[0.035] px-3 py-3 text-sm font-semibold text-slate-200">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </section>
+
+        <motion.section
+          initial={{ opacity: 0, x: 30, scale: 0.96 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          transition={{ duration: 0.65, type: "spring", stiffness: 110, damping: 18 }}
+          className="login-shell"
+          style={{ perspective: "1200px" }}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
+          <motion.div
+            ref={cardRef}
+            animate={shake ? { x: [-12, 12, -8, 8, -4, 4, 0] } : {}}
+            style={{
+              rotateX: tilt.x,
+              rotateY: tilt.y,
+              transformStyle: "preserve-3d",
+              transition: shake ? undefined : "transform 0.25s ease",
+            }}
+            transition={{ duration: 0.45 }}
+            className="login-card"
+          >
+            <div className="login-card-glow" />
+            <div className="login-card-header">
+              <motion.div
+                animate={{ rotateY: [0, 360], y: [0, -8, 0] }}
+                transition={{ rotateY: { duration: 8, repeat: Infinity, ease: "linear" }, y: { duration: 3, repeat: Infinity, ease: "easeInOut" } }}
+                className="login-logo-3d"
+              >
+                <Fingerprint className="h-10 w-10" />
+              </motion.div>
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.28em] text-cyan-200/65">Secure Login</p>
+                <h2 className="mt-2 text-3xl font-black tracking-tight text-white">Access Portal</h2>
+                <p className="mt-1 text-sm text-slate-400">Enter your assigned credentials.</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase tracking-[0.22em] text-slate-400">Username</label>
+                <div className="login-field">
+                  <User className="h-4 w-4" />
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Enter username"
+                    autoComplete="username"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase tracking-[0.22em] text-slate-400">Password</label>
+                <div className="login-field">
+                  <Lock className="h-4 w-4" />
+                  <input
+                    type={showPass ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter password"
+                    autoComplete="current-password"
+                  />
+                  <button type="button" onClick={() => setShowPass(!showPass)} aria-label={showPass ? "Hide password" : "Show password"}>
+                    {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, height: 0 }}
+                    animate={{ opacity: 1, y: 0, height: "auto" }}
+                    exit={{ opacity: 0, y: -8, height: 0 }}
+                    className="rounded-2xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-200"
+                  >
+                    {error}
+                  </motion.div>
                 )}
               </AnimatePresence>
-            </motion.button>
-          </form>
 
-          <p className="text-center text-[10px] text-muted-foreground/40 mt-6 tracking-widest font-medium">
-            RESTRICTED ACCESS — AUTHORIZED PERSONNEL ONLY
-          </p>
-        </motion.div>
-      </motion.div>
+              <motion.button
+                type="submit"
+                disabled={loading || !username || !password}
+                whileHover={{ y: -2, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                className="login-submit"
+              >
+                <span className="btn-shimmer" />
+                <AnimatePresence mode="wait">
+                  {loading ? (
+                    <motion.span key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="relative flex items-center gap-2">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Authenticating
+                    </motion.span>
+                  ) : (
+                    <motion.span key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="relative flex items-center gap-2">
+                      <KeyRound className="h-5 w-5" />
+                      Enter Console
+                      <ArrowRight className="h-5 w-5" />
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+            </form>
+
+            <div className="mt-6 flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.035] px-4 py-3 text-xs font-bold text-slate-400">
+              <span className="flex items-center gap-2"><Zap className="h-4 w-4 text-cyan-300" /> Encrypted session</span>
+              <span>v3.0</span>
+            </div>
+          </motion.div>
+        </motion.section>
+      </main>
     </div>
-  );
-}
-
-/* ── Canvas Star Field with Mouse Parallax ── */
-function StarField() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mouse = useRef({ x: 0, y: 0 });
-  const target = useRef({ x: 0, y: 0 });
-  const raf = useRef(0);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d")!;
-
-    /* Star layers — each has a parallax multiplier */
-    interface Star { x: number; y: number; ox: number; oy: number; r: number; a: number; twinkleSpeed: number; twinklePhase: number; layer: number; }
-    let stars: Star[] = [];
-    const LAYERS = [
-      { count: 120, mult: 0.018, rMin: 0.4, rMax: 1.0, aBase: 0.25 },
-      { count: 60,  mult: 0.038, rMin: 0.9, rMax: 1.8, aBase: 0.55 },
-      { count: 20,  mult: 0.065, rMin: 1.5, rMax: 2.8, aBase: 0.8  },
-    ];
-
-    function buildStars(w: number, h: number) {
-      stars = [];
-      LAYERS.forEach((l, li) => {
-        for (let i = 0; i < l.count; i++) {
-          const ox = Math.random() * w;
-          const oy = Math.random() * h;
-          stars.push({ x: ox, y: oy, ox, oy, r: l.rMin + Math.random() * (l.rMax - l.rMin), a: l.aBase, twinkleSpeed: 0.4 + Math.random() * 1.2, twinklePhase: Math.random() * Math.PI * 2, layer: li });
-        }
-      });
-    }
-
-    function resize() {
-      const cvs = canvasRef.current;
-      if (!cvs) return;
-      cvs.width = window.innerWidth;
-      cvs.height = window.innerHeight;
-      buildStars(cvs.width, cvs.height);
-      mouse.current = { x: cvs.width / 2, y: cvs.height / 2 };
-      target.current = { ...mouse.current };
-    }
-
-    resize();
-
-    const onResize = () => resize();
-    const onMove = (e: MouseEvent) => {
-      target.current = { x: e.clientX, y: e.clientY };
-    };
-
-    window.addEventListener("resize", onResize, { passive: true });
-    window.addEventListener("mousemove", onMove, { passive: true });
-
-    let t = 0;
-    function draw() {
-      const cvs = canvasRef.current;
-      if (!cvs) return;
-      raf.current = requestAnimationFrame(draw);
-      t += 0.016;
-
-      /* Smooth lerp toward mouse — feels heavy and cinematic */
-      mouse.current.x += (target.current.x - mouse.current.x) * 0.06;
-      mouse.current.y += (target.current.y - mouse.current.y) * 0.06;
-
-      const cx = cvs.width / 2;
-      const cy = cvs.height / 2;
-      const dx = mouse.current.x - cx;
-      const dy = mouse.current.y - cy;
-
-      ctx.clearRect(0, 0, cvs.width, cvs.height);
-
-      stars.forEach((s, i) => {
-        const layer = LAYERS[s.layer];
-        /* Parallax offset */
-        s.x = s.ox + dx * layer.mult;
-        s.y = s.oy + dy * layer.mult;
-
-        /* Twinkle */
-        const alpha = layer.aBase * (0.5 + 0.5 * Math.sin(t * s.twinkleSpeed + s.twinklePhase));
-
-        /* Draw glow for bigger stars */
-        if (s.r > 1.4) {
-          const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 3.5);
-          grad.addColorStop(0, `rgba(200,185,255,${alpha * 0.6})`);
-          grad.addColorStop(1, "rgba(200,185,255,0)");
-          ctx.beginPath();
-          ctx.arc(s.x, s.y, s.r * 3.5, 0, Math.PI * 2);
-          ctx.fillStyle = grad;
-          ctx.fill();
-        }
-
-        /* Core dot */
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(220,210,255,${alpha})`;
-        ctx.fill();
-      });
-    }
-
-    draw();
-
-    return () => {
-      cancelAnimationFrame(raf.current);
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("mousemove", onMove);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.85 }}
-    />
   );
 }
