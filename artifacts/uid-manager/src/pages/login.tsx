@@ -66,10 +66,10 @@ export default function Login({ onLogin }: LoginProps) {
 
       {/* Background orbs — CSS only */}
       <div className="fixed inset-0 pointer-events-none" style={{ contain: "layout paint" }}>
-        <div className="absolute animate-float-orb rounded-full" style={{ width: 800, height: 800, background: "radial-gradient(circle, rgba(139,92,246,0.32) 0%, transparent 68%)", top: "-250px", left: "-200px" }} />
-        <div className="absolute animate-float-orb-delay rounded-full" style={{ width: 600, height: 600, background: "radial-gradient(circle, rgba(6,182,212,0.22) 0%, transparent 68%)", bottom: "-150px", right: "-100px" }} />
-        <div className="absolute animate-pulse-glow rounded-full" style={{ width: 400, height: 400, background: "radial-gradient(circle, rgba(236,72,153,0.18) 0%, transparent 68%)", top: "40%", left: "60%" }} />
-        <div className="absolute inset-0 opacity-[0.018]" style={{ backgroundImage: "linear-gradient(rgba(139,92,246,1) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+        <div className="orb-3d orb-1" />
+        <div className="orb-3d orb-2" />
+        <div className="orb-3d orb-3" />
+        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: "linear-gradient(rgba(162,0,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
       </div>
 
       {/* Card */}
@@ -92,7 +92,7 @@ export default function Login({ onLogin }: LoginProps) {
             transition: shake ? undefined : "transform 0.25s ease",
           }}
           transition={{ duration: 0.45 }}
-          className="glass-strong rounded-3xl p-8 relative overflow-hidden shadow-2xl"
+          className="glass-3d-strong rounded-3xl p-8 relative overflow-hidden shadow-2xl"
         >
           {/* Glow borders */}
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/90 to-transparent" />
@@ -116,7 +116,7 @@ export default function Login({ onLogin }: LoginProps) {
               </motion.div>
               <div className="absolute -inset-2 rounded-3xl -z-10 logo-ring" style={{ background: "conic-gradient(from 0deg, #8b5cf6, #06b6d4, #ec4899, #8b5cf6)", filter: "blur(8px)", opacity: 0.4 }} />
             </div>
-            <h1 className="text-3xl font-black text-foreground tracking-tight" style={{ textShadow: "0 0 30px rgba(139,92,246,0.5)" }}>
+            <h1 className="text-3xl font-black text-gradient-viral tracking-tight" style={{ textShadow: "0 0 30px rgba(162, 0, 255,0.5)" }}>
               UID Manager
             </h1>
             <p className="text-sm text-muted-foreground mt-1 tracking-wide">Bypass Whitelist System</p>
@@ -176,7 +176,7 @@ export default function Login({ onLogin }: LoginProps) {
               disabled={loading || !username || !password}
               whileHover={{ scale: 1.025 }}
               whileTap={{ scale: 0.975 }}
-              className="w-full h-12 rounded-xl btn-gradient text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden mt-2"
+              className="w-full h-12 rounded-xl btn-viral-3d text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden mt-2"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12 btn-shimmer" />
               <AnimatePresence mode="wait">
