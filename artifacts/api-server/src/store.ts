@@ -318,11 +318,12 @@ const settingsSchema = new Schema<SettingsDoc>({
 const SettingsModel = model<SettingsDoc>("AppSettings", settingsSchema);
 
 let settingsCache: { externalApiUrl: string; externalApiKey: string } | null = null;
+let fallbackSettings: { externalApiUrl: string; externalApiKey: string } = { externalApiUrl: "", externalApiKey: "" };
 
 export const settingsStore = {
   async get(): Promise<{ externalApiUrl: string; externalApiKey: string }> {
     await ensureConnection();
-    if (!connected) return { externalApiUrl: "", externalApiKey: "" };
+    if (!connected) return fallbackSettings;
     if (settingsCache) return settingsCache;
     const doc = await SettingsModel.findOne({ key: "main" });
     settingsCache = {
@@ -333,7 +334,10 @@ export const settingsStore = {
   },
   async update(data: { externalApiUrl?: string; externalApiKey?: string }): Promise<void> {
     await ensureConnection();
-    if (!connected) return;
+    if (!connected) {
+      fallbackSettings = { ...fallbackSettings, ...data };
+      return;
+    }
     await SettingsModel.updateOne({ key: "main" }, { $set: data }, { upsert: true });
     settingsCache = null;
   },
