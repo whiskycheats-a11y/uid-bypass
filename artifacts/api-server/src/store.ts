@@ -9,6 +9,8 @@ export interface WhitelistedUid {
   bluestack: boolean;
   addedBy: string;
   addedAt: string;
+  name?: string;
+  ip?: string;
 }
 
 interface UidDoc extends WhitelistedUid, Document { }
@@ -19,6 +21,8 @@ const uidSchema = new Schema<UidDoc>({
   bluestack: { type: Boolean, default: true },
   addedBy: { type: String, default: "" },
   addedAt: { type: String, default: () => new Date().toISOString() },
+  name: { type: String, default: "" },
+  ip: { type: String, default: "" },
 });
 
 const UidModel = model<UidDoc>("WhitelistedUid", uidSchema);
@@ -26,15 +30,15 @@ const UidModel = model<UidDoc>("WhitelistedUid", uidSchema);
 const fallbackUids = new Map<string, WhitelistedUid>();
 
 export const uidStore = {
-  async save(uid: string, days: number, bluestack: boolean, addedBy: string): Promise<void> {
+  async save(uid: string, days: number, bluestack: boolean, addedBy: string, name = "", ip = ""): Promise<void> {
     await ensureConnection();
     if (!connected) {
-      fallbackUids.set(uid, { uid, days, bluestack, addedBy, addedAt: new Date().toISOString() });
+      fallbackUids.set(uid, { uid, days, bluestack, addedBy, name, ip, addedAt: new Date().toISOString() });
       return;
     }
     try {
-      await UidModel.updateOne({ uid }, { uid, days, bluestack, addedBy, addedAt: new Date().toISOString() }, { upsert: true });
-      logger.info({ uid, addedBy }, "UID saved to MongoDB");
+      await UidModel.updateOne({ uid }, { uid, days, bluestack, addedBy, name, ip, addedAt: new Date().toISOString() }, { upsert: true });
+      logger.info({ uid, addedBy, name, ip }, "UID saved to MongoDB");
     } catch (err) {
       logger.error({ err, uid }, "Failed to save UID to MongoDB");
     }
@@ -60,7 +64,7 @@ export const uidStore = {
       return Array.from(fallbackUids.values()).filter(u => u.addedBy === username);
     }
     const docs = await UidModel.find({ addedBy: username });
-    return docs.map(d => ({ uid: d.uid, days: d.days, bluestack: d.bluestack, addedBy: d.addedBy, addedAt: d.addedAt }));
+    return docs.map(d => ({ uid: d.uid, days: d.days, bluestack: d.bluestack, addedBy: d.addedBy, name: d.name || "", ip: d.ip || "", addedAt: d.addedAt }));
   },
 
   async removeByUser(username: string): Promise<string[]> {
@@ -90,7 +94,26 @@ export const uidStore = {
       return Array.from(fallbackUids.values());
     }
     const docs = await UidModel.find({});
-    return docs.map(d => ({ uid: d.uid, days: d.days, bluestack: d.bluestack, addedBy: d.addedBy, addedAt: d.addedAt }));
+    return docs.map(d => ({ uid: d.uid, days: d.days, bluestack: d.bluestack, addedBy: d.addedBy, name: d.name || "", ip: d.ip || "", addedAt: d.addedAt }));
+  },
+
+  async get(uid: string): Promise<WhitelistedUid | null> {
+    await ensureConnection();
+    if (!connected) {
+      return fallbackUids.get(uid) ?? null;
+    }
+    const doc = await UidModel.findOne({ uid });
+    return doc ? { uid: doc.uid, days: doc.days, bluestack: doc.bluestack, addedBy: doc.addedBy, name: doc.name || "", ip: doc.ip || "", addedAt: doc.addedAt } : null;
+  },
+
+  async checkIpExists(ip: string): Promise<boolean> {
+    if (!ip) return false;
+    await ensureConnection();
+    if (!connected) {
+      return Array.from(fallbackUids.values()).some(u => u.ip === ip);
+    }
+    const exists = await UidModel.findOne({ ip });
+    return !!exists;
   },
 };
 
@@ -104,6 +127,8 @@ export interface AppUser {
   defaultDays: number;
   isTrial: boolean;
   balance: number;
+  displayName?: string;
+  avatar?: string;
 }
 
 interface UserDoc extends AppUser, Document { }
@@ -117,6 +142,8 @@ const userSchema = new Schema<UserDoc>({
   isTrial: { type: Boolean, default: false },
   canResell: { type: Boolean, default: false },
   balance: { type: Number, default: 0 },
+  displayName: { type: String, default: "" },
+  avatar: { type: String, default: "" },
 });
 
 const UserModel = model<UserDoc>("User", userSchema);
@@ -193,6 +220,13 @@ export const userStore = {
     await ensureConnection();
     if (!connected) return Array.from(fallbackUsers.values()).filter(u => u.role !== "admin");
     const docs = await UserModel.find({ role: "user" });
+    return docs.map(toPlain);
+  },
+
+  async listAll(): Promise<AppUser[]> {
+    await ensureConnection();
+    if (!connected) return Array.from(fallbackUsers.values());
+    const docs = await UserModel.find({});
     return docs.map(toPlain);
   },
 
@@ -286,6 +320,31 @@ export const userStore = {
     const doc = await UserModel.findOne({ username, password });
     return doc ? toPlain(doc) : null;
   },
+
+  async updateProfile(username: string, displayName: string, avatar: string): Promise<boolean> {
+    await ensureConnection();
+    if (!connected) {
+      const u = fallbackUsers.get(username);
+      if (!u) return false;
+      u.displayName = displayName;
+      u.avatar = avatar;
+      return true;
+    }
+    const result = await UserModel.updateOne({ username }, { $set: { displayName, avatar } });
+    return result.matchedCount > 0;
+  },
+
+  async updatePassword(username: string, newPassword: string): Promise<boolean> {
+    await ensureConnection();
+    if (!connected) {
+      const u = fallbackUsers.get(username);
+      if (!u) return false;
+      u.password = newPassword;
+      return true;
+    }
+    const result = await UserModel.updateOne({ username }, { $set: { password: newPassword } });
+    return result.matchedCount > 0;
+  },
 };
 
 function toPlain(doc: UserDoc): AppUser {
@@ -298,6 +357,8 @@ function toPlain(doc: UserDoc): AppUser {
     defaultDays: doc.defaultDays,
     isTrial: doc.isTrial,
     balance: doc.balance ?? 0,
+    displayName: doc.displayName ?? "",
+    avatar: doc.avatar ?? "",
   };
 }
 
@@ -435,6 +496,110 @@ export const paymentStore = {
     const res = await PaymentModel.findByIdAndUpdate(id, { status: "rejected" });
     return !!res;
   },
+};
+
+// ── Chat Message model ──────────────────────────────────────────────────
+export interface ChatMessage {
+  _id?: string;
+  username: string;
+  displayName: string;
+  avatar: string;
+  message: string;
+  createdAt: string;
+}
+
+interface ChatDoc extends Omit<ChatMessage, "_id">, Document { }
+
+const chatSchema = new Schema<ChatDoc>({
+  username: { type: String, required: true },
+  displayName: { type: String, required: true },
+  avatar: { type: String, default: "" },
+  message: { type: String, required: true },
+  createdAt: { type: String, default: () => new Date().toISOString() },
+});
+
+const ChatModel = model<ChatDoc>("ChatMessage", chatSchema);
+
+const fallbackChats: ChatMessage[] = [];
+
+export const chatStore = {
+  async add(username: string, displayName: string, avatar: string, message: string): Promise<ChatMessage> {
+    await ensureConnection();
+    const chat: ChatMessage = {
+      username,
+      displayName,
+      avatar,
+      message,
+      createdAt: new Date().toISOString(),
+    };
+    if (!connected) {
+      fallbackChats.push(chat);
+      // Keep last 100 messages in fallback
+      if (fallbackChats.length > 100) fallbackChats.shift();
+      return chat;
+    }
+    const doc = await ChatModel.create(chat);
+    return { ...chat, _id: doc._id.toString() };
+  },
+
+  async list(limit = 50): Promise<ChatMessage[]> {
+    await ensureConnection();
+    if (!connected) {
+      const resolved = await Promise.all(
+        fallbackChats.map(async (c) => {
+          const user = await userStore.find(c.username);
+          return {
+            ...c,
+            displayName: user?.displayName || c.displayName || c.username,
+            avatar: user?.avatar || c.avatar || "",
+          };
+        })
+      );
+      return resolved;
+    }
+    const docs = await ChatModel.find({}).sort({ createdAt: -1 }).limit(limit);
+    const messages = await Promise.all(
+      docs.map(async (d) => {
+        const user = await userStore.find(d.username);
+        return {
+          _id: d._id.toString(),
+          username: d.username,
+          displayName: user?.displayName || d.displayName || d.username,
+          avatar: user?.avatar || d.avatar || "",
+          message: d.message,
+          createdAt: d.createdAt,
+        };
+      })
+    );
+    return messages.reverse();
+  },
+
+  async purgeOldChats(): Promise<number> {
+    await ensureConnection();
+    const sixDaysAgo = new Date();
+    sixDaysAgo.setDate(sixDaysAgo.getDate() - 6);
+    const sixDaysAgoISO = sixDaysAgo.toISOString();
+
+    if (!connected) {
+      const initialCount = fallbackChats.length;
+      for (let i = fallbackChats.length - 1; i >= 0; i--) {
+        if (fallbackChats[i].createdAt < sixDaysAgoISO) {
+          fallbackChats.splice(i, 1);
+        }
+      }
+      return initialCount - fallbackChats.length;
+    }
+
+    try {
+      const res = await ChatModel.deleteMany({
+        createdAt: { $lt: sixDaysAgoISO }
+      });
+      return res.deletedCount ?? 0;
+    } catch (err) {
+      logger.error({ err }, "Failed to purge old chat messages");
+      return 0;
+    }
+  }
 };
 
 // Start connection immediately on import

@@ -12,7 +12,6 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { AmbientScene } from "@/components/ambient-scene";
 import {
   Shield,
   Zap,
@@ -35,6 +34,26 @@ import {
   Wallet,
   QrCode,
   SendHorizonal,
+  LayoutDashboard,
+  BarChart2,
+  Settings,
+  Database,
+  Trash2,
+  Users2,
+  Globe,
+  Code,
+  Server,
+  MessageSquare,
+  UserCircle,
+  Camera,
+  Edit2,
+  Check,
+  Trophy,
+  Crown,
+  Medal,
+  KeyRound,
+  Lock,
+  Send,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
@@ -62,6 +81,7 @@ const addUidSchema = z.object({
   uid: z.string().min(1, "UID is required"),
   days: z.coerce.number().min(1).default(30),
   bluestack: z.boolean().default(true),
+  name: z.string().optional().default(""),
 });
 type AddUidValues = z.infer<typeof addUidSchema>;
 
@@ -86,34 +106,114 @@ function StatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, type: "spring", stiffness: 200, damping: 22 }}
       whileHover={{ y: -4, scale: 1.02 }}
-      className="glass-3d-strong stat-card-3d rounded-2xl p-3.5 sm:p-5 relative overflow-hidden cursor-default group"
+      className="argus-glass rounded-2xl p-4 sm:p-6 relative overflow-hidden cursor-default group"
     >
+      <div className="scanline" />
       <div
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-2xl"
-        style={{ background: `linear-gradient(135deg, ${gradFrom}18, ${gradTo}10)` }}
+        style={{ background: `linear-gradient(135deg, ${gradFrom}20, ${gradTo}10)` }}
       />
       <div
-        className="absolute bottom-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{ background: `linear-gradient(90deg, transparent, ${gradFrom}, transparent)` }}
       />
       <div className="relative z-10 flex items-start justify-between">
         <div>
           <div
-            className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-3"
-            style={{ background: `linear-gradient(135deg, ${gradFrom}25, ${gradTo}15)`, border: `1px solid ${gradFrom}30` }}
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center mb-3 sm:mb-4 shadow-[0_0_15px_rgba(0,0,0,0.5)] group-hover:shadow-[0_0_20px_var(--glow)] transition-shadow"
+            style={{ 
+              background: `linear-gradient(135deg, ${gradFrom}30, ${gradTo}20)`, 
+              border: `1px solid ${gradFrom}50`,
+              '--glow': gradFrom 
+            } as any}
           >
-            <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: gradFrom }} />
+            <Icon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: gradFrom, filter: `drop-shadow(0 0 5px ${gradFrom})` }} />
           </div>
-          <div className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{value}</div>
-          <div className="text-[10px] sm:text-xs font-medium text-muted-foreground mt-0.5 sm:mt-1 tracking-wide">{label}</div>
+          <div className="text-3xl sm:text-4xl font-black text-white tracking-tight drop-shadow-md">{value}</div>
+          <div className="text-[10px] sm:text-[11px] font-black text-slate-400 mt-1 uppercase tracking-[0.2em]">{label}</div>
         </div>
-        <motion.div
-          className="w-8 h-8 sm:w-12 sm:h-12 rounded-full opacity-[0.06] group-hover:opacity-[0.12] transition-opacity"
-          style={{ background: gradFrom }}
-        />
+        <div className="absolute -bottom-4 -right-4 w-24 h-24 rounded-full blur-[30px] opacity-10 group-hover:opacity-30 transition-opacity duration-700 pointer-events-none" style={{ background: gradFrom }} />
       </div>
     </motion.div>
   );
+}
+
+function OverviewStatCard({
+  label,
+  value,
+  icon: Icon,
+  delay,
+  sparklinePoints = [30, 28, 25, 20, 23, 18, 15, 12, 16, 10]
+}: {
+  label: string;
+  value: number | string;
+  icon: React.ElementType;
+  delay: number;
+  sparklinePoints?: number[];
+}) {
+  const pathD = sparklinePoints
+    .map((p, i) => {
+      const x = (i / (sparklinePoints.length - 1)) * 100;
+      const y = p;
+      return `${i === 0 ? "M" : "L"} ${x} ${y}`;
+    })
+    .join(" ");
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, type: "spring", stiffness: 200, damping: 22 }}
+      whileHover={{ y: -4, scale: 1.02 }}
+      className="argus-glass rounded-[2rem] p-6 sm:p-7 relative overflow-hidden cursor-default group flex items-center justify-between border border-white/[0.04] bg-black/40 shadow-xl"
+    >
+      <div className="scanline" />
+      <div
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-[2rem] pointer-events-none"
+        style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.05), rgba(0,0,0,0))" }}
+      />
+      <div
+        className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        style={{ background: "linear-gradient(90deg, transparent, #ef4444, transparent)" }}
+      />
+
+      <div className="flex flex-col justify-between h-full relative z-10">
+        <div>
+          <div className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 group-hover:text-slate-400 transition-colors">{label}</div>
+          <div className="text-4xl sm:text-5xl font-black text-white tracking-tight mt-3.5 drop-shadow-md">{value}</div>
+        </div>
+      </div>
+
+      <div className="flex flex-col items-end justify-between h-full relative z-10 gap-3">
+        <Icon className="w-4 h-4 text-slate-500/50 group-hover:text-red-500/80 transition-colors" />
+        <div className="w-24 sm:w-28 h-10 mt-2">
+          <svg viewBox="0 0 100 30" className="w-full h-full text-red-500/80 group-hover:text-red-400 transition-colors filter drop-shadow-[0_0_4px_rgba(239,68,68,0.3)]">
+            <path
+              d={pathD}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function getDaysLeft(addedAtStr: string, days: number): string {
+  try {
+    const addedAt = new Date(addedAtStr).getTime();
+    const expiresAt = addedAt + days * 24 * 60 * 60 * 1000;
+    const diffMs = expiresAt - Date.now();
+    if (diffMs <= 0) return "Expired";
+    const diffDays = Math.ceil(diffMs / (24 * 60 * 60 * 1000));
+    return `${diffDays}d left`;
+  } catch {
+    return `${days}d left`;
+  }
 }
 
 interface DashboardProps {
@@ -158,20 +258,19 @@ function CustomDurationSelect({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full h-11 pl-10 pr-4 rounded-xl text-sm font-semibold transition-all outline-none flex items-center justify-between group"
+        className="w-full h-11 pl-10 pr-4 rounded-xl text-sm font-semibold transition-all outline-none flex items-center justify-between group bg-black/40 backdrop-blur-md"
         style={{
-          background: "rgba(255,255,255,0.03)",
-          border: isOpen ? "1px solid rgba(139,92,246,0.5)" : "1px solid rgba(255,255,255,0.08)",
-          boxShadow: isOpen ? "0 0 15px rgba(139,92,246,0.15)" : "none",
-          color: "var(--foreground)",
+          border: isOpen ? "1px solid rgba(0,212,255,0.5)" : "1px solid rgba(255,255,255,0.1)",
+          boxShadow: isOpen ? "0 0 15px rgba(0,212,255,0.2)" : "none",
+          color: "white",
         }}
       >
-        <CalendarDays className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-hover:text-violet-400 transition-colors" />
+        <CalendarDays className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-hover:text-cyan-400 transition-colors" />
         <span className="truncate">{selected.label}</span>
         <motion.span
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
-          className="text-muted-foreground group-hover:text-foreground shrink-0 ml-2"
+          className="text-slate-500 group-hover:text-white shrink-0 ml-2"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -186,13 +285,7 @@ function CustomDurationSelect({
             animate={{ opacity: 1, y: 5, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute z-50 w-full rounded-2xl overflow-hidden p-1.5 space-y-1"
-            style={{
-              background: "rgba(10, 8, 20, 0.95)",
-              backdropFilter: "blur(20px)",
-              border: "1px solid rgba(139,92,246,0.25)",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(139,92,246,0.1)",
-            }}
+            className="absolute z-50 w-full rounded-2xl overflow-hidden p-1.5 space-y-1 bg-[#050314]/95 backdrop-blur-3xl border border-white/20 shadow-[0_30px_60px_rgba(0,0,0,0.9)]"
           >
             {options.map((opt) => {
               const active = opt.days === value;
@@ -204,22 +297,22 @@ function CustomDurationSelect({
                     onChange(opt.days);
                     setIsOpen(false);
                   }}
-                  className="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all hover:bg-white/[0.05]"
                   style={{
                     background: active
-                      ? "linear-gradient(135deg, rgba(139,92,246,0.2), rgba(6,182,212,0.15))"
+                      ? "linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.15))"
                       : "transparent",
-                    color: active ? "#a78bfa" : "rgba(255,255,255,0.7)",
-                    border: active ? "1px solid rgba(139,92,246,0.3)" : "1px solid transparent",
+                    color: active ? "#00d4ff" : "rgba(255,255,255,0.7)",
+                    border: active ? "1px solid rgba(0,212,255,0.3)" : "1px solid transparent",
                   }}
                 >
                   <span className="font-bold">{opt.label}</span>
                   <div className="flex items-center gap-2">
                     <span
-                      className="px-2 py-0.5 rounded-full text-[9px] font-black"
+                      className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider"
                       style={{
-                        background: active ? "rgba(139,92,246,0.25)" : "rgba(255,255,255,0.05)",
-                        color: active ? "#c084fc" : "rgba(255,255,255,0.5)",
+                        background: active ? "rgba(0,212,255,0.15)" : "rgba(255,255,255,0.05)",
+                        color: active ? "#00d4ff" : "rgba(255,255,255,0.5)",
                       }}
                     >
                       {opt.tokens} TOKENS
@@ -262,7 +355,7 @@ function ParticleExplosion({ active, onComplete }: { active: boolean; onComplete
     }
 
     const particles: Particle[] = [];
-    const colors = ["#8b5cf6", "#06b6d4", "#ec4899", "#10b981", "#fbbf24"];
+    const colors = ["#7c3aed", "#00d4ff", "#ff006e", "#10b981", "#fbbf24"];
 
     const startX = canvas.width / 2;
     const startY = canvas.height - 50;
@@ -372,804 +465,24 @@ function TiltWrapper({ children, className = "" }: { children: React.ReactNode; 
   );
 }
 
-export default function Dashboard({ username, defaultDays = 30, isTrial = false, canResell = false, onLogout }: DashboardProps) {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [removingUid, setRemovingUid] = useState<string | null>(null);
-  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
-  const [showTrialMessage, setShowTrialMessage] = useState(false);
-  const [activeTab, setActiveTab] = useState<"uid" | "trial">("uid");
-  const [balance, setBalance] = useState<number | null>(null);
-  const [showFunds, setShowFunds] = useState(false);
-  const [showSuccessBlast, setShowSuccessBlast] = useState(false);
-
-  useEffect(() => {
-    if (isTrial || !username) return;
-    fetch(`${BASE}/api/credits/me`, { headers: userHeaders() })
-      .then(r => r.json())
-      .then(d => { if (d.success) setBalance(d.balance); })
-      .catch(() => { });
-  }, [username, isTrial]);
-
-  const { data: listResponse, isLoading } = useListUids({
-    query: { queryKey: getListUidsQueryKey() },
-  });
-
-  const addMutation = useAddUid();
-  const removeMutation = useRemoveUid();
-
-  const form = useForm<AddUidValues>({
-    resolver: zodResolver(addUidSchema),
-    defaultValues: { uid: "", days: isTrial ? 1 : defaultDays, bluestack: true },
-  });
-
-  const handleLogout = () => {
-    if (onLogout) {
-      onLogout();
-    } else {
-      sessionStorage.removeItem("uid_auth");
-      window.location.reload();
-    }
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const uids: { uid: string; days: number; bluestack: boolean; addedBy: string; addedAt: string }[] = listResponse?.success ? ((listResponse as any).uids ?? []) : [];
-  const bsCount = uids.filter((u) => u.bluestack).length;
-
-  const DISCORD_URL = "https://discord.gg/QTwupjcKre";
-  const TRIAL_USED_KEY = `trial_uid_used_${username}`;
-  const [trialUsed, setTrialUsed] = useState(() => isTrial && sessionStorage.getItem(TRIAL_USED_KEY) === "true");
-  const trialLimitReached = isTrial && trialUsed;
-
-  const triggerTrialBlock = () => {
-    setShowTrialMessage(true);
-    window.open(DISCORD_URL, "_blank");
-  };
-
-  const watchedDays = form.watch("days");
-  const selectedOpt = DURATION_OPTIONS.find((o) => o.days === Number(watchedDays));
-  const tokenCost = isTrial ? 0 : (selectedOpt ? selectedOpt.tokens : 0);
-  const hasEnoughBalance = isTrial || balance === null || balance >= tokenCost;
-
-  const onSubmit = (values: AddUidValues) => {
-    if (trialLimitReached) {
-      triggerTrialBlock();
-      return;
-    }
-    if (!isTrial && balance !== null && balance < tokenCost) {
-      toast({ title: "Insufficient Tokens", description: `You need ${tokenCost} tokens but only have ${balance}. Contact admin to top up.`, variant: "destructive" });
-      return;
-    }
-    const payload = isTrial ? { ...values, days: 1, username } : { ...values, username };
-    addMutation.mutate(
-      { data: payload as typeof values },
-      {
-        onSuccess: (data) => {
-          if ((data as any).message === "TRIAL_LIMIT_REACHED") {
-            sessionStorage.setItem(TRIAL_USED_KEY, "true");
-            setTrialUsed(true);
-            triggerTrialBlock();
-            return;
-          }
-          if ((data as any).message === "INSUFFICIENT_BALANCE") {
-            toast({ title: "Insufficient Tokens", description: "Not enough tokens. Ask admin to add more.", variant: "destructive" });
-            return;
-          }
-          if (data.success) {
-            if (isTrial) {
-              sessionStorage.setItem(TRIAL_USED_KEY, "true");
-              setTrialUsed(true);
-            }
-            // Deduct from local balance state
-            if (!isTrial && balance !== null) setBalance(b => b !== null ? Math.max(0, b - tokenCost) : null);
-            setShowSuccessBlast(true);
-            toast({ title: "Access Granted", description: `UID ${values.uid} whitelisted successfully.` });
-            form.reset();
-            queryClient.invalidateQueries({ queryKey: getListUidsQueryKey() });
-          } else {
-            toast({ title: "Failed", description: (data as any).message, variant: "destructive" });
-          }
-        },
-        onError: () => {
-          toast({ title: "Error", description: "Could not reach authorization server.", variant: "destructive" });
-        },
-      }
-    );
-  };
-
-  const onRemove = (uid: string) => {
-    setRemovingUid(uid);
-    removeMutation.mutate(
-      { data: { uid } },
-      {
-        onSuccess: (data) => {
-          setRemovingUid(null);
-          if (data.success) {
-            toast({ title: "Access Revoked", description: `UID ${uid} removed.` });
-            queryClient.invalidateQueries({ queryKey: getListUidsQueryKey() });
-          } else {
-            toast({ title: "Failed", description: data.message, variant: "destructive" });
-          }
-        },
-        onError: () => {
-          setRemovingUid(null);
-          toast({ title: "Error", description: "Removal failed.", variant: "destructive" });
-        },
-      }
-    );
-  };
-
+function PlaceholderView({ title, description, icon: Icon }: { title: string; description: string; icon: React.ElementType }) {
   return (
-    <div className="app-screen min-h-screen bg-background text-foreground relative overflow-hidden">
-      <AmbientScene variant="user" compact />
-
-
-      {/* Header */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="app-header relative z-20 glass-3d border-b border-white/[0.05] sticky top-0"
-      >
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "linear-gradient(135deg, #8b5cf6, #ec4899, #06b6d4)" }}
-            >
-              <Shield className="w-4 h-4 text-white" />
-            </motion.div>
-            <div>
-              <div className="font-bold text-sm text-gradient-viral">UID Manager</div>
-              <div className="text-[11px] text-muted-foreground">Bypass Whitelist System</div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-4">
-            {username && (
-              <div className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full glass text-[10px] sm:text-xs text-muted-foreground">
-                <User className="w-3 h-3" />
-                <span className="font-mono font-semibold">{username}</span>
-                {isTrial && (
-                  <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold" style={{ background: "rgba(236,72,153,0.2)", color: "#f472b6", border: "1px solid rgba(236,72,153,0.3)" }}>
-                    TRIAL
-                  </span>
-                )}
-              </div>
-            )}
-            {!isTrial && (
-              <div className="hidden sm:flex items-center gap-2">
-                {balance !== null && (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold" style={{ background: balance > 0 ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", color: balance > 0 ? "#10b981" : "#ef4444", border: `1px solid ${balance > 0 ? "rgba(16,185,129,0.25)" : "rgba(239,68,68,0.25)"}` }}>
-                    <Coins className="w-3 h-3" />
-                    <span>{balance} tokens</span>
-                  </div>
-                )}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setShowFunds(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
-                  style={{ background: "linear-gradient(135deg, rgba(236,72,153,0.2), rgba(139,92,246,0.15))", color: "#f472b6", border: "1px solid rgba(236,72,153,0.3)", boxShadow: "0 0 12px rgba(236,72,153,0.15)" }}
-                >
-                  <Wallet className="w-3 h-3" />
-                  Add Funds
-                </motion.button>
-              </div>
-            )}
-            <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Activity className="w-3.5 h-3.5" style={{ color: "#06b6d4" }} />
-              <span>{isLoading ? "..." : uids.length} active UIDs</span>
-            </div>
-
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full glass">
-              <motion.span
-                animate={{ scale: [1, 1.5, 1], opacity: [1, 0.7, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="w-1.5 h-1.5 rounded-full bg-emerald-400"
-              />
-              <span className="text-[11px] font-semibold text-emerald-400 tracking-wide">LIVE</span>
-            </div>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleLogout}
-              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-[10px] sm:text-xs text-muted-foreground hover:text-red-400 hover:bg-red-500/10 border border-white/[0.05] hover:border-red-500/20 transition-all"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              Logout
-            </motion.button>
-          </div>
-        </div>
-      </motion.header>
-
-      {/* Main */}
-      <main className="app-main relative z-10 max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6">
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-          <StatCard icon={Users} label="Total UIDs" value={isLoading ? "—" : uids.length} gradFrom="#8b5cf6" gradTo="#6d28d9" delay={0} />
-          <StatCard icon={Monitor} label="BlueStack" value={isLoading ? "—" : bsCount} gradFrom="#06b6d4" gradTo="#0891b2" delay={0.06} />
-          <StatCard icon={CheckCircle2} label="Standard" value={isLoading ? "—" : uids.length - bsCount} gradFrom="#10b981" gradTo="#059669" delay={0.12} />
-          <StatCard icon={Coins} label="Tokens" value={isTrial ? "FREE" : (balance === null ? "—" : balance)} gradFrom="#ec4899" gradTo="#db2777" delay={0.18} />
-        </div>
-
-        {/* Tab switcher — only for resellers with canResell permission */}
-        {canResell && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.22, ease: "easeOut" }}
-            className="flex gap-1 p-1 rounded-2xl"
-            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-          >
-            {([
-              { key: "uid", icon: Shield, label: "UID Manager", gold: false },
-              { key: "trial", icon: Gift, label: "Give Free Trial", gold: true },
-            ] as const).map((t) => (
-              <button
-                key={t.key}
-                onClick={() => setActiveTab(t.key)}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold transition-all duration-200"
-                style={{
-                  background: activeTab === t.key
-                    ? t.gold ? "linear-gradient(135deg, rgba(245,158,11,0.25), rgba(239,68,68,0.15))" : "linear-gradient(135deg, rgba(139,92,246,0.25), rgba(6,182,212,0.15))"
-                    : "transparent",
-                  color: activeTab === t.key ? (t.gold ? "#f59e0b" : "#a78bfa") : "#6b7280",
-                  border: activeTab === t.key ? `1px solid ${t.gold ? "rgba(245,158,11,0.3)" : "rgba(139,92,246,0.3)"}` : "1px solid transparent",
-                  boxShadow: activeTab === t.key ? `0 0 20px ${t.gold ? "rgba(245,158,11,0.15)" : "rgba(139,92,246,0.15)"}` : "none",
-                }}
-              >
-                <t.icon className="w-4 h-4" />
-                {t.label}
-              </button>
-            ))}
-          </motion.div>
-        )}
-
-        <AnimatePresence mode="wait">
-          {activeTab === "trial" && canResell ? (
-            <motion.div key="trial" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-              <ResellerTrialPanel username={username ?? ""} />
-            </motion.div>
-          ) : (
-            <motion.div key="uid" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-              <div className="grid lg:grid-cols-[360px_1fr] gap-4 sm:gap-6 items-start">
-
-                {/* Add UID Panel */}
-                <motion.div
-                  initial={{ opacity: 0, x: -24 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.25, type: "spring", stiffness: 160, damping: 22 }}
-                  className="w-full"
-                >
-                  <TiltWrapper>
-                    <div className="glass-3d-strong rounded-2xl p-4 sm:p-6 relative overflow-hidden">
-                      <ParticleExplosion active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
-                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/70 to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
-
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(139,92,246,0.15)" }}>
-                          <Plus className="w-3.5 h-3.5 text-violet-400" />
-                        </div>
-                        <h2 className="font-semibold text-base text-foreground">Add New UID</h2>
-                        {isTrial && (
-                          <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(236,72,153,0.15)", color: "#f472b6", border: "1px solid rgba(236,72,153,0.25)" }}>
-                            {trialLimitReached ? "LIMIT REACHED" : `1 UID LEFT`}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground mb-6">Register a player to the bypass whitelist</p>
-
-                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="space-y-1.5">
-                          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Player UID</label>
-                          <div className="relative group">
-                            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-violet-400 transition-colors pointer-events-none" />
-                            <Input
-                              placeholder="Enter UID number..."
-                              className="pl-10 h-11 rounded-xl bg-white/[0.03] border-white/10 focus-visible:ring-violet-500/40 focus-visible:border-violet-500/50 text-sm transition-all"
-                              {...form.register("uid")}
-                            />
-                          </div>
-                          {form.formState.errors.uid && (
-                            <p className="text-[11px] text-red-400">{form.formState.errors.uid.message}</p>
-                          )}
-                        </div>
-
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between">
-                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Duration</label>
-                            {isTrial ? (
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(236,72,153,0.15)", color: "#f472b6", border: "1px solid rgba(236,72,153,0.25)" }}>
-                                1 DAY TRIAL
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: hasEnoughBalance ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.12)", color: hasEnoughBalance ? "#10b981" : "#ef4444", border: `1px solid ${hasEnoughBalance ? "rgba(16,185,129,0.25)" : "rgba(239,68,68,0.3)"}` }}>
-                                <Coins className="w-2.5 h-2.5" />
-                                {tokenCost} token{tokenCost !== 1 ? "s" : ""}
-                              </span>
-                            )}
-                          </div>
-                          {isTrial ? (
-                            <div className="flex items-center gap-3 h-11 px-4 rounded-xl text-sm opacity-60 cursor-not-allowed" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                              <CalendarDays className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-muted-foreground">24 Hours — Free Trial</span>
-                            </div>
-                          ) : (
-                            <CustomDurationSelect
-                              value={form.watch("days")}
-                              onChange={(val) => form.setValue("days", val)}
-                              options={DURATION_OPTIONS}
-                            />
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] group hover:border-violet-500/20 hover:bg-white/[0.04] transition-all">
-                          <div>
-                            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                              <Monitor className="w-3.5 h-3.5 text-cyan-400" />
-                              BlueStack Mode
-                            </div>
-                            <div className="text-[11px] text-muted-foreground mt-0.5">Emulator compatibility layer</div>
-                          </div>
-                          <Switch
-                            checked={form.watch("bluestack")}
-                            onCheckedChange={(v) => form.setValue("bluestack", v)}
-                            className="data-[state=checked]:bg-violet-600"
-                          />
-                        </div>
-
-                        {/* Token cost preview */}
-                        {!isTrial && (
-                          <div className="flex items-center justify-between px-3 py-2 rounded-xl text-[11px]" style={{ background: hasEnoughBalance ? "rgba(16,185,129,0.06)" : "rgba(239,68,68,0.08)", border: `1px solid ${hasEnoughBalance ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.25)"}` }}>
-                            <div className="flex items-center gap-1.5" style={{ color: hasEnoughBalance ? "#10b981" : "#ef4444" }}>
-                              <Coins className="w-3.5 h-3.5" />
-                              <span className="font-bold">Cost: {tokenCost} token{tokenCost !== 1 ? "s" : ""}</span>
-                            </div>
-                            {balance !== null && (
-                              <span style={{ color: hasEnoughBalance ? "#6b7280" : "#ef4444" }} className="font-semibold">
-                                {hasEnoughBalance ? `${balance} available` : `Only ${balance} — need ${tokenCost}`}
-                              </span>
-                            )}
-                          </div>
-                        )}
-
-                        <motion.button
-                          type="submit"
-                          disabled={addMutation.isPending || !hasEnoughBalance}
-                          whileHover={{ scale: 1.01 }}
-                          whileTap={{ scale: 0.99 }}
-                          className="w-full h-14 sm:h-12 rounded-xl btn-viral-3d text-white font-bold text-sm sm:text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
-                        >
-                          <motion.div
-                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12"
-                            animate={{ x: ["-100%", "200%"] }}
-                            transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
-                          />
-                          <AnimatePresence mode="wait">
-                            {addMutation.isPending ? (
-                              <motion.span key="l" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                Processing...
-                              </motion.span>
-                            ) : (
-                              <motion.span key="i" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
-                                <Zap className="w-4 h-4" />
-                                Authorize Access
-                              </motion.span>
-                            )}
-                          </AnimatePresence>
-                        </motion.button>
-
-                        {/* Trial limit message */}
-                        <AnimatePresence>
-                          {showTrialMessage && (
-                            <motion.div
-                              initial={{ opacity: 0, y: -8, height: 0 }}
-                              animate={{ opacity: 1, y: 0, height: "auto" }}
-                              exit={{ opacity: 0, y: -8, height: 0 }}
-                              className="overflow-hidden"
-                            >
-                              <div className="rounded-xl p-4 text-center space-y-3" style={{ background: "rgba(88,101,242,0.1)", border: "1px solid rgba(88,101,242,0.25)" }}>
-                                <p className="text-sm font-semibold text-white leading-snug">
-                                  Contact to <span style={{ color: "#a78bfa" }}>Zytronexd</span> for purchase
-                                  <br />
-                                  <span className="text-xs font-normal text-muted-foreground">Its Free Trial — 1 UID only</span>
-                                </p>
-                                <motion.a
-                                  href="https://discord.gg/QTwupjcKre"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  whileHover={{ scale: 1.03 }}
-                                  whileTap={{ scale: 0.97 }}
-                                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-white"
-                                  style={{ background: "linear-gradient(135deg, #5865F2, #8b5cf6)" }}
-                                >
-                                  <svg width="14" height="14" viewBox="0 0 127.14 96.36" fill="white">
-                                    <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z" />
-                                  </svg>
-                                  Join Discord
-                                </motion.a>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </form>
-                    </div>
-                  </TiltWrapper>
-                </motion.div>
-
-                {/* UID Table */}
-                <motion.div
-                  initial={{ opacity: 0, x: 24 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3, type: "spring", stiffness: 160, damping: 22 }}
-                >
-                  <div className="glass-3d-strong rounded-2xl overflow-hidden relative">
-                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/70 to-transparent" />
-
-                    <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-white/[0.05]">
-                      <div className="flex items-center gap-2">
-                        <Shield className="w-4 h-4 text-violet-400" />
-                        <h2 className="font-semibold text-sm text-foreground">Active Authorizations</h2>
-                      </div>
-                      {!isLoading && (
-                        <motion.span
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          className="px-3 py-1 rounded-full text-[11px] font-bold"
-                          style={{ background: "rgba(139,92,246,0.15)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.2)" }}
-                        >
-                          {uids.length} registered
-                        </motion.span>
-                      )}
-                    </div>
-
-                    <div className="overflow-x-auto">
-                      {isLoading ? (
-                        <div className="p-6 space-y-3">
-                          {[...Array(5)].map((_, i) => (
-                            <motion.div
-                              key={i}
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: [0.3, 0.6, 0.3] }}
-                              transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
-                              className="h-14 rounded-xl bg-white/[0.03]"
-                            />
-                          ))}
-                        </div>
-                      ) : uids.length === 0 ? (
-                        <div className="py-20 flex flex-col items-center gap-3 text-muted-foreground">
-                          <div className="w-16 h-16 rounded-2xl glass flex items-center justify-center">
-                            <Shield className="w-8 h-8 opacity-20" />
-                          </div>
-                          <p className="text-sm font-medium">No UIDs registered</p>
-                          <p className="text-xs opacity-50">Add a UID using the form</p>
-                        </div>
-                      ) : (
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b border-white/[0.04]">
-                              {["UID", "Status", "Expiry", "Operator", ""].map((h, i) => (
-                                <th key={i} className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                                  {h}
-                                </th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <AnimatePresence initial={false}>
-                            <tbody>
-                              {uids.map((entry, i) => {
-                                const isHovered = hoveredRow === entry.uid;
-                                return (
-                                  <motion.tr
-                                    key={entry.uid}
-                                    initial={{ opacity: 0, x: -16 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: 16, height: 0 }}
-                                    transition={{ delay: i * 0.035, type: "spring", stiffness: 220, damping: 26 }}
-                                    onMouseEnter={() => setHoveredRow(entry.uid)}
-                                    onMouseLeave={() => setHoveredRow(null)}
-                                    className="border-b border-white/[0.03] relative"
-                                    style={{
-                                      background: isHovered
-                                        ? "linear-gradient(90deg, rgba(139,92,246,0.07), rgba(6,182,212,0.04), transparent)"
-                                        : "transparent",
-                                      transition: "background 0.3s ease",
-                                    }}
-                                  >
-                                    <td className="relative pl-5 pr-3 py-4 w-0">
-                                      <motion.div
-                                        animate={{ scaleY: isHovered ? 1 : 0, opacity: isHovered ? 1 : 0 }}
-                                        transition={{ duration: 0.2 }}
-                                        className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full"
-                                        style={{ background: "linear-gradient(180deg, #8b5cf6, #06b6d4)", transformOrigin: "top" }}
-                                      />
-                                    </td>
-
-                                    <td className="px-3 py-4">
-                                      <div className="flex items-center gap-2">
-                                        <span className="font-mono font-bold text-foreground tracking-wider text-sm">{entry.uid}</span>
-                                      </div>
-                                    </td>
-
-                                    <td className="px-5 py-4">
-                                      {entry.bluestack ? (
-                                        <motion.span
-                                          whileHover={{ scale: 1.05 }}
-                                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide cursor-default"
-                                          style={{ background: "rgba(6,182,212,0.12)", color: "#22d3ee", border: "1px solid rgba(6,182,212,0.25)" }}
-                                        >
-                                          <Monitor className="w-2.5 h-2.5" />
-                                          BLUESTACK
-                                        </motion.span>
-                                      ) : (
-                                        <motion.span
-                                          whileHover={{ scale: 1.05 }}
-                                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide cursor-default"
-                                          style={{ background: "rgba(139,92,246,0.12)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.25)" }}
-                                        >
-                                          <CheckCircle2 className="w-2.5 h-2.5" />
-                                          STANDARD
-                                        </motion.span>
-                                      )}
-                                    </td>
-
-                                    <td className="px-5 py-4">
-                                      <span className="text-xs text-muted-foreground font-mono">
-                                        {entry.addedAt
-                                          ? new Date(new Date(entry.addedAt).getTime() + entry.days * 86400000).toLocaleDateString()
-                                          : "—"}
-                                      </span>
-                                    </td>
-
-                                    <td className="px-5 py-4">
-                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(139,92,246,0.1)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.2)" }}>
-                                        {entry.addedBy || "—"}
-                                      </span>
-                                    </td>
-
-                                    <td className="px-5 py-4 text-right">
-                                      <motion.button
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.8 }}
-                                        whileHover={{ scale: 1.15 }}
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={() => onRemove(entry.uid)}
-                                        disabled={removingUid === entry.uid}
-                                        className="p-2 rounded-lg hover:bg-red-500/15 text-muted-foreground hover:text-red-400 transition-colors disabled:opacity-40"
-                                      >
-                                        {removingUid === entry.uid ? (
-                                          <Loader2 className="w-4 h-4 animate-spin" />
-                                        ) : (
-                                          <XCircle className="w-4 h-4" />
-                                        )}
-                                      </motion.button>
-                                    </td>
-                                  </motion.tr>
-                                );
-                              })}
-                            </tbody>
-                          </AnimatePresence>
-                        </table>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-      </main>
-
-      <AnimatePresence>
-        {showFunds && (
-          <AddFundsModal
-            username={username ?? ""}
-            onClose={() => setShowFunds(false)}
-            onSuccess={() => {
-              fetch(`${BASE}/api/credits/me`, { headers: userHeaders() })
-                .then(r => r.json())
-                .then(d => { if (d.success) setBalance(d.balance); })
-                .catch(() => { });
-            }}
-          />
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-/* ─── Token packages ─── */
-const TOKEN_PACKAGES = [
-  { tokens: 10, price: "$0.50", label: "Starter", color: "#10b981" },
-  { tokens: 30, price: "$1.30", label: "Basic", color: "#06b6d4" },
-  { tokens: 70, price: "$2.33", label: "Standard", color: "#8b5cf6" },
-  { tokens: 150, price: "$3.50", label: "Pro", color: "#f59e0b" },
-  { tokens: 300, price: "$5.20", label: "Ultimate", color: "#ec4899" },
-];
-
-/* ─── Add Funds Modal ─── */
-function AddFundsModal({ username, onClose, onSuccess }: { username: string; onClose: () => void; onSuccess: () => void }) {
-  const BASE_M = import.meta.env.BASE_URL.replace(/\/$/, "");
-  const { toast } = useToast();
-  const [selected, setSelected] = useState<typeof TOKEN_PACKAGES[0] | null>(null);
-  const [txNote, setTxNote] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  function userHdrs(): Record<string, string> {
-    try {
-      const raw = sessionStorage.getItem("uid_auth");
-      if (!raw) return { "Content-Type": "application/json" };
-      const { username: u, adminKey } = JSON.parse(raw);
-      return { "Content-Type": "application/json", "x-username": u ?? "", "x-password": adminKey ?? "" };
-    } catch { return { "Content-Type": "application/json" }; }
-  }
-
-  const handleSubmit = async () => {
-    if (!selected) return;
-    setLoading(true);
-    try {
-      const res = await fetch(`${BASE}/api/payments/request`, {
-        method: "POST",
-        headers: userHdrs(),
-        body: JSON.stringify({ packageTokens: selected.tokens, packagePrice: selected.price, txNote }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setSubmitted(true);
-        onSuccess();
-      } else {
-        toast({ title: "Error", description: data.error ?? "Request failed", variant: "destructive" });
-      }
-    } catch {
-      toast({ title: "Error", description: "Could not reach server", variant: "destructive" });
-    } finally { setLoading(false); }
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(12px)" }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="flex flex-col items-center justify-center p-20 text-center opacity-70 argus-glass rounded-3xl"
     >
-      <motion.div
-        initial={{ scale: 0.92, opacity: 0, y: 24 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.92, opacity: 0, y: 24 }}
-        transition={{ type: "spring", stiffness: 260, damping: 24 }}
-        className="glass-strong rounded-2xl w-full max-w-md overflow-hidden relative"
-        style={{ border: "1px solid rgba(236,72,153,0.2)", boxShadow: "0 0 60px rgba(236,72,153,0.12)" }}
-      >
-        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, #ec4899, #8b5cf6, transparent)" }} />
-
-        <div className="px-6 py-5 border-b border-white/[0.04] flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, rgba(236,72,153,0.2), rgba(139,92,246,0.15))", border: "1px solid rgba(236,72,153,0.3)" }}>
-              <Wallet className="w-4 h-4 text-pink-400" />
-            </div>
-            <div>
-              <h2 className="font-bold text-sm text-foreground">Add Tokens</h2>
-              <p className="text-[11px] text-muted-foreground">Purchase tokens to authorize UIDs</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/[0.05] text-muted-foreground hover:text-foreground transition-all">
-            <XCircle className="w-4 h-4" />
-          </button>
-        </div>
-
-        <AnimatePresence mode="wait">
-          {submitted ? (
-            <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="p-6 flex flex-col items-center gap-4 text-center">
-              <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)" }}>
-                <CheckCheck className="w-8 h-8 text-emerald-400" />
-              </div>
-              <div>
-                <p className="font-bold text-foreground text-lg">Request Submitted!</p>
-                <p className="text-sm text-muted-foreground mt-1">Your payment request for <span className="text-pink-400 font-bold">{selected?.tokens} tokens ({selected?.price})</span> has been sent to admin.</p>
-                <p className="text-xs text-muted-foreground mt-2">Tokens will be added once admin verifies your payment.</p>
-              </div>
-              <button onClick={onClose} className="mt-2 px-6 py-2.5 rounded-xl text-sm font-bold text-foreground border border-white/[0.1] hover:bg-white/[0.05] transition-all">
-                Close
-              </button>
-            </motion.div>
-          ) : (
-            <motion.div key="form" className="p-6 space-y-5">
-              {/* QR Section */}
-              <div className="flex gap-4 p-4 rounded-2xl" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div className="shrink-0">
-                  <img
-                    src={`${BASE_M}/qr-payment.png`}
-                    alt="Payment QR Code"
-                    className="w-24 h-24 rounded-xl object-cover"
-                    style={{ border: "2px solid rgba(236,72,153,0.3)" }}
-                  />
-                </div>
-                <div className="flex flex-col justify-center gap-1">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <QrCode className="w-3.5 h-3.5 text-pink-400" />
-                    <span className="text-xs font-bold text-foreground">Scan to Pay</span>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">Scan the QR code to send payment. After paying, select your package and submit your request below.</p>
-                  <p className="text-[10px] text-pink-400 font-semibold mt-1">Admin will verify & add tokens within minutes</p>
-                </div>
-              </div>
-
-              {/* Package selection */}
-              <div>
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2 block">Select Package</label>
-                <div className="grid grid-cols-5 gap-1.5">
-                  {TOKEN_PACKAGES.map(pkg => (
-                    <button
-                      key={pkg.tokens}
-                      onClick={() => setSelected(pkg)}
-                      className="flex flex-col items-center p-2.5 rounded-xl transition-all duration-150"
-                      style={{
-                        background: selected?.tokens === pkg.tokens ? `${pkg.color}18` : "rgba(255,255,255,0.03)",
-                        border: selected?.tokens === pkg.tokens ? `1px solid ${pkg.color}50` : "1px solid rgba(255,255,255,0.07)",
-                        boxShadow: selected?.tokens === pkg.tokens ? `0 0 14px ${pkg.color}25` : "none",
-                      }}
-                    >
-                      <span className="text-lg font-black" style={{ color: selected?.tokens === pkg.tokens ? pkg.color : "#9ca3af" }}>{pkg.tokens}</span>
-                      <span className="text-[8px] text-muted-foreground uppercase tracking-wide">tokens</span>
-                      <span className="text-[8px] text-muted-foreground mt-1">{pkg.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Tx note */}
-              <div>
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2 block">Transaction Note (optional)</label>
-                <input
-                  value={txNote}
-                  onChange={e => setTxNote(e.target.value)}
-                  placeholder="e.g. last 4 digits, screenshot ID…"
-                  className="w-full h-10 px-3 rounded-xl text-sm font-mono text-foreground focus:outline-none transition-all"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }}
-                />
-              </div>
-
-              {selected && (
-                <div className="flex items-center justify-between px-3 py-2 rounded-xl" style={{ background: `${selected.color}10`, border: `1px solid ${selected.color}25` }}>
-                  <span className="text-xs font-semibold" style={{ color: selected.color }}>Selected: {selected.tokens} tokens</span>
-                  <span className="text-xs font-bold" style={{ color: selected.color }}>{selected.price}</span>
-                </div>
-              )}
-
-              <motion.button
-                onClick={handleSubmit}
-                disabled={!selected || loading}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full h-12 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 relative overflow-hidden disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ background: "linear-gradient(135deg, #ec4899, #8b5cf6)", boxShadow: selected ? "0 0 25px rgba(236,72,153,0.4)" : "none" }}
-              >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><SendHorizonal className="w-4 h-4" />Submit Payment Request</>}
-              </motion.button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+      <div className="w-24 h-24 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(255,255,255,0.05)]">
+        <Icon className="w-12 h-12 text-slate-400 drop-shadow-md" />
+      </div>
+      <h2 className="text-3xl font-black text-white mb-3 tracking-tight">{title}</h2>
+      <p className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">{description}</p>
     </motion.div>
   );
 }
 
-/* ─── Reseller Free Trial Panel ─── */
-const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
-
 function ResellerTrialPanel({ username }: { username: string }) {
-  const PRESETS = [1, 3, 7];
+  const PRESETS = [1, 3, 7, 14, 30];
   const [days, setDays] = useState(1);
   const [trialUser, setTrialUser] = useState(() => `trial-${rand(4)}`);
   const [trialPass, setTrialPass] = useState(() => rand(8));
@@ -1195,7 +508,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
   const copyCard = (c: { username: string; password: string; days: number }) => {
     const loginUrl = window.location.origin;
     const msg =
-      `✨「 SG71 BYPASS MODULE 」✨
+`✨「 SG71 BYPASS MODULE 」✨
 🔓 FREE TRIAL ACCESS GRANTED 🔓
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
 
@@ -1232,12 +545,13 @@ function ResellerTrialPanel({ username }: { username: string }) {
     setError("");
     setLoading(true);
     try {
+      const resellerKey = getResellerKey();
       const res = await fetch(`${BASE}/api/reseller/trial`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           resellerUsername: username,
-          resellerKey: getResellerKey(),
+          resellerKey,
           trialUsername: trialUser,
           trialPassword: trialPass,
           days,
@@ -1247,59 +561,61 @@ function ResellerTrialPanel({ username }: { username: string }) {
       if (data.success) {
         setCreds({ username: trialUser, password: trialPass, days });
       } else {
-        setError(data.error ?? "Failed to create trial");
+        setError(data.error ?? "Failed");
       }
-    } catch { setError("Server error"); }
-    finally { setLoading(false); }
+    } catch {
+      setError("Server error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="max-w-lg mx-auto">
-      <div className="glass-strong rounded-2xl overflow-hidden relative">
-        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, #f59e0b, #ef4444, transparent)" }} />
-
-        <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.25)" }}>
-            <Gift className="w-4 h-4 text-amber-400" />
+    <div className="max-w-xl mx-auto space-y-4">
+      <div className="panel rounded-[2rem] overflow-hidden argus-glass text-left border border-white/5" style={{ background: "rgba(255,255,255,0.02)" }}>
+        <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #fbbf24, #ef4444, transparent)" }} />
+        <div className="px-6 py-5 border-b border-white/[0.04] flex items-center gap-3 bg-black/20">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-500/10 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+            <Gift className="w-5 h-5 text-amber-400" />
           </div>
           <div>
-            <h2 className="font-bold text-sm text-foreground">Free Trial Generator</h2>
-            <p className="text-[11px] text-muted-foreground">Give your clients instant trial access</p>
+            <h2 className="font-black text-base text-white tracking-wide">Free Trial Generator</h2>
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Generate trial accounts to share with clients</p>
           </div>
         </div>
 
-        <div className="p-5">
+        <div className="p-6">
           <AnimatePresence mode="wait">
             {creds ? (
-              <motion.div key="creds" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-                <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)" }}>
-                  <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 1.5, repeat: Infinity }} className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,185,129,0.2)" }}>
-                    <CheckCheck className="w-4 h-4 text-emerald-400" />
+              <motion.div key="creds" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-5">
+                <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
+                  <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 1.5, repeat: Infinity }} className="w-9 h-9 rounded-xl flex items-center justify-center bg-emerald-500/20 border border-emerald-500/30">
+                    <Check className="w-5 h-5 text-emerald-400" />
                   </motion.div>
                   <div>
-                    <p className="text-sm font-bold text-emerald-400">Trial Created!</p>
-                    <p className="text-[11px] text-muted-foreground">Valid for {creds.days} day{creds.days > 1 ? "s" : ""} — share with your client</p>
+                    <p className="text-sm font-black text-emerald-400">Trial Created!</p>
+                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Valid for {creds.days} day{creds.days > 1 ? "s" : ""} — share credentials</p>
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {[
                     { label: "Username", value: creds.username, key: "user" },
                     { label: "Password", value: creds.password, key: "pass" },
                   ].map((f) => (
-                    <div key={f.key} className="flex items-center justify-between p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                    <div key={f.key} className="flex items-center justify-between p-4 rounded-2xl bg-black/40 border border-white/5">
                       <div>
-                        <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">{f.label}</div>
-                        <div className="font-mono font-bold text-sm text-foreground">{f.value}</div>
+                        <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">{f.label}</div>
+                        <div className="font-mono font-bold text-sm text-white">{f.value}</div>
                       </div>
-                      <button onClick={() => copyField(f.value, f.key)} className="p-2 rounded-lg transition-all hover:bg-white/[0.06]" style={{ color: copiedField === f.key ? "#06b6d4" : "#6b7280" }}>
-                        {copiedField === f.key ? <CheckCheck className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      <button onClick={() => copyField(f.value, f.key)} className="p-2 rounded-lg transition-all hover:bg-white/[0.06] text-slate-500 hover:text-white">
+                        {copiedField === f.key ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                       </button>
                     </div>
                   ))}
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)" }}>
-                    <Timer className="w-3.5 h-3.5 text-violet-400" />
-                    <span className="text-xs font-semibold text-violet-400">{creds.days} day{creds.days > 1 ? "s" : ""} access</span>
+                  <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                    <Timer className="w-4 h-4 text-amber-400" />
+                    <span className="text-xs font-bold text-amber-400 uppercase tracking-wide">{creds.days} Day{creds.days > 1 ? "s" : ""} Trial Access</span>
                   </div>
                 </div>
 
@@ -1307,80 +623,1568 @@ function ResellerTrialPanel({ username }: { username: string }) {
                   onClick={() => copyCard(creds)}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-bold transition-all"
+                  className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] relative overflow-hidden transition-all cursor-pointer"
                   style={{
-                    background: copiedCard ? "linear-gradient(135deg, rgba(16,185,129,0.25), rgba(6,182,212,0.15))" : "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(239,68,68,0.1))",
+                    background: copiedCard
+                      ? "linear-gradient(135deg, rgba(16,185,129,0.25), rgba(6,182,212,0.15))"
+                      : "linear-gradient(135deg, rgba(245,158,11,0.25), rgba(239,68,68,0.15))",
                     border: copiedCard ? "1px solid rgba(16,185,129,0.4)" : "1px solid rgba(245,158,11,0.3)",
                     color: copiedCard ? "#34d399" : "#f59e0b",
                     boxShadow: copiedCard ? "0 0 18px rgba(16,185,129,0.2)" : "0 0 18px rgba(245,158,11,0.15)",
                   }}
                 >
-                  {copiedCard ? <><CheckCheck className="w-4 h-4" /> Copied!</> : <><Copy className="w-4 h-4" /> Copy Message for Client</>}
+                  {copiedCard ? (
+                    <><Check className="w-4 h-4" /> Copied to Clipboard!</>
+                  ) : (
+                    <><Copy className="w-4 h-4" /> Copy Message for Client</>
+                  )}
                 </motion.button>
 
-                <button onClick={refresh} className="w-full flex items-center justify-center gap-2 h-10 rounded-xl text-sm font-bold text-muted-foreground border border-white/[0.07] hover:bg-white/[0.04] hover:text-foreground transition-all">
+                <button
+                  onClick={refresh}
+                  className="w-full flex items-center justify-center gap-2 h-11 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 hover:text-white border border-white/5 hover:border-white/10 bg-white/[0.01] hover:bg-white/[0.04] transition-all cursor-pointer"
+                >
                   <RefreshCw className="w-4 h-4" />
                   Generate Another
                 </button>
               </motion.div>
             ) : (
-              <motion.form key="form" onSubmit={handleGenerate} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Trial Duration</label>
+              <motion.form key="form" onSubmit={handleGenerate} className="space-y-6">
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Duration</label>
                   <div className="flex gap-2">
-                    {PRESETS.map((d) => (
-                      <button key={d} type="button" onClick={() => setDays(d)}
-                        className="flex-1 h-9 rounded-xl text-xs font-bold transition-all duration-150"
+                    {PRESETS.map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => setDays(preset)}
+                        className="flex-1 py-3 px-2 rounded-xl text-xs font-black tracking-wide border transition-all cursor-pointer"
                         style={{
-                          background: days === d ? "linear-gradient(135deg, #f59e0b, #ef4444)" : "rgba(255,255,255,0.04)",
-                          color: days === d ? "#fff" : "#6b7280",
-                          border: days === d ? "1px solid rgba(245,158,11,0.5)" : "1px solid rgba(255,255,255,0.07)",
-                          boxShadow: days === d ? "0 0 16px rgba(245,158,11,0.35)" : "none",
+                          background: days === preset 
+                            ? "linear-gradient(135deg, rgba(245,158,11,0.2), rgba(239,68,68,0.1))" 
+                            : "rgba(255,255,255,0.02)",
+                          color: days === preset ? "#fbbf24" : "rgba(255,255,255,0.5)",
+                          borderColor: days === preset ? "rgba(245,158,11,0.3)" : "rgba(255,255,255,0.08)",
                         }}
-                      >{d}d</button>
+                      >
+                        {preset} Day{preset > 1 ? "s" : ""}
+                      </button>
                     ))}
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Credentials</label>
-                    <button type="button" onClick={refresh} className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-violet-400 transition-colors">
-                      <RefreshCw className="w-3 h-3" /> Regenerate
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Credentials</label>
+                    <button type="button" onClick={refresh} className="flex items-center gap-1 text-[10px] font-bold text-slate-500 hover:text-amber-400 transition-colors">
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      Regenerate
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <div className="text-[10px] text-muted-foreground mb-1 uppercase tracking-widest">Username</div>
-                      <input value={trialUser} onChange={(e) => setTrialUser(e.target.value)}
-                        className="w-full h-10 px-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-foreground focus:outline-none focus:border-amber-500/50 transition-all" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Username</div>
+                      <input
+                        value={trialUser}
+                        onChange={(e) => setTrialUser(e.target.value)}
+                        className="w-full h-12 px-4 rounded-xl bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-amber-500/50 focus:shadow-[0_0_15px_rgba(245,158,11,0.12)] transition-all font-bold"
+                      />
                     </div>
-                    <div>
-                      <div className="text-[10px] text-muted-foreground mb-1 uppercase tracking-widest">Password</div>
-                      <input value={trialPass} onChange={(e) => setTrialPass(e.target.value)}
-                        className="w-full h-10 px-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-foreground focus:outline-none focus:border-amber-500/50 transition-all" />
+                    <div className="space-y-1.5">
+                      <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Password</div>
+                      <input
+                        value={trialPass}
+                        onChange={(e) => setTrialPass(e.target.value)}
+                        className="w-full h-12 px-4 rounded-xl bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-amber-500/50 focus:shadow-[0_0_15px_rgba(245,158,11,0.12)] transition-all font-bold"
+                      />
                     </div>
                   </div>
                 </div>
 
                 {error && (
-                  <div className="flex items-center gap-2 text-red-400 text-xs px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20">
-                    {error}
+                  <div className="flex items-center gap-2 text-red-400 text-xs px-4 py-3 rounded-2xl bg-red-500/10 border border-red-500/20 font-bold">
+                    <XCircle className="w-4 h-4 shrink-0" />{error}
                   </div>
                 )}
 
-                <motion.button type="submit" disabled={loading || !trialUser || !trialPass}
-                  whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
-                  className="w-full h-12 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 relative overflow-hidden disabled:opacity-50"
-                  style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444, #8b5cf6)", boxShadow: "0 0 25px rgba(245,158,11,0.4)" }}
+                <motion.button
+                  type="submit"
+                  disabled={loading || !trialUser || !trialPass}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  className="w-full h-14 rounded-2xl text-white font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer relative overflow-hidden"
+                  style={{
+                    background: "linear-gradient(135deg, #f59e0b, #ef4444)",
+                    boxShadow: "0 0 20px rgba(245,158,11,0.3)",
+                  }}
                 >
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Gift className="w-4 h-4" />Generate Free Trial Access</>}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12 translate-x-[-150%] animate-[shimmer_2s_infinite]" />
+                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Gift className="w-5 h-5" />Generate Free Trial Access</>}
                 </motion.button>
               </motion.form>
             )}
           </AnimatePresence>
         </div>
       </div>
+    </div>
+  );
+}
+
+function UserProfilePanel({ 
+  username, 
+  isTrial, 
+  balance,
+  displayName,
+  avatarBase64,
+  onUpdate
+}: { 
+  username: string, 
+  isTrial: boolean, 
+  balance: number | null,
+  displayName: string,
+  avatarBase64: string,
+  onUpdate: (name: string, avatar: string) => void
+}) {
+  const { toast } = useToast();
+  const [tempName, setTempName] = useState(displayName);
+  const [tempAvatar, setTempAvatar] = useState(avatarBase64);
+  const [savingIdentity, setSavingIdentity] = useState(false);
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [updatingKey, setUpdatingKey] = useState(false);
+
+  useEffect(() => {
+    setTempName(displayName);
+    setTempAvatar(avatarBase64);
+  }, [displayName, avatarBase64]);
+
+  const handleSaveIdentity = async () => {
+    setSavingIdentity(true);
+    try {
+      try {
+        localStorage.setItem(`display_name_${username}`, tempName);
+        localStorage.setItem(`avatar_${username}`, tempAvatar);
+      } catch (e) {
+        console.warn("Local storage quota exceeded or unavailable:", e);
+      }
+      await onUpdate(tempName, tempAvatar);
+      toast({ title: "Profile Saved", description: "Identity settings updated successfully." });
+    } catch {
+      toast({ title: "Failed", description: "Could not update profile.", variant: "destructive" });
+    } finally {
+      setSavingIdentity(false);
+    }
+  };
+
+  const handleUpdateKey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentPassword || !newPassword) {
+      toast({ title: "Required Fields", description: "Please enter both current and new passwords.", variant: "destructive" });
+      return;
+    }
+    setUpdatingKey(true);
+    try {
+      const res = await fetch(`${BASE}/api/auth/update-key`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, currentPassword, newPassword }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast({ title: "Key Updated", description: "Security password changed successfully." });
+        setCurrentPassword("");
+        setNewPassword("");
+      } else {
+        toast({ title: "Verification Failed", description: data.error || "Could not change key.", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Network Error", description: "Could not contact security servers.", variant: "destructive" });
+    } finally {
+      setUpdatingKey(false);
+    }
+  };
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setTempAvatar(base64);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-10">
+      {/* Page Title */}
+      <div className="mb-8 text-left">
+        <div className="flex items-center gap-3">
+          <User className="w-8 h-8 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
+          <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-md">Account Profile</h1>
+        </div>
+        <p className="text-slate-400 font-semibold text-sm mt-2">Personalize your identity for the team chat and dashboard.</p>
+      </div>
+
+      {/* Identity Settings Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        className="argus-glass rounded-[2rem] p-8 sm:p-10 relative overflow-hidden shadow-2xl border border-white/5 text-left"
+      >
+        {/* Card Header */}
+        <div className="flex items-center gap-3.5 mb-8">
+          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+            <User className="w-5 h-5 text-slate-400" />
+          </div>
+          <div>
+            <h2 className="font-black text-base text-white tracking-wide">Identity Settings</h2>
+            <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.15em] mt-0.5">HOW OTHERS SEE YOU IN CHAT</p>
+          </div>
+        </div>
+
+        {/* Identity Form (Layout matches screenshot) */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
+          {/* Circular DP preview on left */}
+          <div className="relative shrink-0 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+            <div className="w-28 h-28 rounded-full bg-black/40 border-2 border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.5)] overflow-hidden flex items-center justify-center relative hover:border-cyan-500/50 group/preview transition-all">
+              {tempAvatar ? (
+                <img src={tempAvatar} alt="DP Preview" className="w-full h-full object-cover" />
+              ) : (
+                <UserCircle className="w-16 h-16 text-slate-600" />
+              )}
+              {/* Camera Hover overlay */}
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/preview:opacity-100 flex items-center justify-center transition-opacity">
+                <Camera className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+          </div>
+
+          {/* Form Fields on right */}
+          <div className="flex-grow w-full space-y-5 text-left">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">DISPLAY NAME</label>
+              <input 
+                type="text" 
+                value={tempName} 
+                onChange={(e) => setTempName(e.target.value)}
+                className="w-full h-12 px-4 rounded-xl bg-black/40 border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_15px_rgba(0,212,255,0.15)] transition-all text-sm"
+                placeholder="Enter display name..."
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">AVATAR URL</label>
+              <input 
+                type="text" 
+                value={tempAvatar} 
+                onChange={(e) => setTempAvatar(e.target.value)}
+                className="w-full h-12 px-4 rounded-xl bg-black/40 border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_15px_rgba(0,212,255,0.15)] transition-all text-sm"
+                placeholder="https://image-link.com/photo.jpg or Base64..."
+              />
+              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1">Use a direct link to an image file.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Save Changes Button */}
+        <div className="mt-8 pt-4 border-t border-white/5">
+          <button 
+            onClick={handleSaveIdentity}
+            disabled={savingIdentity}
+            className="w-full h-12 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            {savingIdentity ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              "Save Changes"
+            )}
+          </button>
+        </div>
+      </motion.div>
+
+      {/* Security Key Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ delay: 0.1 }}
+        className="argus-glass rounded-[2rem] p-8 sm:p-10 relative overflow-hidden shadow-2xl border border-white/5 text-left"
+      >
+        {/* Card Header */}
+        <div className="flex items-center gap-3.5 mb-8">
+          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+            <KeyRound className="w-5 h-5 text-slate-400" />
+          </div>
+          <div>
+            <h2 className="font-black text-base text-white tracking-wide">Security Key</h2>
+            <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.15em] mt-0.5">UPDATE YOUR ACCESS CREDENTIALS</p>
+          </div>
+        </div>
+
+        {/* Security Form */}
+        <form onSubmit={handleUpdateKey} className="space-y-5 text-left">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">CURRENT PASSWORD</label>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <input 
+                type="password" 
+                value={currentPassword} 
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-full h-12 pl-12 pr-4 rounded-xl bg-black/40 border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-violet-500/50 focus:shadow-[0_0_15px_rgba(124,58,237,0.15)] transition-all text-sm"
+                placeholder="••••••••"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">NEW PASSWORD</label>
+            <div className="relative">
+              <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <input 
+                type="password" 
+                value={newPassword} 
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full h-12 pl-12 pr-4 rounded-xl bg-black/40 border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-violet-500/50 focus:shadow-[0_0_15px_rgba(124,58,237,0.15)] transition-all text-sm"
+                placeholder="Enter new password"
+              />
+            </div>
+          </div>
+
+          <div className="pt-4">
+            <button 
+              type="submit"
+              disabled={updatingKey || !currentPassword || !newPassword}
+              className="w-full h-12 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              {updatingKey ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <KeyRound className="w-4 h-4 text-slate-400" />
+              )}
+              Update Key
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+}
+
+interface LeaderboardEntry {
+  username: string;
+  displayName: string;
+  avatar: string;
+  total: number;
+  today: number;
+  active: number;
+  expired: number;
+  role: string;
+}
+
+function LeaderboardView() {
+  const [data, setData] = useState<LeaderboardEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchLeaderboard = async (isManual = false) => {
+    if (isManual) setRefreshing(true);
+    else setLoading(true);
+    try {
+      const res = await fetch(`${BASE}/api/uid/leaderboard`);
+      const json = await res.json();
+      if (json.success) {
+        setData(json.leaderboard || []);
+      }
+    } catch (err) {
+      console.error("Failed to load leaderboard:", err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLeaderboard();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-20 opacity-60">
+        <Loader2 className="w-12 h-12 text-cyan-400 animate-spin mb-4" />
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400">Loading Leaderboard...</p>
+      </div>
+    );
+  }
+
+  // Split into Top 3 and Rest
+  const top1 = data[0];
+  const top2 = data[1];
+  const top3 = data[2];
+  const rest = data.slice(3);
+
+  return (
+    <div className="space-y-10">
+      {/* Title & Refresh */}
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">Leaderboard</h1>
+            <span className="px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">REAL-TIME RANKINGS</span>
+          </div>
+          <p className="text-slate-400 font-semibold text-sm mt-2">Ranked by UIDs added on the global authorization mesh</p>
+        </div>
+        
+        <button 
+          onClick={() => fetchLeaderboard(true)}
+          disabled={refreshing}
+          className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 flex items-center justify-center text-slate-300 hover:text-white transition-all disabled:opacity-50"
+        >
+          <RefreshCw className={`w-5 h-5 ${refreshing ? "animate-spin text-cyan-400" : ""}`} />
+        </button>
+      </div>
+
+      {/* Podium for Top 3 */}
+      {data.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end pt-10">
+          
+          {/* Rank 2 */}
+          {top2 ? (
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ delay: 0.1 }}
+              className="md:order-1"
+            >
+              <TiltWrapper>
+                <div className="argus-glass rounded-[2rem] p-6 text-center border border-white/5 relative overflow-hidden shadow-xl md:h-[280px] flex flex-col justify-between">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-400 to-slate-200" />
+                  <div className="flex justify-center -mt-12 relative">
+                    <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-slate-400 shadow-[0_0_20px_rgba(148,163,184,0.3)] overflow-hidden flex items-center justify-center relative">
+                      {top2.avatar ? (
+                        <img src={top2.avatar} alt="Rank 2" className="w-full h-full object-cover" />
+                      ) : (
+                        <UserCircle className="w-12 h-12 text-slate-400" />
+                      )}
+                      <div className="absolute -bottom-2 right-1/2 translate-x-1/2 w-6 h-6 rounded-full bg-slate-400 text-black text-xs font-black flex items-center justify-center shadow-lg border-2 border-slate-800">
+                        2
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4">
+                    <h3 className="font-black text-white text-lg tracking-wide truncate max-w-full">{top2.displayName}</h3>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
+                      @{top2.username} <span className="opacity-40">·</span> <span className={top2.role === "admin" ? "text-red-400" : "text-violet-400"}>{top2.role === "admin" ? "Admin" : "Reseller"}</span>
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-black/40 border border-white/5 text-[10px] font-bold text-slate-400">
+                    <div>
+                      <div className="text-emerald-400 font-extrabold">{top2.today}</div>
+                      <div>TODAY</div>
+                    </div>
+                    <div>
+                      <div className="text-cyan-400 font-extrabold">{top2.active}</div>
+                      <div>ACTIVE</div>
+                    </div>
+                    <div>
+                      <div className="text-red-400 font-extrabold">{top2.expired}</div>
+                      <div>EXPIRED</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">TOTAL UIDs</span>
+                    <span className="text-xl font-black text-slate-200 tracking-tight">{top2.total}</span>
+                  </div>
+                </div>
+              </TiltWrapper>
+            </motion.div>
+          ) : (
+            <div className="md:order-1 hidden md:block" />
+          )}
+
+          {/* Rank 1 */}
+          {top1 && (
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }} 
+              animate={{ opacity: 1, y: 0 }}
+              className="md:order-2 z-10"
+            >
+              <TiltWrapper>
+                <div className="argus-glass rounded-[2rem] p-8 text-center border border-yellow-500/30 relative overflow-hidden shadow-2xl md:h-[320px] flex flex-col justify-between" style={{ background: "linear-gradient(135deg, rgba(251,191,36,0.05), rgba(124,58,237,0.05))" }}>
+                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 shadow-[0_0_15px_rgba(245,158,11,0.5)]" />
+                  
+                  <div className="flex justify-center -mt-16 relative">
+                    <div className="w-24 h-24 rounded-full bg-slate-900/90 border-4 border-yellow-500 shadow-[0_0_30px_rgba(245,158,11,0.4)] overflow-hidden flex items-center justify-center relative">
+                      {top1.avatar ? (
+                        <img src={top1.avatar} alt="Rank 1" className="w-full h-full object-cover" />
+                      ) : (
+                        <UserCircle className="w-14 h-14 text-yellow-500" />
+                      )}
+                      
+                      {/* Crown */}
+                      <Crown className="w-6 h-6 text-yellow-400 drop-shadow-[0_0_8px_rgba(234,179,8,0.6)] absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full animate-bounce" />
+
+                      <div className="absolute -bottom-2 right-1/2 translate-x-1/2 w-7 h-7 rounded-full bg-yellow-500 text-black text-sm font-black flex items-center justify-center shadow-lg border-2 border-yellow-800">
+                        1
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <h3 className="font-black text-white text-xl tracking-wide truncate max-w-full">{top1.displayName}</h3>
+                      <Trophy className="w-5 h-5 text-yellow-400 drop-shadow-[0_0_5px_rgba(234,179,8,0.5)] shrink-0" />
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
+                      @{top1.username} <span className="opacity-40">·</span> <span className={top1.role === "admin" ? "text-red-400 font-extrabold" : "text-violet-400 font-extrabold"}>{top1.role === "admin" ? "Admin" : "Reseller"}</span>
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-black/40 border border-white/5 text-[10px] font-bold text-slate-400">
+                    <div>
+                      <div className="text-emerald-400 font-extrabold">{top1.today}</div>
+                      <div>TODAY</div>
+                    </div>
+                    <div>
+                      <div className="text-cyan-400 font-extrabold">{top1.active}</div>
+                      <div>ACTIVE</div>
+                    </div>
+                    <div>
+                      <div className="text-red-400 font-extrabold">{top1.expired}</div>
+                      <div>EXPIRED</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">TOTAL UIDs</span>
+                    <span className="text-2xl font-black text-yellow-400 tracking-tight drop-shadow-[0_0_10px_rgba(234,179,8,0.3)]">{top1.total}</span>
+                  </div>
+                </div>
+              </TiltWrapper>
+            </motion.div>
+          )}
+
+          {/* Rank 3 */}
+          {top3 ? (
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }} 
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="md:order-3"
+            >
+              <TiltWrapper>
+                <div className="argus-glass rounded-[2rem] p-6 text-center border border-white/5 relative overflow-hidden shadow-xl md:h-[280px] flex flex-col justify-between">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-600 to-amber-400" />
+                  <div className="flex justify-center -mt-12 relative">
+                    <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-amber-600 shadow-[0_0_20px_rgba(217,119,6,0.3)] overflow-hidden flex items-center justify-center relative">
+                      {top3.avatar ? (
+                        <img src={top3.avatar} alt="Rank 3" className="w-full h-full object-cover" />
+                      ) : (
+                        <UserCircle className="w-12 h-12 text-amber-600" />
+                      )}
+                      <div className="absolute -bottom-2 right-1/2 translate-x-1/2 w-6 h-6 rounded-full bg-amber-600 text-black text-xs font-black flex items-center justify-center shadow-lg border-2 border-amber-950">
+                        3
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <h3 className="font-black text-white text-lg tracking-wide truncate max-w-full">{top3.displayName}</h3>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
+                      @{top3.username} <span className="opacity-40">·</span> <span className={top3.role === "admin" ? "text-red-400" : "text-violet-400"}>{top3.role === "admin" ? "Admin" : "Reseller"}</span>
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-black/40 border border-white/5 text-[10px] font-bold text-slate-400">
+                    <div>
+                      <div className="text-emerald-400 font-extrabold">{top3.today}</div>
+                      <div>TODAY</div>
+                    </div>
+                    <div>
+                      <div className="text-cyan-400 font-extrabold">{top3.active}</div>
+                      <div>ACTIVE</div>
+                    </div>
+                    <div>
+                      <div className="text-red-400 font-extrabold">{top3.expired}</div>
+                      <div>EXPIRED</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">TOTAL UIDs</span>
+                    <span className="text-xl font-black text-slate-200 tracking-tight">{top3.total}</span>
+                  </div>
+                </div>
+              </TiltWrapper>
+            </motion.div>
+          ) : (
+            <div className="md:order-3 hidden md:block" />
+          )}
+
+        </div>
+      )}
+
+      {/* Leaderboard Table / Rest of the List */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="argus-glass rounded-[2rem] overflow-hidden relative shadow-2xl border border-white/5"
+      >
+        <div className="flex items-center gap-3 px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-black/20">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(0,212,255,0.2)] border border-cyan-500/20" style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.1), rgba(124,58,237,0.05))" }}>
+            <Users className="w-5 h-5 text-cyan-400" />
+          </div>
+          <div>
+            <h2 className="font-black text-lg text-white tracking-wide">Rankings</h2>
+            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Performance of all distributor nodes</div>
+          </div>
+        </div>
+
+        {data.length === 0 ? (
+          <div className="flex flex-col items-center justify-center p-20 text-center opacity-60">
+            <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6">
+              <Users className="w-10 h-10 text-slate-500" />
+            </div>
+            <p className="text-slate-300 font-bold mb-2">No Leaderboard Data</p>
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Resellers will appear here as they register UIDs</p>
+          </div>
+        ) : (
+          <div className="p-4 sm:p-6 space-y-3 overflow-y-auto max-h-[600px] custom-scrollbar">
+            <div className="hidden sm:grid grid-cols-12 gap-4 px-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">
+              <div className="col-span-1">Rank</div>
+              <div className="col-span-4">Operator</div>
+              <div className="col-span-2 text-center text-emerald-500">Today</div>
+              <div className="col-span-2 text-center text-cyan-400">Active</div>
+              <div className="col-span-2 text-center text-red-400">Expired</div>
+              <div className="col-span-1 text-right text-slate-300">Total</div>
+            </div>
+
+            <AnimatePresence>
+              {data.map((user, idx) => (
+                <motion.div
+                  key={user.username}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="group relative bg-black/40 border border-white/10 rounded-2xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-12 items-center gap-4 transition-all hover:bg-white/[0.03] hover:border-white/20 overflow-hidden"
+                >
+                  {/* Rank Badge */}
+                  <div className="col-span-1 flex items-center gap-2">
+                    <span className={`w-8 h-8 rounded-xl font-black text-xs flex items-center justify-center border shadow-inner ${
+                      idx === 0 ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" :
+                      idx === 1 ? "bg-slate-400/20 text-slate-300 border-slate-400/30" :
+                      idx === 2 ? "bg-amber-600/20 text-amber-500 border-amber-600/30" :
+                      "bg-black/50 text-slate-400 border-white/5"
+                    }`}>
+                      #{idx + 1}
+                    </span>
+                  </div>
+
+                  {/* Profile info */}
+                  <div className="col-span-4 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-black/40 border border-white/10 overflow-hidden flex items-center justify-center shadow-inner">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt={user.displayName} className="w-full h-full object-cover" />
+                      ) : (
+                        <UserCircle className="w-6 h-6 text-slate-500" />
+                      )}
+                    </div>
+                    <div>
+                      <div className="font-black text-sm text-white tracking-wide">{user.displayName}</div>
+                      <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                        @{user.username} <span className="opacity-40">·</span> <span className={user.role === "admin" ? "text-red-400 font-extrabold" : "text-violet-400 font-extrabold"}>{user.role === "admin" ? "Admin" : "Reseller"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Today Count */}
+                  <div className="col-span-2 text-center flex sm:block justify-between items-center sm:border-0 border-b border-white/5 py-1 sm:py-0">
+                    <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Today</span>
+                    <span className="text-emerald-400 font-extrabold text-sm sm:bg-emerald-500/10 sm:border sm:border-emerald-500/20 px-2.5 py-1 rounded-lg">{user.today}</span>
+                  </div>
+
+                  {/* Active Count */}
+                  <div className="col-span-2 text-center flex sm:block justify-between items-center sm:border-0 border-b border-white/5 py-1 sm:py-0">
+                    <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Active</span>
+                    <span className="text-cyan-400 font-extrabold text-sm sm:bg-cyan-500/10 sm:border sm:border-cyan-500/20 px-2.5 py-1 rounded-lg">{user.active}</span>
+                  </div>
+
+                  {/* Expired Count */}
+                  <div className="col-span-2 text-center flex sm:block justify-between items-center sm:border-0 border-b border-white/5 py-1 sm:py-0">
+                    <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Expired</span>
+                    <span className="text-red-400 font-extrabold text-sm sm:bg-red-500/10 sm:border sm:border-red-500/20 px-2.5 py-1 rounded-lg">{user.expired}</span>
+                  </div>
+
+                  {/* Total UIDs */}
+                  <div className="col-span-1 text-right flex sm:block justify-between items-center py-1 sm:py-0">
+                    <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Total</span>
+                    <span className="text-white font-black text-base tracking-tight">{user.total}</span>
+                  </div>
+
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+      </motion.div>
+    </div>
+  );
+}
+
+interface ChatMessageData {
+  _id?: string;
+  username: string;
+  displayName: string;
+  avatar: string;
+  message: string;
+  createdAt: string;
+}
+
+function TeamChatView({ currentUsername }: { currentUsername: string }) {
+  const [messages, setMessages] = useState<ChatMessageData[]>([]);
+  const [text, setText] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const fetchMessages = async (showLoading = false) => {
+    if (showLoading) setLoading(true);
+    try {
+      const res = await fetch(`${BASE}/api/chat`, {
+        headers: userHeaders(),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessages(data.messages || []);
+      }
+    } catch (err) {
+      console.error("Failed to load chat messages:", err);
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMessages(true);
+    
+    // Poll for new messages every 3 seconds
+    const interval = setInterval(() => {
+      fetchMessages(false);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    // Scroll to bottom on load/new message
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!text.trim() || sending) return;
+
+    const payloadText = text.trim();
+    setText("");
+    setSending(true);
+
+    try {
+      const res = await fetch(`${BASE}/api/chat`, {
+        method: "POST",
+        headers: {
+          ...userHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: payloadText }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessages((prev) => [...prev, data.chat]);
+      }
+    } catch (err) {
+      console.error("Failed to send message:", err);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-20 opacity-60">
+        <Loader2 className="w-12 h-12 text-cyan-400 animate-spin mb-4" />
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400">Loading Secure Channel...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto flex flex-col h-[75vh] argus-glass rounded-[2rem] overflow-hidden border border-white/5 relative">
+      {/* Chat Header */}
+      <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.05] bg-black/25">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(124,58,237,0.2)]">
+            <MessageSquare className="w-5 h-5 text-violet-400" />
+          </div>
+          <div className="text-left">
+            <h2 className="font-black text-base text-white tracking-wide">Team Cryptochat</h2>
+            <div className="text-[9px] font-black text-emerald-400 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
+              Secured aes-256 node
+            </div>
+          </div>
+        </div>
+        <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-black/30 border border-white/5 px-3 py-1 rounded-md">
+          {messages.length} packets
+        </div>
+      </div>
+
+      {/* Messages Stream */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-black/10">
+        {messages.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
+            <MessageSquare className="w-12 h-12 text-slate-500 mb-4" />
+            <p className="text-slate-300 font-bold text-sm">No transmissions yet</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Start chatting with the team below</p>
+          </div>
+        ) : (
+          messages.map((msg, idx) => {
+            const isMe = msg.username === currentUsername;
+            const isAdminMsg = msg.username === "admin" || msg.displayName === "ADMIN";
+            
+            return (
+              <motion.div
+                key={msg._id || idx}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`flex gap-3 max-w-[80%] ${isMe ? "ml-auto flex-row-reverse" : "mr-auto text-left"}`}
+              >
+                {/* Avatar */}
+                <div className="w-9 h-9 rounded-full bg-black/40 border border-white/10 overflow-hidden shrink-0 flex items-center justify-center shadow-inner">
+                  {msg.avatar ? (
+                    <img src={msg.avatar} alt={msg.displayName} className="w-full h-full object-cover" />
+                  ) : (
+                    <UserCircle className={`w-6 h-6 ${isAdminMsg ? "text-red-400" : "text-slate-500"}`} />
+                  )}
+                </div>
+
+                {/* Msg Content */}
+                <div>
+                  {/* Sender Display Name */}
+                  <div className={`text-[10px] font-black tracking-wide uppercase mb-1 ${isMe ? "text-right text-cyan-400" : isAdminMsg ? "text-red-400" : "text-violet-400"}`}>
+                    {msg.displayName}
+                    {isAdminMsg && <span className="ml-1 px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[8px] font-black border border-red-500/30 tracking-widest">ADMIN</span>}
+                  </div>
+                  
+                  {/* Bubble */}
+                  <div className={`p-4 rounded-2xl text-sm font-semibold leading-relaxed shadow-lg border ${
+                    isMe 
+                      ? "bg-cyan-500/10 border-cyan-500/30 text-white rounded-tr-none" 
+                      : isAdminMsg
+                        ? "bg-red-500/10 border-red-500/20 text-white rounded-tl-none"
+                        : "bg-white/[0.03] border-white/10 text-slate-200 rounded-tl-none"
+                  }`}>
+                    {msg.message}
+                  </div>
+
+                  {/* Timestamp */}
+                  <div className={`text-[9px] font-bold text-slate-500 mt-1 uppercase tracking-widest ${isMe ? "text-right" : ""}`}>
+                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input Tray */}
+      <form onSubmit={handleSend} className="p-4 border-t border-white/[0.05] bg-black/25 flex items-center gap-3">
+        <input
+          type="text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Transmit encrypted message to team..."
+          className="flex-1 h-12 px-5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-slate-600 text-sm font-bold focus:outline-none focus:border-violet-500/50 focus:shadow-[0_0_15px_rgba(124,58,237,0.15)] transition-all"
+        />
+        <button
+          type="submit"
+          disabled={!text.trim() || sending}
+          className="h-12 w-12 rounded-xl bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {sending ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <Send className="w-4.5 h-4.5" />
+          )}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+// Side Navigation Items
+const SIDEBAR_NAV = [
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "analyze", label: "Analyze", icon: BarChart2 },
+  { id: "create", label: "Create UID", icon: Plus },
+  { id: "all", label: "All UIDs", icon: Users2 },
+  { id: "delete", label: "Delete UID", icon: Trash2 },
+  { id: "free", label: "Free Portal", icon: Globe },
+  { id: "chat", label: "Team Chat", icon: MessageSquare },
+  { id: "profile", label: "My Profile", icon: UserCircle },
+];
+
+export default function Dashboard({ username, defaultDays = 30, isTrial = false, canResell = false, onLogout }: DashboardProps) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [activeSidebarTab, setActiveSidebarTab] = useState("dashboard");
+  const [removingUid, setRemovingUid] = useState<string | null>(null);
+  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
+  const [showTrialMessage, setShowTrialMessage] = useState(false);
+  const [balance, setBalance] = useState<number | null>(null);
+  const [showSuccessBlast, setShowSuccessBlast] = useState(false);
+  const [profileData, setProfileData] = useState({ displayName: username || "Guest", avatarBase64: "" });
+
+  useEffect(() => {
+    if (username) {
+      // 1. Initial load from local storage (fast fallback)
+      setProfileData({
+        displayName: localStorage.getItem(`display_name_${username}`) || username,
+        avatarBase64: localStorage.getItem(`avatar_${username}`) || ""
+      });
+
+      // 2. Fetch fresh details from MongoDB database
+      fetch(`${BASE}/api/auth/profile/${encodeURIComponent(username)}`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.success) {
+            setProfileData({
+              displayName: d.displayName,
+              avatarBase64: d.avatar,
+            });
+            try {
+              localStorage.setItem(`display_name_${username}`, d.displayName);
+              localStorage.setItem(`avatar_${username}`, d.avatar);
+            } catch (e) {
+              console.warn("Local storage write failed (likely quota exceeded):", e);
+            }
+          }
+        })
+        .catch((err) => console.error("Error fetching user profile:", err));
+    }
+  }, [username]);
+
+  useEffect(() => {
+    if (isTrial || !username) return;
+    fetch(`${BASE}/api/credits/me`, { headers: userHeaders() })
+      .then(r => r.json())
+      .then(d => { if (d.success) setBalance(d.balance); })
+      .catch(() => { });
+  }, [username, isTrial]);
+
+  const { data: listResponse, isLoading } = useListUids({
+    query: { queryKey: getListUidsQueryKey() },
+    request: { headers: userHeaders() },
+  });
+
+  const addMutation = useAddUid({
+    request: { headers: userHeaders() },
+  });
+  const removeMutation = useRemoveUid({
+    request: { headers: userHeaders() },
+  });
+
+  const form = useForm<AddUidValues>({
+    resolver: zodResolver(addUidSchema),
+    defaultValues: { uid: "", days: isTrial ? 1 : defaultDays, bluestack: true },
+  });
+
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
+    } else {
+      sessionStorage.removeItem("uid_auth");
+      window.location.reload();
+    }
+  };
+
+  const handleUpdateProfile = (name: string, avatar: string) => {
+    setProfileData({ displayName: name, avatarBase64: avatar });
+    fetch(`${BASE}/api/auth/profile`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, displayName: name, avatar }),
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.success) {
+          console.error("Sync failed:", d.error);
+        }
+      })
+      .catch((err) => console.error("Error syncing profile:", err));
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const uids: { uid: string; days: number; bluestack: boolean; addedBy: string; addedAt: string; name?: string }[] = listResponse?.success ? ((listResponse as any).uids ?? []) : [];
+  const bsCount = uids.filter((u) => u.bluestack).length;
+
+  const activeCount = uids.filter((u) => {
+    const addedAt = new Date(u.addedAt).getTime();
+    const expiresAt = addedAt + u.days * 24 * 60 * 60 * 1000;
+    return expiresAt > Date.now();
+  }).length;
+  const expiredCount = uids.length - activeCount;
+
+  const DISCORD_URL = "https://discord.gg/QTwupjcKre";
+  const TRIAL_USED_KEY = `trial_uid_used_${username}`;
+  const [trialUsed, setTrialUsed] = useState(() => isTrial && sessionStorage.getItem(TRIAL_USED_KEY) === "true");
+  const trialLimitReached = isTrial && trialUsed;
+
+  const triggerTrialBlock = () => {
+    setShowTrialMessage(true);
+    window.open(DISCORD_URL, "_blank");
+  };
+
+  const watchedDays = form.watch("days");
+  const selectedOpt = DURATION_OPTIONS.find((o) => o.days === Number(watchedDays));
+  const tokenCost = isTrial ? 0 : (selectedOpt ? selectedOpt.tokens : 0);
+  const hasEnoughBalance = isTrial || balance === null || balance >= tokenCost;
+
+  const onSubmit = (values: AddUidValues) => {
+    if (trialLimitReached) {
+      triggerTrialBlock();
+      return;
+    }
+    if (!isTrial && balance !== null && balance < tokenCost) {
+      toast({ title: "Insufficient Tokens", description: `You need ${tokenCost} tokens but only have ${balance}.`, variant: "destructive" });
+      return;
+    }
+    const payload = isTrial ? { ...values, days: 1, username } : { ...values, username };
+    addMutation.mutate(
+      { data: payload as typeof values },
+      {
+        onSuccess: (data) => {
+          if ((data as any).message === "TRIAL_LIMIT_REACHED") {
+            sessionStorage.setItem(TRIAL_USED_KEY, "true");
+            setTrialUsed(true);
+            triggerTrialBlock();
+            return;
+          }
+          if ((data as any).message === "TRIAL_IP_LIMIT_REACHED") {
+            toast({ title: "IP Limit Reached", description: "This IP address has already whitelisted a free trial UID. Only 1 free trial is allowed per IP.", variant: "destructive" });
+            return;
+          }
+          if ((data as any).message === "INSUFFICIENT_BALANCE") {
+            toast({ title: "Insufficient Tokens", description: "Not enough tokens.", variant: "destructive" });
+            return;
+          }
+          if (data.success) {
+            if (isTrial) {
+              sessionStorage.setItem(TRIAL_USED_KEY, "true");
+              setTrialUsed(true);
+            }
+            if (!isTrial && balance !== null) setBalance(b => b !== null ? Math.max(0, b - tokenCost) : null);
+            setShowSuccessBlast(true);
+            toast({ title: "Access Granted", description: `UID ${values.uid} whitelisted successfully.` });
+            form.reset();
+            queryClient.invalidateQueries({ queryKey: getListUidsQueryKey() });
+          } else {
+            toast({ title: "Failed", description: (data as any).message, variant: "destructive" });
+          }
+        },
+        onError: () => toast({ title: "Error", description: "Could not reach server.", variant: "destructive" }),
+      }
+    );
+  };
+
+  const onRemove = (uid: string) => {
+    setRemovingUid(uid);
+    removeMutation.mutate(
+      { data: { uid } },
+      {
+        onSuccess: (data) => {
+          setRemovingUid(null);
+          if (data.success) {
+            toast({ title: "Access Revoked", description: `UID ${uid} removed.` });
+            queryClient.invalidateQueries({ queryKey: getListUidsQueryKey() });
+          } else {
+            toast({ title: "Failed", description: data.message, variant: "destructive" });
+          }
+        },
+        onError: () => {
+          setRemovingUid(null);
+          toast({ title: "Error", description: "Removal failed.", variant: "destructive" });
+        },
+      }
+    );
+  };
+
+  const renderUidTable = (showFull = false, highlightDelete = false) => {
+    const displayedUids = showFull ? [...uids].reverse() : [...uids].reverse().slice(0, 9);
+    
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`argus-glass rounded-[2rem] overflow-hidden relative shadow-2xl ${showFull ? 'h-full' : ''}`}
+      >
+        <div className="flex items-center justify-between px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-black/20">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(0,212,255,0.3)] border border-cyan-500/30" style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.1))" }}>
+              <Activity className="w-5 h-5 text-cyan-400" />
+            </div>
+            <div>
+              <h2 className="font-black text-lg text-white tracking-wide">{showFull ? "Global Endpoints" : "Recent UIDs"}</h2>
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">{showFull ? "All authorized connections" : "History of recently created UIDs"}</div>
+            </div>
+          </div>
+          {!showFull && (
+            <button
+              onClick={() => setActiveSidebarTab("delete")}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-300 hover:text-white transition-all cursor-pointer"
+            >
+              <span>View All Records</span>
+              <span className="text-xs">↗</span>
+            </button>
+          )}
+        </div>
+
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center p-20 opacity-50">
+            <Loader2 className="w-12 h-12 text-cyan-400 animate-spin mb-4" />
+            <p className="text-xs font-black uppercase tracking-widest text-slate-400">Syncing with Auth Mesh...</p>
+          </div>
+        ) : uids.length === 0 ? (
+          <div className="flex flex-col items-center justify-center p-20 text-center opacity-60">
+            <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6">
+              <Monitor className="w-10 h-10 text-slate-500" />
+            </div>
+            <p className="text-slate-300 font-bold mb-2">No Active UIDs</p>
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Register an endpoint to begin routing</p>
+          </div>
+        ) : (
+          <div className={`p-6 sm:p-8 overflow-y-auto custom-scrollbar ${showFull ? 'max-h-[70vh]' : 'max-h-[800px]'}`}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <AnimatePresence>
+                {displayedUids.map((uidObj) => (
+                  <motion.div
+                    key={uidObj.uid}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                    onHoverStart={() => setHoveredRow(uidObj.uid)}
+                    onHoverEnd={() => setHoveredRow(null)}
+                    className={`group relative bg-black/40 border ${highlightDelete ? 'border-red-500/20' : 'border-white/10'} rounded-3xl p-5 hover:border-white/20 hover:bg-white/[0.02] transition-all overflow-hidden flex flex-col justify-between h-40 shadow-lg`}
+                  >
+                    <div
+                      className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 pointer-events-none"
+                      style={{ background: uidObj.bluestack ? "linear-gradient(135deg, transparent, #00d4ff, transparent)" : "linear-gradient(135deg, transparent, #10b981, transparent)" }}
+                    />
+
+                    {/* Red indicator dot top right or Delete button */}
+                    <div className="absolute top-5 right-5 z-20">
+                      {hoveredRow === uidObj.uid || highlightDelete ? (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onRemove(uidObj.uid); }}
+                          disabled={removingUid === uidObj.uid}
+                          className="w-8 h-8 rounded-xl flex items-center justify-center bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 hover:border-red-500 transition-all cursor-pointer shadow-[0_0_10px_rgba(239,68,68,0.2)]"
+                        >
+                          {removingUid === uidObj.uid ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                        </button>
+                      ) : (
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_#ef4444] animate-pulse" />
+                      )}
+                    </div>
+
+                    <div>
+                      {/* Friendly name top left */}
+                      <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                        {uidObj.bluestack ? <Monitor className="w-3.5 h-3.5 text-cyan-400/80" /> : <Shield className="w-3.5 h-3.5 text-emerald-400/80" />}
+                        <span className="truncate max-w-[150px]">{uidObj.name || `NODE_${uidObj.uid.slice(0, 10)}`}</span>
+                      </div>
+                      
+                      {/* UID value */}
+                      <div className="text-xl font-black text-white tracking-wider mt-3.5 font-mono drop-shadow-md">{uidObj.uid}</div>
+                    </div>
+
+                    {/* Footer with Operator and Expires */}
+                    <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-4">
+                      <div>
+                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block">OPERATOR</span>
+                        <span className="text-xs font-black text-slate-300 uppercase tracking-wide truncate max-w-[100px] block">{uidObj.addedBy || "UNKNOWN"}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block">EXPIRES</span>
+                        <span className="text-xs font-black text-slate-300 uppercase tracking-wide block">{getDaysLeft(uidObj.addedAt, uidObj.days)}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </div>
+        )}
+      </motion.div>
+    );
+  };
+
+  const renderCreateUid = () => (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="max-w-xl mx-auto"
+    >
+      <TiltWrapper>
+        <div className="argus-glass rounded-[2rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl">
+          <ParticleExplosion active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
+          
+          <div className="flex items-center gap-3 mb-2 relative z-10">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(124,58,237,0.3)] border border-violet-500/30" style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.2), rgba(0,212,255,0.1))" }}>
+              <Plus className="w-5 h-5 text-cyan-400" />
+            </div>
+            <h2 className="font-black text-lg text-white tracking-wide">Register UID</h2>
+          </div>
+          <p className="text-xs font-semibold text-slate-400 mb-8 relative z-10">Add a new endpoint to the global authorization mesh.</p>
+
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 relative z-10">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Friendly Name (Optional)</label>
+              <div className="relative group">
+                <Edit2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-cyan-400 transition-colors pointer-events-none" />
+                <Input
+                  placeholder="e.g. SHIVAM, NX..."
+                  className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-cyan-500/30 focus-visible:border-cyan-500/50 text-white font-bold transition-all shadow-inner"
+                  {...form.register("name")}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Player UID</label>
+              <div className="relative group">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-cyan-400 transition-colors pointer-events-none" />
+                <Input
+                  placeholder="Enter UID number..."
+                  className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-cyan-500/30 focus-visible:border-cyan-500/50 text-white font-bold transition-all shadow-inner"
+                  {...form.register("uid")}
+                />
+              </div>
+              {form.formState.errors.uid && (
+                <p className="text-[10px] font-bold text-red-400 px-2 mt-1">{form.formState.errors.uid.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2 relative z-50">
+              <div className="flex items-center justify-between ml-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Duration</label>
+                {isTrial ? (
+                  <span className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: "rgba(255,0,110,0.15)", color: "#ff006e", border: "1px solid rgba(255,0,110,0.3)" }}>
+                    1 DAY TRIAL
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: hasEnoughBalance ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)", color: hasEnoughBalance ? "#10b981" : "#ef4444", border: `1px solid ${hasEnoughBalance ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)"}` }}>
+                    <Coins className="w-3 h-3" />
+                    {tokenCost} token{tokenCost !== 1 ? "s" : ""}
+                  </span>
+                )}
+              </div>
+              {isTrial ? (
+                <div className="flex items-center gap-3 h-14 px-5 rounded-2xl text-sm font-bold opacity-50 cursor-not-allowed bg-black/40 border border-white/10 shadow-inner">
+                  <CalendarDays className="w-5 h-5 text-slate-400" />
+                  <span className="text-slate-300">24 Hours — Free Trial</span>
+                </div>
+              ) : (
+                <CustomDurationSelect
+                  value={form.watch("days")}
+                  onChange={(val) => form.setValue("days", val)}
+                  options={DURATION_OPTIONS}
+                />
+              )}
+            </div>
+
+            <div className="flex items-center justify-between p-5 rounded-2xl bg-black/30 border border-white/10 group hover:border-violet-500/30 hover:bg-black/50 transition-all shadow-inner">
+              <div>
+                <div className="flex items-center gap-2 text-sm font-black text-white">
+                  <Monitor className="w-4 h-4 text-cyan-400 drop-shadow-[0_0_5px_rgba(0,212,255,0.5)]" />
+                  BlueStack Protocol
+                </div>
+                <div className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Emulator Routing</div>
+              </div>
+              <Switch
+                checked={form.watch("bluestack")}
+                onCheckedChange={(v) => form.setValue("bluestack", v)}
+                className="data-[state=checked]:bg-cyan-500 data-[state=checked]:shadow-[0_0_15px_rgba(0,212,255,0.5)]"
+              />
+            </div>
+
+            {!isTrial && (
+              <div className="flex items-center justify-between px-4 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider backdrop-blur-md" style={{ background: hasEnoughBalance ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.1)", border: `1px solid ${hasEnoughBalance ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.3)"}` }}>
+                <div className="flex items-center gap-2" style={{ color: hasEnoughBalance ? "#10b981" : "#ef4444" }}>
+                  <Coins className="w-4 h-4" />
+                  <span>Cost: {tokenCost} token{tokenCost !== 1 ? "s" : ""}</span>
+                </div>
+                {balance !== null && (
+                  <span style={{ color: hasEnoughBalance ? "#94a3b8" : "#ef4444" }}>
+                    {hasEnoughBalance ? `${balance} in vault` : `Need ${tokenCost} (Have ${balance})`}
+                  </span>
+                )}
+              </div>
+            )}
+
+            <motion.button
+              type="submit"
+              disabled={addMutation.isPending || !hasEnoughBalance}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="argus-btn w-full h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 disabled:opacity-40 disabled:cursor-not-allowed mt-2"
+            >
+              <AnimatePresence mode="wait">
+                {addMutation.isPending ? (
+                  <motion.span key="l" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Transmitting...
+                  </motion.span>
+                ) : (
+                  <motion.span key="i" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                    <Zap className="w-5 h-5" />
+                    Authorize Endpoint
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          </form>
+        </div>
+      </TiltWrapper>
+    </motion.div>
+  );
+
+  return (
+    <div className="flex h-screen bg-[#030014] text-white font-sans overflow-hidden relative">
+      
+      {/* Sidebar */}
+      <aside className="w-64 bg-[#0a0a0a]/95 border-r border-white/5 flex flex-col z-50 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
+        {/* Sidebar Logo Area */}
+        <div className="h-20 flex items-center gap-3 px-6 border-b border-white/5">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,0,110,0.4)]" style={{ background: "linear-gradient(135deg, #ff006e, #7c3aed)" }}>
+            <Shield className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <div className="font-black text-[11px] uppercase tracking-[0.1em] text-white">UID BYPASS RESELLER</div>
+            <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">SM</div>
+          </div>
+        </div>
+
+        {/* Navigation Links */}
+        <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1.5 custom-scrollbar">
+          {SIDEBAR_NAV.map((nav) => {
+            const Icon = nav.icon;
+            const active = activeSidebarTab === nav.id;
+            
+            // Hide Free Portal if not a reseller
+            if (nav.id === "free" && !canResell) return null;
+
+            return (
+              <button
+                key={nav.id}
+                onClick={() => setActiveSidebarTab(nav.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
+                  ${active 
+                    ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.02)] relative" 
+                    : "text-slate-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}
+                `}
+              >
+                <Icon className={`w-4.5 h-4.5 ${active ? "text-cyan-400" : "text-slate-500"}`} />
+                <span>{nav.label}</span>
+                {active && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Logout */}
+        <div className="p-4 border-t border-white/5">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all font-semibold text-sm"
+          >
+            <LogOut className="w-4.5 h-4.5" />
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="flex-1 relative flex flex-col overflow-hidden h-full">
+        {/* Background Effects for Main Content */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="argus-bg w-full h-full" />
+          <div className="argus-mesh w-full h-full opacity-60" />
+        </div>
+
+        {/* Main Content Header */}
+        <header className="h-20 shrink-0 border-b border-white/5 px-8 flex items-center justify-between relative z-20 backdrop-blur-md bg-black/20">
+          <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
+            <span>USER TERMINAL</span>
+            <span className="text-slate-600">/</span>
+            <span className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] uppercase">
+              {SIDEBAR_NAV.find(n => n.id === activeSidebarTab)?.label || "DASHBOARD"}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            {username && (
+              <div className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/10 bg-white/[0.03] text-xs text-slate-300 font-bold shadow-inner">
+                {profileData.avatarBase64 ? (
+                  <img src={profileData.avatarBase64} alt="Avatar" className="w-5 h-5 rounded-full object-cover shadow-[0_0_10px_rgba(0,212,255,0.3)]" />
+                ) : (
+                  <User className="w-3.5 h-3.5 text-cyan-400" />
+                )}
+                <span className="uppercase tracking-wider truncate max-w-[100px] sm:max-w-none">{profileData.displayName}</span>
+                {isTrial && (
+                  <span className="ml-1.5 px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest" style={{ background: "rgba(255,0,110,0.15)", color: "#ff006e", border: "1px solid rgba(255,0,110,0.3)" }}>
+                    TRIAL
+                  </span>
+                )}
+              </div>
+            )}
+            {!isTrial && balance !== null && (
+              <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.1)] border" style={{ background: balance > 0 ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", color: balance > 0 ? "#10b981" : "#ef4444", borderColor: balance > 0 ? "rgba(16,185,129,0.25)" : "rgba(239,68,68,0.25)" }}>
+                <Coins className="w-3.5 h-3.5" />
+                <span>{balance} tokens</span>
+              </div>
+            )}
+          </div>
+        </header>
+
+        {/* Scrollable Dashboard Content */}
+        <div className="flex-1 overflow-y-auto p-6 sm:p-8 relative z-10 custom-scrollbar">
+          <div className="max-w-6xl mx-auto space-y-8 h-full">
+            
+            <AnimatePresence mode="wait">
+              {activeSidebarTab === "dashboard" && (
+                <motion.div key="dashboard" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                  {/* Title */}
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">Overview</h1>
+                      <span className="px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">v5.0-STABLE</span>
+                    </div>
+                    <p className="text-slate-400 font-semibold text-sm mt-2">Real-time status of all active UIDs</p>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                    <OverviewStatCard
+                      icon={Activity}
+                      label="Total UIDs"
+                      value={isLoading ? "—" : uids.length}
+                      delay={0}
+                      sparklinePoints={[28, 25, 27, 22, 20, 18, 19, 15, 12, 10]}
+                    />
+                    <OverviewStatCard
+                      icon={Zap}
+                      label="Active UIDs"
+                      value={isLoading ? "—" : activeCount}
+                      delay={0.1}
+                      sparklinePoints={[26, 24, 25, 21, 19, 17, 18, 14, 13, 11]}
+                    />
+                    <OverviewStatCard
+                      icon={XCircle}
+                      label="Expired"
+                      value={isLoading ? "—" : expiredCount}
+                      delay={0.2}
+                      sparklinePoints={[25, 24, 25, 24, 25, 24, 25, 24, 25, 24]}
+                    />
+                  </div>
+
+                  <div className="w-full">
+                    {renderUidTable(false, false)}
+                  </div>
+                </motion.div>
+              )}
+
+              {activeSidebarTab === "create" && (
+                <motion.div key="create" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                  {renderCreateUid()}
+                </motion.div>
+              )}
+
+              {activeSidebarTab === "all" && (
+                <motion.div key="all" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="h-full">
+                  {renderUidTable(true, false)}
+                </motion.div>
+              )}
+
+              {activeSidebarTab === "delete" && (
+                <motion.div key="delete" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="h-full">
+                  {renderUidTable(true, true)}
+                </motion.div>
+              )}
+
+              {activeSidebarTab === "free" && canResell && (
+                <motion.div key="free" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                  <ResellerTrialPanel username={username ?? ""} />
+                </motion.div>
+              )}
+
+              {activeSidebarTab === "analyze" && (
+                <motion.div key="analyze" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                  <LeaderboardView />
+                </motion.div>
+              )}
+
+              {activeSidebarTab === "chat" && (
+                <motion.div key="chat" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                  <TeamChatView currentUsername={username ?? ""} />
+                </motion.div>
+              )}
+
+              {activeSidebarTab === "profile" && (
+                <motion.div key="profile" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                  <UserProfilePanel 
+                    username={username ?? ""} 
+                    isTrial={isTrial} 
+                    balance={balance} 
+                    displayName={profileData.displayName}
+                    avatarBase64={profileData.avatarBase64}
+                    onUpdate={handleUpdateProfile}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+          </div>
+        </div>
+      </main>
+
+      {/* Add custom CSS for scrollbar if not in global css */}
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.02);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      `}</style>
     </div>
   );
 }

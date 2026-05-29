@@ -7,6 +7,7 @@ import resellerRouter from "./reseller";
 import settingsRouter from "./settings";
 import creditsRouter from "./credits";
 import paymentsRouter from "./payments";
+import chatRouter from "./chat";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use("/reseller", resellerRouter);
 router.use("/settings", settingsRouter);
 router.use("/credits", creditsRouter);
 router.use("/payments", paymentsRouter);
+router.use("/chat", chatRouter);
 
 export default router;

@@ -61,8 +61,29 @@ function isSuccess(data: Record<string, unknown>): boolean {
 
 router.get("/list", async (req, res) => {
   try {
-    const uids = await uidStore.list();
-    res.json({ success: true, uids });
+    const username = req.headers["x-username"] as string | undefined;
+    const password = req.headers["x-password"] as string | undefined;
+
+    if (username && password) {
+      if (username === config.ADMIN_USERNAME && password === config.ADMIN_PASSWORD) {
+        const uids = await uidStore.list();
+        res.json({ success: true, uids });
+        return;
+      }
+      const user = await userStore.verify(username, password);
+      if (user) {
+        if (user.role === "admin") {
+          const uids = await uidStore.list();
+          res.json({ success: true, uids });
+        } else {
+          const uids = await uidStore.listByUser(username);
+          res.json({ success: true, uids });
+        }
+        return;
+      }
+    }
+
+    res.json({ success: true, uids: [] });
   } catch (err) {
     req.log.error({ err }, "Failed to list UIDs");
     res.status(500).json({ success: false, message: "Failed to list UIDs" });
@@ -70,9 +91,32 @@ router.get("/list", async (req, res) => {
 });
 
 router.post("/add", async (req, res) => {
-  const { uid, days = 30, bluestack = true, username } = req.body;
+  const { uid, days = 30, bluestack = true, username, name } = req.body;
+  const clientIp = ((req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0]).trim();
   if (!uid) {
     res.status(400).json({ success: false, message: "uid is required" });
+    return;
+  }
+
+  const authUser = req.headers["x-username"] as string | undefined;
+  const authPass = req.headers["x-password"] as string | undefined;
+
+  let isAuthorized = false;
+  if (authUser && authPass) {
+    if (authUser === config.ADMIN_USERNAME && authPass === config.ADMIN_PASSWORD) {
+      isAuthorized = true;
+    } else {
+      const user = await userStore.verify(authUser, authPass);
+      if (user) {
+        if (user.role === "admin" || user.username === username) {
+          isAuthorized = true;
+        }
+      }
+    }
+  }
+
+  if (!isAuthorized) {
+    res.status(403).json({ success: false, message: "Unauthorized to add UID" });
     return;
   }
 
@@ -83,8 +127,14 @@ router.post("/add", async (req, res) => {
   if (username) {
     const user = await userStore.find(username);
     if (user?.isTrial) {
-      if (trialStore.getCount(username) >= 1) {
+      const existingUserUids = await uidStore.listByUser(username);
+      if (existingUserUids.length >= 1) {
         res.json({ success: false, message: "TRIAL_LIMIT_REACHED" });
+        return;
+      }
+      const ipExists = await uidStore.checkIpExists(clientIp);
+      if (ipExists) {
+        res.json({ success: false, message: "TRIAL_IP_LIMIT_REACHED" });
         return;
       }
       effectiveDays = 1;
@@ -110,7 +160,7 @@ router.post("/add", async (req, res) => {
     const base = await getBase();
     const key = await getKey();
     const hours = daysToHours(effectiveDays);
-    req.log.info({ base, keyLength: key?.length }, "External API Call Info");
+    req.log.info({ base, keyLength: key?.length, clientIp }, "External API Call Info");
 
     const response = await fetch(`${base}/api/v1/uids/add`, {
       method: "POST",
@@ -118,7 +168,7 @@ router.post("/add", async (req, res) => {
       body: JSON.stringify({
         uid,
         days: effectiveDays,
-        name: username || "MyUID",
+        name: name || username || "MyUID",
       }),
     });
     const data = await response.json() as Record<string, unknown>;
@@ -126,7 +176,7 @@ router.post("/add", async (req, res) => {
 
     if (success) {
       if (username && isTrial) trialStore.increment(username);
-      await uidStore.save(uid, effectiveDays, bluestack, username ?? "");
+      await uidStore.save(uid, effectiveDays, bluestack, username ?? "", name ?? "", clientIp);
     } else if (!skipBalanceCheck && username) {
       await userStore.adjustBalance(username, cost);
     }
@@ -151,7 +201,35 @@ router.post("/remove", async (req, res) => {
     res.status(400).json({ success: false, message: "uid is required" });
     return;
   }
+
   try {
+    const username = req.headers["x-username"] as string | undefined;
+    const password = req.headers["x-password"] as string | undefined;
+
+    let isAuthorized = false;
+    if (username && password) {
+      if (username === config.ADMIN_USERNAME && password === config.ADMIN_PASSWORD) {
+        isAuthorized = true;
+      } else {
+        const user = await userStore.verify(username, password);
+        if (user) {
+          if (user.role === "admin") {
+            isAuthorized = true;
+          } else {
+            const existingUid = await uidStore.get(uid);
+            if (existingUid && existingUid.addedBy === username) {
+              isAuthorized = true;
+            }
+          }
+        }
+      }
+    }
+
+    if (!isAuthorized) {
+      res.status(403).json({ success: false, message: "Unauthorized to remove this UID" });
+      return;
+    }
+
     const base = await getBase();
     const key = await getKey();
 
@@ -174,6 +252,74 @@ router.post("/remove", async (req, res) => {
   } catch (err) {
     req.log.error({ err }, "Failed to remove UID");
     res.status(500).json({ success: false, message: "Failed to contact external API" });
+  }
+});
+
+router.get("/leaderboard", async (req, res) => {
+  try {
+    const users = await userStore.listAll();
+    const uids = await uidStore.list();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const map = new Map<string, { total: number; today: number; active: number; expired: number; displayName: string; avatar: string; role: string }>();
+
+    // Initialize all users with 0 statistics
+    for (const u of users) {
+      map.set(u.username, {
+        total: 0,
+        today: 0,
+        active: 0,
+        expired: 0,
+        displayName: u.displayName || u.username,
+        avatar: u.avatar || "",
+        role: u.role,
+      });
+    }
+
+    // Process all UIDs
+    for (const u of uids) {
+      const name = u.addedBy || "Unknown";
+      if (!map.has(name)) {
+        // Fallback for deleted users or unknown contributors
+        map.set(name, {
+          total: 0,
+          today: 0,
+          active: 0,
+          expired: 0,
+          displayName: name,
+          avatar: "",
+          role: "user",
+        });
+      }
+      const entry = map.get(name)!;
+      entry.total += 1;
+
+      // Check if added today
+      const addedAt = new Date(u.addedAt);
+      if (addedAt >= today) entry.today += 1;
+
+      // Check expiry
+      const expiresAt = new Date(addedAt.getTime() + u.days * 24 * 60 * 60 * 1000);
+      if (expiresAt > new Date()) {
+        entry.active += 1;
+      } else {
+        entry.expired += 1;
+      }
+    }
+
+    const leaderboard = Array.from(map.entries()).map(([username, data]) => ({
+      username,
+      ...data,
+    }));
+
+    // Sort by total UIDs descending
+    leaderboard.sort((a, b) => b.total - a.total);
+
+    res.json({ success: true, leaderboard });
+  } catch (err) {
+    req.log.error({ err }, "Failed to get leaderboard");
+    res.status(500).json({ success: false, message: "Failed to build leaderboard" });
   }
 });
 
