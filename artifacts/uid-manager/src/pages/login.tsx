@@ -438,7 +438,7 @@ export default function Login({ onLogin }: LoginProps) {
                       <motion.div
                         whileHover={{ y: -8, scale: 1.02 }}
                         transition={{ duration: 0.4 }}
-                        className="argus-glass p-8 rounded-[2rem] flex flex-col justify-between min-h-[140px] relative overflow-hidden group cursor-default"
+                        className="argus-glass p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] flex flex-col justify-between min-h-[140px] relative overflow-hidden group cursor-default"
                       >
                         {/* Scanline Effect */}
                         <div className="scanline" />
@@ -491,7 +491,7 @@ export default function Login({ onLogin }: LoginProps) {
                       <motion.div
                         whileHover={{ y: -8, scale: 1.01 }}
                         transition={{ duration: 0.4 }}
-                        className="argus-glass p-10 rounded-[2.5rem] flex flex-col justify-between group h-full cursor-default"
+                        className="argus-glass p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] flex flex-col justify-between group h-full cursor-default"
                       >
                         <div className="space-y-6">
                           <div className="flex items-center justify-between">
@@ -590,7 +590,7 @@ export default function Login({ onLogin }: LoginProps) {
                      <motion.div
                        whileHover={{ y: -10 }}
                        transition={{ duration: 0.4 }}
-                       className={`p-10 rounded-[2.5rem] flex flex-col justify-between h-full transition-all duration-300 relative overflow-hidden ${
+                       className={`p-6 sm:p-10 rounded-3xl sm:rounded-[2.5rem] flex flex-col justify-between h-full transition-all duration-300 relative overflow-hidden ${
                          plan.featured
                            ? "argus-glass border border-violet-500/40 shadow-[0_30px_60px_rgba(124,58,237,0.15)] bg-gradient-to-b from-violet-900/20 to-transparent"
                            : "argus-glass hover:border-white/20"
@@ -673,7 +673,7 @@ export default function Login({ onLogin }: LoginProps) {
                  <div className="space-y-6">
                    {faqItems.map((item, i) => (
                      <ScrollReveal key={i} delay={i * 0.1} y={30}>
-                       <div className="argus-glass p-8 rounded-3xl text-left hover:border-cyan-500/30 transition-colors duration-300">
+                       <div className="argus-glass p-5 sm:p-8 rounded-2xl sm:rounded-3xl text-left hover:border-cyan-500/30 transition-colors duration-300">
                          <h3 className="text-base font-bold text-white flex items-center gap-3">
                            <HelpCircle className="h-5 w-5 text-cyan-400 flex-shrink-0 drop-shadow-[0_0_8px_rgba(0,212,255,0.4)]" />
                            {item.question}
@@ -703,7 +703,7 @@ export default function Login({ onLogin }: LoginProps) {
                  animate={shake ? { x: [-12, 12, -8, 8, -4, 4, 0] } : {}}
                  style={{ rotateX: tilt.x, rotateY: tilt.y, transformStyle: "preserve-3d", transition: shake ? undefined : "transform 0.3s ease-out" }}
                  transition={{ duration: 0.45 }}
-                 className="argus-glass shadow-[0_40px_100px_rgba(0,0,0,0.8)] rounded-[2.5rem] p-10 relative overflow-hidden"
+                 className="argus-glass shadow-[0_40px_100px_rgba(0,0,0,0.8)] rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-10 relative overflow-hidden"
                >
                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-cyan-500/5 opacity-60 pointer-events-none" />
                  

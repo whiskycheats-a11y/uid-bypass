@@ -1973,7 +1973,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
     <div className="flex h-screen bg-[#030014] text-white font-sans overflow-hidden relative">
       
       {/* Sidebar */}
-      <aside className="w-64 bg-[#0a0a0a]/95 border-r border-white/5 flex flex-col z-50 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
+      <aside className="hidden md:flex w-64 bg-[#0a0a0a]/95 border-r border-white/5 flex-col z-50 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
         {/* Sidebar Logo Area */}
         <div className="h-20 flex items-center gap-3 px-6 border-b border-white/5">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,0,110,0.4)]" style={{ background: "linear-gradient(135deg, #ff006e, #7c3aed)" }}>
@@ -2068,7 +2068,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
         </header>
 
         {/* Scrollable Dashboard Content */}
-        <div className="flex-1 overflow-y-auto p-6 sm:p-8 relative z-10 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-6 sm:p-8 pb-28 md:pb-8 relative z-10 custom-scrollbar">
           <div className="max-w-6xl mx-auto space-y-8 h-full">
             
             <AnimatePresence mode="wait">
@@ -2185,6 +2185,28 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
           background: rgba(255, 255, 255, 0.2);
         }
       `}</style>
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="fixed bottom-4 left-4 right-4 z-50 md:hidden argus-glass rounded-2xl flex items-center justify-around py-3 px-2 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10 overflow-x-auto scrollbar-none gap-2">
+        {SIDEBAR_NAV.map((nav) => {
+          const Icon = nav.icon;
+          const active = activeSidebarTab === nav.id;
+          if (nav.id === "free" && !canResell) return null;
+          return (
+            <button
+              key={nav.id}
+              onClick={() => setActiveSidebarTab(nav.id)}
+              className={`flex flex-col items-center gap-1 py-1 px-3.5 rounded-xl transition-all shrink-0 cursor-pointer ${
+                active 
+                  ? "text-cyan-400 bg-white/[0.05]" 
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="text-[9px] font-black uppercase tracking-wider">{nav.label.split(" ")[0]}</span>
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 }
