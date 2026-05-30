@@ -9,7 +9,8 @@ router.get("/", async (req, res) => {
   const password = req.headers["x-password"] as string;
   
   if (!username || !password) {
-    return res.status(401).json({ success: false, error: "Unauthorized" });
+    res.status(401).json({ success: false, error: "Unauthorized" });
+    return;
   }
 
   // Simple authentication validation
@@ -18,7 +19,8 @@ router.get("/", async (req, res) => {
     // Also support checking admin key directly
     const isAdmin = password === process.env.ADMIN_PASSWORD || password === "admin"; // config fallback
     if (!isAdmin) {
-      return res.status(401).json({ success: false, error: "Unauthorized" });
+      res.status(401).json({ success: false, error: "Unauthorized" });
+      return;
     }
   }
 
@@ -27,8 +29,10 @@ router.get("/", async (req, res) => {
     await chatStore.purgeOldChats().catch(() => {});
     const messages = await chatStore.list(50);
     res.json({ success: true, messages });
+    return;
   } catch (err) {
     res.status(500).json({ success: false, error: "Failed to load messages" });
+    return;
   }
 });
 
@@ -44,11 +48,13 @@ router.post("/", async (req, res) => {
   const { message } = req.body ?? {};
 
   if (!username || !password) {
-    return res.status(401).json({ success: false, error: "Unauthorized" });
+    res.status(401).json({ success: false, error: "Unauthorized" });
+    return;
   }
 
   if (!message || !message.trim()) {
-    return res.status(400).json({ success: false, error: "Message cannot be empty" });
+    res.status(400).json({ success: false, error: "Message cannot be empty" });
+    return;
   }
 
   // Authenticate user or admin
@@ -69,7 +75,8 @@ router.post("/", async (req, res) => {
         displayName = sysAdmin.displayName || sysAdmin.username;
         avatar = sysAdmin.avatar || "";
       } else {
-        return res.status(401).json({ success: false, error: "Unauthorized" });
+        res.status(401).json({ success: false, error: "Unauthorized" });
+        return;
       }
     } else {
       displayName = "ADMIN";
@@ -80,8 +87,10 @@ router.post("/", async (req, res) => {
   try {
     const chat = await chatStore.add(username, displayName, avatar, message.trim());
     res.json({ success: true, chat });
+    return;
   } catch (err) {
     res.status(500).json({ success: false, error: "Failed to send message" });
+    return;
   }
 });
 

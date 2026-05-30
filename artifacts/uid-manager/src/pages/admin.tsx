@@ -385,7 +385,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       <div ref={spotlightRef} className="fixed inset-0 pointer-events-none z-0" style={{ willChange: "background" }} />
       
       {/* Sidebar */}
-      <aside className="hidden md:flex w-64 bg-[#0a0a0a]/95 border-r border-white/5 flex-col z-50 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
+      <aside className="flex w-64 bg-[#0a0a0a]/95 border-r border-white/5 flex-col z-50 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
         {/* Sidebar Logo Area */}
         <div className="h-20 flex items-center gap-3 px-6 border-b border-white/5">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,0,110,0.4)]" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
@@ -471,7 +471,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
         </header>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-6 sm:p-8 pb-28 md:pb-8 relative z-10 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-6 sm:p-8 pb-8 relative z-10 custom-scrollbar">
           <div className="max-w-6xl mx-auto space-y-8 h-full">
             
             <AnimatePresence mode="wait">
@@ -525,73 +525,23 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 
               {activeSidebarTab === "manage" && (
                 <motion.div key="manage" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
-                  {/* Tab switcher */}
+                  {/* Title */}
                   <div className="text-left">
                     <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-md">Client Operations</h1>
-                    <p className="text-slate-400 font-semibold text-sm mt-1">Manage resellers, allocate credit balances, handle approvals, and adjust settings.</p>
+                    <p className="text-slate-400 font-semibold text-sm mt-1">Manage resellers and allocate credit balances.</p>
                   </div>
                   
-                  <div
-                    className="flex gap-1 p-1 rounded-2xl"
-                    style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-                  >
-                    {([
-                      { key: "clients", icon: Users, label: "Client Accounts", count: regular.length, gold: false, rose: false, teal: false },
-                      { key: "payments", icon: CreditCard, label: "Payments", count: payments.filter(p => p.status === "pending").length, gold: false, rose: true, teal: false },
-                      { key: "settings", icon: Settings, label: "Settings", count: null, gold: false, rose: false, teal: true },
-                    ] as const).map((t) => (
-                      <button
-                        key={t.key}
-                        onClick={() => setTab(t.key)}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 sm:py-3 px-2 sm:px-4 rounded-xl text-[10px] sm:text-xs font-bold transition-all duration-200 relative overflow-hidden"
-                        style={{
-                          background: tab === t.key ? ("teal" in t && t.teal ? "linear-gradient(135deg, rgba(6,182,212,0.25), rgba(16,185,129,0.15))" : "rose" in t && t.rose ? "linear-gradient(135deg, rgba(236,72,153,0.25), rgba(239,68,68,0.15))" : t.gold ? "linear-gradient(135deg, rgba(245,158,11,0.25), rgba(239,68,68,0.15))" : "linear-gradient(135deg, rgba(139,92,246,0.25), rgba(6,182,212,0.15))") : "transparent",
-                          color: tab === t.key ? ("teal" in t && t.teal ? "#06b6d4" : "rose" in t && t.rose ? "#f472b6" : t.gold ? "#f59e0b" : "#a78bfa") : "#6b7280",
-                          border: tab === t.key ? `1px solid ${"teal" in t && t.teal ? "rgba(6,182,212,0.3)" : "rose" in t && t.rose ? "rgba(236,72,153,0.3)" : t.gold ? "rgba(245,158,11,0.3)" : "rgba(139,92,246,0.3)"}` : "1px solid transparent",
-                        }}
-                      >
-                        <t.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        <span className="hidden sm:inline">{t.label}</span>
-                        {!loading && t.count !== null && (
-                          <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: tab === t.key ? (t.gold ? "rgba(245,158,11,0.2)" : "rgba(139,92,246,0.2)") : "rgba(255,255,255,0.05)" }}>
-                            {t.count}
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-
-                  <AnimatePresence mode="wait">
-                    {tab === "clients" ? (
-                      <motion.div key="clients" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                        <ClientsPanel
-                          users={regular}
-                          loading={loading}
-                          deleting={deleting}
-                          copied={copied}
-                          onAdd={() => setShowModal(true)}
-                          onDelete={handleDelete}
-                          onCopy={copy}
-                          onResellToggle={handleResellToggle}
-                          onAddCreditsClick={setCreditModalUser}
-                        />
-                      </motion.div>
-                    ) : tab === "payments" ? (
-                      <motion.div key="payments" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                        <PaymentsPanel
-                          payments={payments}
-                          loading={paymentsLoading}
-                          onApprove={handleApprovePayment}
-                          onReject={handleRejectPayment}
-                          onRefresh={fetchPayments}
-                        />
-                      </motion.div>
-                    ) : (
-                      <motion.div key="settings" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                        <SettingsPanel />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  <ClientsPanel
+                    users={regular}
+                    loading={loading}
+                    deleting={deleting}
+                    copied={copied}
+                    onAdd={() => setShowModal(true)}
+                    onDelete={handleDelete}
+                    onCopy={copy}
+                    onResellToggle={handleResellToggle}
+                    onAddCreditsClick={setCreditModalUser}
+                  />
                 </motion.div>
               )}
 
@@ -659,7 +609,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
         )}
       </AnimatePresence>
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="fixed bottom-4 left-4 right-4 z-50 md:hidden argus-glass rounded-2xl flex items-center justify-around py-3 px-2 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10 overflow-x-auto scrollbar-none gap-2">
+      <nav className="fixed bottom-4 left-4 right-4 z-50 hidden argus-glass rounded-2xl flex items-center justify-around py-3 px-2 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10 overflow-x-auto scrollbar-none gap-2">
         {SIDEBAR_NAV.map((nav) => {
           const Icon = nav.icon;
           const active = activeSidebarTab === nav.id;
