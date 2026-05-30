@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userStore, trialStore, uidStore, settingsStore } from "../store";
+import { userStore, trialStore, uidStore, settingsStore, tokenStore } from "../store";
 import { config } from "../config";
 
 const router = Router();
@@ -320,6 +320,110 @@ router.get("/leaderboard", async (req, res) => {
   } catch (err) {
     req.log.error({ err }, "Failed to get leaderboard");
     res.status(500).json({ success: false, message: "Failed to build leaderboard" });
+  }
+});
+
+router.get("/token-info/:token", async (req, res) => {
+  const { token } = req.params;
+  try {
+    const tokenData = await tokenStore.get(token);
+    if (!tokenData) {
+      res.json({ success: false, message: "Invalid or non-existent token" });
+      return;
+    }
+    const createdTime = new Date(tokenData.createdAt).getTime();
+    const isExpired = Date.now() - createdTime > 24 * 60 * 60 * 1000;
+    
+    res.json({
+      success: true,
+      token: tokenData.token,
+      resellerUsername: tokenData.resellerUsername,
+      days: tokenData.days,
+      used: tokenData.used,
+      isExpired
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+router.post("/free-whitelist", async (req, res) => {
+  const { token, uid, bluestack = true } = req.body ?? {};
+  const clientIp = ((req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0]).trim();
+
+  if (!token || !uid) {
+    res.status(400).json({ success: false, message: "Token and UID are required" });
+    return;
+  }
+
+  try {
+    const tokenData = await tokenStore.get(token);
+    if (!tokenData) {
+      res.json({ success: false, message: "INVALID_TOKEN" });
+      return;
+    }
+
+    if (tokenData.used) {
+      res.json({ success: false, message: "TOKEN_ALREADY_USED" });
+      return;
+    }
+
+    const createdTime = new Date(tokenData.createdAt).getTime();
+    if (Date.now() - createdTime > 24 * 60 * 60 * 1000) {
+      res.json({ success: false, message: "TOKEN_EXPIRED" });
+      return;
+    }
+
+    const activeIpExists = await uidStore.checkIpExists(clientIp);
+    const tokenIpExists = await tokenStore.checkIpExists(clientIp);
+    if (activeIpExists || tokenIpExists) {
+      res.json({ success: false, message: "TRIAL_IP_LIMIT_REACHED" });
+      return;
+    }
+
+    const existingUid = await uidStore.get(uid);
+    if (existingUid) {
+      const addedTime = new Date(existingUid.addedAt).getTime();
+      const expiryTime = addedTime + existingUid.days * 24 * 60 * 60 * 1000;
+      if (expiryTime > Date.now()) {
+        res.json({ success: false, message: "UID_ALREADY_WHITELISTED" });
+        return;
+      }
+    }
+
+    const base = await getBase();
+    const key = await getKey();
+
+    req.log.info({ base, clientIp, token, uid }, "External free-whitelist API Call");
+
+    const response = await fetch(`${base}/api/v1/uids/add`, {
+      method: "POST",
+      headers: authHeaders(key),
+      body: JSON.stringify({
+        uid,
+        days: tokenData.days,
+        name: `Trial-${tokenData.resellerUsername}`,
+      }),
+    });
+    
+    const data = await response.json() as Record<string, unknown>;
+    const success = isSuccess(data);
+
+    if (success) {
+      await tokenStore.markAsUsed(token, uid, clientIp);
+      trialStore.increment(tokenData.resellerUsername);
+      await uidStore.save(uid, tokenData.days, bluestack, tokenData.resellerUsername, `Trial-${tokenData.resellerUsername}`, clientIp);
+    }
+
+    res.json({
+      ...data,
+      success,
+      message: data.message || data.error || (success ? "Success" : "Unknown error from external API")
+    });
+
+  } catch (err) {
+    req.log.error({ err }, "Failed in free-whitelist endpoint");
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 

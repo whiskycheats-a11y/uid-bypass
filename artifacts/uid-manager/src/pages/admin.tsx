@@ -84,6 +84,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
   const [payments, setPayments] = useState<PaymentItem[]>([]);
   const [paymentsLoading, setPaymentsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [creditModalUser, setCreditModalUser] = useState<ClientUser | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
@@ -572,7 +573,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                           onDelete={handleDelete}
                           onCopy={copy}
                           onResellToggle={handleResellToggle}
-                          onAddCredits={handleAddCredits}
+                          onAddCreditsClick={setCreditModalUser}
                         />
                       </motion.div>
                     ) : tab === "payments" ? (
@@ -646,6 +647,16 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             onCreate={(u) => { setUsers((p) => [...p, u]); setShowModal(false); }}
           />
         )}
+        {creditModalUser && (
+          <ManageCreditsModal
+            user={creditModalUser}
+            onClose={() => setCreditModalUser(null)}
+            onAddCredits={async (amount) => {
+              await handleAddCredits(creditModalUser.username, amount);
+              setCreditModalUser(null);
+            }}
+          />
+        )}
       </AnimatePresence>
       {/* Mobile Bottom Navigation Bar */}
       <nav className="fixed bottom-4 left-4 right-4 z-50 md:hidden argus-glass rounded-2xl flex items-center justify-around py-3 px-2 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10 overflow-x-auto scrollbar-none gap-2">
@@ -673,12 +684,12 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 }
 
 /* ─── Clients panel ─── */
-function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCopy, onResellToggle, onAddCredits }: {
+function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCopy, onResellToggle, onAddCreditsClick }: {
   users: ClientUser[]; loading: boolean; deleting: string | null;
   copied: string | null; onAdd: () => void;
   onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
   onResellToggle: (u: string, v: boolean) => void;
-  onAddCredits: (u: string, amount: number) => Promise<void>;
+  onAddCreditsClick: (u: ClientUser) => void;
 }) {
   return (
     <div className="panel rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -696,7 +707,7 @@ function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCop
         <GlowButton onClick={onAdd} icon={<Plus className="w-4 h-4" />} label="Add Client" />
       </div>
       <div className="p-4">
-        <UserList users={users} loading={loading} deleting={deleting} copied={copied} onDelete={onDelete} onCopy={onCopy} onResellToggle={onResellToggle} onAddCredits={onAddCredits} emptyText="No clients yet — click Add Client" />
+        <UserList users={users} loading={loading} deleting={deleting} copied={copied} onDelete={onDelete} onCopy={onCopy} onResellToggle={onResellToggle} onAddCreditsClick={onAddCreditsClick} emptyText="No clients yet — click Add Client" />
       </div>
     </div>
   );
@@ -943,11 +954,11 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated 
 }
 
 /* ─── Shared user list ─── */
-function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResellToggle, onAddCredits, emptyText, isTrial = false }: {
+function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResellToggle, onAddCreditsClick, emptyText, isTrial = false }: {
   users: ClientUser[]; loading: boolean; deleting: string | null; copied: string | null;
   onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
   onResellToggle?: (u: string, v: boolean) => void;
-  onAddCredits?: (u: string, amount: number) => Promise<void>;
+  onAddCreditsClick?: (u: ClientUser) => void;
   emptyText: string; isTrial?: boolean;
 }) {
   if (loading) return (
@@ -969,7 +980,7 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResell
     <AnimatePresence initial={false}>
       <div className="space-y-2">
         {users.map((user, i) => (
-          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username, user.password)} onResellToggle={onResellToggle ? (v) => onResellToggle(user.username, v) : undefined} onAddCredits={onAddCredits ? (amt) => onAddCredits(user.username, amt) : undefined} isTrial={isTrial} />
+          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username, user.password)} onResellToggle={onResellToggle ? (v) => onResellToggle(user.username, v) : undefined} onAddCreditsClick={onAddCreditsClick ? () => onAddCreditsClick(user) : undefined} isTrial={isTrial} />
         ))}
       </div>
     </AnimatePresence>
@@ -977,25 +988,11 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResell
 }
 
 /* ─── User row — CSS hover, no continuous framer motion ─── */
-const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete, onCopy, onResellToggle, onAddCredits, isTrial }: {
+const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete, onCopy, onResellToggle, onAddCreditsClick, isTrial }: {
   user: ClientUser; index: number; deleting: boolean; copied: boolean;
   onDelete: () => void; onCopy: () => void; onResellToggle?: (v: boolean) => void;
-  onAddCredits?: (amount: number) => Promise<void>; isTrial: boolean;
+  onAddCreditsClick?: () => void; isTrial: boolean;
 }) {
-  const [showCredits, setShowCredits] = useState(false);
-  const [creditInput, setCreditInput] = useState("");
-  const [crediting, setCrediting] = useState(false);
-
-  const handleCredit = async () => {
-    const n = parseInt(creditInput);
-    if (!n || n === 0 || !onAddCredits) return;
-    setCrediting(true);
-    await onAddCredits(n);
-    setCreditInput("");
-    setShowCredits(false);
-    setCrediting(false);
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, x: -16 }}
@@ -1039,10 +1036,10 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
             </button>
           )}
           {/* Add credits button */}
-          {!isTrial && onAddCredits && (
-            <button onClick={() => setShowCredits(!showCredits)} title="Add tokens"
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all"
-              style={{ background: showCredits ? "rgba(16,185,129,0.2)" : "rgba(16,185,129,0.08)", color: "#10b981", border: showCredits ? "1px solid rgba(16,185,129,0.4)" : "1px solid rgba(16,185,129,0.2)" }}
+          {!isTrial && onAddCreditsClick && (
+            <button onClick={onAddCreditsClick} title="Add tokens"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              style={{ background: "rgba(16,185,129,0.08)", color: "#10b981", border: "1px solid rgba(16,185,129,0.2)" }}
             >
               <Wallet className="w-3 h-3" />
               +Tokens
@@ -1056,73 +1053,403 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
           </button>
         </div>
       </div>
-
-      {/* Inline credits panel (Premium 3D Design) */}
-      <AnimatePresence>
-        {showCredits && !isTrial && (
-          <motion.div 
-            initial={{ height: 0, opacity: 0, y: -10 }} 
-            animate={{ height: "auto", opacity: 1, y: 0 }} 
-            exit={{ height: 0, opacity: 0, y: -10 }} 
-            transition={{ type: "spring", stiffness: 300, damping: 25 }} 
-            className="overflow-hidden"
-          >
-            <div className="mx-4 mb-3 p-3 rounded-xl relative overflow-hidden" 
-                 style={{ 
-                   background: "linear-gradient(145deg, rgba(16,185,129,0.06) 0%, rgba(6,182,212,0.03) 100%)", 
-                   border: "1px solid rgba(16,185,129,0.2)",
-                   boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 20px rgba(0,0,0,0.1)"
-                 }}>
-              
-              {/* Glow effects */}
-              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
-              <div className="absolute -left-10 -top-10 w-24 h-24 bg-emerald-500/20 rounded-full blur-2xl" />
-              <div className="absolute -right-10 -bottom-10 w-24 h-24 bg-cyan-500/10 rounded-full blur-2xl" />
-
-              <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                
-                {/* Balance Badge */}
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg shrink-0" 
-                     style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
-                  <Coins className="w-4 h-4 text-emerald-400" />
-                  <span className="text-xs font-semibold text-emerald-400">
-                    {user.balance ?? 0} <span className="text-emerald-500/70 font-normal">Tokens</span>
-                  </span>
-                </div>
-
-                {/* Input & Action */}
-                <div className="flex-1 w-full flex items-center gap-2 relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent rounded-lg blur-md opacity-0 group-focus-within:opacity-100 transition-opacity duration-300" />
-                  
-                  <input
-                    type="number"
-                    value={creditInput}
-                    onChange={(e) => setCreditInput(e.target.value)}
-                    placeholder="Enter amount (e.g. 30 or -10)"
-                    className="relative z-10 flex-1 h-9 px-3 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-emerald-500/60 focus:bg-white/[0.03] transition-all shadow-inner"
-                    onKeyDown={(e) => e.key === "Enter" && handleCredit()}
-                  />
-                  
-                  <motion.button 
-                    onClick={handleCredit} 
-                    disabled={crediting || !creditInput} 
-                    whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(16,185,129,0.3)" }}
-                    whileTap={{ scale: 0.98 }}
-                    className="relative z-10 h-9 px-4 rounded-lg text-xs font-bold text-white disabled:opacity-40 transition-all flex items-center gap-1.5 shrink-0 overflow-hidden" 
-                    style={{ background: "linear-gradient(135deg, #10b981, #059669)", border: "1px solid rgba(255,255,255,0.1)" }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-150%] animate-[shimmer_2s_infinite]" />
-                    {crediting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Sparkles className="w-3.5 h-3.5" /> Apply</>}
-                  </motion.button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 });
+
+interface ManageCreditsModalProps {
+  user: ClientUser;
+  onClose: () => void;
+  onAddCredits: (amount: number) => Promise<void>;
+}
+
+function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalProps) {
+  const [creditInput, setCreditInput] = useState("");
+  const [creditMode, setCreditMode] = useState<"add" | "deduct" | "set">("add");
+  const [crediting, setCrediting] = useState(false);
+
+  const currentBalance = user.balance ?? 0;
+  const val = parseInt(creditInput) || 0;
+
+  const newBalance =
+    creditMode === "add"
+      ? currentBalance + val
+      : creditMode === "deduct"
+      ? Math.max(0, currentBalance - val)
+      : val;
+
+  const handleApply = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (val <= 0 || isNaN(val)) return;
+
+    let changeAmount = 0;
+    if (creditMode === "add") {
+      changeAmount = val;
+    } else if (creditMode === "deduct") {
+      changeAmount = -val;
+    } else if (creditMode === "set") {
+      changeAmount = val - currentBalance;
+    }
+
+    if (changeAmount === 0) {
+      onClose();
+      return;
+    }
+
+    setCrediting(true);
+    await onAddCredits(changeAmount);
+    setCrediting(false);
+    onClose();
+  };
+
+  const presets = [100, 500, 1000, 5000];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(0,0,0,0.8)", backdropFilter: "blur(24px)" }}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        transition={{ type: "spring", stiffness: 240, damping: 26 }}
+        className="w-full max-w-lg relative rounded-[2rem] p-6 sm:p-8 overflow-hidden"
+        style={{
+          background: "rgba(8,6,22,0.98)",
+          border: `1px solid ${
+            creditMode === "add"
+              ? "rgba(16,185,129,0.3)"
+              : creditMode === "deduct"
+              ? "rgba(239,68,68,0.3)"
+              : "rgba(6,182,212,0.3)"
+          }`,
+          boxShadow: `0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 40px ${
+            creditMode === "add"
+              ? "rgba(16,185,129,0.05)"
+              : creditMode === "deduct"
+              ? "rgba(239,68,68,0.05)"
+              : "rgba(6,182,212,0.05)"
+          }`,
+        }}
+      >
+        {/* Glow header bar */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[3px] transition-all duration-500"
+          style={{
+            background:
+              creditMode === "add"
+                ? "linear-gradient(90deg, transparent, #10b981, transparent)"
+                : creditMode === "deduct"
+                ? "linear-gradient(90deg, transparent, #ef4444, transparent)"
+                : "linear-gradient(90deg, transparent, #06b6d4, transparent)",
+          }}
+        />
+
+        {/* Ambient background glows */}
+        <div className="absolute -left-20 -top-20 w-40 h-40 bg-violet-600/5 rounded-full blur-3xl pointer-events-none" />
+        <div
+          className="absolute -right-20 -bottom-20 w-40 h-40 rounded-full blur-3xl pointer-events-none transition-all duration-500"
+          style={{
+            background:
+              creditMode === "add"
+                ? "rgba(16,185,129,0.05)"
+                : creditMode === "deduct"
+                ? "rgba(239,68,68,0.05)"
+                : "rgba(6,182,212,0.05)",
+          }}
+        />
+
+        {/* Modal Header */}
+        <div className="flex items-center justify-between pb-5 border-b border-white/[0.05] mb-6">
+          <div className="flex items-center gap-3.5">
+            <div
+              className="w-11 h-11 rounded-2xl flex items-center justify-center border transition-all duration-300"
+              style={{
+                background:
+                  creditMode === "add"
+                    ? "rgba(16,185,129,0.12)"
+                    : creditMode === "deduct"
+                    ? "rgba(239,68,68,0.12)"
+                    : "rgba(6,182,212,0.12)",
+                borderColor:
+                  creditMode === "add"
+                    ? "rgba(16,185,129,0.25)"
+                    : creditMode === "deduct"
+                    ? "rgba(239,68,68,0.25)"
+                    : "rgba(6,182,212,0.25)",
+              }}
+            >
+              <Wallet
+                className={`w-5 h-5 transition-colors duration-300 ${
+                  creditMode === "add"
+                    ? "text-emerald-400"
+                    : creditMode === "deduct"
+                    ? "text-red-400"
+                    : "text-cyan-400"
+                }`}
+              />
+            </div>
+            <div>
+              <h3 className="font-black text-base text-white tracking-wide">Manage Balance</h3>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-0.5">
+                Client: <span className="text-violet-400 font-mono">@{user.username}</span>
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/5 border border-white/5 text-slate-400 hover:text-white transition-all hover:bg-white/10"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Transaction Preview Block */}
+        <div className="bg-black/40 border border-white/5 rounded-2xl p-5 mb-6 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.01] to-transparent pointer-events-none" />
+          <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">
+            Transaction Preview
+          </div>
+
+          <div className="flex items-center justify-center gap-6">
+            <div className="text-center">
+              <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                Current
+              </div>
+              <div className="text-3xl font-black text-slate-300 font-mono tracking-tight">
+                {currentBalance}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <motion.div
+                animate={{
+                  x: creditMode === "add" ? [0, 4, 0] : creditMode === "deduct" ? [0, -4, 0] : 0,
+                }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+                className={`text-xl font-bold ${
+                  creditMode === "add"
+                    ? "text-emerald-400"
+                    : creditMode === "deduct"
+                    ? "text-red-400"
+                    : "text-cyan-400"
+                }`}
+              >
+                ➜
+              </motion.div>
+              {val > 0 && (
+                <div
+                  className="text-[9px] font-black px-1.5 py-0.5 rounded-full mt-1.5 uppercase"
+                  style={{
+                    background:
+                      creditMode === "add"
+                        ? "rgba(16,185,129,0.15)"
+                        : creditMode === "deduct"
+                        ? "rgba(239,68,68,0.15)"
+                        : "rgba(6,182,212,0.15)",
+                    color:
+                      creditMode === "add"
+                        ? "#34d399"
+                        : creditMode === "deduct"
+                        ? "#f87171"
+                        : "#22d3ee",
+                  }}
+                >
+                  {creditMode === "add" ? `+${val}` : creditMode === "deduct" ? `-${val}` : `=${val}`}
+                </div>
+              )}
+            </div>
+
+            <div className="text-center">
+              <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                Prospective
+              </div>
+              <motion.div
+                key={newBalance}
+                initial={{ scale: 0.9, opacity: 0.8 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className={`text-3xl font-black font-mono tracking-tight transition-colors duration-300 ${
+                  creditMode === "add"
+                    ? "text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                    : creditMode === "deduct"
+                    ? "text-red-400 drop-shadow-[0_0_10px_rgba(239,68,68,0.3)]"
+                    : "text-cyan-400 drop-shadow-[0_0_10px_rgba(6,182,212,0.3)]"
+                }`}
+              >
+                {newBalance}
+              </motion.div>
+            </div>
+          </div>
+        </div>
+
+        <form onSubmit={handleApply} className="space-y-6">
+          {/* Segmented Mode Picker */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
+              Operation Mode
+            </label>
+            <div className="grid grid-cols-3 gap-2 p-1 rounded-2xl bg-black/40 border border-white/5">
+              {(["add", "deduct", "set"] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => {
+                    setCreditMode(m);
+                    setCreditInput("");
+                  }}
+                  className={`py-3 rounded-xl text-xs font-black uppercase tracking-[0.1em] transition-all cursor-pointer ${
+                    creditMode === m
+                      ? m === "add"
+                        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+                        : m === "deduct"
+                        ? "bg-red-500/20 text-red-400 border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.15)]"
+                        : "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)]"
+                      : "text-slate-500 hover:text-slate-300 bg-transparent border border-transparent"
+                  }`}
+                >
+                  {m === "add" ? "Add (+)" : m === "deduct" ? "Deduct (-)" : "Set (=)"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Dynamic Preset Chips */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
+              Preset Amounts
+            </label>
+            <div className="flex gap-2.5">
+              {presets.map((p) => {
+                const label =
+                  creditMode === "add" ? `+${p}` : creditMode === "deduct" ? `-${p}` : `${p}`;
+                return (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setCreditInput(p.toString())}
+                    className="flex-1 py-2.5 text-xs font-black rounded-xl border transition-all cursor-pointer"
+                    style={{
+                      background:
+                        parseInt(creditInput) === p
+                          ? creditMode === "add"
+                            ? "rgba(16,185,129,0.15)"
+                            : creditMode === "deduct"
+                            ? "rgba(239,68,68,0.15)"
+                            : "rgba(6,182,212,0.15)"
+                          : "rgba(255,255,255,0.02)",
+                      color:
+                        parseInt(creditInput) === p
+                          ? creditMode === "add"
+                            ? "#34d399"
+                            : creditMode === "deduct"
+                            ? "#f87171"
+                            : "#22d3ee"
+                          : "rgba(255,255,255,0.5)",
+                      borderColor:
+                        parseInt(creditInput) === p
+                          ? creditMode === "add"
+                            ? "rgba(16,185,129,0.3)"
+                            : creditMode === "deduct"
+                            ? "rgba(239,68,68,0.3)"
+                            : "rgba(6,182,212,0.3)"
+                          : "rgba(255,255,255,0.08)",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Input field */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
+              {creditMode === "add"
+                ? "Tokens to Add"
+                : creditMode === "deduct"
+                ? "Tokens to Deduct"
+                : "Exact Balance to Set"}
+            </label>
+            <div className="relative group">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-mono text-xs">
+                #
+              </span>
+              <input
+                type="number"
+                value={creditInput}
+                onChange={(e) => setCreditInput(e.target.value)}
+                placeholder={
+                  creditMode === "add"
+                    ? "Enter amount to add..."
+                    : creditMode === "deduct"
+                    ? "Enter amount to deduct..."
+                    : "Enter new token balance..."
+                }
+                className="w-full h-12 pl-10 pr-4 rounded-xl bg-black/40 border text-sm text-white placeholder-slate-600 font-mono focus:outline-none transition-all"
+                style={{
+                  borderColor:
+                    creditMode === "add"
+                      ? "rgba(16,185,129,0.2)"
+                      : creditMode === "deduct"
+                      ? "rgba(239,68,68,0.2)"
+                      : "rgba(6,182,212,0.2)",
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 h-12 rounded-xl border border-white/[0.08] text-xs font-bold text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all"
+            >
+              Cancel
+            </button>
+            <motion.button
+              type="submit"
+              disabled={crediting || val <= 0 || isNaN(val)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex-1 h-12 rounded-xl text-white text-xs font-bold flex items-center justify-center gap-2 disabled:opacity-40 disabled:scale-100 relative overflow-hidden"
+              style={{
+                background:
+                  creditMode === "add"
+                    ? "linear-gradient(135deg, #10b981, #059669)"
+                    : creditMode === "deduct"
+                    ? "linear-gradient(135deg, #ef4444, #dc2626)"
+                    : "linear-gradient(135deg, #06b6d4, #0891b2)",
+                boxShadow:
+                  creditMode === "add"
+                    ? "0 0 25px rgba(16,185,129,0.3)"
+                    : creditMode === "deduct"
+                    ? "0 0 25px rgba(239,68,68,0.3)"
+                    : "0 0 25px rgba(6,182,212,0.3)",
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/12 to-transparent -skew-x-12 btn-shimmer" />
+              {crediting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Execute Transaction
+                </>
+              )}
+            </motion.button>
+          </div>
+        </form>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 /* ─── Create user modal ─── */
 function CreateUserModal({ onClose, onCreate }: {

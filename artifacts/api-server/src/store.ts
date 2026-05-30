@@ -117,6 +117,113 @@ export const uidStore = {
   },
 };
 
+// ── Trial Token model & store ───────────────────────────────────────────
+export interface TrialToken {
+  token: string;
+  resellerUsername: string;
+  days: number;
+  createdAt: string;
+  used: boolean;
+  usedAt?: string;
+  usedByUid?: string;
+  usedByIp?: string;
+}
+
+interface TokenDoc extends TrialToken, Document {}
+
+const tokenSchema = new Schema<TokenDoc>({
+  token: { type: String, required: true, unique: true },
+  resellerUsername: { type: String, required: true },
+  days: { type: Number, required: true },
+  createdAt: { type: String, default: () => new Date().toISOString() },
+  used: { type: Boolean, default: false },
+  usedAt: { type: String },
+  usedByUid: { type: String },
+  usedByIp: { type: String },
+});
+
+const TokenModel = model<TokenDoc>("TrialToken", tokenSchema);
+
+const fallbackTokens = new Map<string, TrialToken>();
+
+export const tokenStore = {
+  async create(resellerUsername: string, days: number): Promise<string> {
+    await ensureConnection();
+    const randPart = Math.random().toString(36).substring(2, 10).toUpperCase();
+    const token = `SG71-TRIAL-${randPart}`;
+    const tokenData: TrialToken = {
+      token,
+      resellerUsername,
+      days,
+      createdAt: new Date().toISOString(),
+      used: false
+    };
+    if (!connected) {
+      fallbackTokens.set(token, tokenData);
+      return token;
+    }
+    try {
+      await TokenModel.create(tokenData);
+      logger.info({ token, resellerUsername, days }, "Trial token saved to MongoDB");
+    } catch (err) {
+      logger.error({ err, token }, "Failed to save trial token to MongoDB");
+    }
+    return token;
+  },
+
+  async get(token: string): Promise<TrialToken | null> {
+    await ensureConnection();
+    if (!connected) {
+      return fallbackTokens.get(token) ?? null;
+    }
+    const doc = await TokenModel.findOne({ token });
+    return doc ? {
+      token: doc.token,
+      resellerUsername: doc.resellerUsername,
+      days: doc.days,
+      createdAt: doc.createdAt,
+      used: doc.used,
+      usedAt: doc.usedAt,
+      usedByUid: doc.usedByUid,
+      usedByIp: doc.usedByIp
+    } : null;
+  },
+
+  async markAsUsed(token: string, uid: string, ip: string): Promise<boolean> {
+    await ensureConnection();
+    const usedAt = new Date().toISOString();
+    if (!connected) {
+      const t = fallbackTokens.get(token);
+      if (!t || t.used) return false;
+      t.used = true;
+      t.usedAt = usedAt;
+      t.usedByUid = uid;
+      t.usedByIp = ip;
+      return true;
+    }
+    try {
+      const result = await TokenModel.updateOne(
+        { token, used: false },
+        { $set: { used: true, usedAt, usedByUid: uid, usedByIp: ip } }
+      );
+      return result.modifiedCount > 0;
+    } catch (err) {
+      logger.error({ err, token }, "Failed to update trial token in MongoDB");
+      return false;
+    }
+  },
+
+  async checkIpExists(ip: string): Promise<boolean> {
+    if (!ip) return false;
+    await ensureConnection();
+    if (!connected) {
+      return Array.from(fallbackTokens.values()).some(t => t.usedByIp === ip);
+    }
+    const exists = await TokenModel.findOne({ usedByIp: ip });
+    return !!exists;
+  }
+};
+
 // ── App user model ─────────────────────────────────────────────────────
 export interface AppUser {
   username: string;

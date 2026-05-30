@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
 import Login from "@/pages/login";
+import FreePortal from "@/pages/FreePortal";
 import { WelcomeSplash } from "@/components/welcome-splash";
 import { useEffect, useState } from "react";
 
@@ -95,6 +96,7 @@ function App() {
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
           <Switch>
             <Route path="/" component={AppRoot} />
+            <Route path="/free-portal" component={FreePortal} />
             <Route component={NotFound} />
           </Switch>
         </WouterRouter>

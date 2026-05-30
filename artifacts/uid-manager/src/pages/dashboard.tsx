@@ -484,18 +484,14 @@ function PlaceholderView({ title, description, icon: Icon }: { title: string; de
 function ResellerTrialPanel({ username }: { username: string }) {
   const PRESETS = [1, 3, 7, 14, 30];
   const [days, setDays] = useState(1);
-  const [trialUser, setTrialUser] = useState(() => `trial-${rand(4)}`);
-  const [trialPass, setTrialPass] = useState(() => rand(8));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [creds, setCreds] = useState<{ username: string; password: string; days: number } | null>(null);
+  const [linkData, setLinkData] = useState<{ token: string; link: string; days: number } | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [copiedCard, setCopiedCard] = useState(false);
 
   const refresh = () => {
-    setTrialUser(`trial-${rand(4)}`);
-    setTrialPass(rand(8));
-    setCreds(null);
+    setLinkData(null);
     setError("");
   };
 
@@ -505,29 +501,23 @@ function ResellerTrialPanel({ username }: { username: string }) {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  const copyCard = (c: { username: string; password: string; days: number }) => {
-    const loginUrl = window.location.origin;
+  const copyCard = (c: { token: string; link: string; days: number }) => {
     const msg =
 `✨「 SG71 BYPASS MODULE 」✨
 🔓 FREE TRIAL ACCESS GRANTED 🔓
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
 
-💠 YOUR LOGIN CREDENTIALS 💠
+💠 YOUR FREE ACTIVATION LINK 💠
 
-   👤  User   ➜  ${c.username}
-   🔑  Pass   ➜  ${c.password}
    ⏳  Valid  ➜  ${c.days} Day${c.days > 1 ? "s" : ""} Free Trial
-
-▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-🌐  PORTAL LINK
-   ${loginUrl}
+   🔗  Link   ➜  ${c.link}
 
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
 🎯  HOW TO ACTIVATE
 
-   ▸ Open the portal link
-   ▸ Login with your credentials
+   ▸ Open the activation link above
    ▸ Enter your Player UID
+   ▸ Select Bluestack if playing on simulator
    ▸ Access granted instantly ✅
 
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
@@ -541,25 +531,23 @@ function ResellerTrialPanel({ username }: { username: string }) {
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!trialUser || !trialPass) return;
     setError("");
     setLoading(true);
     try {
       const resellerKey = getResellerKey();
-      const res = await fetch(`${BASE}/api/reseller/trial`, {
+      const res = await fetch(`${BASE}/api/reseller/trial-token`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          resellerUsername: username,
-          resellerKey,
-          trialUsername: trialUser,
-          trialPassword: trialPass,
+          username,
+          password: resellerKey,
           days,
         }),
       });
       const data = await res.json();
       if (data.success) {
-        setCreds({ username: trialUser, password: trialPass, days });
+        const portalUrl = `${window.location.origin}/free-portal?token=${data.token}`;
+        setLinkData({ token: data.token, link: portalUrl, days });
       } else {
         setError(data.error ?? "Failed");
       }
@@ -579,48 +567,48 @@ function ResellerTrialPanel({ username }: { username: string }) {
             <Gift className="w-5 h-5 text-amber-400" />
           </div>
           <div>
-            <h2 className="font-black text-base text-white tracking-wide">Free Trial Generator</h2>
-            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Generate trial accounts to share with clients</p>
+            <h2 className="font-black text-base text-white tracking-wide">Free Trial Link Generator</h2>
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Generate trial links to share with clients</p>
           </div>
         </div>
 
         <div className="p-6">
           <AnimatePresence mode="wait">
-            {creds ? (
+            {linkData ? (
               <motion.div key="creds" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-5">
                 <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
                   <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 1.5, repeat: Infinity }} className="w-9 h-9 rounded-xl flex items-center justify-center bg-emerald-500/20 border border-emerald-500/30">
                     <Check className="w-5 h-5 text-emerald-400" />
                   </motion.div>
                   <div>
-                    <p className="text-sm font-black text-emerald-400">Trial Created!</p>
-                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Valid for {creds.days} day{creds.days > 1 ? "s" : ""} — share credentials</p>
+                    <p className="text-sm font-black text-emerald-400">Trial Link Created!</p>
+                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Valid for 24h to activate — share the activation link</p>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   {[
-                    { label: "Username", value: creds.username, key: "user" },
-                    { label: "Password", value: creds.password, key: "pass" },
+                    { label: "Activation Link", value: linkData.link, key: "link" },
+                    { label: "Token Key", value: linkData.token, key: "token" },
                   ].map((f) => (
                     <div key={f.key} className="flex items-center justify-between p-4 rounded-2xl bg-black/40 border border-white/5">
-                      <div>
+                      <div className="flex-grow min-w-0 pr-4">
                         <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">{f.label}</div>
-                        <div className="font-mono font-bold text-sm text-white">{f.value}</div>
+                        <div className="font-mono font-bold text-sm text-white truncate">{f.value}</div>
                       </div>
-                      <button onClick={() => copyField(f.value, f.key)} className="p-2 rounded-lg transition-all hover:bg-white/[0.06] text-slate-500 hover:text-white">
+                      <button onClick={() => copyField(f.value, f.key)} className="p-2 rounded-lg transition-all hover:bg-white/[0.06] text-slate-500 hover:text-white shrink-0">
                         {copiedField === f.key ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                       </button>
                     </div>
                   ))}
                   <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
                     <Timer className="w-4 h-4 text-amber-400" />
-                    <span className="text-xs font-bold text-amber-400 uppercase tracking-wide">{creds.days} Day{creds.days > 1 ? "s" : ""} Trial Access</span>
+                    <span className="text-xs font-bold text-amber-400 uppercase tracking-wide">{linkData.days} Day{linkData.days > 1 ? "s" : ""} Trial Access</span>
                   </div>
                 </div>
 
                 <motion.button
-                  onClick={() => copyCard(creds)}
+                  onClick={() => copyCard(linkData)}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
                   className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] relative overflow-hidden transition-all cursor-pointer"
@@ -645,7 +633,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
                   className="w-full flex items-center justify-center gap-2 h-11 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 hover:text-white border border-white/5 hover:border-white/10 bg-white/[0.01] hover:bg-white/[0.04] transition-all cursor-pointer"
                 >
                   <RefreshCw className="w-4 h-4" />
-                  Generate Another
+                  Generate Another Link
                 </button>
               </motion.div>
             ) : (
@@ -673,34 +661,6 @@ function ResellerTrialPanel({ username }: { username: string }) {
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Credentials</label>
-                    <button type="button" onClick={refresh} className="flex items-center gap-1 text-[10px] font-bold text-slate-500 hover:text-amber-400 transition-colors">
-                      <RefreshCw className="w-3.5 h-3.5" />
-                      Regenerate
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Username</div>
-                      <input
-                        value={trialUser}
-                        onChange={(e) => setTrialUser(e.target.value)}
-                        className="w-full h-12 px-4 rounded-xl bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-amber-500/50 focus:shadow-[0_0_15px_rgba(245,158,11,0.12)] transition-all font-bold"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Password</div>
-                      <input
-                        value={trialPass}
-                        onChange={(e) => setTrialPass(e.target.value)}
-                        className="w-full h-12 px-4 rounded-xl bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-amber-500/50 focus:shadow-[0_0_15px_rgba(245,158,11,0.12)] transition-all font-bold"
-                      />
-                    </div>
-                  </div>
-                </div>
-
                 {error && (
                   <div className="flex items-center gap-2 text-red-400 text-xs px-4 py-3 rounded-2xl bg-red-500/10 border border-red-500/20 font-bold">
                     <XCircle className="w-4 h-4 shrink-0" />{error}
@@ -709,7 +669,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
 
                 <motion.button
                   type="submit"
-                  disabled={loading || !trialUser || !trialPass}
+                  disabled={loading}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   className="w-full h-14 rounded-2xl text-white font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer relative overflow-hidden"
@@ -719,7 +679,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
                   }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12 translate-x-[-150%] animate-[shimmer_2s_infinite]" />
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Gift className="w-5 h-5" />Generate Free Trial Access</>}
+                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Gift className="w-5 h-5" />Generate Free Trial Link</>}
                 </motion.button>
               </motion.form>
             )}
