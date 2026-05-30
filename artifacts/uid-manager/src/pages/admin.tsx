@@ -80,7 +80,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
   const [activeSidebarTab, setActiveSidebarTab] = useState("dashboard");
   const [users, setUsers] = useState<ClientUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"clients" | "trial" | "payments" | "settings">("clients"); // sub-tab
+  const [tab, setTab] = useState<"clients" | "payments" | "settings">("clients"); // sub-tab
   const [payments, setPayments] = useState<PaymentItem[]>([]);
   const [paymentsLoading, setPaymentsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -274,6 +274,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "analyze", label: "Analyze", icon: BarChart2 },
     { id: "manage", label: "Manage Clients", icon: Users },
+    { id: "free", label: "Free Trial", icon: Gift },
     { id: "chat", label: "Team Chat", icon: MessageSquare },
     { id: "profile", label: "My Profile", icon: UserCircle },
   ];
@@ -535,7 +536,6 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                   >
                     {([
                       { key: "clients", icon: Users, label: "Client Accounts", count: regular.length, gold: false, rose: false, teal: false },
-                      { key: "trial", icon: Gift, label: "Free Trial", count: trials.length, gold: true, rose: false, teal: false },
                       { key: "payments", icon: CreditCard, label: "Payments", count: payments.filter(p => p.status === "pending").length, gold: false, rose: true, teal: false },
                       { key: "settings", icon: Settings, label: "Settings", count: null, gold: false, rose: false, teal: true },
                     ] as const).map((t) => (
@@ -575,17 +575,6 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                           onAddCredits={handleAddCredits}
                         />
                       </motion.div>
-                    ) : tab === "trial" ? (
-                      <motion.div key="trial" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                        <FreeTrialPanel
-                          trials={trials}
-                          deleting={deleting}
-                          copied={copied}
-                          onDelete={handleDelete}
-                          onCopy={copy}
-                          onCreated={(u) => setUsers((p) => [...p, u])}
-                        />
-                      </motion.div>
                     ) : tab === "payments" ? (
                       <motion.div key="payments" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                         <PaymentsPanel
@@ -602,6 +591,27 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                       </motion.div>
                     )}
                   </AnimatePresence>
+                </motion.div>
+              )}
+
+              {activeSidebarTab === "free" && (
+                <motion.div key="free" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                  {/* Title */}
+                  <div className="text-left">
+                    <div className="flex items-center gap-3">
+                      <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">Free Trials</h1>
+                      <span className="px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">PROMO ENGINES</span>
+                    </div>
+                    <p className="text-slate-400 font-semibold text-sm mt-2">Generate free trial keys and manage active trial accounts.</p>
+                  </div>
+                  <FreeTrialPanel
+                    trials={trials}
+                    deleting={deleting}
+                    copied={copied}
+                    onDelete={handleDelete}
+                    onCopy={copy}
+                    onCreated={(u) => setUsers((p) => [...p, u])}
+                  />
                 </motion.div>
               )}
 
