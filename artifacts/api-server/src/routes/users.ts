@@ -49,6 +49,8 @@ router.get("/", requireAdmin, async (_req, res) => {
       isTrial: u.isTrial,
       canResell: u.canResell ?? false,
       balance: u.balance ?? 0,
+      hwid: u.hwid ?? "",
+      hwidLockEnabled: u.hwidLockEnabled ?? false,
     })),
   });
 });
@@ -60,6 +62,23 @@ router.patch("/:username/resell", requireAdmin, async (req, res) => {
     return res.status(404).json({ success: false, error: "User not found" });
   }
   return res.json({ success: true, canResell: Boolean(canResell) });
+});
+
+router.patch("/:username/hwid-lock", requireAdmin, async (req, res) => {
+  const { enabled } = req.body ?? {};
+  const updated = await userStore.toggleHwidLock(req.params.username, Boolean(enabled));
+  if (!updated) {
+    return res.status(404).json({ success: false, error: "User not found" });
+  }
+  return res.json({ success: true, hwidLockEnabled: Boolean(enabled) });
+});
+
+router.post("/:username/hwid-reset", requireAdmin, async (req, res) => {
+  const updated = await userStore.resetHwid(req.params.username);
+  if (!updated) {
+    return res.status(404).json({ success: false, error: "User not found" });
+  }
+  return res.json({ success: true, message: "HWID reset successful" });
 });
 
 router.post("/", requireAdmin, async (req, res) => {

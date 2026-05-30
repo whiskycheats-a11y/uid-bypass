@@ -6,6 +6,7 @@ const router = Router();
 router.post("/login", async (req, res) => {
   const username = req.body?.username?.trim();
   const password = req.body?.password?.trim();
+  const hwid = req.body?.hwid?.trim();
   
   if (!username || !password) {
     return res.status(400).json({ success: false, error: "Username and password required" });
@@ -14,6 +15,22 @@ router.post("/login", async (req, res) => {
   if (!user) {
     return res.status(401).json({ success: false, error: "Invalid credentials" });
   }
+
+  // Check HWID device lock if enabled
+  if (user.hwidLockEnabled) {
+    const clientHwid = hwid || "unknown_device";
+    if (!user.hwid) {
+      await userStore.setHwid(user.username, clientHwid);
+      user.hwid = clientHwid;
+    } else if (user.hwid !== clientHwid) {
+      return res.status(403).json({
+        success: false,
+        error: "HWID_MISMATCH",
+        message: "Account locked to another device. Please contact administration to reset your hardware key."
+      });
+    }
+  }
+
   return res.json({
     success: true,
     username: user.username,

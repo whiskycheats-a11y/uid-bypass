@@ -197,9 +197,11 @@ export default function Login({ onLogin }: LoginProps) {
   const [shake, setShake] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showTrial, setShowTrial] = useState(false);
-  const [trialDays, setTrialDays] = useState(1);
-  const [generatedLink, setGeneratedLink] = useState("");
-  const [copiedLink, setCopiedLink] = useState(false);
+  const [trialToken, setTrialToken] = useState("");
+  const [playerUid, setPlayerUid] = useState("");
+  const [bluestack, setBluestack] = useState(true);
+  const [claimSuccess, setClaimSuccess] = useState(false);
+  const [claimDays, setClaimDays] = useState(0);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [isYearly, setIsYearly] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
@@ -261,10 +263,18 @@ export default function Login({ onLogin }: LoginProps) {
     setError("");
     setLoading(true);
     try {
+      let clientHwid = localStorage.getItem("sg71_hwid");
+      if (!clientHwid) {
+        clientHwid = typeof crypto !== "undefined" && crypto.randomUUID 
+          ? crypto.randomUUID() 
+          : Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
+        localStorage.setItem("sg71_hwid", clientHwid);
+      }
+
       const res = await fetch(`${BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, hwid: clientHwid }),
       });
       const raw = await res.text();
       let data: any = null;
@@ -273,7 +283,7 @@ export default function Login({ onLogin }: LoginProps) {
       } catch {
         throw new Error("Invalid server response.");
       }
-      if (!res.ok) throw new Error(data?.error ?? "Login failed.");
+      if (!res.ok) throw new Error(data?.message ?? data?.error ?? "Login failed.");
       if (data.success) {
         if (data.displayName) {
           localStorage.setItem(`display_name_${data.username}`, data.displayName);
@@ -294,7 +304,7 @@ export default function Login({ onLogin }: LoginProps) {
         );
         onLogin(data.role, data.username);
       } else {
-        throw new Error(data.error ?? "Invalid credentials.");
+        throw new Error(data.message ?? data.error ?? "Invalid credentials.");
       }
     } catch (err: any) {
       setLoading(false);
@@ -304,15 +314,23 @@ export default function Login({ onLogin }: LoginProps) {
     }
   };
 
-  const handleGenerateTrial = async (e: React.FormEvent) => {
+  const handleClaimTrial = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!trialToken.trim()) {
+      setError("Please enter a Trial Token.");
+      return;
+    }
+    if (!playerUid.trim()) {
+      setError("Please enter your Player UID.");
+      return;
+    }
     setError("");
     setLoading(true);
     try {
-      const res = await fetch(`${BASE}/api/reseller/trial-token`, {
+      const res = await fetch(`${BASE}/api/uid/free-whitelist`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, days: trialDays }),
+        body: JSON.stringify({ token: trialToken.trim(), uid: playerUid.trim(), bluestack }),
       });
       const raw = await res.text();
       let data: any = null;
@@ -321,15 +339,26 @@ export default function Login({ onLogin }: LoginProps) {
       } catch {
         throw new Error("Invalid server response.");
       }
-      if (!res.ok) throw new Error(data?.error ?? "Authentication failed.");
       if (data.success) {
-        const portalUrl = `${window.location.origin}/free-portal?token=${data.token}`;
-        setGeneratedLink(portalUrl);
+        setClaimSuccess(true);
+        setClaimDays(data.days || 1);
       } else {
-        throw new Error(data.error ?? "Could not generate trial.");
+        if (data.message === "TRIAL_IP_LIMIT_REACHED") {
+          throw new Error("IP Limit Reached! Your device/IP has already whitelisted a free trial. Only 1 free trial is allowed per IP.");
+        } else if (data.message === "TOKEN_ALREADY_USED") {
+          throw new Error("This trial token was already consumed.");
+        } else if (data.message === "TOKEN_EXPIRED") {
+          throw new Error("This trial token has expired.");
+        } else if (data.message === "UID_ALREADY_WHITELISTED") {
+          throw new Error("This UID is already active in the system.");
+        } else if (data.message === "INVALID_TOKEN") {
+          throw new Error("The trial token you entered is invalid.");
+        } else {
+          throw new Error(data.message || "Activation failed. Please contact your reseller.");
+        }
       }
     } catch (err: any) {
-      setError(err.message || "Failed to generate trial link.");
+      setError(err.message || "Failed to claim free trial.");
       setShake(true);
       setTimeout(() => setShake(false), 600);
     } finally {
@@ -375,13 +404,13 @@ export default function Login({ onLogin }: LoginProps) {
               Network Live
             </div>
             <button
-              onClick={() => { setError(""); setShowLogin(false); setGeneratedLink(""); setUsername(""); setPassword(""); setShowTrial(!showTrial); }}
+              onClick={() => { setError(""); setShowLogin(false); setTrialToken(""); setPlayerUid(""); setClaimSuccess(false); setUsername(""); setPassword(""); setShowTrial(!showTrial); }}
               className="flex items-center gap-2 rounded-2xl border border-amber-500/20 bg-amber-500/[0.03] px-6 py-2.5 text-xs font-black uppercase tracking-[0.2em] text-amber-400 hover:bg-amber-500/[0.1] hover:shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:border-amber-500/30 active:scale-95 transition-all cursor-pointer backdrop-blur-md"
             >
               {showTrial ? "← Return" : "Free Trial"}
             </button>
             <button
-              onClick={() => { setError(""); setShowTrial(false); setGeneratedLink(""); setUsername(""); setPassword(""); setShowLogin(!showLogin); }}
+              onClick={() => { setError(""); setShowTrial(false); setTrialToken(""); setPlayerUid(""); setClaimSuccess(false); setUsername(""); setPassword(""); setShowLogin(!showLogin); }}
               className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-2.5 text-xs font-black uppercase tracking-[0.2em] text-white hover:bg-white/[0.1] hover:shadow-[0_0_20px_rgba(124,58,237,0.2)] hover:border-violet-500/30 active:scale-95 transition-all cursor-pointer backdrop-blur-md"
             >
               {showLogin ? "← Return" : "Portal"}
@@ -443,10 +472,10 @@ export default function Login({ onLogin }: LoginProps) {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => { setError(""); setShowLogin(false); setGeneratedLink(""); setUsername(""); setPassword(""); setShowTrial(true); }}
+                      onClick={() => { setError(""); setShowLogin(false); setTrialToken(""); setPlayerUid(""); setClaimSuccess(false); setUsername(""); setPassword(""); setShowTrial(true); }}
                       className="argus-btn flex items-center gap-2 rounded-2xl text-white font-black text-[11px] tracking-[0.2em] uppercase px-8 py-4.5 cursor-pointer"
                     >
-                      Initialize Link <ArrowRight className="h-4 w-4" />
+                      Claim Free Trial <ArrowRight className="h-4 w-4" />
                     </motion.button>
                     <motion.button
                       whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.2)" }}
@@ -734,7 +763,7 @@ export default function Login({ onLogin }: LoginProps) {
              </section>
             </motion.div>
           ) : showTrial ? (
-            /* ═══════ TRIAL LINK GENERATOR ═══════ */
+            /* ═══════ FREE CLAIM PORTAL ═══════ */
             <motion.div
               key="trial"
               initial={{ opacity: 0, y: 30, scale: 0.95, filter: "blur(10px)" }}
@@ -752,55 +781,58 @@ export default function Login({ onLogin }: LoginProps) {
                   transition={{ duration: 0.45 }}
                   className="argus-glass shadow-[0_40px_100px_rgba(0,0,0,0.8)] rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-10 relative overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-cyan-500/5 opacity-60 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-cyan-500/5 opacity-60 pointer-events-none" />
                   
-                  {generatedLink ? (
+                  {claimSuccess ? (
                     <div className="space-y-6 text-center">
                       <div className="flex justify-center mb-6">
-                        <div className="w-18 h-18 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.25)]">
-                          <Check className="w-9 h-9 text-emerald-400" />
+                        <div className="w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+                          <Check className="w-10 h-10 text-emerald-400" />
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <h2 className="text-2xl font-black text-white tracking-tight">Link Generated!</h2>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Share this link with your client</p>
+                        <h2 className="text-2xl font-black text-white tracking-tight">Access Granted!</h2>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Your Player UID is now whitelisted</p>
                       </div>
-
-                      <div className="space-y-3 pt-4 text-left">
-                        <div className="p-4 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-between">
-                          <div className="flex-grow min-w-0 pr-4">
-                            <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Activation Link</div>
-                            <div className="font-mono font-bold text-xs text-white truncate">{generatedLink}</div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              navigator.clipboard.writeText(generatedLink);
-                              setCopiedLink(true);
-                              setTimeout(() => setCopiedLink(false), 2000);
-                            }}
-                            className="p-2 rounded-lg transition-all hover:bg-white/[0.06] text-slate-500 hover:text-white shrink-0"
-                          >
-                            {copiedLink ? <Check className="w-4.5 h-4.5 text-emerald-400" /> : <Copy className="w-4.5 h-4.5" />}
-                          </button>
+                      <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 space-y-2.5 text-left text-xs font-bold text-slate-300">
+                        <div className="flex justify-between">
+                          <span className="text-slate-500 uppercase tracking-widest text-[9px]">Player UID</span>
+                          <span className="font-mono text-white text-sm">{playerUid}</span>
                         </div>
-                        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                          <Timer className="w-4 h-4 text-amber-400" />
-                          <span className="text-xs font-bold text-amber-400 uppercase tracking-wide">{trialDays} Day{trialDays > 1 ? "s" : ""} Whitelist Trial</span>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500 uppercase tracking-widest text-[9px]">Duration</span>
+                          <span className="text-amber-400 uppercase">{claimDays} Day{claimDays > 1 ? "s" : ""} Free Trial</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500 uppercase tracking-widest text-[9px]">Status</span>
+                          <span className="text-emerald-400 flex items-center gap-1.5 uppercase text-[9px] bg-emerald-950/30 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                            <span className="h-1 w-1 bg-emerald-400 rounded-full animate-pulse" /> Active
+                          </span>
                         </div>
                       </div>
-
+                      
                       <button
                         type="button"
-                        onClick={() => { setGeneratedLink(""); setUsername(""); setPassword(""); }}
+                        onClick={() => {
+                          setClaimSuccess(false);
+                          setTrialToken("");
+                          setPlayerUid("");
+                          setError("");
+                        }}
                         className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 hover:text-white border border-white/5 hover:border-white/10 bg-white/[0.01] hover:bg-white/[0.04] transition-all cursor-pointer mt-6"
                       >
-                        <RefreshCw className="w-4 h-4" /> Generate Another
+                        Whitelist Another UID
                       </button>
-
+                      
                       <button
                         type="button"
-                        onClick={() => { setError(""); setShowTrial(false); setGeneratedLink(""); setUsername(""); setPassword(""); }}
+                        onClick={() => {
+                          setError("");
+                          setShowTrial(false);
+                          setClaimSuccess(false);
+                          setTrialToken("");
+                          setPlayerUid("");
+                        }}
                         className="w-full text-center text-[10px] font-black uppercase tracking-[0.2em] text-violet-400 hover:text-violet-300 transition-colors mt-2"
                       >
                         Back to Landing
@@ -813,51 +845,54 @@ export default function Login({ onLogin }: LoginProps) {
                           <Gift className="h-7 w-7" />
                         </div>
                         <div className="text-left">
-                          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.4)] mb-1">Trial Generator</p>
-                          <h2 className="text-2xl font-black text-white tracking-tight">Create Link</h2>
+                          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.4)] mb-1">Free Trial Portal</p>
+                          <h2 className="text-2xl font-black text-white tracking-tight">Claim Whitelist</h2>
                         </div>
                       </div>
 
-                      <form onSubmit={handleGenerateTrial} className="space-y-5 relative z-10 text-left">
+                      <form onSubmit={handleClaimTrial} className="space-y-5 relative z-10 text-left">
                         <div className="space-y-2.5">
-                          <label className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400/80 ml-1">Reseller ID</label>
+                          <label className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400/80 ml-1">Trial Token</label>
                           <div className="flex items-center gap-3 border border-white/10 bg-black/40 backdrop-blur-md rounded-2xl px-5 py-4 focus-within:border-amber-500/50 focus-within:shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all">
-                            <User className="h-4.5 w-4.5 text-slate-500" />
-                            <input type="text" value={username} onChange={(e) => { setUsername(e.target.value); if (error) setError(""); }} placeholder="Enter reseller username" className="bg-transparent border-0 outline-0 text-white placeholder-slate-600 text-sm w-full font-bold" />
+                            <KeyRound className="h-4.5 w-4.5 text-slate-500" />
+                            <input
+                              type="text"
+                              value={trialToken}
+                              onChange={(e) => { setTrialToken(e.target.value); if (error) setError(""); }}
+                              placeholder="Enter SG71-TRIAL-XXXX token"
+                              className="bg-transparent border-0 outline-0 text-white placeholder-slate-600 text-sm w-full font-bold"
+                            />
                           </div>
                         </div>
+                        
                         <div className="space-y-2.5">
-                          <label className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400/80 ml-1">Password Key</label>
+                          <label className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400/80 ml-1">Player UID</label>
                           <div className="flex items-center gap-3 border border-white/10 bg-black/40 backdrop-blur-md rounded-2xl px-5 py-4 focus-within:border-amber-500/50 focus-within:shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all">
-                            <Lock className="h-4.5 w-4.5 text-slate-500" />
-                            <input type={showPass ? "text" : "password"} value={password} onChange={(e) => { setPassword(e.target.value); if (error) setError(""); }} placeholder="Enter reseller password" className="bg-transparent border-0 outline-0 text-white placeholder-slate-600 text-sm w-full font-bold" />
-                            <button type="button" onClick={() => setShowPass(!showPass)} className="text-slate-500 hover:text-white cursor-pointer transition-colors p-1">
-                              {showPass ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
-                            </button>
+                            <Fingerprint className="h-4.5 w-4.5 text-slate-500" />
+                            <input
+                              type="text"
+                              value={playerUid}
+                              onChange={(e) => { setPlayerUid(e.target.value); if (error) setError(""); }}
+                              placeholder="Enter your game Player UID"
+                              className="bg-transparent border-0 outline-0 text-white placeholder-slate-600 text-sm w-full font-bold font-mono"
+                            />
                           </div>
                         </div>
 
-                        <div className="space-y-2.5">
-                          <label className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400/80 ml-1">Trial Duration</label>
-                          <div className="flex gap-2">
-                            {[1, 3, 7, 14, 30].map((preset) => (
-                              <button
-                                key={preset}
-                                type="button"
-                                onClick={() => setTrialDays(preset)}
-                                className="flex-grow py-3 px-1 rounded-xl text-[10px] font-black tracking-wide border transition-all cursor-pointer"
-                                style={{
-                                  background: trialDays === preset 
-                                    ? "linear-gradient(135deg, rgba(245,158,11,0.2), rgba(239,68,68,0.1))" 
-                                    : "rgba(255,255,255,0.02)",
-                                  color: trialDays === preset ? "#fbbf24" : "rgba(255,255,255,0.5)",
-                                  borderColor: trialDays === preset ? "rgba(245,158,11,0.3)" : "rgba(255,255,255,0.08)",
-                                }}
-                              >
-                                {preset} D
-                              </button>
-                            ))}
+                        <div className="flex items-center justify-between p-4 rounded-2xl bg-black/40 border border-white/5">
+                          <div className="flex items-center gap-3">
+                            <Cpu className="w-4.5 h-4.5 text-slate-500" />
+                            <div>
+                              <div className="text-[10px] font-black text-white uppercase tracking-wider">Bluestacks Simulator</div>
+                              <div className="text-[9px] font-bold text-slate-500 uppercase">Required for simulator players</div>
+                            </div>
                           </div>
+                          <input
+                            type="checkbox"
+                            checked={bluestack}
+                            onChange={(e) => setBluestack(e.target.checked)}
+                            className="w-4.5 h-4.5 rounded border-white/10 bg-black/40 text-amber-500 focus:ring-amber-500/50 cursor-pointer"
+                          />
                         </div>
 
                         <AnimatePresence>
@@ -868,18 +903,25 @@ export default function Login({ onLogin }: LoginProps) {
                           )}
                         </AnimatePresence>
 
-                        <motion.button type="submit" disabled={loading || !username || !password} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} className="argus-btn w-full py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.25em] mt-6 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)", boxShadow: "0 0 20px rgba(245,158,11,0.3)" }}>
+                        <motion.button
+                          type="submit"
+                          disabled={loading || !trialToken || !playerUid}
+                          whileHover={{ y: -2 }}
+                          whileTap={{ scale: 0.97 }}
+                          className="argus-btn w-full py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.25em] mt-6 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                          style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)", boxShadow: "0 0 20px rgba(245,158,11,0.3)" }}
+                        >
                           {loading ? (
-                            <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> Verifying...</span>
+                            <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> Whitelisting...</span>
                           ) : (
-                            <span className="flex items-center gap-2"><Gift className="h-5 w-5" /> Generate Trial Link <ArrowRight className="h-4 w-4" /></span>
+                            <span className="flex items-center gap-2"><Check className="h-5 w-5" /> Whitelist UID <ArrowRight className="h-4 w-4" /></span>
                           )}
                         </motion.button>
                       </form>
 
                       <div className="mt-10 flex items-center justify-between border-t border-white/10 pt-6 text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 relative z-10">
                         <span className="flex items-center gap-2"><Zap className="h-4 w-4 text-amber-500 drop-shadow-[0_0_5px_#f59e0b]" /> SG71 Crypt Mesh</span>
-                        <button type="button" onClick={() => { setError(""); setShowTrial(false); setGeneratedLink(""); setUsername(""); setPassword(""); }} className="text-violet-400 hover:text-violet-300 cursor-pointer transition-colors px-2 py-1">Abort</button>
+                        <button type="button" onClick={() => { setError(""); setShowTrial(false); setTrialToken(""); setPlayerUid(""); }} className="text-violet-400 hover:text-violet-300 cursor-pointer transition-colors px-2 py-1">Abort</button>
                       </div>
                     </>
                   )}

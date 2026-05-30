@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { userStore, trialStore, uidStore, settingsStore, tokenStore } from "../store";
 import { config } from "../config";
+import { logger } from "../lib/logger";
 
 const router = Router();
 
@@ -334,13 +335,29 @@ router.get("/token-info/:token", async (req, res) => {
     const createdTime = new Date(tokenData.createdAt).getTime();
     const isExpired = Date.now() - createdTime > 24 * 60 * 60 * 1000;
     
+    let isTrialExpired = false;
+    const usedByUid = tokenData.usedByUid;
+    if (tokenData.used && usedByUid) {
+      const existingUid = await uidStore.get(usedByUid);
+      if (existingUid) {
+        const addedTime = new Date(existingUid.addedAt).getTime();
+        const expiryTime = addedTime + existingUid.days * 24 * 60 * 60 * 1000;
+        if (Date.now() > expiryTime) {
+          isTrialExpired = true;
+        }
+      } else {
+        isTrialExpired = true;
+      }
+    }
+
     res.json({
       success: true,
       token: tokenData.token,
       resellerUsername: tokenData.resellerUsername,
       days: tokenData.days,
       used: tokenData.used,
-      isExpired
+      isExpired,
+      isTrialExpired
     });
   } catch (err) {
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -418,6 +435,7 @@ router.post("/free-whitelist", async (req, res) => {
     res.json({
       ...data,
       success,
+      days: tokenData.days,
       message: data.message || data.error || (success ? "Success" : "Unknown error from external API")
     });
 
@@ -426,5 +444,55 @@ router.post("/free-whitelist", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
+
+// Background cleanup task to remove expired whitelisted UIDs from database & external API
+async function cleanupExpiredUids() {
+  try {
+    const uids = await uidStore.list();
+    const now = Date.now();
+    const base = await getBase();
+    const key = await getKey();
+    
+    for (const u of uids) {
+      // Check if it's a trial UID by looking at its name / reseller prefix
+      if (u.name?.startsWith("Trial-") || u.addedBy) {
+        const addedTime = new Date(u.addedAt).getTime();
+        const expiryTime = addedTime + u.days * 24 * 60 * 60 * 1000;
+        
+        if (now > expiryTime) {
+          logger.info({ uid: u.uid }, "Trial expired. Removing expired trial UID...");
+          // Expired! Remove from external API first
+          try {
+            const response = await fetch(`${base}/api/v1/uids/remove`, {
+              method: "POST",
+              headers: authHeaders(key),
+              body: JSON.stringify({ uid: u.uid }),
+            });
+            const resData = await response.json() as Record<string, unknown>;
+            logger.info({ uid: u.uid, resData }, "Expired trial UID remove status from external API");
+          } catch (apiErr) {
+            logger.error({ apiErr, uid: u.uid }, "Failed to remove expired trial UID from external API");
+          }
+          
+          // Remove from database
+          await uidStore.remove(u.uid);
+          logger.info({ uid: u.uid }, "Successfully removed expired trial UID from database");
+        }
+      }
+    }
+  } catch (err) {
+    logger.error({ err }, "Error running cleanupExpiredUids background task");
+  }
+}
+
+// Run cleanup task every 5 minutes
+setInterval(() => {
+  cleanupExpiredUids().catch(() => {});
+}, 5 * 60 * 1000);
+
+// Run once on startup after 10 seconds
+setTimeout(() => {
+  cleanupExpiredUids().catch(() => {});
+}, 10 * 1000);
 
 export default router;

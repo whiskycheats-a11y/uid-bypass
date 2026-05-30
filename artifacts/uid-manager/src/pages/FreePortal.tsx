@@ -34,8 +34,19 @@ export default function FreePortal() {
   } | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [success, setSuccess] = useState(false);
+  const [activeNotice, setActiveNotice] = useState("");
 
   useEffect(() => {
+    // Fetch global settings notice
+    fetch(`${BASE}/api/settings/notice`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.noticeText) {
+          setActiveNotice(data.noticeText);
+        }
+      })
+      .catch(() => {});
+
     // Get token from URL
     const params = new URLSearchParams(window.location.search);
     const tok = params.get("token") || "";
@@ -53,7 +64,9 @@ export default function FreePortal() {
       .then((data) => {
         if (data.success) {
           setTokenData(data);
-          if (data.used) {
+          if (data.isTrialExpired) {
+            setErrorMsg("Trial Expired (Off Trial). The whitelisting duration has ended.");
+          } else if (data.used) {
             setErrorMsg("This trial link has already been used.");
           } else if (data.isExpired) {
             setErrorMsg("This trial link has expired (valid for 24 hours).");
@@ -137,9 +150,31 @@ export default function FreePortal() {
 
       {/* Main Container */}
       <main className="flex-grow flex items-center justify-center pt-24 px-6 z-10">
-        <div className="w-full max-w-[480px] py-10 relative">
+        <div className="w-full max-w-[480px] py-10 relative space-y-6">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-[400px] bg-violet-600/10 blur-[100px] rounded-full pointer-events-none" />
           
+          {/* Notice Banner */}
+          {activeNotice && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="p-5 rounded-[2rem] bg-violet-950/20 border border-violet-500/20 shadow-[0_0_20px_rgba(124,58,237,0.1)] flex items-start gap-4 text-left relative overflow-hidden group"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 via-cyan-500/5 to-transparent pointer-events-none" />
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
+              <div className="p-3 rounded-2xl bg-violet-500/10 border border-violet-500/30 text-violet-400 shrink-0">
+                <Activity className="w-5 h-5 text-violet-400 animate-pulse" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-violet-300 flex items-center gap-1.5">
+                  SYSTEM ANNOUNCEMENT
+                  <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse" />
+                </h4>
+                <p className="text-sm font-semibold text-slate-200 leading-relaxed font-sans">{activeNotice}</p>
+              </div>
+            </motion.div>
+          )}
+
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

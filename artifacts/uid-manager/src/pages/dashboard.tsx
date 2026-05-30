@@ -1515,6 +1515,18 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   const [balance, setBalance] = useState<number | null>(null);
   const [showSuccessBlast, setShowSuccessBlast] = useState(false);
   const [profileData, setProfileData] = useState({ displayName: username || "Guest", avatarBase64: "" });
+  const [activeNotice, setActiveNotice] = useState("");
+
+  useEffect(() => {
+    fetch(`${BASE}/api/settings/notice`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.success && d.noticeText) {
+          setActiveNotice(d.noticeText);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (username) {
@@ -2042,6 +2054,28 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                     </div>
                     <p className="text-slate-400 font-semibold text-sm mt-2">Real-time status of all active UIDs</p>
                   </div>
+
+                  {/* Notice Banner */}
+                  {activeNotice && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="p-5 rounded-[2rem] bg-violet-950/20 border border-violet-500/20 shadow-[0_0_20px_rgba(124,58,237,0.1)] flex items-start gap-4 text-left relative overflow-hidden group"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 via-cyan-500/5 to-transparent pointer-events-none" />
+                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
+                      <div className="p-3 rounded-2xl bg-violet-500/10 border border-violet-500/30 text-violet-400 shrink-0">
+                        <Medal className="w-5 h-5 text-violet-400 animate-pulse" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-violet-300 flex items-center gap-1.5">
+                          SYSTEM ANNOUNCEMENT
+                          <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse" />
+                        </h4>
+                        <p className="text-sm font-semibold text-slate-200 leading-relaxed font-sans">{activeNotice}</p>
+                      </div>
+                    </motion.div>
+                  )}
 
                   {/* Stats */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">

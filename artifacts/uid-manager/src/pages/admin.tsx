@@ -38,6 +38,8 @@ interface ClientUser {
   isTrial: boolean;
   canResell: boolean;
   balance: number;
+  hwid?: string;
+  hwidLockEnabled?: boolean;
 }
 
 interface AdminProps {
@@ -94,10 +96,230 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
   const [removingUid, setRemovingUid] = useState<string | null>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
 
+  const [noticeText, setNoticeText] = useState("");
+  const [noticeExpiry, setNoticeExpiry] = useState("indefinite");
+  const [activeNotice, setActiveNotice] = useState("");
+  const [activeNoticeExpiry, setActiveNoticeExpiry] = useState("");
+  const [savingNotice, setSavingNotice] = useState(false);
+
   useEffect(() => {
     fetchUsers();
     fetchPayments();
+    fetchCurrentNotice();
   }, []);
+
+  async function fetchCurrentNotice() {
+    try {
+      const res = await fetch(`${BASE}/api/settings/notice`);
+      const data = await res.json();
+      if (data.success) {
+        setActiveNotice(data.noticeText);
+        setActiveNoticeExpiry(data.expiry);
+        if (data.noticeText) {
+          setNoticeText(data.noticeText);
+        }
+      }
+    } catch (e) {
+      console.error("Error fetching notice settings:", e);
+    }
+  }
+
+  async function handleBroadcastNotice(e: React.FormEvent) {
+    e.preventDefault();
+    setSavingNotice(true);
+    try {
+      const res = await fetch(`${BASE}/api/settings/notice`, {
+        method: "PATCH",
+        headers: adminHeaders(),
+        body: JSON.stringify({ noticeText, noticeExpiry }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setActiveNotice(data.noticeText);
+        setActiveNoticeExpiry(data.expiry);
+        toast({
+          title: "Global Notice Published",
+          description: data.noticeText 
+            ? "Announcement has been successfully broadcast to all client & reseller feeds."
+            : "Broadcast notice cleared successfully.",
+        });
+      } else {
+        toast({ title: "Broadcast Failed", description: data.error || "Save failed.", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Error", description: "Failed to connect to API server.", variant: "destructive" });
+    } finally {
+      setSavingNotice(false);
+    }
+  }
+
+  async function handleClearNotice() {
+    setSavingNotice(true);
+    try {
+      const res = await fetch(`${BASE}/api/settings/notice`, {
+        method: "PATCH",
+        headers: adminHeaders(),
+        body: JSON.stringify({ noticeText: "", noticeExpiry: "indefinite" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setActiveNotice("");
+        setActiveNoticeExpiry("");
+        setNoticeText("");
+        toast({
+          title: "Broadcast Cleared",
+          description: "Global announcement removed from client portals.",
+        });
+      }
+    } catch {
+      toast({ title: "Error", description: "Clear request failed.", variant: "destructive" });
+    } finally {
+      setSavingNotice(false);
+    }
+  }
+
+  async function handleHwidLockToggle(username: string, enabled: boolean) {
+    try {
+      const res = await fetch(`${BASE}/api/users/${encodeURIComponent(username)}/hwid-lock`, {
+        method: "PATCH",
+        headers: adminHeaders(),
+        body: JSON.stringify({ enabled }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUsers((p) => p.map((u) => u.username === username ? { ...u, hwidLockEnabled: enabled } : u));
+        toast({
+          title: enabled ? "HWID Lock Enabled" : "HWID Lock Disabled",
+          description: `HWID device locking has been ${enabled ? "activated" : "deactivated"} for user ${username}.`,
+        });
+      } else {
+        toast({ title: "Failed", description: data.error || "Update failed.", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Error", description: "Server request failed.", variant: "destructive" });
+    }
+  }
+
+  async function handleHwidReset(username: string) {
+    try {
+      const res = await fetch(`${BASE}/api/users/${encodeURIComponent(username)}/hwid-reset`, {
+        method: "POST",
+        headers: adminHeaders(),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUsers((p) => p.map((u) => u.username === username ? { ...u, hwid: "" } : u));
+        toast({
+          title: "HWID Reset Successful",
+          description: `The hardware signature for ${username} has been cleared. The next login will register a new device.`,
+        });
+      } else {
+        toast({ title: "Failed", description: data.error || "Reset failed.", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Error", description: "Server request failed.", variant: "destructive" });
+    }
+  }
+
+  const NoticeBroadcastCard = () => {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="argus-glass rounded-[2rem] overflow-hidden relative shadow-2xl p-6 border border-white/[0.06] flex flex-col justify-between h-full bg-[#080616]/98"
+      >
+        <div className="absolute -left-16 -top-16 w-36 h-36 bg-violet-600/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -right-16 -bottom-16 w-36 h-36 bg-cyan-600/5 rounded-full blur-3xl pointer-events-none" />
+        
+        <div>
+          {/* Header */}
+          <div className="flex items-center gap-3 pb-4 border-b border-white/[0.05] mb-5">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-violet-500/10 border border-violet-500/25">
+              <Medal className="w-4.5 h-4.5 text-violet-400" />
+            </div>
+            <div>
+              <h3 className="font-black text-sm text-white tracking-wide">Notice Broadcast</h3>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Announcement Board</p>
+            </div>
+          </div>
+
+          {/* Active Notice Info Banner */}
+          {activeNotice ? (
+            <div className="bg-violet-950/20 border border-violet-900/30 rounded-2xl p-4 mb-5 text-left text-xs">
+              <span className="text-[9px] font-black text-violet-400 uppercase tracking-wider block mb-1">CURRENTLY BROADCASTING</span>
+              <p className="text-slate-200 font-medium leading-relaxed font-sans">{activeNotice}</p>
+              <div className="flex items-center gap-1.5 mt-2.5 text-[10px] text-slate-500 font-bold">
+                <Clock className="w-3.5 h-3.5 text-slate-500" />
+                <span>
+                  Expires: {activeNoticeExpiry === "indefinite" ? "Never (Indefinite)" : new Date(activeNoticeExpiry).toLocaleString()}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-black/30 border border-white/5 rounded-2xl p-4 mb-5 text-center text-xs text-slate-500 font-bold py-6">
+              No active announcements.
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleBroadcastNotice} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Notice Text</label>
+              <textarea
+                value={noticeText}
+                onChange={(e) => setNoticeText(e.target.value)}
+                placeholder="Enter announcement text to show on reseller and client dashboards..."
+                className="w-full h-24 p-3 rounded-xl bg-white/[0.03] border border-white/10 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-violet-500/50 transition-all resize-none font-sans font-medium leading-relaxed"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Duration</label>
+                <select
+                  value={noticeExpiry}
+                  onChange={(e) => setNoticeExpiry(e.target.value)}
+                  className="w-full h-10 px-3.5 rounded-xl bg-[#0e0c1f] border border-white/10 text-xs text-slate-300 focus:outline-none focus:border-violet-500/50 focus:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all font-bold"
+                >
+                  <option value="indefinite">Indefinite (No expiry)</option>
+                  <option value="1h">1 Hour</option>
+                  <option value="6h">6 Hours</option>
+                  <option value="24h">24 Hours</option>
+                  <option value="72h">3 Days (72 Hours)</option>
+                </select>
+              </div>
+              <div className="flex items-end gap-2">
+                {activeNotice && (
+                  <button
+                    type="button"
+                    onClick={handleClearNotice}
+                    disabled={savingNotice}
+                    className="h-10 px-3 rounded-xl border border-red-500/20 bg-red-500/5 text-xs text-red-400 hover:bg-red-500/10 hover:text-white transition-all cursor-pointer font-bold flex-1"
+                  >
+                    Clear
+                  </button>
+                )}
+                <motion.button
+                  type="submit"
+                  disabled={savingNotice || !noticeText.trim()}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="h-10 rounded-xl text-white text-xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-40 relative overflow-hidden flex-grow cursor-pointer"
+                  style={{
+                    background: "linear-gradient(135deg, #8b5cf6, #06b6d4)",
+                    boxShadow: "0 0 15px rgba(139,92,246,0.25)",
+                  }}
+                >
+                  {savingNotice ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Send className="w-3.5 h-3.5" />Publish</>}
+                </motion.button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </motion.div>
+    );
+  };
 
   useEffect(() => {
     if (adminUsername) {
@@ -511,8 +733,13 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     />
                   </div>
 
-                  <div className="w-full">
-                    {renderUidTable(false, false)}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+                    <div className="lg:col-span-2">
+                      {renderUidTable(false, false)}
+                    </div>
+                    <div className="lg:col-span-1">
+                      <NoticeBroadcastCard />
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -541,6 +768,8 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     onCopy={copy}
                     onResellToggle={handleResellToggle}
                     onAddCreditsClick={setCreditModalUser}
+                    onHwidLockToggle={handleHwidLockToggle}
+                    onHwidReset={handleHwidReset}
                   />
                 </motion.div>
               )}
@@ -562,6 +791,8 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     onDelete={handleDelete}
                     onCopy={copy}
                     onCreated={(u) => setUsers((p) => [...p, u])}
+                    onHwidLockToggle={handleHwidLockToggle}
+                    onHwidReset={handleHwidReset}
                   />
                 </motion.div>
               )}
@@ -634,40 +865,44 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 }
 
 /* ─── Clients panel ─── */
-function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCopy, onResellToggle, onAddCreditsClick }: {
-  users: ClientUser[]; loading: boolean; deleting: string | null;
-  copied: string | null; onAdd: () => void;
-  onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
-  onResellToggle: (u: string, v: boolean) => void;
-  onAddCreditsClick: (u: ClientUser) => void;
-}) {
-  return (
-    <div className="panel rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
-      <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, transparent)" }} />
-      <div className="px-5 py-4 flex items-center justify-between border-b border-white/[0.04]">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.25)" }}>
-            <Users className="w-4 h-4 text-violet-400" />
+  function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset }: {
+    users: ClientUser[]; loading: boolean; deleting: string | null;
+    copied: string | null; onAdd: () => void;
+    onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
+    onResellToggle: (u: string, v: boolean) => void;
+    onAddCreditsClick: (u: ClientUser) => void;
+    onHwidLockToggle: (username: string, enabled: boolean) => void;
+    onHwidReset: (username: string) => void;
+  }) {
+    return (
+      <div className="panel rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, transparent)" }} />
+        <div className="px-5 py-4 flex items-center justify-between border-b border-white/[0.04]">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.25)" }}>
+              <Users className="w-4 h-4 text-violet-400" />
+            </div>
+            <div>
+              <h2 className="font-bold text-sm text-foreground">Client Accounts</h2>
+              <p className="text-[11px] text-muted-foreground">Full access users · 1 token = 1 day</p>
+            </div>
           </div>
-          <div>
-            <h2 className="font-bold text-sm text-foreground">Client Accounts</h2>
-            <p className="text-[11px] text-muted-foreground">Full access users · 1 token = 1 day</p>
-          </div>
+          <GlowButton onClick={onAdd} icon={<Plus className="w-4 h-4" />} label="Add Client" />
         </div>
-        <GlowButton onClick={onAdd} icon={<Plus className="w-4 h-4" />} label="Add Client" />
+        <div className="p-4">
+          <UserList users={users} loading={loading} deleting={deleting} copied={copied} onDelete={onDelete} onCopy={onCopy} onResellToggle={onResellToggle} onAddCreditsClick={onAddCreditsClick} onHwidLockToggle={onHwidLockToggle} onHwidReset={onHwidReset} emptyText="No clients yet — click Add Client" />
+        </div>
       </div>
-      <div className="p-4">
-        <UserList users={users} loading={loading} deleting={deleting} copied={copied} onDelete={onDelete} onCopy={onCopy} onResellToggle={onResellToggle} onAddCreditsClick={onAddCreditsClick} emptyText="No clients yet — click Add Client" />
-      </div>
-    </div>
-  );
-}
+    );
+  }
 
 /* ─── Free Trial panel ─── */
-function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated }: {
+function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated, onHwidLockToggle, onHwidReset }: {
   trials: ClientUser[]; deleting: string | null; copied: string | null;
   onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
   onCreated: (u: ClientUser) => void;
+  onHwidLockToggle: (username: string, enabled: boolean) => void;
+  onHwidReset: (username: string) => void;
 }) {
   const PRESETS = [1, 3, 7, 14, 30];
   const [days, setDays] = useState(7);
@@ -895,7 +1130,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated 
             <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-black" style={{ background: "rgba(245,158,11,0.15)", color: "#f59e0b" }}>{trials.length}</span>
           </div>
           <div className="p-4">
-            <UserList users={trials} loading={false} deleting={deleting} copied={copied} onDelete={onDelete} onCopy={onCopy} emptyText="" isTrial />
+            <UserList users={trials} loading={false} deleting={deleting} copied={copied} onDelete={onDelete} onCopy={onCopy} onHwidLockToggle={onHwidLockToggle} onHwidReset={onHwidReset} emptyText="" isTrial />
           </div>
         </div>
       )}
@@ -904,11 +1139,13 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated 
 }
 
 /* ─── Shared user list ─── */
-function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResellToggle, onAddCreditsClick, emptyText, isTrial = false }: {
+function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset, emptyText, isTrial = false }: {
   users: ClientUser[]; loading: boolean; deleting: string | null; copied: string | null;
   onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
   onResellToggle?: (u: string, v: boolean) => void;
   onAddCreditsClick?: (u: ClientUser) => void;
+  onHwidLockToggle?: (username: string, enabled: boolean) => void;
+  onHwidReset?: (username: string) => void;
   emptyText: string; isTrial?: boolean;
 }) {
   if (loading) return (
@@ -930,7 +1167,7 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResell
     <AnimatePresence initial={false}>
       <div className="space-y-2">
         {users.map((user, i) => (
-          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username, user.password)} onResellToggle={onResellToggle ? (v) => onResellToggle(user.username, v) : undefined} onAddCreditsClick={onAddCreditsClick ? () => onAddCreditsClick(user) : undefined} isTrial={isTrial} />
+          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username, user.password)} onResellToggle={onResellToggle ? (v) => onResellToggle(user.username, v) : undefined} onAddCreditsClick={onAddCreditsClick ? () => onAddCreditsClick(user) : undefined} onHwidLockToggle={onHwidLockToggle ? (v) => onHwidLockToggle(user.username, v) : undefined} onHwidReset={onHwidReset ? () => onHwidReset(user.username) : undefined} isTrial={isTrial} />
         ))}
       </div>
     </AnimatePresence>
@@ -938,10 +1175,11 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResell
 }
 
 /* ─── User row — CSS hover, no continuous framer motion ─── */
-const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete, onCopy, onResellToggle, onAddCreditsClick, isTrial }: {
+const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset, isTrial }: {
   user: ClientUser; index: number; deleting: boolean; copied: boolean;
   onDelete: () => void; onCopy: () => void; onResellToggle?: (v: boolean) => void;
-  onAddCreditsClick?: () => void; isTrial: boolean;
+  onAddCreditsClick?: () => void; onHwidLockToggle?: (enabled: boolean) => void;
+  onHwidReset?: () => void; isTrial: boolean;
 }) {
   return (
     <motion.div
@@ -966,15 +1204,52 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
                   <Coins className="w-2.5 h-2.5" />{user.balance ?? 0} tokens
                 </span>
               )}
+              {user.hwidLockEnabled && user.hwid && (
+                <span className="text-[10px] font-mono opacity-65 bg-red-950/20 text-red-300 border border-red-900/30 px-1.5 py-0.2 rounded">
+                  HWID: {user.hwid.slice(0, 8)}...
+                </span>
+              )}
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
           <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold user-row-badge"
             style={{ background: isTrial ? "rgba(245,158,11,0.1)" : "rgba(16,185,129,0.1)", color: isTrial ? "#fbbf24" : "#34d399", border: `1px solid ${isTrial ? "rgba(245,158,11,0.2)" : "rgba(16,185,129,0.2)"}` }}
           >
             {isTrial ? "TRIAL" : "ACTIVE"}
           </span>
+          {/* HWID Lock Toggle */}
+          {onHwidLockToggle && (
+            <button
+              onClick={() => onHwidLockToggle(!user.hwidLockEnabled)}
+              title={user.hwidLockEnabled ? "HWID Lock Enabled (Click to Disable)" : "HWID Lock Disabled (Click to Enable)"}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              style={{
+                background: user.hwidLockEnabled ? "rgba(239,68,68,0.12)" : "rgba(255,255,255,0.03)",
+                color: user.hwidLockEnabled ? "#f87171" : "#6b7280",
+                border: user.hwidLockEnabled ? "1px solid rgba(239,68,68,0.25)" : "1px solid rgba(255,255,255,0.06)",
+              }}
+            >
+              <Lock className="w-3.5 h-3.5" />
+              {user.hwidLockEnabled ? "LOCKED" : "UNLOCKED"}
+            </button>
+          )}
+          {/* Reset HWID */}
+          {user.hwidLockEnabled && onHwidReset && (
+            <button
+              onClick={onHwidReset}
+              title="Reset client HWID fingerprint"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              style={{
+                background: "rgba(245,158,11,0.12)",
+                color: "#fbbf24",
+                border: "1px solid rgba(245,158,11,0.25)",
+              }}
+            >
+              <RefreshCw className="w-3 h-3" />
+              RESET
+            </button>
+          )}
           {/* Resell toggle */}
           {!isTrial && onResellToggle && (
             <button onClick={() => onResellToggle(!user.canResell)} title={user.canResell ? "Revoke reseller" : "Allow reseller"}

@@ -236,6 +236,8 @@ export interface AppUser {
   balance: number;
   displayName?: string;
   avatar?: string;
+  hwid?: string;
+  hwidLockEnabled?: boolean;
 }
 
 interface UserDoc extends AppUser, Document { }
@@ -251,6 +253,8 @@ const userSchema = new Schema<UserDoc>({
   balance: { type: Number, default: 0 },
   displayName: { type: String, default: "" },
   avatar: { type: String, default: "" },
+  hwid: { type: String, default: "" },
+  hwidLockEnabled: { type: Boolean, default: false },
 });
 
 const UserModel = model<UserDoc>("User", userSchema);
@@ -301,6 +305,8 @@ fallbackUsers.set(config.ADMIN_USERNAME, {
   defaultDays: 30,
   isTrial: false,
   balance: 0,
+  hwid: "",
+  hwidLockEnabled: false,
 });
 
 // ── Trial UID count (in-memory, not persisted) ──
@@ -341,13 +347,13 @@ export const userStore = {
     await ensureConnection();
     if (!connected) {
       if (fallbackUsers.has(username)) return { ok: false, error: "Username already exists" };
-      const user: AppUser = { username, password, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0 };
+      const user: AppUser = { username, password, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0, hwid: "", hwidLockEnabled: false };
       fallbackUsers.set(username, user);
       return { ok: true, user };
     }
     const exists = await UserModel.findOne({ username });
     if (exists) return { ok: false, error: "Username already exists" };
-    const user: AppUser = { username, password, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0 };
+    const user: AppUser = { username, password, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0, hwid: "", hwidLockEnabled: false };
     await UserModel.create(user);
     return { ok: true, user };
   },
@@ -452,6 +458,39 @@ export const userStore = {
     const result = await UserModel.updateOne({ username }, { $set: { password: newPassword } });
     return result.matchedCount > 0;
   },
+  async toggleHwidLock(username: string, enabled: boolean): Promise<boolean> {
+    await ensureConnection();
+    if (!connected) {
+      const u = fallbackUsers.get(username);
+      if (!u) return false;
+      u.hwidLockEnabled = enabled;
+      return true;
+    }
+    const result = await UserModel.updateOne({ username }, { $set: { hwidLockEnabled: enabled } });
+    return result.matchedCount > 0;
+  },
+  async resetHwid(username: string): Promise<boolean> {
+    await ensureConnection();
+    if (!connected) {
+      const u = fallbackUsers.get(username);
+      if (!u) return false;
+      u.hwid = "";
+      return true;
+    }
+    const result = await UserModel.updateOne({ username }, { $set: { hwid: "" } });
+    return result.matchedCount > 0;
+  },
+  async setHwid(username: string, hwid: string): Promise<boolean> {
+    await ensureConnection();
+    if (!connected) {
+      const u = fallbackUsers.get(username);
+      if (!u) return false;
+      u.hwid = hwid;
+      return true;
+    }
+    const result = await UserModel.updateOne({ username }, { $set: { hwid } });
+    return result.matchedCount > 0;
+  },
 };
 
 function toPlain(doc: UserDoc): AppUser {
@@ -466,6 +505,8 @@ function toPlain(doc: UserDoc): AppUser {
     balance: doc.balance ?? 0,
     displayName: doc.displayName ?? "",
     avatar: doc.avatar ?? "",
+    hwid: doc.hwid ?? "",
+    hwidLockEnabled: doc.hwidLockEnabled ?? false,
   };
 }
 
@@ -496,21 +537,25 @@ interface SettingsDoc extends Document {
   key: string;
   externalApiUrl: string;
   externalApiKey: string;
+  noticeText?: string;
+  noticeExpiry?: string;
 }
 
 const settingsSchema = new Schema<SettingsDoc>({
   key: { type: String, default: "main" },
   externalApiUrl: { type: String, default: "" },
   externalApiKey: { type: String, default: "" },
+  noticeText: { type: String, default: "" },
+  noticeExpiry: { type: String, default: "" },
 });
 
 const SettingsModel = model<SettingsDoc>("AppSettings", settingsSchema);
 
-let settingsCache: { externalApiUrl: string; externalApiKey: string } | null = null;
-let fallbackSettings: { externalApiUrl: string; externalApiKey: string } = { externalApiUrl: "", externalApiKey: "" };
+let settingsCache: { externalApiUrl: string; externalApiKey: string; noticeText: string; noticeExpiry: string } | null = null;
+let fallbackSettings: { externalApiUrl: string; externalApiKey: string; noticeText: string; noticeExpiry: string } = { externalApiUrl: "", externalApiKey: "", noticeText: "", noticeExpiry: "" };
 
 export const settingsStore = {
-  async get(): Promise<{ externalApiUrl: string; externalApiKey: string }> {
+  async get(): Promise<{ externalApiUrl: string; externalApiKey: string; noticeText: string; noticeExpiry: string }> {
     await ensureConnection();
     if (!connected) return fallbackSettings;
     if (settingsCache) return settingsCache;
@@ -518,10 +563,12 @@ export const settingsStore = {
     settingsCache = {
       externalApiUrl: doc?.externalApiUrl ?? "",
       externalApiKey: doc?.externalApiKey ?? "",
+      noticeText: doc?.noticeText ?? "",
+      noticeExpiry: doc?.noticeExpiry ?? "",
     };
     return settingsCache;
   },
-  async update(data: { externalApiUrl?: string; externalApiKey?: string }): Promise<void> {
+  async update(data: { externalApiUrl?: string; externalApiKey?: string; noticeText?: string; noticeExpiry?: string }): Promise<void> {
     await ensureConnection();
     if (!connected) {
       fallbackSettings = { ...fallbackSettings, ...data };
