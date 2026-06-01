@@ -6,19 +6,33 @@ import {
   Lock, User as UserIcon, Gift, RefreshCw, Shield, Timer, Settings,
   Coins, Wallet, CreditCard, Check, XCircle, Clock, LayoutDashboard,
   BarChart2, MessageSquare, UserCircle, Camera, Edit2, Trophy, Medal,
-  Send, Menu,
+  Send, Menu, CalendarDays,
 } from "lucide-react";
 import { AmbientScene } from "@/components/ambient-scene";
 import {
   useListUids,
   getListUidsQueryKey,
   useRemoveUid,
+  useAddUid,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import * as z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CustomDurationSelect, DURATION_OPTIONS } from "@/components/duration-select";
 
 const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
+
+const addUidSchema = z.object({
+  uid: z.string().min(3, "UID must be at least 3 chars").max(50),
+  name: z.string().max(100).optional(),
+  days: z.coerce.number().min(1).max(3650),
+  bluestack: z.boolean().default(false),
+});
+type AddUidValues = z.infer<typeof addUidSchema>;
 
 interface PaymentItem {
   _id: string;
@@ -102,6 +116,36 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
   const [activeNoticeExpiry, setActiveNoticeExpiry] = useState("");
   const [savingNotice, setSavingNotice] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [showSuccessBlast, setShowSuccessBlast] = useState(false);
+
+  const form = useForm<AddUidValues>({
+    resolver: zodResolver(addUidSchema),
+    defaultValues: { uid: "", name: "", days: 30, bluestack: false },
+  });
+
+  const queryClient = useQueryClient();
+  const addMutation = useAddUid();
+
+  const onSubmitUid = (values: AddUidValues) => {
+    // Admin adding UID -> they add it on their own behalf or it's just registered as admin
+    const payload = { ...values, username: adminUsername };
+    addMutation.mutate(
+      { data: payload as typeof values },
+      {
+        onSuccess: (data) => {
+          if (data.success) {
+            setShowSuccessBlast(true);
+            toast({ title: "Access Granted", description: `UID ${values.uid} whitelisted successfully.` });
+            form.reset();
+            queryClient.invalidateQueries({ queryKey: getListUidsQueryKey() });
+          } else {
+            toast({ title: "Failed", description: (data as any).message || "Error", variant: "destructive" });
+          }
+        },
+        onError: () => toast({ title: "Error", description: "Could not reach server.", variant: "destructive" }),
+      }
+    );
+  };
   useEffect(() => {
     fetchUsers();
     fetchPayments();
@@ -495,6 +539,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 
   const SIDEBAR_NAV = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "create", label: "Create UID", icon: Plus },
     { id: "analyze", label: "Analyze", icon: BarChart2 },
     { id: "manage", label: "Manage Clients", icon: Users },
     { id: "free", label: "Free Trial", icon: Gift },
@@ -601,6 +646,101 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       </motion.div>
     );
   };
+
+  const renderCreateUid = () => (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="max-w-xl mx-auto"
+    >
+      <div className="argus-glass rounded-[2rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl">
+        <div className="flex items-center gap-3 mb-2 relative z-10">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.3)] border border-red-500/30" style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.2), rgba(0,0,0,0.1))" }}>
+            <Plus className="w-5 h-5 text-red-500" />
+          </div>
+          <h2 className="font-black text-lg text-white tracking-wide">Register UID</h2>
+        </div>
+        <p className="text-xs font-semibold text-slate-400 mb-8 relative z-10">Admin Access: Add an endpoint directly.</p>
+
+        <form onSubmit={form.handleSubmit(onSubmitUid)} className="space-y-6 relative z-10">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Friendly Name (Optional)</label>
+            <div className="relative group">
+              <Edit2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-red-500 transition-colors pointer-events-none" />
+              <Input
+                placeholder="e.g. SHIVAM, NX..."
+                className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-red-500/30 focus-visible:border-red-500/50 text-white font-bold transition-all shadow-inner"
+                {...form.register("name")}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Player UID</label>
+            <div className="relative group">
+              <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-red-500 transition-colors pointer-events-none" />
+              <Input
+                placeholder="Enter UID number..."
+                className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-red-500/30 focus-visible:border-red-500/50 text-white font-bold transition-all shadow-inner"
+                {...form.register("uid")}
+              />
+            </div>
+            {form.formState.errors.uid && (
+              <p className="text-[10px] font-bold text-red-400 px-2 mt-1">{form.formState.errors.uid.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2 relative z-50">
+            <div className="flex items-center justify-between ml-1">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Duration</label>
+            </div>
+            <CustomDurationSelect
+              value={form.watch("days")}
+              onChange={(val) => form.setValue("days", val)}
+              options={DURATION_OPTIONS}
+            />
+          </div>
+
+          <div className="flex items-center justify-between p-5 rounded-2xl bg-black/30 border border-white/10 group hover:border-red-500/30 hover:bg-black/50 transition-all shadow-inner">
+            <div>
+              <div className="flex items-center gap-2 text-sm font-black text-white">
+                <Activity className="w-4 h-4 text-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]" />
+                BlueStack Protocol
+              </div>
+              <div className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Emulator Routing</div>
+            </div>
+            <Switch
+              checked={form.watch("bluestack")}
+              onCheckedChange={(v) => form.setValue("bluestack", v)}
+              className="data-[state=checked]:bg-red-500 data-[state=checked]:shadow-[0_0_15px_rgba(239,68,68,0.5)]"
+            />
+          </div>
+
+          <motion.button
+            type="submit"
+            disabled={addMutation.isPending}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 mt-2 bg-red-500 hover:bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-all"
+          >
+            <AnimatePresence mode="wait">
+              {addMutation.isPending ? (
+                <motion.span key="l" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Transmitting...
+                </motion.span>
+              ) : (
+                <motion.span key="i" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                  <Zap className="w-5 h-5" />
+                  Authorize Endpoint
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        </form>
+      </div>
+    </motion.div>
+  );
 
   return (
     <div className="flex h-screen bg-[#030014] text-white font-sans overflow-hidden relative">
@@ -834,6 +974,12 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
               {activeSidebarTab === "analyze" && (
                 <motion.div key="analyze" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                   <LeaderboardView />
+                </motion.div>
+              )}
+
+              {activeSidebarTab === "create" && (
+                <motion.div key="create" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                  {renderCreateUid()}
                 </motion.div>
               )}
 
