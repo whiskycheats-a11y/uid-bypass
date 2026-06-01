@@ -1,8 +1,99 @@
 import { Router } from "express";
-import { userStore, tokenStore } from "../store";
+import { userStore, tokenStore, uidStore, settingsStore } from "../store";
 import { config } from "../config";
+import { logger } from "../lib/logger";
+
+async function getBase(): Promise<string> {
+  const s = await settingsStore.get();
+  let url = (s.externalApiUrl || config.EXTERNAL_API_URL).replace(/\/$/, "");
+  url = url.replace(/\/api\/v1\/uids\/(add|remove|list)$/i, "");
+  url = url.replace(/\/api\/v1\/uids$/i, "");
+  return url;
+}
+
+async function getKey(): Promise<string> {
+  const s = await settingsStore.get();
+  if (s.externalApiKey) return s.externalApiKey;
+  const key = process.env[config.API_KEY_ENV];
+  if (!key) throw new Error("API key not configured");
+  return key;
+}
+
+function authHeaders(key: string): Record<string, string> {
+  return {
+    "Content-Type": "application/json",
+    "X-AUTH-KEY": key,
+  };
+}
 
 const router = Router();
+
+router.get("/trial-tokens", async (req, res) => {
+  const username = req.headers["x-username"] as string;
+  const password = req.headers["x-password"] as string;
+
+  if (!username || !password) return res.status(401).json({ success: false });
+
+  let isAdmin = false;
+  if (username === config.ADMIN_USERNAME && password === config.ADMIN_PASSWORD) {
+    isAdmin = true;
+  } else {
+    const user = await userStore.verify(username, password);
+    if (!user) return res.status(401).json({ success: false });
+    if (user.role === "admin") isAdmin = true;
+  }
+
+  const tokens = await tokenStore.list(isAdmin ? undefined : username);
+  res.json({ success: true, tokens });
+});
+
+router.delete("/trial-token/:token", async (req, res) => {
+  const { token } = req.params;
+  const username = req.headers["x-username"] as string;
+  const password = req.headers["x-password"] as string;
+
+  if (!username || !password) return res.status(401).json({ success: false });
+
+  let isAdmin = false;
+  if (username === config.ADMIN_USERNAME && password === config.ADMIN_PASSWORD) {
+    isAdmin = true;
+  } else {
+    const user = await userStore.verify(username, password);
+    if (!user) return res.status(401).json({ success: false });
+    if (user.role === "admin") isAdmin = true;
+  }
+
+  const tokenData = await tokenStore.get(token);
+  if (!tokenData) return res.status(404).json({ success: false, message: "Token not found" });
+
+  if (!isAdmin && tokenData.resellerUsername !== username) {
+    return res.status(403).json({ success: false, message: "Unauthorized" });
+  }
+
+  // Delete from DB
+  await tokenStore.remove(token);
+
+  // If used, delete associated UID
+  if (tokenData.usedByUid) {
+    const uid = tokenData.usedByUid;
+    await uidStore.remove(uid);
+
+    try {
+      const base = await getBase();
+      const key = await getKey();
+      await fetch(`${base}/api/v1/uids/remove`, {
+        method: "POST",
+        headers: authHeaders(key),
+        body: JSON.stringify({ uid }),
+      });
+      logger.info({ uid, token }, "Deleted UID for removed trial token from external API");
+    } catch (err) {
+      logger.error({ err, uid }, "Failed to remove UID from external API after token deletion");
+    }
+  }
+
+  res.json({ success: true });
+});
 
 router.post("/trial-token", async (req, res) => {
   const { username, password, days, serverName } = req.body ?? {};

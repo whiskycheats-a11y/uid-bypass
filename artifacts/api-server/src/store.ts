@@ -242,6 +242,35 @@ export const tokenStore = {
     }
     const exists = await TokenModel.findOne({ usedByIp: ip });
     return !!exists;
+  },
+
+  async list(resellerUsername?: string): Promise<TrialToken[]> {
+    await ensureConnection();
+    const filter = resellerUsername ? { resellerUsername } : {};
+    if (!connected) {
+      const all = Array.from(fallbackTokens.values());
+      return resellerUsername ? all.filter(t => t.resellerUsername === resellerUsername) : all;
+    }
+    const docs = await TokenModel.find(filter).sort({ createdAt: -1 });
+    return docs.map(doc => ({
+      token: doc.token,
+      resellerUsername: doc.resellerUsername,
+      days: doc.days,
+      createdAt: doc.createdAt,
+      used: doc.used,
+      usedAt: doc.usedAt,
+      usedByUid: doc.usedByUid,
+      usedByIp: doc.usedByIp
+    }));
+  },
+
+  async remove(token: string): Promise<boolean> {
+    await ensureConnection();
+    if (!connected) {
+      return fallbackTokens.delete(token);
+    }
+    const result = await TokenModel.deleteOne({ token });
+    return result.deletedCount > 0;
   }
 };
 

@@ -999,6 +999,48 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
   const [linkData, setLinkData] = useState<{ token: string; link: string; days: number; serverName?: string } | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [copiedCard, setCopiedCard] = useState(false);
+  
+  const [tokens, setTokens] = useState<any[]>([]);
+  const [loadingTokens, setLoadingTokens] = useState(false);
+
+  const fetchTokens = async () => {
+    setLoadingTokens(true);
+    try {
+      const res = await fetch(`${BASE}/api/reseller/trial-tokens`, {
+        headers: adminHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTokens(data.tokens);
+      }
+    } catch (err) {
+      console.error("Failed to fetch trial tokens", err);
+    } finally {
+      setLoadingTokens(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTokens();
+  }, []);
+
+  const handleDeleteToken = async (token: string) => {
+    if (!confirm("Are you sure you want to delete this trial link? All associated UIDs will be permanently revoked!")) return;
+    try {
+      const res = await fetch(`${BASE}/api/reseller/trial-token/${token}`, {
+        method: "DELETE",
+        headers: adminHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchTokens();
+      } else {
+        alert(data.message || "Failed to delete");
+      }
+    } catch (err) {
+      console.error("Failed to delete token", err);
+    }
+  };
 
   const refresh = useCallback(() => {
     setDays(7);
@@ -1059,6 +1101,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
       if (data.success) {
         const portalUrl = `${window.location.origin}/free-portal?token=${data.token}`;
         setLinkData({ token: data.token, link: portalUrl, days, serverName: serverName.trim() });
+        fetchTokens();
       } else {
         setError(data.error ?? "Failed");
       }
@@ -1185,6 +1228,61 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
               </motion.form>
             )}
           </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Generated Tokens List */}
+      <div className="panel rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
+        <div className="px-5 py-4 border-b border-white/[0.04] bg-black/20 flex items-center justify-between">
+          <h2 className="font-bold text-sm text-foreground">Generated Trial Links</h2>
+          <span className="text-[10px] bg-white/10 px-2 py-1 rounded-lg text-slate-300">{tokens.length} Links</span>
+        </div>
+        <div className="p-4 sm:p-5">
+          {loadingTokens ? (
+            <div className="flex justify-center py-6"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
+          ) : tokens.length === 0 ? (
+            <div className="text-center py-6 text-muted-foreground text-[11px] font-bold uppercase tracking-widest">No trial links generated yet</div>
+          ) : (
+            <div className="space-y-2">
+              {tokens.map((t) => (
+                <div key={t.token} className="p-3 rounded-xl bg-black/40 border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-mono font-bold text-xs text-amber-400 truncate">{t.token}</span>
+                      {t.used ? (
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-red-500/20 text-red-400 border border-red-500/30 uppercase tracking-widest">Used</span>
+                      ) : (
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-widest">Active</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+                      <span>{t.days} Day{t.days > 1 ? "s" : ""}</span>
+                      <span className="w-1 h-1 rounded-full bg-slate-700" />
+                      <span>{new Date(t.createdAt).toLocaleDateString()}</span>
+                      {t.resellerUsername && (
+                        <>
+                          <span className="w-1 h-1 rounded-full bg-slate-700" />
+                          <span className="text-cyan-400">By: {t.resellerUsername}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button onClick={() => {
+                        const url = `${window.location.origin}/free-portal?token=${t.token}`;
+                        navigator.clipboard.writeText(url);
+                        toast({ title: "Link Copied", description: "Trial activation link copied to clipboard." });
+                      }} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 transition-colors" title="Copy Link">
+                      <Copy className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => handleDeleteToken(t.token)} className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 transition-colors" title="Revoke & Delete">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
