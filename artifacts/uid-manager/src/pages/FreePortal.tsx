@@ -12,7 +12,8 @@ import {
   ArrowRight,
   Activity,
   User,
-  Timer
+  Timer,
+  Medal
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
