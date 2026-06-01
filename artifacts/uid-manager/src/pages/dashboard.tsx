@@ -2065,12 +2065,12 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                       <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 via-cyan-500/5 to-transparent pointer-events-none" />
                       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
                       <div className="p-3 rounded-2xl bg-violet-500/10 border border-violet-500/30 text-violet-400 shrink-0">
-                        <Medal className="w-5 h-5 text-violet-400 animate-pulse" />
+                        <Medal className="w-5 h-5 text-violet-400" />
                       </div>
                       <div className="space-y-1">
                         <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-violet-300 flex items-center gap-1.5">
                           SYSTEM ANNOUNCEMENT
-                          <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
                         </h4>
                         <p className="text-sm font-semibold text-slate-200 leading-relaxed font-sans">{activeNotice}</p>
                       </div>

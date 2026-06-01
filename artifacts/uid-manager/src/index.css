@@ -85,6 +85,7 @@
     @apply font-sans antialiased text-foreground overflow-x-hidden;
     background-color: hsl(var(--background));
     background-attachment: fixed;
+    color-scheme: dark;
   }
 }
 
