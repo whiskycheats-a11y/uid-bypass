@@ -103,13 +103,18 @@ router.post("/add", async (req, res) => {
   const authPass = req.headers["x-password"] as string | undefined;
 
   let isAuthorized = false;
+  let isAdmin = false;
   if (authUser && authPass) {
     if (authUser === config.ADMIN_USERNAME && authPass === config.ADMIN_PASSWORD) {
       isAuthorized = true;
+      isAdmin = true;
     } else {
       const user = await userStore.verify(authUser, authPass);
       if (user) {
-        if (user.role === "admin" || user.username === username) {
+        if (user.role === "admin") {
+          isAuthorized = true;
+          isAdmin = true;
+        } else if (user.username === username) {
           isAuthorized = true;
         }
       }
@@ -123,7 +128,7 @@ router.post("/add", async (req, res) => {
 
   let effectiveDays = days;
   let isTrial = false;
-  let skipBalanceCheck = false;
+  let skipBalanceCheck = isAdmin;
 
   if (username) {
     const user = await userStore.find(username);
