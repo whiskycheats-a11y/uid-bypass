@@ -138,7 +138,7 @@ export default function FreePortal() {
               <Shield className="h-4.5 w-4.5 text-white" />
             </div>
             <div>
-              <p className="text-sm font-black tracking-wider text-white">SG71 BYPASS</p>
+              <p className="text-sm font-black tracking-wider text-white">VELOCIRA CHEATS</p>
               <p className="text-[8px] font-black uppercase tracking-[0.25em] text-cyan-400/80">FREE PORTAL</p>
             </div>
           </div>

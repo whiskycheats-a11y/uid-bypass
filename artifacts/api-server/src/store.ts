@@ -150,7 +150,7 @@ export const tokenStore = {
   async create(resellerUsername: string, days: number): Promise<string> {
     await ensureConnection();
     const randPart = Math.random().toString(36).substring(2, 10).toUpperCase();
-    const token = `SG71-TRIAL-${randPart}`;
+    const token = `VELOCIRA-TRIAL-${randPart}`;
     const tokenData: TrialToken = {
       token,
       resellerUsername,

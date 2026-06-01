@@ -263,12 +263,12 @@ export default function Login({ onLogin }: LoginProps) {
     setError("");
     setLoading(true);
     try {
-      let clientHwid = localStorage.getItem("sg71_hwid");
+      let clientHwid = localStorage.getItem("velocira_hwid");
       if (!clientHwid) {
         clientHwid = typeof crypto !== "undefined" && crypto.randomUUID 
           ? crypto.randomUUID() 
           : Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
-        localStorage.setItem("sg71_hwid", clientHwid);
+        localStorage.setItem("velocira_hwid", clientHwid);
       }
 
       const res = await fetch(`${BASE}/api/auth/login`, {

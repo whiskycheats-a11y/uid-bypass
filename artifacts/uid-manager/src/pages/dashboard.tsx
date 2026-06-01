@@ -503,7 +503,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
 
   const copyCard = (c: { token: string; link: string; days: number }) => {
     const msg =
-`✨「 SG71 BYPASS MODULE 」✨
+`✨「 VELOCIRA CHEATS BYPASS MODULE 」✨
 🔓 FREE TRIAL ACCESS GRANTED 🔓
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
 
@@ -521,7 +521,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
    ▸ Access granted instantly ✅
 
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-💎  SG71 Developer Zone Velocira Cheats
+💎  Velocira Cheats Developer Zone
 🔥  Premium Bypass Service
 ━━━━━━━━━━━━━━━━━━━━━━━━━━`;
     navigator.clipboard.writeText(msg);
