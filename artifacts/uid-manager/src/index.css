@@ -352,14 +352,12 @@
   .scanline { display: none; }
 }
 
-/* Browser Autofill Dark Mode Override */
+/* Browser Autofill Dark Mode Override (Transparent) */
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus, 
 input:-webkit-autofill:active {
   -webkit-text-fill-color: #ffffff !important;
-  -webkit-box-shadow: 0 0 0px 1000px #050314 inset !important;
-  box-shadow: 0 0 0px 1000px #050314 inset !important;
   transition: background-color 5000s ease-in-out 0s;
   caret-color: #ffffff;
 }
