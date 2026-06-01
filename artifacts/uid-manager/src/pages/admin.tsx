@@ -6,7 +6,7 @@ import {
   Lock, User as UserIcon, Gift, RefreshCw, Shield, Timer, Settings,
   Coins, Wallet, CreditCard, Check, XCircle, Clock, LayoutDashboard,
   BarChart2, MessageSquare, UserCircle, Camera, Edit2, Trophy, Medal,
-  Send,
+  Send, Menu,
 } from "lucide-react";
 import { AmbientScene } from "@/components/ambient-scene";
 import {
@@ -101,7 +101,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
   const [activeNotice, setActiveNotice] = useState("");
   const [activeNoticeExpiry, setActiveNoticeExpiry] = useState("");
   const [savingNotice, setSavingNotice] = useState(false);
-
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   useEffect(() => {
     fetchUsers();
     fetchPayments();
@@ -606,15 +606,88 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     <div className="flex h-screen bg-[#030014] text-white font-sans overflow-hidden relative">
       <div ref={spotlightRef} className="fixed inset-0 pointer-events-none z-0" style={{ willChange: "background" }} />
       
-      {/* Sidebar */}
-      <aside className="flex w-64 bg-[#0a0a0a]/95 border-r border-white/5 flex-col z-50 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
+      {/* Sidebar — hidden on mobile, slide-in on mobile when open */}
+      <AnimatePresence>
+        {mobileSidebarOpen && (
+          <motion.aside
+            key="mobile-sidebar"
+            initial={{ x: -280 }}
+            animate={{ x: 0 }}
+            exit={{ x: -280 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="fixed left-0 top-0 bottom-0 w-72 bg-[#0a0a0a]/98 border-r border-white/5 flex flex-col z-[70] shadow-[10px_0_30px_rgba(0,0,0,0.8)] lg:hidden"
+          >
+            <div className="h-20 flex items-center justify-between px-6 border-b border-white/5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,0,110,0.4)]" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
+                  <Crown className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <div className="font-black text-[11px] uppercase tracking-[0.1em] text-white">ADMIN PANEL</div>
+                  <div className="text-[9px] font-bold text-amber-500 uppercase tracking-widest mt-0.5">SUPER ADMIN</div>
+                </div>
+              </div>
+              <button onClick={() => setMobileSidebarOpen(false)} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1.5 custom-scrollbar">
+              {SIDEBAR_NAV.map((nav) => {
+                const Icon = nav.icon;
+                const active = activeSidebarTab === nav.id;
+                return (
+                  <button
+                    key={nav.id}
+                    onClick={() => { setActiveSidebarTab(nav.id); setMobileSidebarOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
+                      ${active 
+                        ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.02)] relative" 
+                        : "text-slate-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}
+                    `}
+                  >
+                    <Icon className={`w-4.5 h-4.5 ${active ? "text-red-500" : "text-slate-500"}`} />
+                    <span>{nav.label}</span>
+                    {active && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]" />}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="p-4 border-t border-white/5">
+              <button
+                onClick={onLogout}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all font-semibold text-sm"
+              >
+                <LogOut className="w-4.5 h-4.5" />
+                <span>Logout</span>
+              </button>
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+
+      {/* Backdrop for mobile sidebar */}
+      <AnimatePresence>
+        {mobileSidebarOpen && (
+          <motion.div
+            key="sidebar-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setMobileSidebarOpen(false)}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex w-64 bg-[#0a0a0a]/95 border-r border-white/5 flex-col z-50 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
         {/* Sidebar Logo Area */}
         <div className="h-20 flex items-center gap-3 px-6 border-b border-white/5">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,0,110,0.4)]" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
             <Crown className="w-5 h-5 text-white" />
           </div>
           <div>
-            <div className="font-black text-[11px] uppercase tracking-[0.1em] text-white">UID BYPASS ADMIN PANEL</div>
+            <div className="font-black text-[11px] uppercase tracking-[0.1em] text-white">UID BYPASS ADMIN</div>
             <div className="text-[9px] font-bold text-amber-500 uppercase tracking-widest mt-0.5">SUPER ADMIN</div>
           </div>
         </div>
@@ -664,13 +737,27 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
         </div>
 
         {/* Main Content Header */}
-        <header className="h-20 shrink-0 border-b border-white/5 px-8 flex items-center justify-between relative z-20 backdrop-blur-md bg-black/20">
-          <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
-            <span>ADMIN TERMINAL</span>
-            <span className="text-slate-600">/</span>
-            <span className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] uppercase">
+        <header className="h-16 lg:h-20 shrink-0 border-b border-white/5 px-4 lg:px-8 flex items-center justify-between relative z-20 backdrop-blur-md bg-black/20">
+          <div className="flex items-center gap-3">
+            {/* Hamburger button — only on mobile */}
+            <button
+              onClick={() => setMobileSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            
+            <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 hidden sm:flex">
+              <span>ADMIN TERMINAL</span>
+              <span className="text-slate-600">/</span>
+              <span className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] uppercase">
+                {SIDEBAR_NAV.find(n => n.id === activeSidebarTab)?.label || "DASHBOARD"}
+              </span>
+            </div>
+            {/* Mobile title */}
+            <div className="sm:hidden text-white font-black uppercase tracking-wider text-xs">
               {SIDEBAR_NAV.find(n => n.id === activeSidebarTab)?.label || "DASHBOARD"}
-            </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-4">

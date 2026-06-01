@@ -54,6 +54,8 @@ import {
   KeyRound,
   Lock,
   Send,
+  Menu,
+  X,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
@@ -1988,14 +1990,19 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             className="fixed left-0 top-0 bottom-0 w-72 bg-[#0a0a0a]/98 border-r border-white/5 flex flex-col z-[70] shadow-[10px_0_30px_rgba(0,0,0,0.8)] lg:hidden"
           >
         {/* Sidebar Logo Area */}
-        <div className="h-20 flex items-center gap-3 px-6 border-b border-white/5">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,0,110,0.4)]" style={{ background: "linear-gradient(135deg, #ff006e, #7c3aed)" }}>
-            <Shield className="w-5 h-5 text-white" />
+        <div className="h-20 flex items-center justify-between px-6 border-b border-white/5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,0,110,0.4)]" style={{ background: "linear-gradient(135deg, #ff006e, #7c3aed)" }}>
+              <Shield className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <div className="font-black text-[11px] uppercase tracking-[0.1em] text-white">UID BYPASS RESELLER</div>
+              <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">SM</div>
+            </div>
           </div>
-          <div>
-            <div className="font-black text-[11px] uppercase tracking-[0.1em] text-white">UID BYPASS RESELLER</div>
-            <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">SM</div>
-          </div>
+          <button onClick={() => setMobileSidebarOpen(false)} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white">
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Navigation Links */}
