@@ -285,7 +285,7 @@ export default function FreePortal() {
                     disabled={submitting || !uid.trim()}
                     whileHover={{ y: -2 }}
                     whileTap={{ scale: 0.97 }}
-                    className="argus-btn w-full py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.25em] mt-6 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                    className="argus-btn w-full h-14 rounded-2xl text-[11px] font-black uppercase tracking-[0.25em] mt-6 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                     style={{
                       background: "linear-gradient(135deg, #f59e0b, #ef4444)",
                       boxShadow: "0 0 20px rgba(245,158,11,0.3)",

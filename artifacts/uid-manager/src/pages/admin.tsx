@@ -1166,7 +1166,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
                   onClick={() => copyCard(linkData)}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-bold relative overflow-hidden transition-all"
+                  className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-xs font-bold uppercase tracking-widest relative overflow-hidden transition-all"
                   style={{
                     background: copiedCard
                       ? "linear-gradient(135deg, rgba(16,185,129,0.25), rgba(6,182,212,0.15))"
@@ -1185,7 +1185,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
 
                 <button
                   onClick={refresh}
-                  className="w-full flex items-center justify-center gap-2 h-10 rounded-xl text-sm font-bold text-muted-foreground border border-white/[0.07] hover:bg-white/[0.04] hover:text-foreground transition-all"
+                  className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-xs font-bold uppercase tracking-widest text-muted-foreground border border-white/[0.07] hover:bg-white/[0.04] hover:text-foreground transition-all"
                 >
                   <RefreshCw className="w-4 h-4" />
                   Generate Another
@@ -1220,7 +1220,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
                   disabled={loading}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="w-full h-12 rounded-xl btn-viral-3d text-white font-bold text-sm flex items-center justify-center gap-2 relative overflow-hidden disabled:opacity-50"
+                  className="w-full h-12 rounded-xl btn-viral-3d text-white font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 relative overflow-hidden disabled:opacity-50"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12 btn-shimmer" />
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Gift className="w-4 h-4" />Generate Free Trial Access</>}

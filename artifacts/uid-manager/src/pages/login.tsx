@@ -814,7 +814,7 @@ export default function Login({ onLogin }: LoginProps) {
                      )}
                    </AnimatePresence>
                    
-                   <motion.button type="submit" disabled={loading || !username || !password} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} className="argus-btn w-full py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.25em] mt-6 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3">
+                   <motion.button type="submit" disabled={loading || !username || !password} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} className="argus-btn w-full h-14 rounded-2xl text-[11px] font-black uppercase tracking-[0.25em] mt-6 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3">
                      <AnimatePresence mode="wait">
                        {loading ? (
                          <motion.span key="l" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> Verifying Hash...</motion.span>

@@ -660,7 +660,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
                   onClick={() => copyCard(linkData)}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] relative overflow-hidden transition-all cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 h-14 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] relative overflow-hidden transition-all cursor-pointer"
                   style={{
                     background: copiedCard
                       ? "linear-gradient(135deg, rgba(16,185,129,0.25), rgba(6,182,212,0.15))"
@@ -679,9 +679,9 @@ function ResellerTrialPanel({ username }: { username: string }) {
 
                 <button
                   onClick={refresh}
-                  className="w-full flex items-center justify-center gap-2 h-11 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 hover:text-white border border-white/5 hover:border-white/10 bg-white/[0.01] hover:bg-white/[0.04] transition-all cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 h-14 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 hover:text-white border border-white/5 hover:border-white/10 bg-white/[0.01] hover:bg-white/[0.04] transition-all cursor-pointer"
                 >
-                  <RefreshCw className="w-4 h-4" />
+                  <RefreshCw className="w-5 h-5" />
                   Generate Another Link
                 </button>
               </motion.div>
