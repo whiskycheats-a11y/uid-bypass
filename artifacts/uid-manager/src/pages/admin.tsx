@@ -22,7 +22,6 @@ import { Switch } from "@/components/ui/switch";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CustomDurationSelect, DURATION_OPTIONS } from "@/components/duration-select";
 
 const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
@@ -123,7 +122,6 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     defaultValues: { uid: "", name: "", days: 30, bluestack: false },
   });
 
-  const queryClient = useQueryClient();
   const addMutation = useAddUid();
 
   const onSubmitUid = (values: AddUidValues) => {
@@ -690,15 +688,21 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             )}
           </div>
 
-          <div className="space-y-2 relative z-50">
-            <div className="flex items-center justify-between ml-1">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Duration</label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Duration (Days)</label>
+            <div className="relative group">
+              <Timer className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-red-500 transition-colors pointer-events-none" />
+              <Input
+                type="number"
+                min="1"
+                placeholder="Number of days..."
+                className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-red-500/30 focus-visible:border-red-500/50 text-white font-bold transition-all shadow-inner"
+                {...form.register("days", { valueAsNumber: true })}
+              />
             </div>
-            <CustomDurationSelect
-              value={form.watch("days")}
-              onChange={(val) => form.setValue("days", val)}
-              options={DURATION_OPTIONS}
-            />
+            {form.formState.errors.days && (
+              <p className="text-[10px] font-bold text-red-400 px-2 mt-1">{form.formState.errors.days.message}</p>
+            )}
           </div>
 
           <div className="flex items-center justify-between p-5 rounded-2xl bg-black/30 border border-white/10 group hover:border-red-500/30 hover:bg-black/50 transition-all shadow-inner">
