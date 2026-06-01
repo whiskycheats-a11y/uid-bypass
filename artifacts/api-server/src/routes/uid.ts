@@ -391,11 +391,14 @@ router.post("/free-whitelist", async (req, res) => {
       return;
     }
 
-    const activeIpExists = await uidStore.checkIpExists(clientIp);
-    const tokenIpExists = await tokenStore.checkIpExists(clientIp);
-    if (activeIpExists || tokenIpExists) {
-      res.json({ success: false, message: "TRIAL_IP_LIMIT_REACHED" });
-      return;
+    // Only block if this IP has an ACTIVE (non-expired) free trial UID
+    // This allows re-use after previous trial expires
+    if (clientIp && clientIp !== "unknown" && clientIp !== "::1" && clientIp !== "127.0.0.1") {
+      const activeIpExists = await uidStore.checkActiveIpExists(clientIp);
+      if (activeIpExists) {
+        res.json({ success: false, message: "TRIAL_IP_LIMIT_REACHED" });
+        return;
+      }
     }
 
     const existingUid = await uidStore.get(uid);

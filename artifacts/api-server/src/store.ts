@@ -115,6 +115,26 @@ export const uidStore = {
     const exists = await UidModel.findOne({ ip });
     return !!exists;
   },
+
+  // Only returns true if the IP has an ACTIVE (non-expired) trial UID
+  async checkActiveIpExists(ip: string): Promise<boolean> {
+    if (!ip) return false;
+    await ensureConnection();
+    const now = new Date();
+    if (!connected) {
+      return Array.from(fallbackUids.values()).some(u => {
+        if (u.ip !== ip) return false;
+        const expiresAt = new Date(new Date(u.addedAt).getTime() + u.days * 24 * 60 * 60 * 1000);
+        return expiresAt > now;
+      });
+    }
+    const uids = await UidModel.find({ ip });
+    for (const u of uids) {
+      const expiresAt = new Date(new Date(u.addedAt).getTime() + u.days * 24 * 60 * 60 * 1000);
+      if (expiresAt > now) return true;
+    }
+    return false;
+  },
 };
 
 // ── Trial Token model & store ───────────────────────────────────────────

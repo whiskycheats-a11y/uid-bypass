@@ -1533,6 +1533,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   const [showSuccessBlast, setShowSuccessBlast] = useState(false);
   const [profileData, setProfileData] = useState({ displayName: username || "Guest", avatarBase64: "" });
   const [activeNotice, setActiveNotice] = useState("");
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetch(`${BASE}/api/settings/notice`)
@@ -1959,10 +1960,33 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   );
 
   return (
-    <div className="flex h-screen bg-[#030014] text-white font-sans overflow-hidden relative">
+    <div className="flex h-[100dvh] bg-[#030014] text-white font-sans overflow-hidden relative">
       
-      {/* Sidebar */}
-      <aside className="flex w-64 bg-[#0a0a0a]/95 border-r border-white/5 flex-col z-50 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
+      {/* Mobile sidebar overlay */}
+      <AnimatePresence>
+        {mobileSidebarOpen && (
+          <motion.div
+            key="mobile-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm lg:hidden"
+            onClick={() => setMobileSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar — hidden on mobile, slide-in on mobile when open */}
+      <AnimatePresence>
+        {(mobileSidebarOpen) && (
+          <motion.aside
+            key="mobile-sidebar"
+            initial={{ x: -280 }}
+            animate={{ x: 0 }}
+            exit={{ x: -280 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="fixed left-0 top-0 bottom-0 w-72 bg-[#0a0a0a]/98 border-r border-white/5 flex flex-col z-[70] shadow-[10px_0_30px_rgba(0,0,0,0.8)] lg:hidden"
+          >
         {/* Sidebar Logo Area */}
         <div className="h-20 flex items-center gap-3 px-6 border-b border-white/5">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,0,110,0.4)]" style={{ background: "linear-gradient(135deg, #ff006e, #7c3aed)" }}>
@@ -1983,6 +2007,57 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             // Hide Free Portal if not a reseller
             if (nav.id === "free" && !canResell) return null;
 
+            return (
+              <button
+                key={nav.id}
+                onClick={() => { setActiveSidebarTab(nav.id); setMobileSidebarOpen(false); }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
+                  ${active 
+                    ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.02)] relative" 
+                    : "text-slate-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}
+                `}
+              >
+                <Icon className={`w-4.5 h-4.5 ${active ? "text-cyan-400" : "text-slate-500"}`} />
+                <span>{nav.label}</span>
+                {active && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Logout */}
+        <div className="p-4 border-t border-white/5">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all font-semibold text-sm"
+          >
+            <LogOut className="w-4.5 h-4.5" />
+            <span>Logout</span>
+          </button>
+        </div>
+      </motion.aside>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop Sidebar — visible only on lg+ screens */}
+      <aside className="hidden lg:flex w-64 bg-[#0a0a0a]/95 border-r border-white/5 flex-col z-50 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
+        {/* Sidebar Logo Area */}
+        <div className="h-20 flex items-center gap-3 px-6 border-b border-white/5">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,0,110,0.4)]" style={{ background: "linear-gradient(135deg, #ff006e, #7c3aed)" }}>
+            <Shield className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <div className="font-black text-[11px] uppercase tracking-[0.1em] text-white">UID BYPASS RESELLER</div>
+            <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">SM</div>
+          </div>
+        </div>
+
+        {/* Navigation Links */}
+        <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1.5 custom-scrollbar">
+          {SIDEBAR_NAV.map((nav) => {
+            const Icon = nav.icon;
+            const active = activeSidebarTab === nav.id;
+            if (nav.id === "free" && !canResell) return null;
             return (
               <button
                 key={nav.id}
@@ -2014,7 +2089,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 relative flex flex-col overflow-hidden h-full">
+      <main className="flex-1 relative flex flex-col overflow-hidden h-full min-w-0">
         {/* Background Effects for Main Content */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="argus-bg w-full h-full" />
@@ -2022,13 +2097,24 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
         </div>
 
         {/* Main Content Header */}
-        <header className="h-20 shrink-0 border-b border-white/5 px-8 flex items-center justify-between relative z-20 backdrop-blur-md bg-black/20">
-          <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
-            <span>USER TERMINAL</span>
-            <span className="text-slate-600">/</span>
-            <span className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] uppercase">
-              {SIDEBAR_NAV.find(n => n.id === activeSidebarTab)?.label || "DASHBOARD"}
-            </span>
+        <header className="h-16 lg:h-20 shrink-0 border-b border-white/5 px-4 lg:px-8 flex items-center justify-between relative z-20 backdrop-blur-md bg-black/20">
+          <div className="flex items-center gap-3">
+            {/* Hamburger button — only on mobile */}
+            <button
+              onClick={() => setMobileSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-slate-400 hover:text-white transition-all"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
+              <span className="hidden sm:block">USER TERMINAL</span>
+              <span className="text-slate-600 hidden sm:block">/</span>
+              <span className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] uppercase">
+                {SIDEBAR_NAV.find(n => n.id === activeSidebarTab)?.label || "DASHBOARD"}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
@@ -2057,8 +2143,8 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
         </header>
 
         {/* Scrollable Dashboard Content */}
-        <div className="flex-1 overflow-y-auto p-6 sm:p-8 pb-8 relative z-10 custom-scrollbar">
-          <div className="max-w-6xl mx-auto space-y-8 h-full">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 relative z-10 custom-scrollbar">
+          <div className="max-w-6xl mx-auto space-y-6 lg:space-y-8 h-full">
             
             <AnimatePresence mode="wait">
               {activeSidebarTab === "dashboard" && (
@@ -2196,8 +2282,8 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
           background: rgba(255, 255, 255, 0.2);
         }
       `}</style>
-      {/* Mobile Bottom Navigation Bar */}
-      <nav className="fixed bottom-4 left-4 right-4 z-50 hidden argus-glass rounded-2xl flex items-center justify-around py-3 px-2 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10 overflow-x-auto scrollbar-none gap-2">
+      {/* Mobile Bottom Navigation Bar — only visible on mobile (lg:hidden) */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden argus-glass flex items-center justify-around py-2 px-2 shadow-[0_-4px_30px_rgba(0,0,0,0.5)] border-t border-white/10 overflow-x-auto scrollbar-none gap-1">
         {SIDEBAR_NAV.map((nav) => {
           const Icon = nav.icon;
           const active = activeSidebarTab === nav.id;
@@ -2206,14 +2292,14 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             <button
               key={nav.id}
               onClick={() => setActiveSidebarTab(nav.id)}
-              className={`flex flex-col items-center gap-1 py-1 px-3.5 rounded-xl transition-all shrink-0 cursor-pointer ${
+              className={`flex flex-col items-center gap-0.5 py-2 px-3 rounded-xl transition-all shrink-0 cursor-pointer ${
                 active 
-                  ? "text-cyan-400 bg-white/[0.05]" 
-                  : "text-slate-400 hover:text-white"
+                  ? "text-cyan-400 bg-white/[0.07]" 
+                  : "text-slate-500 hover:text-white"
               }`}
             >
               <Icon className="w-5 h-5" />
-              <span className="text-[9px] font-black uppercase tracking-wider">{nav.label.split(" ")[0]}</span>
+              <span className="text-[8px] font-black uppercase tracking-wide">{nav.label.split(" ")[0]}</span>
             </button>
           );
         })}
