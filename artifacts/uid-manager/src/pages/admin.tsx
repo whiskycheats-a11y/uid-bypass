@@ -192,7 +192,9 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     defaultValues: { uid: "", name: "", days: 30, bluestack: false },
   });
 
-  const addMutation = useAddUid();
+  const addMutation = useAddUid({
+    request: { headers: adminHeadersForUids() },
+  });
 
   const onSubmitUid = (values: AddUidValues) => {
     // Admin adding UID -> they add it on their own behalf or it's just registered as admin
@@ -210,7 +212,13 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             toast({ title: "Failed", description: (data as any).message || "Error", variant: "destructive" });
           }
         },
-        onError: () => toast({ title: "Error", description: "Could not reach server.", variant: "destructive" }),
+        onError: (error) => {
+          let msg = "Could not reach server.";
+          if (error && (error as any).data?.message) {
+            msg = (error as any).data.message;
+          }
+          toast({ title: "Error", description: msg, variant: "destructive" });
+        },
       }
     );
   };

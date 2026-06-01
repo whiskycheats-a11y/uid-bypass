@@ -1765,7 +1765,13 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             toast({ title: "Failed", description: (data as any).message, variant: "destructive" });
           }
         },
-        onError: () => toast({ title: "Error", description: "Could not reach server.", variant: "destructive" }),
+        onError: (error) => {
+          let msg = "Could not reach server.";
+          if (error && (error as any).data?.message) {
+            msg = (error as any).data.message;
+          }
+          toast({ title: "Error", description: msg, variant: "destructive" });
+        },
       }
     );
   };
