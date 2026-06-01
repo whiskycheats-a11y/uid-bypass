@@ -27,7 +27,7 @@ const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(
 
 const addUidSchema = z.object({
   uid: z.string().min(3, "UID must be at least 3 chars").max(50),
-  name: z.string().max(100).optional(),
+  name: z.string().min(1, "Name is required").max(100),
   days: z.coerce.number().min(1).max(3650),
   bluestack: z.boolean().default(false),
 });
@@ -87,6 +87,76 @@ function adminHeadersForUids(): Record<string, string> {
 
 function rand(len: number, chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789") {
   return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+}
+
+function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete: () => void }) {
+  useEffect(() => {
+    if (active) {
+      const timer = setTimeout(() => {
+        onComplete();
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [active, onComplete]);
+
+  return (
+    <AnimatePresence>
+      {active && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md rounded-[2rem]"
+        >
+          <motion.div
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ type: "spring", damping: 15, stiffness: 200 }}
+            className="flex flex-col items-center"
+          >
+            <div className="relative w-24 h-24 flex items-center justify-center mb-6">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring" }}
+                className="absolute inset-0 bg-red-500/20 rounded-full blur-xl"
+              />
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.1, type: "spring" }}
+                className="w-20 h-20 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(239,68,68,0.5)] z-10"
+              >
+                <Check className="w-10 h-10 text-white" strokeWidth={3} />
+              </motion.div>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-[-10px] border-2 border-red-500/30 border-t-red-400 rounded-full z-0"
+              />
+            </div>
+            <motion.h3
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-2xl font-black text-white tracking-widest drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]"
+            >
+              ACCESS GRANTED
+            </motion.h3>
+            <motion.p
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-red-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2 text-center"
+            >
+              UID Successfully Whitelisted
+            </motion.p>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 }
 
 export default function Admin({ adminUsername, onLogout }: AdminProps) {
@@ -653,6 +723,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       className="max-w-xl mx-auto"
     >
       <div className="argus-glass rounded-[2rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl">
+        <SuccessAnimation active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
         <div className="flex items-center gap-3 mb-2 relative z-10">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.3)] border border-red-500/30" style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.2), rgba(0,0,0,0.1))" }}>
             <Plus className="w-5 h-5 text-red-500" />
@@ -663,15 +734,18 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 
         <form onSubmit={form.handleSubmit(onSubmitUid)} className="space-y-6 relative z-10">
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Friendly Name (Optional)</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Friendly Name</label>
             <div className="relative group">
               <Edit2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-red-500 transition-colors pointer-events-none" />
               <Input
-                placeholder="e.g. SHIVAM, NX..."
+                placeholder="Enter your name"
                 className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-red-500/30 focus-visible:border-red-500/50 text-white font-bold transition-all shadow-inner"
                 {...form.register("name")}
               />
             </div>
+            {form.formState.errors.name && (
+              <p className="text-[10px] font-bold text-red-400 px-2 mt-1">{form.formState.errors.name.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">

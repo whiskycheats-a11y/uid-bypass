@@ -83,7 +83,7 @@ const addUidSchema = z.object({
   uid: z.string().min(1, "UID is required"),
   days: z.coerce.number().min(1).default(30),
   bluestack: z.boolean().default(true),
-  name: z.string().optional().default(""),
+  name: z.string().min(1, "Name is required").default(""),
 });
 type AddUidValues = z.infer<typeof addUidSchema>;
 
@@ -330,109 +330,74 @@ function CustomDurationSelect({
   );
 }
 
-function ParticleExplosion({ active, onComplete }: { active: boolean; onComplete: () => void }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
+function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete: () => void }) {
   useEffect(() => {
-    if (!active) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    canvas.width = canvas.parentElement?.clientWidth || 400;
-    canvas.height = canvas.parentElement?.clientHeight || 500;
-
-    interface Particle {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      radius: number;
-      color: string;
-      alpha: number;
-      decay: number;
-      rotation: number;
-      rotationSpeed: number;
-    }
-
-    const particles: Particle[] = [];
-    const colors = ["#7c3aed", "#00d4ff", "#ff006e", "#10b981", "#fbbf24"];
-
-    const startX = canvas.width / 2;
-    const startY = canvas.height - 50;
-
-    for (let i = 0; i < 60; i++) {
-      const angle = -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI / 1.5);
-      const speed = 2 + Math.random() * 6;
-      particles.push({
-        x: startX,
-        y: startY,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        radius: 2 + Math.random() * 4,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        alpha: 1,
-        decay: 0.015 + Math.random() * 0.02,
-        rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: (Math.random() - 0.5) * 0.2,
-      });
-    }
-
-    let animationFrameId: number;
-
-    function render() {
-      if (!ctx || !canvas) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      let alive = false;
-
-      particles.forEach((p) => {
-        if (p.alpha <= 0) return;
-
-        alive = true;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy += 0.05; // gravity
-        p.alpha -= p.decay;
-        p.rotation += p.rotationSpeed;
-
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.rotation);
-        ctx.globalAlpha = p.alpha;
-
-        ctx.beginPath();
-        for (let i = 0; i < 4; i++) {
-          ctx.lineTo(0, -p.radius * 2);
-          ctx.rotate(Math.PI / 2);
-        }
-        ctx.closePath();
-
-        ctx.fillStyle = p.color;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = p.color;
-        ctx.fill();
-        ctx.restore();
-      });
-
-      if (alive) {
-        animationFrameId = requestAnimationFrame(render);
-      } else {
+    if (active) {
+      const timer = setTimeout(() => {
         onComplete();
-      }
+      }, 2500);
+      return () => clearTimeout(timer);
     }
-
-    render();
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-    };
   }, [active, onComplete]);
 
-  if (!active) return null;
-
-  return <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none z-30" />;
+  return (
+    <AnimatePresence>
+      {active && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md rounded-[2rem]"
+        >
+          <motion.div
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ type: "spring", damping: 15, stiffness: 200 }}
+            className="flex flex-col items-center"
+          >
+            <div className="relative w-24 h-24 flex items-center justify-center mb-6">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring" }}
+                className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl"
+              />
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.1, type: "spring" }}
+                className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(16,185,129,0.5)] z-10"
+              >
+                <Check className="w-10 h-10 text-white" strokeWidth={3} />
+              </motion.div>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-[-10px] border-2 border-emerald-500/30 border-t-emerald-400 rounded-full z-0"
+              />
+            </div>
+            <motion.h3
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-2xl font-black text-white tracking-widest drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+            >
+              ACCESS GRANTED
+            </motion.h3>
+            <motion.p
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-emerald-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2 text-center"
+            >
+              UID Successfully Whitelisted
+            </motion.p>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 }
 
 function TiltWrapper({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -1942,7 +1907,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
     >
       <TiltWrapper>
         <div className="argus-glass rounded-[2rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl">
-          <ParticleExplosion active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
+          <SuccessAnimation active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
           
           <div className="flex items-center gap-3 mb-2 relative z-10">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(124,58,237,0.3)] border border-violet-500/30" style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.2), rgba(0,212,255,0.1))" }}>
@@ -1954,15 +1919,18 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 relative z-10">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Friendly Name (Optional)</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Friendly Name</label>
               <div className="relative group">
                 <Edit2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-cyan-400 transition-colors pointer-events-none" />
                 <Input
-                  placeholder="e.g. SHIVAM, NX..."
+                  placeholder="Enter your name"
                   className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-cyan-500/30 focus-visible:border-cyan-500/50 text-white font-bold transition-all shadow-inner"
                   {...form.register("name")}
                 />
               </div>
+              {form.formState.errors.name && (
+                <p className="text-[10px] font-bold text-red-400 px-2 mt-1">{form.formState.errors.name.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
