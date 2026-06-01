@@ -221,7 +221,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     }
   }
 
-  const NoticeBroadcastCard = () => {
+  const renderNoticeBroadcastCard = () => {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -738,7 +738,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                       {renderUidTable(false, false)}
                     </div>
                     <div className="lg:col-span-1">
-                      <NoticeBroadcastCard />
+                      {renderNoticeBroadcastCard()}
                     </div>
                   </div>
                 </motion.div>
