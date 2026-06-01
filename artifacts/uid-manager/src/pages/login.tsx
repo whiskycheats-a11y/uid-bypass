@@ -404,13 +404,7 @@ export default function Login({ onLogin }: LoginProps) {
               Network Live
             </div>
             <button
-              onClick={() => { setError(""); setShowLogin(false); setTrialToken(""); setPlayerUid(""); setClaimSuccess(false); setUsername(""); setPassword(""); setShowTrial(!showTrial); }}
-              className="flex items-center gap-2 rounded-2xl border border-amber-500/20 bg-amber-500/[0.03] px-6 py-2.5 text-xs font-black uppercase tracking-[0.2em] text-amber-400 hover:bg-amber-500/[0.1] hover:shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:border-amber-500/30 active:scale-95 transition-all cursor-pointer backdrop-blur-md"
-            >
-              {showTrial ? "← Return" : "Free Trial"}
-            </button>
-            <button
-              onClick={() => { setError(""); setShowTrial(false); setTrialToken(""); setPlayerUid(""); setClaimSuccess(false); setUsername(""); setPassword(""); setShowLogin(!showLogin); }}
+              onClick={() => { setError(""); setTrialToken(""); setPlayerUid(""); setClaimSuccess(false); setUsername(""); setPassword(""); setShowLogin(!showLogin); }}
               className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-2.5 text-xs font-black uppercase tracking-[0.2em] text-white hover:bg-white/[0.1] hover:shadow-[0_0_20px_rgba(124,58,237,0.2)] hover:border-violet-500/30 active:scale-95 transition-all cursor-pointer backdrop-blur-md"
             >
               {showLogin ? "← Return" : "Portal"}
@@ -422,7 +416,7 @@ export default function Login({ onLogin }: LoginProps) {
       {/* ── Main ── */}
       <main className="flex-grow pt-24 z-10 relative">
         <AnimatePresence mode="wait">
-          {!showLogin && !showTrial ? (
+          {!showLogin ? (
             <motion.div
               key="landing"
               initial={{ opacity: 0 }}
@@ -472,10 +466,10 @@ export default function Login({ onLogin }: LoginProps) {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => { setError(""); setShowLogin(false); setTrialToken(""); setPlayerUid(""); setClaimSuccess(false); setUsername(""); setPassword(""); setShowTrial(true); }}
+                      onClick={() => { setError(""); setTrialToken(""); setPlayerUid(""); setClaimSuccess(false); setUsername(""); setPassword(""); setShowLogin(true); }}
                       className="argus-btn flex items-center gap-2 rounded-2xl text-white font-black text-[11px] tracking-[0.2em] uppercase px-8 py-4.5 cursor-pointer"
                     >
-                      Claim Free Trial <ArrowRight className="h-4 w-4" />
+                      Access Portal <ArrowRight className="h-4 w-4" />
                     </motion.button>
                     <motion.button
                       whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.2)" }}
@@ -761,172 +755,6 @@ export default function Login({ onLogin }: LoginProps) {
                  </div>
                </div>
              </section>
-            </motion.div>
-          ) : showTrial ? (
-            /* ═══════ FREE CLAIM PORTAL ═══════ */
-            <motion.div
-              key="trial"
-              initial={{ opacity: 0, y: 30, scale: 0.95, filter: "blur(10px)" }}
-              animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, scale: 0.95, filter: "blur(10px)" }}
-              transition={{ duration: 0.6, type: "spring", stiffness: 100, damping: 20 }}
-              className="w-full max-w-[480px] mx-auto px-6 py-20 sm:py-32 relative z-20"
-              style={{ perspective: "1200px" }}
-            >
-              <div onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} className="w-full">
-                <motion.div
-                  ref={cardRef}
-                  animate={shake ? { x: [-12, 12, -8, 8, -4, 4, 0] } : {}}
-                  style={{ rotateX: tilt.x, rotateY: tilt.y, transformStyle: "preserve-3d", transition: shake ? undefined : "transform 0.3s ease-out" }}
-                  transition={{ duration: 0.45 }}
-                  className="argus-glass shadow-[0_40px_100px_rgba(0,0,0,0.8)] rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-10 relative overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-cyan-500/5 opacity-60 pointer-events-none" />
-                  
-                  {claimSuccess ? (
-                    <div className="space-y-6 text-center">
-                      <div className="flex justify-center mb-6">
-                        <div className="w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]">
-                          <Check className="w-10 h-10 text-emerald-400" />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <h2 className="text-2xl font-black text-white tracking-tight">Access Granted!</h2>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Your Player UID is now whitelisted</p>
-                      </div>
-                      <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 space-y-2.5 text-left text-xs font-bold text-slate-300">
-                        <div className="flex justify-between">
-                          <span className="text-slate-500 uppercase tracking-widest text-[9px]">Player UID</span>
-                          <span className="font-mono text-white text-sm">{playerUid}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-500 uppercase tracking-widest text-[9px]">Duration</span>
-                          <span className="text-amber-400 uppercase">{claimDays} Day{claimDays > 1 ? "s" : ""} Free Trial</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-500 uppercase tracking-widest text-[9px]">Status</span>
-                          <span className="text-emerald-400 flex items-center gap-1.5 uppercase text-[9px] bg-emerald-950/30 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                            <span className="h-1 w-1 bg-emerald-400 rounded-full animate-pulse" /> Active
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setClaimSuccess(false);
-                          setTrialToken("");
-                          setPlayerUid("");
-                          setError("");
-                        }}
-                        className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 hover:text-white border border-white/5 hover:border-white/10 bg-white/[0.01] hover:bg-white/[0.04] transition-all cursor-pointer mt-6"
-                      >
-                        Whitelist Another UID
-                      </button>
-                      
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setError("");
-                          setShowTrial(false);
-                          setClaimSuccess(false);
-                          setTrialToken("");
-                          setPlayerUid("");
-                        }}
-                        className="w-full text-center text-[10px] font-black uppercase tracking-[0.2em] text-violet-400 hover:text-violet-300 transition-colors mt-2"
-                      >
-                        Back to Landing
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-5 relative z-10 mb-10">
-                        <div className="h-16 w-16 flex items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-600 text-white shadow-[0_15px_30px_rgba(245,158,11,0.3)]">
-                          <Gift className="h-7 w-7" />
-                        </div>
-                        <div className="text-left">
-                          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.4)] mb-1">Free Trial Portal</p>
-                          <h2 className="text-2xl font-black text-white tracking-tight">Claim Whitelist</h2>
-                        </div>
-                      </div>
-
-                      <form onSubmit={handleClaimTrial} className="space-y-5 relative z-10 text-left">
-                        <div className="space-y-2.5">
-                          <label className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400/80 ml-1">Trial Token</label>
-                          <div className="flex items-center gap-3 border border-white/10 bg-black/40 backdrop-blur-md rounded-2xl px-5 py-4 focus-within:border-amber-500/50 focus-within:shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all">
-                            <KeyRound className="h-4.5 w-4.5 text-slate-500" />
-                            <input
-                              type="text"
-                              value={trialToken}
-                              onChange={(e) => { setTrialToken(e.target.value); if (error) setError(""); }}
-                              placeholder="Enter SG71-TRIAL-XXXX token"
-                              className="bg-transparent border-0 outline-0 text-white placeholder-slate-600 text-sm w-full font-bold"
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2.5">
-                          <label className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400/80 ml-1">Player UID</label>
-                          <div className="flex items-center gap-3 border border-white/10 bg-black/40 backdrop-blur-md rounded-2xl px-5 py-4 focus-within:border-amber-500/50 focus-within:shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all">
-                            <Fingerprint className="h-4.5 w-4.5 text-slate-500" />
-                            <input
-                              type="text"
-                              value={playerUid}
-                              onChange={(e) => { setPlayerUid(e.target.value); if (error) setError(""); }}
-                              placeholder="Enter your game Player UID"
-                              className="bg-transparent border-0 outline-0 text-white placeholder-slate-600 text-sm w-full font-bold font-mono"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between p-4 rounded-2xl bg-black/40 border border-white/5">
-                          <div className="flex items-center gap-3">
-                            <Cpu className="w-4.5 h-4.5 text-slate-500" />
-                            <div>
-                              <div className="text-[10px] font-black text-white uppercase tracking-wider">Bluestacks Simulator</div>
-                              <div className="text-[9px] font-bold text-slate-500 uppercase">Required for simulator players</div>
-                            </div>
-                          </div>
-                          <input
-                            type="checkbox"
-                            checked={bluestack}
-                            onChange={(e) => setBluestack(e.target.checked)}
-                            className="w-4.5 h-4.5 rounded border-white/10 bg-black/40 text-amber-500 focus:ring-amber-500/50 cursor-pointer"
-                          />
-                        </div>
-
-                        <AnimatePresence>
-                          {error && (
-                            <motion.div initial={{ opacity: 0, y: -10, height: 0 }} animate={{ opacity: 1, y: 0, height: "auto" }} exit={{ opacity: 0, y: -10, height: 0 }} className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-xs font-bold text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.15)] backdrop-blur-md">
-                              {error}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-
-                        <motion.button
-                          type="submit"
-                          disabled={loading || !trialToken || !playerUid}
-                          whileHover={{ y: -2 }}
-                          whileTap={{ scale: 0.97 }}
-                          className="argus-btn w-full py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.25em] mt-6 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-                          style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)", boxShadow: "0 0 20px rgba(245,158,11,0.3)" }}
-                        >
-                          {loading ? (
-                            <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> Whitelisting...</span>
-                          ) : (
-                            <span className="flex items-center gap-2"><Check className="h-5 w-5" /> Whitelist UID <ArrowRight className="h-4 w-4" /></span>
-                          )}
-                        </motion.button>
-                      </form>
-
-                      <div className="mt-10 flex items-center justify-between border-t border-white/10 pt-6 text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 relative z-10">
-                        <span className="flex items-center gap-2"><Zap className="h-4 w-4 text-amber-500 drop-shadow-[0_0_5px_#f59e0b]" /> SG71 Crypt Mesh</span>
-                        <button type="button" onClick={() => { setError(""); setShowTrial(false); setTrialToken(""); setPlayerUid(""); }} className="text-violet-400 hover:text-violet-300 cursor-pointer transition-colors px-2 py-1">Abort</button>
-                      </div>
-                    </>
-                  )}
-                </motion.div>
-              </div>
             </motion.div>
           ) : (
             /* ═══════ LOGIN PORTAL ═══════ */
