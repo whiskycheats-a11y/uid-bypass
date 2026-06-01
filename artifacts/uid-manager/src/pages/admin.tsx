@@ -767,8 +767,8 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
               ) : (
                 <Crown className="w-3.5 h-3.5 text-amber-500" />
               )}
-              <span className="uppercase tracking-wider truncate max-w-[100px] sm:max-w-none">{profileData.displayName}</span>
-              <span className="ml-1.5 px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              <span className="hidden sm:inline uppercase tracking-wider truncate max-w-[100px] sm:max-w-none">{profileData.displayName}</span>
+              <span className="hidden sm:inline-block ml-1.5 px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/30">
                 SUPER ADMIN
               </span>
             </div>
@@ -1354,9 +1354,9 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
       transition={{ delay: index * 0.04, type: "spring", stiffness: 260, damping: 28 }}
       className="rounded-xl overflow-hidden"
     >
-      <div className="user-row relative flex items-center justify-between px-4 py-3.5">
+      <div className="user-row relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 py-3.5">
         <div className="user-row-bar absolute left-0 top-2 bottom-2 w-0.5 rounded-full" style={{ background: isTrial ? "linear-gradient(180deg, #f59e0b, #ef4444)" : "linear-gradient(180deg, #8b5cf6, #06b6d4)" }} />
-        <div className="flex items-center gap-3 ml-2 min-w-0">
+        <div className="flex items-center gap-3 ml-2 min-w-0 w-full sm:w-auto">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 user-row-icon" style={{ background: isTrial ? "rgba(245,158,11,0.12)" : "rgba(139,92,246,0.12)", border: `1px solid ${isTrial ? "rgba(245,158,11,0.2)" : "rgba(139,92,246,0.2)"}` }}>
             {isTrial ? <Gift className="w-4 h-4 text-amber-400" /> : <UserIcon className="w-4 h-4 text-violet-400" />}
           </div>
@@ -1377,7 +1377,7 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+        <div className="flex items-center gap-1.5 shrink-0 flex-wrap w-full sm:w-auto justify-start sm:justify-end pl-[44px] sm:pl-0">
           <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold user-row-badge"
             style={{ background: isTrial ? "rgba(245,158,11,0.1)" : "rgba(16,185,129,0.1)", color: isTrial ? "#fbbf24" : "#34d399", border: `1px solid ${isTrial ? "rgba(245,158,11,0.2)" : "rgba(16,185,129,0.2)"}` }}
           >

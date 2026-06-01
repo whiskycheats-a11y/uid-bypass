@@ -1380,28 +1380,31 @@ function LeaderboardView() {
                     </div>
                   </div>
 
-                  {/* Today Count */}
-                  <div className="col-span-2 text-center flex sm:block justify-between items-center sm:border-0 border-b border-white/5 py-1 sm:py-0">
-                    <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Today</span>
+                  {/* Stats Grid for Mobile / Columns for Desktop */}
+                  <div className="col-span-1 sm:col-span-7 grid grid-cols-2 sm:contents gap-x-4 gap-y-1 mt-3 sm:mt-0">
+                    {/* Today Count */}
+                    <div className="col-span-1 sm:col-span-2 text-left sm:text-center flex sm:block justify-between items-center sm:border-0 border-b border-white/5 py-1.5 sm:py-0">
+                      <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Today</span>
                     <span className="text-emerald-400 font-extrabold text-sm sm:bg-emerald-500/10 sm:border sm:border-emerald-500/20 px-2.5 py-1 rounded-lg">{user.today}</span>
                   </div>
 
-                  {/* Active Count */}
-                  <div className="col-span-2 text-center flex sm:block justify-between items-center sm:border-0 border-b border-white/5 py-1 sm:py-0">
-                    <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Active</span>
+                    {/* Active Count */}
+                    <div className="col-span-1 sm:col-span-2 text-left sm:text-center flex sm:block justify-between items-center sm:border-0 border-b border-white/5 py-1.5 sm:py-0">
+                      <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Active</span>
                     <span className="text-cyan-400 font-extrabold text-sm sm:bg-cyan-500/10 sm:border sm:border-cyan-500/20 px-2.5 py-1 rounded-lg">{user.active}</span>
                   </div>
 
-                  {/* Expired Count */}
-                  <div className="col-span-2 text-center flex sm:block justify-between items-center sm:border-0 border-b border-white/5 py-1 sm:py-0">
-                    <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Expired</span>
+                    {/* Expired Count */}
+                    <div className="col-span-1 sm:col-span-2 text-left sm:text-center flex sm:block justify-between items-center sm:border-0 border-b border-white/5 py-1.5 sm:py-0">
+                      <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Expired</span>
                     <span className="text-red-400 font-extrabold text-sm sm:bg-red-500/10 sm:border sm:border-red-500/20 px-2.5 py-1 rounded-lg">{user.expired}</span>
                   </div>
 
-                  {/* Total UIDs */}
-                  <div className="col-span-1 text-right flex sm:block justify-between items-center py-1 sm:py-0">
-                    <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Total</span>
-                    <span className="text-white font-black text-base tracking-tight">{user.total}</span>
+                    {/* Total UIDs */}
+                    <div className="col-span-1 sm:col-span-1 text-right flex sm:block justify-between items-center py-1.5 sm:py-0">
+                      <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Total</span>
+                      <span className="text-white font-black text-base tracking-tight">{user.total}</span>
+                    </div>
                   </div>
 
                 </motion.div>
@@ -2226,9 +2229,9 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                 ) : (
                   <User className="w-3.5 h-3.5 text-cyan-400" />
                 )}
-                <span className="uppercase tracking-wider truncate max-w-[100px] sm:max-w-none">{profileData.displayName}</span>
+                <span className="hidden sm:inline uppercase tracking-wider truncate max-w-[100px] sm:max-w-none">{profileData.displayName}</span>
                 {isTrial && (
-                  <span className="ml-1.5 px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest" style={{ background: "rgba(255,0,110,0.15)", color: "#ff006e", border: "1px solid rgba(255,0,110,0.3)" }}>
+                  <span className="hidden sm:inline-block ml-1.5 px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest" style={{ background: "rgba(255,0,110,0.15)", color: "#ff006e", border: "1px solid rgba(255,0,110,0.3)" }}>
                     TRIAL
                   </span>
                 )}
