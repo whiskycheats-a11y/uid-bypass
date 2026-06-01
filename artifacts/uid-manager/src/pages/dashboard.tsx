@@ -1739,6 +1739,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
     return expiresAt > Date.now();
   }).length;
   const expiredCount = uids.length - activeCount;
+  const freeTrialCount = uids.filter((u) => u.name && u.name.startsWith("Trial-")).length;
 
   const DISCORD_URL = "https://discord.gg/QTwupjcKre";
   const TRIAL_USED_KEY = `trial_uid_used_${username}`;
@@ -2268,7 +2269,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                   </div>
 
                   {/* Stats */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                     <OverviewStatCard
                       icon={Activity}
                       label="Total UIDs"
@@ -2289,6 +2290,13 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                       value={isLoading ? "—" : expiredCount}
                       delay={0.2}
                       sparklinePoints={[25, 24, 25, 24, 25, 24, 25, 24, 25, 24]}
+                    />
+                    <OverviewStatCard
+                      icon={Gift}
+                      label="Free Trials"
+                      value={isLoading ? "—" : freeTrialCount}
+                      delay={0.3}
+                      sparklinePoints={[10, 12, 14, 13, 16, 18, 20, 22, 24, 25]}
                     />
                   </div>
 

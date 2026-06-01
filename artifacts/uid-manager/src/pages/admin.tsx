@@ -421,6 +421,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     return expiresAt > Date.now();
   }).length;
   const expiredCount = uids.length - activeCount;
+  const freeTrialCount = uids.filter((u) => u.name && u.name.startsWith("Trial-")).length;
 
   async function fetchPayments() {
     setPaymentsLoading(true);
@@ -940,7 +941,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                   </div>
 
                   {/* Stats */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                     <OverviewStatCard
                       icon={Activity}
                       label="Total UIDs"
@@ -961,6 +962,13 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                       value={isUidsLoading ? "—" : expiredCount}
                       delay={0.2}
                       sparklinePoints={[25, 24, 25, 24, 25, 24, 25, 24, 25, 24]}
+                    />
+                    <OverviewStatCard
+                      icon={Gift}
+                      label="Free Trials"
+                      value={isUidsLoading ? "—" : freeTrialCount}
+                      delay={0.3}
+                      sparklinePoints={[10, 12, 14, 13, 16, 18, 20, 22, 24, 25]}
                     />
                   </div>
 
