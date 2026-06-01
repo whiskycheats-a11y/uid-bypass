@@ -167,16 +167,16 @@ function OverviewStatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, type: "spring", stiffness: 200, damping: 22 }}
       whileHover={{ y: -4, scale: 1.02 }}
-      className="argus-glass rounded-[2rem] p-6 sm:p-7 relative overflow-hidden cursor-default group flex items-center justify-between border border-white/[0.04] bg-black/40 shadow-xl"
+      className="neo-glass glow-border rounded-[2rem] p-6 sm:p-7 relative overflow-hidden cursor-default group flex items-center justify-between bg-black/40 shadow-xl"
     >
       <div className="scanline" />
       <div
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-[2rem] pointer-events-none"
-        style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.05), rgba(0,0,0,0))" }}
+        style={{ background: "radial-gradient(circle at top right, rgba(124,58,237,0.1), transparent 70%)" }}
       />
       <div
-        className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-        style={{ background: "linear-gradient(90deg, transparent, #ef4444, transparent)" }}
+        className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none glow-pulse"
+        style={{ background: "linear-gradient(90deg, transparent, #00d4ff, transparent)" }}
       />
 
       <div className="flex flex-col justify-between h-full relative z-10">
@@ -187,9 +187,11 @@ function OverviewStatCard({
       </div>
 
       <div className="flex flex-col items-end justify-between h-full relative z-10 gap-3">
-        <Icon className="w-4 h-4 text-slate-500/50 group-hover:text-red-500/80 transition-colors" />
+        <div className="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center group-hover:bg-cyan-500/20 transition-colors shadow-[0_0_10px_rgba(0,212,255,0.1)] group-hover:shadow-[0_0_15px_rgba(0,212,255,0.3)]">
+          <Icon className="w-4 h-4 text-cyan-400/80 group-hover:text-cyan-300 transition-colors" />
+        </div>
         <div className="w-24 sm:w-28 h-10 mt-2">
-          <svg viewBox="0 0 100 30" className="w-full h-full text-red-500/80 group-hover:text-red-400 transition-colors filter drop-shadow-[0_0_4px_rgba(239,68,68,0.3)]">
+          <svg viewBox="0 0 100 30" className="w-full h-full text-cyan-500/50 group-hover:text-cyan-400 transition-colors filter drop-shadow-[0_0_4px_rgba(0,212,255,0.3)]">
             <path
               d={pathD}
               fill="none"
@@ -1797,7 +1799,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`argus-glass rounded-[2rem] overflow-hidden relative shadow-2xl ${showFull ? 'h-full' : ''}`}
+        className={`neo-glass rounded-[2.5rem] overflow-hidden relative shadow-2xl ${showFull ? 'h-full' : ''}`}
       >
         <div className="flex items-center justify-between px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-black/20">
           <div className="flex items-center gap-3">
@@ -1845,7 +1847,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                     exit={{ opacity: 0, scale: 0.9, y: 10 }}
                     onHoverStart={() => setHoveredRow(uidObj.uid)}
                     onHoverEnd={() => setHoveredRow(null)}
-                    className={`group relative bg-black/40 border ${highlightDelete ? 'border-red-500/20' : 'border-white/10'} rounded-3xl p-5 hover:border-white/20 hover:bg-white/[0.02] transition-all overflow-hidden flex flex-col justify-between h-40 shadow-lg`}
+                    className={`group relative bg-black/40 border ${highlightDelete ? 'border-red-500/20' : 'border-white/10'} rounded-[2rem] p-5 hover:border-white/20 hover:bg-white/[0.02] transition-all overflow-hidden flex flex-col justify-between h-40 shadow-lg glow-border hover:shadow-xl`}
                   >
                     <div
                       className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 pointer-events-none"
@@ -1906,7 +1908,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
       className="max-w-xl mx-auto"
     >
       <TiltWrapper>
-        <div className="argus-glass rounded-[2rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl">
+        <div className="neo-glass rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl glow-border">
           <SuccessAnimation active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
           
           <div className="flex items-center gap-3 mb-2 relative z-10">
@@ -2175,12 +2177,12 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
         </div>
 
         {/* Main Content Header */}
-        <header className="h-16 lg:h-20 shrink-0 border-b border-white/5 px-4 lg:px-8 flex items-center justify-between relative z-20 backdrop-blur-md bg-black/20">
+        <header className="h-16 lg:h-20 shrink-0 border-b border-white/5 px-4 lg:px-8 flex items-center justify-between relative z-20 neo-glass-panel rounded-b-3xl mx-2 lg:mx-4 mt-2 mb-4">
           <div className="flex items-center gap-3">
             {/* Hamburger button — only on mobile */}
             <button
               onClick={() => setMobileSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-slate-400 hover:text-white transition-all"
+              className="lg:hidden p-2.5 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-slate-400 hover:text-white transition-all shadow-md active:scale-95"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -2221,7 +2223,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
         </header>
 
         {/* Scrollable Dashboard Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-8 relative z-10 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-12 relative z-10 custom-scrollbar">
           <div className="max-w-6xl mx-auto space-y-6 lg:space-y-8 h-full">
             
             <AnimatePresence mode="wait">

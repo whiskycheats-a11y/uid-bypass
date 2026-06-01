@@ -115,31 +115,54 @@
   -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 70%, transparent 100%);
 }
 
-/* ── Argus Glassmorphism ── */
-.argus-glass {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+/* ── Neo Glassmorphism ── */
+.neo-glass, .argus-glass {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-top: 1px solid rgba(255, 255, 255, 0.15);
   border-left: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.02);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.03);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.argus-glass:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
-  border-color: rgba(124, 58, 237, 0.3);
-  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.5), 0 0 30px rgba(124, 58, 237, 0.15), inset 0 0 30px rgba(255, 255, 255, 0.04);
+.neo-glass:hover, .argus-glass:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  border-color: rgba(124, 58, 237, 0.4);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6), 0 0 35px rgba(124, 58, 237, 0.2), inset 0 0 30px rgba(255, 255, 255, 0.05);
 }
 
-.argus-glass-panel {
-  background: rgba(5, 5, 15, 0.7);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+.neo-glass-panel, .argus-glass-panel {
+  background: rgba(5, 5, 15, 0.8);
+  backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
 }
+
+.glow-border {
+  position: relative;
+}
+.glow-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(45deg, #00d4ff, #7c3aed, #ff006e);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.glow-border:hover::before, .glow-border:focus-within::before {
+  opacity: 1;
+}
+
+/* ── Legacy Argus Glass (Mapped to Neo) ── */
 
 /* ── Argus Gradients & Text ── */
 .argus-text-gradient {
@@ -237,6 +260,16 @@
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+@keyframes float-smooth {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
 }
 
 @keyframes float-3d {
@@ -344,12 +377,18 @@
 /* ── Mobile Optimizations ── */
 @media (max-width: 768px) {
   html { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
-  .argus-glass { backdrop-filter: blur(12px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
-  .argus-glass-panel { backdrop-filter: blur(16px); }
+  .neo-glass, .argus-glass { backdrop-filter: blur(12px) saturate(120%); box-shadow: 0 4px 16px rgba(0,0,0,0.3); border-width: 1px; }
+  .neo-glass:hover, .argus-glass:hover { transform: none; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+  .neo-glass-panel, .argus-glass-panel { backdrop-filter: blur(16px); }
   .argus-btn { transform: none !important; }
   .argus-btn:hover { transform: none !important; }
   .orbit-ring { display: none; /* Perf on mobile */ }
   .scanline { display: none; }
+  
+  /* Safe area padding for mobile bottom nav if implemented */
+  body {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
 }
 
 /* Browser Autofill Dark Mode Override (Transparent) */
