@@ -147,10 +147,11 @@ const TokenModel = model<TokenDoc>("TrialToken", tokenSchema);
 const fallbackTokens = new Map<string, TrialToken>();
 
 export const tokenStore = {
-  async create(resellerUsername: string, days: number): Promise<string> {
+  async create(resellerUsername: string, days: number, serverName?: string): Promise<string> {
     await ensureConnection();
     const randPart = Math.random().toString(36).substring(2, 10).toUpperCase();
-    const token = `VELOCIRA-TRIAL-${randPart}`;
+    const cleanPrefix = serverName ? serverName.trim().toUpperCase().replace(/[^A-Z0-9]/g, "") : "VELOCIRA";
+    const token = `${cleanPrefix || "VELOCIRA"}-TRIAL-${randPart}`;
     const tokenData: TrialToken = {
       token,
       resellerUsername,

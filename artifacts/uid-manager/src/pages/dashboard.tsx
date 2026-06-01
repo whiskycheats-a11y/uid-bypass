@@ -484,15 +484,17 @@ function PlaceholderView({ title, description, icon: Icon }: { title: string; de
 function ResellerTrialPanel({ username }: { username: string }) {
   const PRESETS = [1, 3, 7, 14, 30];
   const [days, setDays] = useState(1);
+  const [serverName, setServerName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [linkData, setLinkData] = useState<{ token: string; link: string; days: number } | null>(null);
+  const [linkData, setLinkData] = useState<{ token: string; link: string; days: number; serverName?: string } | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [copiedCard, setCopiedCard] = useState(false);
 
   const refresh = () => {
     setLinkData(null);
     setError("");
+    setServerName("");
   };
 
   const copyField = (val: string, key: string) => {
@@ -501,9 +503,10 @@ function ResellerTrialPanel({ username }: { username: string }) {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  const copyCard = (c: { token: string; link: string; days: number }) => {
+  const copyCard = (c: { token: string; link: string; days: number; serverName?: string }) => {
+    const sName = c.serverName ? c.serverName.trim() : "Velocira Cheats";
     const msg =
-`✨「 VELOCIRA CHEATS BYPASS MODULE 」✨
+`✨「 ${sName.toUpperCase()} BYPASS MODULE 」✨
 🔓 FREE TRIAL ACCESS GRANTED 🔓
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
 
@@ -521,7 +524,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
    ▸ Access granted instantly ✅
 
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-💎  Velocira Cheats Developer Zone
+💎  ${sName} Developer Zone
 🔥  Premium Bypass Service
 ━━━━━━━━━━━━━━━━━━━━━━━━━━`;
     navigator.clipboard.writeText(msg);
@@ -542,12 +545,13 @@ function ResellerTrialPanel({ username }: { username: string }) {
           username,
           password: resellerKey,
           days,
+          serverName: serverName.trim() || undefined,
         }),
       });
       const data = await res.json();
       if (data.success) {
         const portalUrl = `${window.location.origin}/free-portal?token=${data.token}`;
-        setLinkData({ token: data.token, link: portalUrl, days });
+        setLinkData({ token: data.token, link: portalUrl, days, serverName: serverName.trim() });
       } else {
         setError(data.error ?? "Failed");
       }
@@ -638,6 +642,19 @@ function ResellerTrialPanel({ username }: { username: string }) {
               </motion.div>
             ) : (
               <motion.form key="form" onSubmit={handleGenerate} className="space-y-6">
+                <div className="space-y-2.5">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Server Name (Prefix)</label>
+                  <div className="flex items-center gap-3 border border-white/10 bg-black/40 backdrop-blur-md rounded-2xl px-5 py-4 focus-within:border-amber-500/50 focus-within:shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all">
+                    <input
+                      type="text"
+                      value={serverName}
+                      onChange={(e) => setServerName(e.target.value)}
+                      placeholder="e.g. Velocira Cheats"
+                      className="bg-transparent border-0 outline-0 text-white placeholder-slate-600 text-sm w-full font-bold"
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Duration</label>
                   <div className="flex gap-2">

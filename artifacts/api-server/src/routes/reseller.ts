@@ -5,7 +5,7 @@ import { config } from "../config";
 const router = Router();
 
 router.post("/trial-token", async (req, res) => {
-  const { username, password, days } = req.body ?? {};
+  const { username, password, days, serverName } = req.body ?? {};
 
   if (!username || !password) {
     return res.status(400).json({ success: false, error: "Missing username or password" });
@@ -27,7 +27,7 @@ router.post("/trial-token", async (req, res) => {
 
   const trialDays = Number(days) > 0 ? Number(days) : 1;
   try {
-    const token = await tokenStore.create(username, trialDays);
+    const token = await tokenStore.create(username, trialDays, serverName);
     return res.json({
       success: true,
       token,
