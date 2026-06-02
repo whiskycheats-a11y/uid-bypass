@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userStore, trialStore, uidStore, settingsStore, tokenStore } from "../store";
+import { userStore, trialStore, uidStore, settingsStore, tokenStore, sessionStore } from "../store";
 import { config } from "../config";
 import { logger } from "../lib/logger";
 
@@ -65,24 +65,41 @@ router.get("/list", async (req, res) => {
   try {
     const username = req.headers["x-username"] as string | undefined;
     const password = req.headers["x-password"] as string | undefined;
+    const sessionToken = req.headers["x-session-token"] as string | undefined;
 
-    if (username && password) {
+    let authenticatedUser: string | undefined = undefined;
+    let authenticatedRole: string | undefined = undefined;
+
+    if (sessionToken) {
+      const session = sessionStore.get(sessionToken);
+      if (session && session.username === username) {
+        authenticatedUser = session.username;
+        authenticatedRole = session.role;
+      }
+    }
+
+    if (!authenticatedUser && username && password) {
       if (username === config.ADMIN_USERNAME && password === config.ADMIN_PASSWORD) {
+        authenticatedUser = username;
+        authenticatedRole = "admin";
+      } else {
+        const user = await userStore.verify(username, password);
+        if (user) {
+          authenticatedUser = user.username;
+          authenticatedRole = user.role;
+        }
+      }
+    }
+
+    if (authenticatedUser) {
+      if (authenticatedRole === "admin") {
         const uids = await uidStore.list();
         res.json({ success: true, uids });
-        return;
+      } else {
+        const uids = await uidStore.listByUser(authenticatedUser);
+        res.json({ success: true, uids });
       }
-      const user = await userStore.verify(username, password);
-      if (user) {
-        if (user.role === "admin") {
-          const uids = await uidStore.list();
-          res.json({ success: true, uids });
-        } else {
-          const uids = await uidStore.listByUser(username);
-          res.json({ success: true, uids });
-        }
-        return;
-      }
+      return;
     }
 
     res.json({ success: true, uids: [] });
@@ -102,10 +119,24 @@ router.post("/add", async (req, res) => {
 
   const authUser = req.headers["x-username"] as string | undefined;
   const authPass = req.headers["x-password"] as string | undefined;
+  const sessionToken = req.headers["x-session-token"] as string | undefined;
 
   let isAuthorized = false;
   let isAdmin = false;
-  if (authUser && authPass) {
+
+  if (sessionToken) {
+    const session = sessionStore.get(sessionToken);
+    if (session && session.username === authUser) {
+      if (session.role === "admin") {
+        isAuthorized = true;
+        isAdmin = true;
+      } else if (session.username === username) {
+        isAuthorized = true;
+      }
+    }
+  }
+
+  if (!isAuthorized && authUser && authPass) {
     if (authUser === config.ADMIN_USERNAME && authPass === config.ADMIN_PASSWORD) {
       isAuthorized = true;
       isAdmin = true;
@@ -212,9 +243,25 @@ router.post("/remove", async (req, res) => {
   try {
     const username = req.headers["x-username"] as string | undefined;
     const password = req.headers["x-password"] as string | undefined;
+    const sessionToken = req.headers["x-session-token"] as string | undefined;
 
     let isAuthorized = false;
-    if (username && password) {
+
+    if (sessionToken) {
+      const session = sessionStore.get(sessionToken);
+      if (session && session.username === username) {
+        if (session.role === "admin") {
+          isAuthorized = true;
+        } else {
+          const existingUid = await uidStore.get(uid);
+          if (existingUid && existingUid.addedBy === username) {
+            isAuthorized = true;
+          }
+        }
+      }
+    }
+
+    if (!isAuthorized && username && password) {
       if (username === config.ADMIN_USERNAME && password === config.ADMIN_PASSWORD) {
         isAuthorized = true;
       } else {

@@ -230,12 +230,24 @@ interface DashboardProps {
 
 const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
+function getSessionToken(): string {
+  try {
+    const raw = sessionStorage.getItem("uid_auth");
+    if (!raw) return "";
+    return JSON.parse(raw).sessionToken ?? "";
+  } catch { return ""; }
+}
+
 function userHeaders(): Record<string, string> {
   try {
     const raw = sessionStorage.getItem("uid_auth");
     if (!raw) return {};
-    const { username, adminKey } = JSON.parse(raw);
-    return { "x-username": username ?? "", "x-password": adminKey ?? "" };
+    const { username, adminKey, sessionToken } = JSON.parse(raw);
+    return {
+      "x-username": username ?? "",
+      "x-password": adminKey ?? "",
+      "x-session-token": sessionToken ?? ""
+    };
   } catch { return {}; }
 }
 
@@ -471,7 +483,11 @@ function ResellerTrialPanel({ username }: { username: string }) {
     setLoadingTokens(true);
     try {
       const res = await fetch(`${BASE}/api/reseller/trial-tokens`, {
-        headers: { "x-username": username, "x-password": getResellerKey() }
+        headers: { 
+          "x-username": username, 
+          "x-password": getResellerKey(),
+          "x-session-token": getSessionToken()
+        }
       });
       const data = await res.json();
       if (data.success) {
@@ -493,7 +509,11 @@ function ResellerTrialPanel({ username }: { username: string }) {
     try {
       const res = await fetch(`${BASE}/api/reseller/trial-token/${token}`, {
         method: "DELETE",
-        headers: { "x-username": username, "x-password": getResellerKey() }
+        headers: { 
+          "x-username": username, 
+          "x-password": getResellerKey(),
+          "x-session-token": getSessionToken()
+        }
       });
       const data = await res.json();
       if (data.success) {
@@ -555,7 +575,10 @@ function ResellerTrialPanel({ username }: { username: string }) {
       const resellerKey = getResellerKey();
       const res = await fetch(`${BASE}/api/reseller/trial-token`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-session-token": getSessionToken()
+        },
         body: JSON.stringify({
           username,
           password: resellerKey,

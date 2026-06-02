@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userStore, tokenStore, uidStore, settingsStore, verifyPassword } from "../store";
+import { userStore, tokenStore, uidStore, settingsStore, verifyPassword, sessionStore } from "../store";
 import { config } from "../config";
 import { logger } from "../lib/logger";
 
@@ -31,17 +31,35 @@ const router = Router();
 router.get("/trial-tokens", async (req, res) => {
   const username = req.headers["x-username"] as string;
   const password = req.headers["x-password"] as string;
+  const sessionToken = req.headers["x-session-token"] as string;
 
-  if (!username || !password) return res.status(401).json({ success: false });
+  if (!username) return res.status(401).json({ success: false });
 
+  let isAuthorized = false;
   let isAdmin = false;
-  if (username === config.ADMIN_USERNAME && verifyPassword(password, config.ADMIN_PASSWORD)) {
-    isAdmin = true;
-  } else {
-    const user = await userStore.verify(username, password);
-    if (!user) return res.status(401).json({ success: false });
-    if (user.role === "admin") isAdmin = true;
+
+  if (sessionToken) {
+    const session = sessionStore.get(sessionToken);
+    if (session && session.username === username) {
+      isAuthorized = true;
+      if (session.role === "admin") isAdmin = true;
+    }
   }
+
+  if (!isAuthorized && password) {
+    if (username === config.ADMIN_USERNAME && verifyPassword(password, config.ADMIN_PASSWORD)) {
+      isAuthorized = true;
+      isAdmin = true;
+    } else {
+      const user = await userStore.verify(username, password);
+      if (user) {
+        isAuthorized = true;
+        if (user.role === "admin") isAdmin = true;
+      }
+    }
+  }
+
+  if (!isAuthorized) return res.status(401).json({ success: false });
 
   const tokens = await tokenStore.list(isAdmin ? undefined : username);
   return res.json({ success: true, tokens });
@@ -51,17 +69,35 @@ router.delete("/trial-token/:token", async (req, res) => {
   const { token } = req.params;
   const username = req.headers["x-username"] as string;
   const password = req.headers["x-password"] as string;
+  const sessionToken = req.headers["x-session-token"] as string;
 
-  if (!username || !password) return res.status(401).json({ success: false });
+  if (!username) return res.status(401).json({ success: false });
 
+  let isAuthorized = false;
   let isAdmin = false;
-  if (username === config.ADMIN_USERNAME && verifyPassword(password, config.ADMIN_PASSWORD)) {
-    isAdmin = true;
-  } else {
-    const user = await userStore.verify(username, password);
-    if (!user) return res.status(401).json({ success: false });
-    if (user.role === "admin") isAdmin = true;
+
+  if (sessionToken) {
+    const session = sessionStore.get(sessionToken);
+    if (session && session.username === username) {
+      isAuthorized = true;
+      if (session.role === "admin") isAdmin = true;
+    }
   }
+
+  if (!isAuthorized && password) {
+    if (username === config.ADMIN_USERNAME && verifyPassword(password, config.ADMIN_PASSWORD)) {
+      isAuthorized = true;
+      isAdmin = true;
+    } else {
+      const user = await userStore.verify(username, password);
+      if (user) {
+        isAuthorized = true;
+        if (user.role === "admin") isAdmin = true;
+      }
+    }
+  }
+
+  if (!isAuthorized) return res.status(401).json({ success: false });
 
   const tokenData = await tokenStore.get(token);
   if (!tokenData) return res.status(404).json({ success: false, message: "Token not found" });
@@ -96,22 +132,40 @@ router.delete("/trial-token/:token", async (req, res) => {
 });
 
 router.post("/trial-token", async (req, res) => {
-  const username = typeof req.body?.username === "string" ? req.body.username.trim() : "";
+  let username = typeof req.body?.username === "string" ? req.body.username.trim() : "";
   const password = typeof req.body?.password === "string" ? req.body.password.trim() : "";
+  const sessionToken = req.headers["x-session-token"] as string || (typeof req.body?.sessionToken === "string" ? req.body.sessionToken.trim() : "");
   const serverName = typeof req.body?.serverName === "string" ? req.body.serverName.trim() : "";
   const { days } = req.body ?? {};
 
-  if (!username || !password) {
-    return res.status(400).json({ success: false, error: "Missing username or password" });
+  let isAuthorized = false;
+
+  if (sessionToken) {
+    const session = sessionStore.get(sessionToken as string);
+    if (session) {
+      if (!username) {
+        username = session.username;
+      }
+      if (session.username === username) {
+        const user = await userStore.find(username);
+        if (user && (user.role === "admin" || user.canResell)) {
+          isAuthorized = true;
+        }
+      }
+    }
   }
 
-  let isAuthorized = false;
-  if (username === config.ADMIN_USERNAME && verifyPassword(password, config.ADMIN_PASSWORD)) {
-    isAuthorized = true;
-  } else {
-    const user = await userStore.verify(username, password);
-    if (user && (user.role === "admin" || user.canResell)) {
+  if (!isAuthorized && password) {
+    if (!username) {
+      return res.status(400).json({ success: false, error: "Missing username" });
+    }
+    if (username === config.ADMIN_USERNAME && verifyPassword(password, config.ADMIN_PASSWORD)) {
       isAuthorized = true;
+    } else {
+      const user = await userStore.verify(username, password);
+      if (user && (user.role === "admin" || user.canResell)) {
+        isAuthorized = true;
+      }
     }
   }
 

@@ -69,15 +69,30 @@ function getAdminKey() {
 }
 
 function adminHeaders(): Record<string, string> {
-  return { "Content-Type": "application/json", "x-admin-key": getAdminKey() };
+  try {
+    const raw = sessionStorage.getItem("uid_auth");
+    if (!raw) return { "Content-Type": "application/json" };
+    const { adminKey, sessionToken } = JSON.parse(raw);
+    return { 
+      "Content-Type": "application/json", 
+      "x-admin-key": adminKey ?? "",
+      "x-session-token": sessionToken ?? ""
+    };
+  } catch {
+    return { "Content-Type": "application/json" };
+  }
 }
 
 function userHeaders(): Record<string, string> {
   try {
     const raw = sessionStorage.getItem("uid_auth");
     if (!raw) return {};
-    const { username, adminKey } = JSON.parse(raw);
-    return { "x-username": username ?? "", "x-password": adminKey ?? "" };
+    const { username, adminKey, sessionToken } = JSON.parse(raw);
+    return { 
+      "x-username": username ?? "", 
+      "x-password": adminKey ?? "",
+      "x-session-token": sessionToken ?? ""
+    };
   } catch { return {}; }
 }
 
