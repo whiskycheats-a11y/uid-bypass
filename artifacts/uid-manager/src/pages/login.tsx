@@ -297,6 +297,7 @@ export default function Login({ onLogin }: LoginProps) {
             role: data.role,
             username: data.username,
             sessionToken: data.sessionToken,
+            adminKey: password, // Store key/password for fallback legacy endpoints
             defaultDays: data.defaultDays ?? 30,
             isTrial: data.isTrial ?? false,
             canResell: data.canResell ?? false,
