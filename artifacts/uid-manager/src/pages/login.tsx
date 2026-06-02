@@ -296,7 +296,7 @@ export default function Login({ onLogin }: LoginProps) {
           JSON.stringify({
             role: data.role,
             username: data.username,
-            adminKey: password,
+            sessionToken: data.sessionToken,
             defaultDays: data.defaultDays ?? 30,
             isTrial: data.isTrial ?? false,
             canResell: data.canResell ?? false,

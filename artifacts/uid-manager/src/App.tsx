@@ -53,14 +53,18 @@ function AppRoot() {
       }
       try {
         const parsed = JSON.parse(session);
-        if (parsed?.username && parsed?.role && parsed?.adminKey) {
+        if (parsed?.username && parsed?.role && (parsed?.sessionToken || parsed?.adminKey)) {
           const res = await fetch(`${BASE}/api/auth/verify-session`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+              "Content-Type": "application/json",
+              "x-session-token": parsed.sessionToken || ""
+            },
             body: JSON.stringify({
               username: parsed.username,
-              password: parsed.adminKey,
+              password: parsed.adminKey || "", // Fallback
               role: parsed.role,
+              sessionToken: parsed.sessionToken || ""
             }),
           });
           if (res.ok) {
