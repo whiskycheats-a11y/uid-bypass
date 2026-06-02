@@ -1,6 +1,111 @@
 import mongoose, { Schema, model, Document } from "mongoose";
+import crypto from "crypto";
 import { config } from "./config";
 import { logger } from "./lib/logger";
+
+// ── Password Hashing (HMAC-SHA256 + random salt) ────────────────────────
+export function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(32).toString("hex");
+  const hash = crypto.createHmac("sha256", salt).update(password).digest("hex");
+  return `${salt}:${hash}`;
+}
+
+export function verifyPassword(password: string, stored: string): boolean {
+  if (!stored) return false;
+  // Legacy plain-text migration: if no colon, it's an unhashed password
+  if (!stored.includes(":")) return password === stored;
+  const [salt, hash] = stored.split(":");
+  if (!salt || !hash) return password === stored;
+  const hashToCompare = crypto.createHmac("sha256", salt).update(password).digest("hex");
+  return hash === hashToCompare;
+}
+
+// ── Session Token Store ─────────────────────────────────────────────────
+interface SessionData {
+  token: string;
+  username: string;
+  role: string;
+  expiresAt: number;
+}
+
+const sessionMap = new Map<string, SessionData>();
+
+export const sessionStore = {
+  create(username: string, role: string): string {
+    const token = crypto.randomBytes(48).toString("hex");
+    const expiresAt = Date.now() + 4 * 60 * 60 * 1000; // 4 hours
+    sessionMap.set(token, { token, username, role, expiresAt });
+    // Cleanup expired sessions periodically
+    for (const [k, v] of sessionMap.entries()) {
+      if (v.expiresAt < Date.now()) sessionMap.delete(k);
+    }
+    return token;
+  },
+  get(token: string): SessionData | null {
+    if (!token) return null;
+    const session = sessionMap.get(token);
+    if (!session) return null;
+    if (session.expiresAt < Date.now()) {
+      sessionMap.delete(token);
+      return null;
+    }
+    return session;
+  },
+  remove(token: string): void {
+    sessionMap.delete(token);
+  },
+  removeByUser(username: string): void {
+    for (const [k, v] of sessionMap.entries()) {
+      if (v.username === username) sessionMap.delete(k);
+    }
+  },
+};
+
+// ── Login Attempt Tracking (Brute Force Protection) ─────────────────────
+interface LoginAttempt {
+  count: number;
+  firstAttempt: number;
+  blockedUntil: number;
+}
+
+const loginAttempts = new Map<string, LoginAttempt>();
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
+const ATTEMPT_WINDOW = 15 * 60 * 1000;   // 15 minutes window
+
+export const loginGuard = {
+  isBlocked(ip: string): { blocked: boolean; remainingMs: number } {
+    const attempt = loginAttempts.get(ip);
+    if (!attempt) return { blocked: false, remainingMs: 0 };
+    if (attempt.blockedUntil > Date.now()) {
+      return { blocked: true, remainingMs: attempt.blockedUntil - Date.now() };
+    }
+    // Reset if window expired
+    if (Date.now() - attempt.firstAttempt > ATTEMPT_WINDOW) {
+      loginAttempts.delete(ip);
+      return { blocked: false, remainingMs: 0 };
+    }
+    return { blocked: false, remainingMs: 0 };
+  },
+  recordFailure(ip: string): { attemptsLeft: number; blocked: boolean } {
+    let attempt = loginAttempts.get(ip);
+    if (!attempt || Date.now() - attempt.firstAttempt > ATTEMPT_WINDOW) {
+      attempt = { count: 0, firstAttempt: Date.now(), blockedUntil: 0 };
+    }
+    attempt.count++;
+    if (attempt.count >= MAX_LOGIN_ATTEMPTS) {
+      attempt.blockedUntil = Date.now() + LOCKOUT_DURATION;
+      loginAttempts.set(ip, attempt);
+      logger.warn({ ip, count: attempt.count }, "IP BLOCKED — too many failed login attempts");
+      return { attemptsLeft: 0, blocked: true };
+    }
+    loginAttempts.set(ip, attempt);
+    return { attemptsLeft: MAX_LOGIN_ATTEMPTS - attempt.count, blocked: false };
+  },
+  recordSuccess(ip: string): void {
+    loginAttempts.delete(ip);
+  },
+};
 
 function isString(val: any): val is string {
   return typeof val === "string" && val.trim().length > 0;
@@ -344,16 +449,16 @@ async function seedAdmin() {
   if (!exists) {
     await UserModel.create({
       username: config.ADMIN_USERNAME,
-      password: config.ADMIN_PASSWORD,
+      password: hashPassword(config.ADMIN_PASSWORD),
       role: "admin",
       createdAt: new Date().toISOString(),
       defaultDays: 30,
       isTrial: false,
     });
-    logger.info("Admin user seeded");
-  } else if (exists.username !== config.ADMIN_USERNAME || exists.password !== config.ADMIN_PASSWORD) {
-    await UserModel.updateOne({ role: "admin" }, { username: config.ADMIN_USERNAME, password: config.ADMIN_PASSWORD });
-    logger.info("Admin credentials updated from config");
+    logger.info("Admin user seeded with hashed password");
+  } else if (exists.username !== config.ADMIN_USERNAME || !verifyPassword(config.ADMIN_PASSWORD, exists.password)) {
+    await UserModel.updateOne({ role: "admin" }, { username: config.ADMIN_USERNAME, password: hashPassword(config.ADMIN_PASSWORD) });
+    logger.info("Admin credentials updated from config (hashed)");
   }
 }
 
@@ -361,7 +466,7 @@ async function seedAdmin() {
 const fallbackUsers = new Map<string, AppUser>();
 fallbackUsers.set(config.ADMIN_USERNAME, {
   username: config.ADMIN_USERNAME,
-  password: config.ADMIN_PASSWORD,
+  password: hashPassword(config.ADMIN_PASSWORD),
   role: "admin",
   canResell: false,
   createdAt: new Date().toISOString(),
@@ -412,15 +517,16 @@ export const userStore = {
       return { ok: false, error: "Invalid username or password format" };
     }
     await ensureConnection();
+    const hashedPw = hashPassword(password);
     if (!connected) {
       if (fallbackUsers.has(username)) return { ok: false, error: "Username already exists" };
-      const user: AppUser = { username, password, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0, hwid: "", hwidLockEnabled: false };
+      const user: AppUser = { username, password: hashedPw, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0, hwid: "", hwidLockEnabled: false };
       fallbackUsers.set(username, user);
       return { ok: true, user };
     }
     const exists = await UserModel.findOne({ username });
     if (exists) return { ok: false, error: "Username already exists" };
-    const user: AppUser = { username, password, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0, hwid: "", hwidLockEnabled: false };
+    const user: AppUser = { username, password: hashedPw, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0, hwid: "", hwidLockEnabled: false };
     await UserModel.create(user);
     return { ok: true, user };
   },
@@ -499,11 +605,24 @@ export const userStore = {
     await ensureConnection();
     if (!connected) {
       const u = fallbackUsers.get(username);
-      if (!u || u.password !== password) return null;
+      if (!u || !verifyPassword(password, u.password)) return null;
+      // Auto-migrate plain text to hashed
+      if (!u.password.includes(":")) {
+        u.password = hashPassword(password);
+      }
       return u;
     }
-    const doc = await UserModel.findOne({ username, password });
-    return doc ? toPlain(doc) : null;
+    // Can't query by hashed password, so find by username first
+    const doc = await UserModel.findOne({ username });
+    if (!doc) return null;
+    if (!verifyPassword(password, doc.password)) return null;
+    // Auto-migrate: if stored password is plain text, hash it now
+    if (!doc.password.includes(":")) {
+      const hashed = hashPassword(password);
+      await UserModel.updateOne({ username }, { $set: { password: hashed } });
+      logger.info({ username }, "Auto-migrated plain-text password to hashed");
+    }
+    return toPlain(doc);
   },
 
   async updateProfile(username: string, displayName: string, avatar: string): Promise<boolean> {
@@ -523,13 +642,14 @@ export const userStore = {
   async updatePassword(username: string, newPassword: string): Promise<boolean> {
     if (!isString(username) || !isString(newPassword)) return false;
     await ensureConnection();
+    const hashedPw = hashPassword(newPassword);
     if (!connected) {
       const u = fallbackUsers.get(username);
       if (!u) return false;
-      u.password = newPassword;
+      u.password = hashedPw;
       return true;
     }
-    const result = await UserModel.updateOne({ username }, { $set: { password: newPassword } });
+    const result = await UserModel.updateOne({ username }, { $set: { password: hashedPw } });
     return result.matchedCount > 0;
   },
 

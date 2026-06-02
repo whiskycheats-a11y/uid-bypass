@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userStore, uidStore, purgeExpiredTrials, settingsStore } from "../store";
+import { userStore, uidStore, purgeExpiredTrials, settingsStore, verifyPassword } from "../store";
 import { config, getApiKey } from "../config";
 import { logger } from "../lib/logger";
 
@@ -43,7 +43,6 @@ router.get("/", requireAdmin, async (_req, res) => {
     success: true,
     users: users.map((u) => ({
       username: u.username,
-      password: u.password,
       createdAt: u.createdAt,
       defaultDays: u.defaultDays,
       isTrial: u.isTrial,

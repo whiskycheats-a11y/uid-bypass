@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { config } from "../config";
-import { userStore } from "../store";
+import { userStore, sessionStore, verifyPassword } from "../store";
 
 // Helper to check if a value is a non-empty string
 export function isString(val: any): val is string {
@@ -8,6 +8,15 @@ export function isString(val: any): val is string {
 }
 
 export async function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  // Check session token first (secure method)
+  const sessionToken = req.headers["x-session-token"] as string;
+  if (isString(sessionToken)) {
+    const session = sessionStore.get(sessionToken);
+    if (session && session.role === "admin") {
+      return next();
+    }
+  }
+
   const apiKey = req.headers["x-admin-key"];
   
   if (!isString(apiKey)) {
@@ -21,7 +30,7 @@ export async function requireAdmin(req: Request, res: Response, next: NextFuncti
 
   // 2. Fallback: Verify against seeded admin username/password in database
   const user = await userStore.find(config.ADMIN_USERNAME);
-  if (user && user.role === "admin" && user.password === apiKey) {
+  if (user && user.role === "admin" && verifyPassword(apiKey, user.password)) {
     return next();
   }
 
@@ -29,6 +38,19 @@ export async function requireAdmin(req: Request, res: Response, next: NextFuncti
 }
 
 export async function requireUser(req: Request, res: Response, next: NextFunction) {
+  // Check session token first (secure method)
+  const sessionToken = req.headers["x-session-token"] as string;
+  if (isString(sessionToken)) {
+    const session = sessionStore.get(sessionToken);
+    if (session) {
+      const user = await userStore.find(session.username);
+      if (user) {
+        (req as any).user = user;
+        return next();
+      }
+    }
+  }
+
   const username = req.headers["x-username"];
   const password = req.headers["x-password"];
 

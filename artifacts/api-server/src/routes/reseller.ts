@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userStore, tokenStore, uidStore, settingsStore } from "../store";
+import { userStore, tokenStore, uidStore, settingsStore, verifyPassword } from "../store";
 import { config } from "../config";
 import { logger } from "../lib/logger";
 
@@ -35,7 +35,7 @@ router.get("/trial-tokens", async (req, res) => {
   if (!username || !password) return res.status(401).json({ success: false });
 
   let isAdmin = false;
-  if (username === config.ADMIN_USERNAME && password === config.ADMIN_PASSWORD) {
+  if (username === config.ADMIN_USERNAME && verifyPassword(password, config.ADMIN_PASSWORD)) {
     isAdmin = true;
   } else {
     const user = await userStore.verify(username, password);
@@ -55,7 +55,7 @@ router.delete("/trial-token/:token", async (req, res) => {
   if (!username || !password) return res.status(401).json({ success: false });
 
   let isAdmin = false;
-  if (username === config.ADMIN_USERNAME && password === config.ADMIN_PASSWORD) {
+  if (username === config.ADMIN_USERNAME && verifyPassword(password, config.ADMIN_PASSWORD)) {
     isAdmin = true;
   } else {
     const user = await userStore.verify(username, password);
@@ -106,7 +106,7 @@ router.post("/trial-token", async (req, res) => {
   }
 
   let isAuthorized = false;
-  if (username === config.ADMIN_USERNAME && password === config.ADMIN_PASSWORD) {
+  if (username === config.ADMIN_USERNAME && verifyPassword(password, config.ADMIN_PASSWORD)) {
     isAuthorized = true;
   } else {
     const user = await userStore.verify(username, password);

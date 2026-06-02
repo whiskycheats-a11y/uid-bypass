@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { chatStore, userStore } from "../store";
+import { chatStore, userStore, verifyPassword } from "../store";
 import { config } from "../config";
 
 const router = Router();
@@ -18,12 +18,12 @@ router.get("/", async (req, res) => {
   const user = await userStore.verify(username, password);
   if (!user && username !== config.ADMIN_USERNAME) {
     // Also support checking admin key directly
-    const isAdmin = password === config.ADMIN_PASSWORD;
+    const isAdmin = verifyPassword(password, config.ADMIN_PASSWORD);
     if (!isAdmin) {
       res.status(401).json({ success: false, error: "Unauthorized" });
       return;
     }
-  } else if (username === config.ADMIN_USERNAME && password !== config.ADMIN_PASSWORD) {
+  } else if (username === config.ADMIN_USERNAME && !verifyPassword(password, config.ADMIN_PASSWORD)) {
     res.status(401).json({ success: false, error: "Unauthorized" });
     return;
   }
@@ -71,11 +71,11 @@ router.post("/", async (req, res) => {
     avatar = user.avatar || "";
   } else {
     // Admin check
-    const isAdmin = username === config.ADMIN_USERNAME && password === config.ADMIN_PASSWORD;
+    const isAdmin = username === config.ADMIN_USERNAME && verifyPassword(password, config.ADMIN_PASSWORD);
     if (!isAdmin) {
       // Check if it's dynamic admin configured username
       const sysAdmin = await userStore.find(username);
-      if (sysAdmin && sysAdmin.role === "admin" && sysAdmin.password === password) {
+      if (sysAdmin && sysAdmin.role === "admin" && verifyPassword(password, sysAdmin.password)) {
         displayName = sysAdmin.displayName || sysAdmin.username;
         avatar = sysAdmin.avatar || "";
       } else {
