@@ -4,7 +4,7 @@
 
 export const config = {
   // External UID backend — change IP/port here only
-  EXTERNAL_API_URL: "https://uidbypass-livid.vercel.app",
+  EXTERNAL_API_URL: "https://mani272uidbypass.vercel.app",
 
   // API key — value is read from the UID_API_KEY environment secret
   API_KEY_ENV: "UID_API_KEY",
