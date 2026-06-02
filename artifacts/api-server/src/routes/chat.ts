@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { chatStore, userStore } from "../store";
+import { config } from "../config";
 
 const router = Router();
 
@@ -15,13 +16,16 @@ router.get("/", async (req, res) => {
 
   // Simple authentication validation
   const user = await userStore.verify(username, password);
-  if (!user && username !== "admin") {
+  if (!user && username !== config.ADMIN_USERNAME) {
     // Also support checking admin key directly
-    const isAdmin = password === process.env.ADMIN_PASSWORD || password === "admin"; // config fallback
+    const isAdmin = password === config.ADMIN_PASSWORD;
     if (!isAdmin) {
       res.status(401).json({ success: false, error: "Unauthorized" });
       return;
     }
+  } else if (username === config.ADMIN_USERNAME && password !== config.ADMIN_PASSWORD) {
+    res.status(401).json({ success: false, error: "Unauthorized" });
+    return;
   }
 
   try {
@@ -67,7 +71,7 @@ router.post("/", async (req, res) => {
     avatar = user.avatar || "";
   } else {
     // Admin check
-    const isAdmin = username === "admin" && (password === "admin" || password === process.env.ADMIN_PASSWORD);
+    const isAdmin = username === config.ADMIN_USERNAME && password === config.ADMIN_PASSWORD;
     if (!isAdmin) {
       // Check if it's dynamic admin configured username
       const sysAdmin = await userStore.find(username);

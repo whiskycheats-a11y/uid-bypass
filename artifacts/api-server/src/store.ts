@@ -2,6 +2,10 @@ import mongoose, { Schema, model, Document } from "mongoose";
 import { config } from "./config";
 import { logger } from "./lib/logger";
 
+function isString(val: any): val is string {
+  return typeof val === "string" && val.trim().length > 0;
+}
+
 // ── Whitelisted UID model ──────────────────────────────────────────────
 export interface WhitelistedUid {
   uid: string;
@@ -31,6 +35,7 @@ const fallbackUids = new Map<string, WhitelistedUid>();
 
 export const uidStore = {
   async save(uid: string, days: number, bluestack: boolean, addedBy: string, name = "", ip = ""): Promise<void> {
+    if (!isString(uid)) return;
     await ensureConnection();
     if (!connected) {
       fallbackUids.set(uid, { uid, days, bluestack, addedBy, name, ip, addedAt: new Date().toISOString() });
@@ -45,6 +50,7 @@ export const uidStore = {
   },
 
   async remove(uid: string): Promise<void> {
+    if (!isString(uid)) return;
     await ensureConnection();
     if (!connected) {
       fallbackUids.delete(uid);
@@ -59,6 +65,7 @@ export const uidStore = {
   },
 
   async listByUser(username: string): Promise<WhitelistedUid[]> {
+    if (!isString(username)) return [];
     await ensureConnection();
     if (!connected) {
       return Array.from(fallbackUids.values()).filter(u => u.addedBy === username);
@@ -68,6 +75,7 @@ export const uidStore = {
   },
 
   async removeByUser(username: string): Promise<string[]> {
+    if (!isString(username)) return [];
     await ensureConnection();
     if (!connected) {
       const uidsToRemove: string[] = [];
@@ -98,6 +106,7 @@ export const uidStore = {
   },
 
   async get(uid: string): Promise<WhitelistedUid | null> {
+    if (!isString(uid)) return null;
     await ensureConnection();
     if (!connected) {
       return fallbackUids.get(uid) ?? null;
@@ -107,7 +116,7 @@ export const uidStore = {
   },
 
   async checkIpExists(ip: string): Promise<boolean> {
-    if (!ip) return false;
+    if (!isString(ip)) return false;
     await ensureConnection();
     if (!connected) {
       return Array.from(fallbackUids.values()).some(u => u.ip === ip);
@@ -118,7 +127,7 @@ export const uidStore = {
 
   // Only returns true if the IP has an ACTIVE (non-expired) trial UID
   async checkActiveIpExists(ip: string): Promise<boolean> {
-    if (!ip) return false;
+    if (!isString(ip)) return false;
     await ensureConnection();
     const now = new Date();
     if (!connected) {
@@ -168,6 +177,7 @@ const fallbackTokens = new Map<string, TrialToken>();
 
 export const tokenStore = {
   async create(resellerUsername: string, days: number, serverName?: string): Promise<string> {
+    if (!isString(resellerUsername)) return "";
     await ensureConnection();
     const randPart = Math.random().toString(36).substring(2, 10).toUpperCase();
     const cleanPrefix = serverName ? serverName.trim().toUpperCase().replace(/[^A-Z0-9]/g, "") : "VELOCIRA";
@@ -193,6 +203,7 @@ export const tokenStore = {
   },
 
   async get(token: string): Promise<TrialToken | null> {
+    if (!isString(token)) return null;
     await ensureConnection();
     if (!connected) {
       return fallbackTokens.get(token) ?? null;
@@ -211,6 +222,7 @@ export const tokenStore = {
   },
 
   async markAsUsed(token: string, uid: string, ip: string): Promise<boolean> {
+    if (!isString(token)) return false;
     await ensureConnection();
     const usedAt = new Date().toISOString();
     if (!connected) {
@@ -235,7 +247,7 @@ export const tokenStore = {
   },
 
   async checkIpExists(ip: string): Promise<boolean> {
-    if (!ip) return false;
+    if (!isString(ip)) return false;
     await ensureConnection();
     if (!connected) {
       return Array.from(fallbackTokens.values()).some(t => t.usedByIp === ip);
@@ -246,10 +258,10 @@ export const tokenStore = {
 
   async list(resellerUsername?: string): Promise<TrialToken[]> {
     await ensureConnection();
-    const filter = resellerUsername ? { resellerUsername } : {};
+    const filter = resellerUsername && isString(resellerUsername) ? { resellerUsername } : {};
     if (!connected) {
       const all = Array.from(fallbackTokens.values());
-      return resellerUsername ? all.filter(t => t.resellerUsername === resellerUsername) : all;
+      return resellerUsername && isString(resellerUsername) ? all.filter(t => t.resellerUsername === resellerUsername) : all;
     }
     const docs = await TokenModel.find(filter).sort({ createdAt: -1 });
     return docs.map(doc => ({
@@ -265,6 +277,7 @@ export const tokenStore = {
   },
 
   async remove(token: string): Promise<boolean> {
+    if (!isString(token)) return false;
     await ensureConnection();
     if (!connected) {
       return fallbackTokens.delete(token);
@@ -373,6 +386,7 @@ export const trialStore = {
 
 export const userStore = {
   async find(username: string): Promise<AppUser | undefined> {
+    if (!isString(username)) return undefined;
     await ensureConnection();
     if (!connected) return fallbackUsers.get(username);
     const doc = await UserModel.findOne({ username });
@@ -394,6 +408,9 @@ export const userStore = {
   },
 
   async add(username: string, password: string, defaultDays: number, isTrial = false): Promise<{ ok: true; user: AppUser } | { ok: false; error: string }> {
+    if (!isString(username) || !isString(password)) {
+      return { ok: false, error: "Invalid username or password format" };
+    }
     await ensureConnection();
     if (!connected) {
       if (fallbackUsers.has(username)) return { ok: false, error: "Username already exists" };
@@ -409,6 +426,7 @@ export const userStore = {
   },
 
   async adjustBalance(username: string, amount: number): Promise<{ ok: boolean; balance: number }> {
+    if (!isString(username)) return { ok: false, balance: 0 };
     await ensureConnection();
     if (!connected) {
       const u = fallbackUsers.get(username);
@@ -430,6 +448,7 @@ export const userStore = {
   },
 
   async deductBalance(username: string, cost: number): Promise<{ ok: boolean; balance: number; error?: string }> {
+    if (!isString(username)) return { ok: false, balance: 0, error: "User not found" };
     await ensureConnection();
     if (!connected) {
       const u = fallbackUsers.get(username);
@@ -451,6 +470,7 @@ export const userStore = {
   },
 
   async setCanResell(username: string, canResell: boolean): Promise<boolean> {
+    if (!isString(username)) return false;
     await ensureConnection();
     if (!connected) {
       const u = fallbackUsers.get(username);
@@ -463,6 +483,7 @@ export const userStore = {
   },
 
   async remove(username: string): Promise<boolean> {
+    if (!isString(username)) return false;
     await ensureConnection();
     if (!connected) {
       const u = fallbackUsers.get(username);
@@ -474,6 +495,7 @@ export const userStore = {
   },
 
   async verify(username: string, password: string): Promise<AppUser | null> {
+    if (!isString(username) || !isString(password)) return null;
     await ensureConnection();
     if (!connected) {
       const u = fallbackUsers.get(username);
@@ -485,6 +507,7 @@ export const userStore = {
   },
 
   async updateProfile(username: string, displayName: string, avatar: string): Promise<boolean> {
+    if (!isString(username)) return false;
     await ensureConnection();
     if (!connected) {
       const u = fallbackUsers.get(username);
@@ -498,6 +521,7 @@ export const userStore = {
   },
 
   async updatePassword(username: string, newPassword: string): Promise<boolean> {
+    if (!isString(username) || !isString(newPassword)) return false;
     await ensureConnection();
     if (!connected) {
       const u = fallbackUsers.get(username);
@@ -508,7 +532,9 @@ export const userStore = {
     const result = await UserModel.updateOne({ username }, { $set: { password: newPassword } });
     return result.matchedCount > 0;
   },
+
   async toggleHwidLock(username: string, enabled: boolean): Promise<boolean> {
+    if (!isString(username)) return false;
     await ensureConnection();
     if (!connected) {
       const u = fallbackUsers.get(username);
@@ -519,7 +545,9 @@ export const userStore = {
     const result = await UserModel.updateOne({ username }, { $set: { hwidLockEnabled: enabled } });
     return result.matchedCount > 0;
   },
+
   async resetHwid(username: string): Promise<boolean> {
+    if (!isString(username)) return false;
     await ensureConnection();
     if (!connected) {
       const u = fallbackUsers.get(username);
@@ -530,7 +558,9 @@ export const userStore = {
     const result = await UserModel.updateOne({ username }, { $set: { hwid: "" } });
     return result.matchedCount > 0;
   },
+
   async setHwid(username: string, hwid: string): Promise<boolean> {
+    if (!isString(username) || !isString(hwid)) return false;
     await ensureConnection();
     if (!connected) {
       const u = fallbackUsers.get(username);

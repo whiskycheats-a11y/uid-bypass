@@ -91,12 +91,15 @@ function rand(len: number, chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvw
 
 function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete: () => void }) {
   useEffect(() => {
+    let timer: NodeJS.Timeout;
     if (active) {
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         onComplete();
       }, 2500);
-      return () => clearTimeout(timer);
     }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [active, onComplete]);
 
   return (
@@ -1231,6 +1234,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
   onHwidLockToggle: (username: string, enabled: boolean) => void;
   onHwidReset: (username: string) => void;
 }) {
+  const { toast } = useToast();
   const PRESETS = [1, 3, 7, 14, 30];
   const [days, setDays] = useState(7);
   const [serverName, setServerName] = useState("");

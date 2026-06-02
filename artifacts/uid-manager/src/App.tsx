@@ -43,8 +43,51 @@ function AppRoot() {
   const [splashUser, setSplashUser] = useState("");
 
   useEffect(() => {
-    setAuth(readSession());
-    setReady(true);
+    async function verifyAndSetSession() {
+      const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
+      const session = sessionStorage.getItem("uid_auth");
+      if (!session) {
+        setAuth(null);
+        setReady(true);
+        return;
+      }
+      try {
+        const parsed = JSON.parse(session);
+        if (parsed?.username && parsed?.role && parsed?.adminKey) {
+          const res = await fetch(`${BASE}/api/auth/verify-session`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: parsed.username,
+              password: parsed.adminKey,
+              role: parsed.role,
+            }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success) {
+              setAuth({
+                role: parsed.role,
+                username: parsed.username,
+                defaultDays: parsed.defaultDays ?? 30,
+                isTrial: parsed.isTrial ?? false,
+                canResell: parsed.canResell ?? false,
+              });
+              setReady(true);
+              return;
+            }
+          }
+        }
+      } catch (e) {
+        console.error("Session verification error:", e);
+      }
+      // Purge fake or expired session
+      sessionStorage.removeItem("uid_auth");
+      setAuth(null);
+      setReady(true);
+    }
+
+    verifyAndSetSession();
   }, []);
 
   const handleLogin = (role: "admin" | "user", username: string) => {
@@ -69,7 +112,21 @@ function AppRoot() {
     setShowSplash(false);
   };
 
-  if (!ready) return null;
+  if (!ready) {
+    return (
+      <div className="min-h-screen relative flex flex-col items-center justify-center font-sans bg-[#030014] overflow-hidden selection:bg-violet-500/30 selection:text-white">
+        <div className="argus-bg opacity-30" />
+        <div className="argus-mesh opacity-25" />
+        <div className="relative flex flex-col items-center gap-4 z-10 text-center">
+          <div className="h-16 w-16 flex items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-indigo-500 to-purple-600 shadow-[0_0_40px_rgba(124,58,237,0.4)] animate-pulse">
+            <span className="h-2 w-2 rounded-full bg-white animate-ping" />
+          </div>
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-400/80 mt-2">SECURE HANDSHAKE</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 animate-pulse">Verifying network identity...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

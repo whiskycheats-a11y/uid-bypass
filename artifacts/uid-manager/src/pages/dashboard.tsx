@@ -334,12 +334,15 @@ function CustomDurationSelect({
 
 function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete: () => void }) {
   useEffect(() => {
+    let timer: NodeJS.Timeout;
     if (active) {
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         onComplete();
       }, 2500);
-      return () => clearTimeout(timer);
     }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [active, onComplete]);
 
   return (
@@ -451,6 +454,7 @@ function PlaceholderView({ title, description, icon: Icon }: { title: string; de
 }
 
 function ResellerTrialPanel({ username }: { username: string }) {
+  const { toast } = useToast();
   const PRESETS = [1, 3, 7, 14, 30];
   const [days, setDays] = useState(1);
   const [serverName, setServerName] = useState("");

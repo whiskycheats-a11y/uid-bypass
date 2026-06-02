@@ -44,7 +44,7 @@ router.get("/trial-tokens", async (req, res) => {
   }
 
   const tokens = await tokenStore.list(isAdmin ? undefined : username);
-  res.json({ success: true, tokens });
+  return res.json({ success: true, tokens });
 });
 
 router.delete("/trial-token/:token", async (req, res) => {
@@ -92,11 +92,14 @@ router.delete("/trial-token/:token", async (req, res) => {
     }
   }
 
-  res.json({ success: true });
+  return res.json({ success: true });
 });
 
 router.post("/trial-token", async (req, res) => {
-  const { username, password, days, serverName } = req.body ?? {};
+  const username = typeof req.body?.username === "string" ? req.body.username.trim() : "";
+  const password = typeof req.body?.password === "string" ? req.body.password.trim() : "";
+  const serverName = typeof req.body?.serverName === "string" ? req.body.serverName.trim() : "";
+  const { days } = req.body ?? {};
 
   if (!username || !password) {
     return res.status(400).json({ success: false, error: "Missing username or password" });
@@ -130,7 +133,11 @@ router.post("/trial-token", async (req, res) => {
 });
 
 router.post("/trial", async (req, res) => {
-  const { resellerUsername, resellerKey, trialUsername, trialPassword, days } = req.body ?? {};
+  const resellerUsername = typeof req.body?.resellerUsername === "string" ? req.body.resellerUsername.trim() : "";
+  const resellerKey = typeof req.body?.resellerKey === "string" ? req.body.resellerKey.trim() : "";
+  const trialUsername = typeof req.body?.trialUsername === "string" ? req.body.trialUsername.trim() : "";
+  const trialPassword = typeof req.body?.trialPassword === "string" ? req.body.trialPassword.trim() : "";
+  const { days } = req.body ?? {};
 
   if (!resellerUsername || !resellerKey || !trialUsername || !trialPassword) {
     return res.status(400).json({ success: false, error: "Missing required fields" });
