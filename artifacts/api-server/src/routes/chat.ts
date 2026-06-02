@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { chatStore, userStore, verifyPassword } from "../store";
+import { chatStore, userStore, verifyPassword, sessionStore } from "../store";
 import { config } from "../config";
 
 const router = Router();
@@ -8,22 +8,29 @@ const router = Router();
 router.get("/", async (req, res) => {
   const username = req.headers["x-username"] as string;
   const password = req.headers["x-password"] as string;
+  const sessionToken = req.headers["x-session-token"] as string;
   
-  if (!username || !password) {
+  if (!username) {
     res.status(401).json({ success: false, error: "Unauthorized" });
     return;
   }
 
-  // Simple authentication validation
-  const user = await userStore.verify(username, password);
-  if (!user && username !== config.ADMIN_USERNAME) {
-    // Also support checking admin key directly
-    const isAdmin = verifyPassword(password, config.ADMIN_PASSWORD);
-    if (!isAdmin) {
-      res.status(401).json({ success: false, error: "Unauthorized" });
-      return;
+  let isAuthorized = false;
+  if (sessionToken) {
+    const session = sessionStore.get(sessionToken);
+    if (session && session.username === username) {
+      isAuthorized = true;
     }
-  } else if (username === config.ADMIN_USERNAME && !verifyPassword(password, config.ADMIN_PASSWORD)) {
+  }
+
+  if (!isAuthorized && password) {
+    const user = await userStore.verify(username, password);
+    if (user || (username === config.ADMIN_USERNAME && verifyPassword(password, config.ADMIN_PASSWORD))) {
+      isAuthorized = true;
+    }
+  }
+
+  if (!isAuthorized) {
     res.status(401).json({ success: false, error: "Unauthorized" });
     return;
   }
@@ -49,9 +56,10 @@ setInterval(() => {
 router.post("/", async (req, res) => {
   const username = req.headers["x-username"] as string;
   const password = req.headers["x-password"] as string;
+  const sessionToken = req.headers["x-session-token"] as string;
   const { message } = req.body ?? {};
 
-  if (!username || !password) {
+  if (!username) {
     res.status(401).json({ success: false, error: "Unauthorized" });
     return;
   }
@@ -61,31 +69,53 @@ router.post("/", async (req, res) => {
     return;
   }
 
-  // Authenticate user or admin
-  const user = await userStore.verify(username, password);
+  let isAuthorized = false;
   let displayName = username;
   let avatar = "";
 
-  if (user) {
-    displayName = user.displayName || user.username;
-    avatar = user.avatar || "";
-  } else {
-    // Admin check
-    const isAdmin = username === config.ADMIN_USERNAME && verifyPassword(password, config.ADMIN_PASSWORD);
-    if (!isAdmin) {
-      // Check if it's dynamic admin configured username
-      const sysAdmin = await userStore.find(username);
-      if (sysAdmin && sysAdmin.role === "admin" && verifyPassword(password, sysAdmin.password)) {
-        displayName = sysAdmin.displayName || sysAdmin.username;
-        avatar = sysAdmin.avatar || "";
-      } else {
-        res.status(401).json({ success: false, error: "Unauthorized" });
-        return;
+  if (sessionToken) {
+    const session = sessionStore.get(sessionToken);
+    if (session && session.username === username) {
+      const user = await userStore.find(username);
+      if (user) {
+        displayName = user.displayName || user.username;
+        avatar = user.avatar || "";
+        isAuthorized = true;
+      } else if (session.role === "admin") {
+        displayName = username;
+        isAuthorized = true;
       }
-    } else {
-      displayName = "ADMIN";
-      avatar = "";
     }
+  }
+
+  if (!isAuthorized && password) {
+    // Authenticate user or admin
+    const user = await userStore.verify(username, password);
+    if (user) {
+      displayName = user.displayName || user.username;
+      avatar = user.avatar || "";
+      isAuthorized = true;
+    } else {
+      // Admin check
+      const isAdmin = username === config.ADMIN_USERNAME && verifyPassword(password, config.ADMIN_PASSWORD);
+      if (isAdmin) {
+        displayName = "ADMIN";
+        isAuthorized = true;
+      } else {
+        // Check if it's dynamic admin configured username
+        const sysAdmin = await userStore.find(username);
+        if (sysAdmin && sysAdmin.role === "admin" && verifyPassword(password, sysAdmin.password)) {
+          displayName = sysAdmin.displayName || sysAdmin.username;
+          avatar = sysAdmin.avatar || "";
+          isAuthorized = true;
+        }
+      }
+    }
+  }
+
+  if (!isAuthorized) {
+    res.status(401).json({ success: false, error: "Unauthorized" });
+    return;
   }
 
   try {
