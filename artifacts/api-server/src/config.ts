@@ -3,7 +3,8 @@
 // ─────────────────────────────────────────────
 
 export const config = {
-  // External UID backend — change IP/port here only
+  // External UID backend — change IP/port here only.
+  // Note: MongoDB AppSettings collection overrides this default.
   EXTERNAL_API_URL: "https://mani272uidbypass.vercel.app",
 
   // API key — value is read from the UID_API_KEY environment secret
