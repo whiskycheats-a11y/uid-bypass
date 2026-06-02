@@ -1,16 +1,9 @@
 import { Router } from "express";
-import { userStore } from "../store";
+import { userStore, sessionStore } from "../store";
 import { config } from "../config";
+import { requireAdmin } from "../middlewares/auth";
 
 const router = Router();
-
-function requireAdmin(req: any, res: any, next: any) {
-  const apiKey = req.headers["x-admin-key"];
-  if (apiKey !== config.ADMIN_PASSWORD) {
-    return res.status(403).json({ success: false, error: "Forbidden" });
-  }
-  next();
-}
 
 // Admin: add/set credits for a user
 router.patch("/:username", requireAdmin, async (req, res) => {
@@ -30,14 +23,39 @@ router.patch("/:username", requireAdmin, async (req, res) => {
 router.get("/me", async (req, res) => {
   const username = req.headers["x-username"] as string;
   const password = req.headers["x-password"] as string;
-  if (!username || !password) {
+  const sessionToken = req.headers["x-session-token"] as string;
+
+  if (!username) {
     return res.status(401).json({ success: false, error: "Unauthorized" });
   }
-  const user = await userStore.verify(username, password);
-  if (!user) {
+
+  let isAuthorized = false;
+  let userBalance = 0;
+
+  if (sessionToken) {
+    const session = sessionStore.get(sessionToken);
+    if (session && session.username === username) {
+      const user = await userStore.find(username);
+      if (user) {
+        isAuthorized = true;
+        userBalance = user.balance ?? 0;
+      }
+    }
+  }
+
+  if (!isAuthorized && password) {
+    const user = await userStore.verify(username, password);
+    if (user) {
+      isAuthorized = true;
+      userBalance = user.balance ?? 0;
+    }
+  }
+
+  if (!isAuthorized) {
     return res.status(401).json({ success: false, error: "Unauthorized" });
   }
-  return res.json({ success: true, balance: user.balance ?? 0 });
+
+  return res.json({ success: true, balance: userBalance });
 });
 
 export default router;

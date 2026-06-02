@@ -2,16 +2,9 @@ import { Router } from "express";
 import { userStore, uidStore, purgeExpiredTrials, settingsStore, verifyPassword } from "../store";
 import { config, getApiKey } from "../config";
 import { logger } from "../lib/logger";
+import { requireAdmin } from "../middlewares/auth";
 
 const router = Router();
-
-function requireAdmin(req: any, res: any, next: any) {
-  const apiKey = req.headers["x-admin-key"];
-  if (apiKey !== config.ADMIN_PASSWORD) {
-    return res.status(403).json({ success: false, error: "Forbidden" });
-  }
-  next();
-}
 
 async function removeUidFromExternal(uid: string): Promise<void> {
   try {

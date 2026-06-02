@@ -1,16 +1,9 @@
 import { Router } from "express";
 import { settingsStore } from "../store";
 import { config } from "../config";
+import { requireAdmin } from "../middlewares/auth";
 
 const router = Router();
-
-function requireAdmin(req: any, res: any, next: any) {
-  const apiKey = req.headers["x-admin-key"];
-  if (apiKey !== config.ADMIN_PASSWORD) {
-    return res.status(403).json({ success: false, error: "Forbidden" });
-  }
-  next();
-}
 
 router.get("/", requireAdmin, async (_req, res) => {
   const settings = await settingsStore.get();
