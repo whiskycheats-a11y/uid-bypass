@@ -1619,6 +1619,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeSidebarTab, setActiveSidebarTab] = useState("dashboard");
+  const [uidSearchQuery, setUidSearchQuery] = useState("");
   const [removingUid, setRemovingUid] = useState<string | null>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [showTrialMessage, setShowTrialMessage] = useState(false);
@@ -1826,7 +1827,10 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   };
 
   const renderUidTable = (showFull = false, highlightDelete = false) => {
-    const displayedUids = showFull ? [...uids].reverse() : [...uids].reverse().slice(0, 9);
+    const filteredUids = uidSearchQuery.trim() === "" 
+      ? uids 
+      : uids.filter((u: any) => u.uid.toLowerCase().includes(uidSearchQuery.toLowerCase()) || (u.name && u.name.toLowerCase().includes(uidSearchQuery.toLowerCase())));
+    const displayedUids = showFull ? [...filteredUids].reverse() : [...filteredUids].reverse().slice(0, 9);
     
     return (
       <motion.div
@@ -1844,7 +1848,18 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
               <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">{showFull ? "All authorized connections" : "History of recently created UIDs"}</div>
             </div>
           </div>
-          {!showFull && (
+          <div className="flex items-center gap-4">
+            {showFull && (
+              <div className="w-64 relative hidden sm:block">
+                <Input 
+                  placeholder="Search UID or Name..." 
+                  value={uidSearchQuery}
+                  onChange={(e) => setUidSearchQuery(e.target.value)}
+                  className="pl-4 pr-4 h-10 rounded-xl bg-black/40 border-white/10 text-white font-bold transition-all focus-visible:ring-cyan-500/30 focus-visible:border-cyan-500/50"
+                />
+              </div>
+            )}
+            {!showFull && (
             <button
               onClick={() => setActiveSidebarTab("delete")}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-300 hover:text-white transition-all cursor-pointer"
@@ -1853,6 +1868,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
               <span className="text-xs">↗</span>
             </button>
           )}
+          </div>
         </div>
 
         {isLoading ? (

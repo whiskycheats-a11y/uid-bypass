@@ -182,6 +182,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
   const queryClient = useQueryClient();
   const [activeSidebarTab, setActiveSidebarTab] = useState("dashboard");
   const [users, setUsers] = useState<ClientUser[]>([]);
+  const [uidSearchQuery, setUidSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"clients" | "payments" | "settings">("clients"); // sub-tab
   const [payments, setPayments] = useState<PaymentItem[]>([]);
@@ -640,10 +641,14 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     { id: "free", label: "Free Trial", icon: Gift },
     { id: "chat", label: "Team Chat", icon: MessageSquare },
     { id: "profile", label: "My Profile", icon: UserCircle },
+    { id: "history", label: "Login History", icon: Clock },
   ];
 
   const renderUidTable = (showFull = false, highlightDelete = false) => {
-    const displayedUids = showFull ? [...uids].reverse() : [...uids].reverse().slice(0, 9);
+    const filteredUids = uidSearchQuery.trim() === "" 
+      ? uids 
+      : uids.filter(u => u.uid.toLowerCase().includes(uidSearchQuery.toLowerCase()) || (u.name && u.name.toLowerCase().includes(uidSearchQuery.toLowerCase())));
+    const displayedUids = showFull ? [...filteredUids].reverse() : [...filteredUids].reverse().slice(0, 9);
     
     return (
       <motion.div
@@ -660,6 +665,14 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
               <h2 className="font-black text-lg text-white tracking-wide">{showFull ? "Global Endpoints" : "Recent UIDs"}</h2>
               <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">{showFull ? "All active connections globally" : "History of recently registered UIDs"}</div>
             </div>
+          </div>
+          <div className="w-64 relative">
+            <Input 
+              placeholder="Search UID or Name..." 
+              value={uidSearchQuery}
+              onChange={(e) => setUidSearchQuery(e.target.value)}
+              className="pl-4 pr-4 h-10 rounded-xl bg-black/40 border-white/10 text-white font-bold transition-all focus-visible:ring-red-500/30 focus-visible:border-red-500/50"
+            />
           </div>
         </div>
 
@@ -1158,6 +1171,11 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     avatarBase64={profileData.avatarBase64}
                     onUpdate={handleUpdateProfile}
                   />
+                </motion.div>
+              )}
+              {activeSidebarTab === "history" && (
+                <motion.div key="history" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                  <LoginHistoryPanel />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -3502,6 +3520,84 @@ function TiltWrapper({ children, className = "" }: { children: React.ReactNode; 
       }}
     >
       {children}
+    </div>
+  );
+}
+function LoginHistoryPanel() {
+  const [history, setHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchHistory() {
+      try {
+        const res = await fetch(`${BASE}/api/users/login-history`, {
+          headers: adminHeaders()
+        });
+        const data = await res.json();
+        if (data.success) {
+          setHistory(data.history || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch login history", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchHistory();
+  }, []);
+
+  return (
+    <div className="panel rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, transparent)" }} />
+      <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.25)" }}>
+          <Clock className="w-4 h-4 text-violet-400" />
+        </div>
+        <div>
+          <h2 className="font-bold text-sm text-foreground">Login History</h2>
+          <p className="text-[11px] text-muted-foreground">Recent admin and user logins across the network</p>
+        </div>
+      </div>
+      <div className="p-4">
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+          </div>
+        ) : history.length === 0 ? (
+          <div className="text-center py-10 text-slate-500 text-sm font-bold">No login history found</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-white/5 text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                  <th className="py-3 px-4">User</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4">IP Address</th>
+                  <th className="py-3 px-4">Time</th>
+                  <th className="py-3 px-4">Device/Agent</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((record, i) => (
+                  <tr key={i} className="border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors text-sm text-slate-300">
+                    <td className="py-3 px-4 font-bold">{record.username}</td>
+                    <td className="py-3 px-4">
+                      {record.success ? (
+                        <span className="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">SUCCESS</span>
+                      ) : (
+                        <span className="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">FAILED</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 font-mono text-xs text-slate-400">{record.ip}</td>
+                    <td className="py-3 px-4 text-xs text-slate-400">{new Date(record.timestamp).toLocaleString()}</td>
+                    <td className="py-3 px-4 text-[10px] text-slate-500 truncate max-w-[200px]" title={record.userAgent}>{record.userAgent || "Unknown"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

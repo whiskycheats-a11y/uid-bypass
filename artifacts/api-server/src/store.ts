@@ -495,6 +495,64 @@ export const trialStore = {
   },
 };
 
+// ── Login History model & store ──────────────────────────────────────────
+export interface LoginHistoryRecord {
+  username: string;
+  ip: string;
+  success: boolean;
+  timestamp: string;
+  userAgent?: string;
+}
+
+interface LoginHistoryDoc extends LoginHistoryRecord, Document {}
+
+const loginHistorySchema = new Schema<LoginHistoryDoc>({
+  username: { type: String, required: true },
+  ip: { type: String, required: true },
+  success: { type: Boolean, required: true },
+  timestamp: { type: String, default: () => new Date().toISOString() },
+  userAgent: { type: String, default: "" }
+});
+
+const LoginHistoryModel = model<LoginHistoryDoc>("LoginHistory", loginHistorySchema);
+
+const fallbackLoginHistory: LoginHistoryRecord[] = [];
+
+export const loginHistoryStore = {
+  async record(username: string, ip: string, success: boolean, userAgent = ""): Promise<void> {
+    await ensureConnection();
+    const doc = { username, ip, success, timestamp: new Date().toISOString(), userAgent };
+    if (!connected) {
+      fallbackLoginHistory.push(doc);
+      if (fallbackLoginHistory.length > 500) fallbackLoginHistory.shift();
+      return;
+    }
+    try {
+      await LoginHistoryModel.create(doc);
+    } catch (e) {
+      logger.error({ err: e }, "Failed to save login history to MongoDB");
+    }
+  },
+  async getRecent(limit = 100): Promise<LoginHistoryRecord[]> {
+    await ensureConnection();
+    if (!connected) {
+      return [...fallbackLoginHistory].reverse().slice(0, limit);
+    }
+    try {
+      const docs = await LoginHistoryModel.find({}).sort({ timestamp: -1 }).limit(limit);
+      return docs.map(d => ({
+        username: d.username,
+        ip: d.ip,
+        success: d.success,
+        timestamp: d.timestamp,
+        userAgent: d.userAgent || ""
+      }));
+    } catch (e) {
+      return [];
+    }
+  }
+};
+
 export const userStore = {
   async find(username: string): Promise<AppUser | undefined> {
     if (!isString(username)) return undefined;

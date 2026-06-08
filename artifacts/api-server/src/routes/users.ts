@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userStore, uidStore, purgeExpiredTrials, settingsStore, verifyPassword } from "../store";
+import { userStore, uidStore, purgeExpiredTrials, settingsStore, verifyPassword, loginHistoryStore } from "../store";
 import { config, getApiKey } from "../config";
 import { logger } from "../lib/logger";
 import { requireAdmin } from "../middlewares/auth";
@@ -44,6 +44,11 @@ async function removeUidFromExternal(uid: string): Promise<void> {
     logger.warn({ err, uid }, "Failed to remove UID from external API during user cleanup");
   }
 }
+
+router.get("/login-history", requireAdmin, async (_req, res) => {
+  const history = await loginHistoryStore.getRecent(100);
+  res.json({ success: true, history });
+});
 
 router.get("/", requireAdmin, async (_req, res) => {
   const users = await userStore.list();

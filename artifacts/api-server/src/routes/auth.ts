@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userStore, sessionStore, loginGuard, verifyPassword } from "../store";
+import { userStore, sessionStore, loginGuard, verifyPassword, loginHistoryStore } from "../store";
 import { config } from "../config";
 import { logger } from "../lib/logger";
 import { verifyTurnstileToken } from "../lib/turnstile";
@@ -52,6 +52,7 @@ router.post("/login", async (req, res) => {
   const user = await userStore.verify(username, password);
   if (!user) {
     const result = loginGuard.recordFailure(clientIp);
+    await loginHistoryStore.record(username, clientIp, false, req.headers["user-agent"] || "");
     logger.warn({ ip: clientIp, username, attemptsLeft: result.attemptsLeft }, "Failed login attempt");
     
     if (result.blocked) {
@@ -96,6 +97,7 @@ router.post("/login", async (req, res) => {
   // Successful login — clear attempts and create session token
   loginGuard.recordSuccess(clientIp);
   const sessionToken = sessionStore.create(user.username, user.role);
+  await loginHistoryStore.record(user.username, clientIp, true, req.headers["user-agent"] || "");
   logger.info({ username: user.username, ip: clientIp }, "Successful login");
 
   return res.json({
