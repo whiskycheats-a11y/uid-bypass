@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { userStore, trialStore, uidStore, settingsStore, tokenStore, sessionStore } from "../store";
-import { config } from "../config";
+import { config, getApiKey } from "../config";
 import { logger } from "../lib/logger";
 import { verifyTurnstileToken } from "../lib/turnstile";
 
@@ -37,9 +37,8 @@ async function getBase(): Promise<string> {
 async function getKey(): Promise<string> {
   const s = await settingsStore.get();
   if (s.externalApiKey) return s.externalApiKey;
-  const key = process.env[config.API_KEY_ENV];
-  if (key) return key;
-  return "";
+  const key = getApiKey();
+  return key;
 }
 
 function authHeaders(key: string, isPhpApi = false): Record<string, string> {

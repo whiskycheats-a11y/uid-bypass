@@ -3,11 +3,10 @@
 // ─────────────────────────────────────────────
 
 export const config = {
-  // External UID backend — change IP/port here only.
-  // Note: MongoDB AppSettings collection overrides this default.
-  EXTERNAL_API_URL: "https://gtccheats.xyz/Api/uidbypassapi/api_user.php",
+  // External UID backend — set via environment variable
+  EXTERNAL_API_URL: process.env["EXTERNAL_API_URL"] || process.env["GTC_API_URL"] || "",
 
-  // API key — value is read from the UID_API_KEY environment secret
+  // API key environment variable name fallback
   API_KEY_ENV: "UID_API_KEY",
 
   // MongoDB connection string
@@ -22,7 +21,6 @@ export const config = {
 };
 
 export function getApiKey(): string {
-  const key = process.env[config.API_KEY_ENV];
-  if (!key) return "MANI272-3D2C30C879C434C35DB85782C62BF60D";
-  return key;
+  const key = process.env[config.API_KEY_ENV] || process.env["GTC_API_KEY"] || process.env["API_KEY"];
+  return key || "";
 }

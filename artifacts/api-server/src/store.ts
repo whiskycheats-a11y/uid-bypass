@@ -445,6 +445,10 @@ async function ensureConnection() {
 }
 
 async function seedAdmin() {
+  if (!config.ADMIN_USERNAME || !config.ADMIN_PASSWORD) {
+    logger.warn("Skipping admin seeding: ADMIN_USERNAME or ADMIN_PASSWORD config is empty");
+    return;
+  }
   const exists = await UserModel.findOne({ role: "admin" });
   if (!exists) {
     await UserModel.create({
@@ -464,18 +468,20 @@ async function seedAdmin() {
 
 // ── Fallback in-memory store (if MongoDB is unavailable) ──
 const fallbackUsers = new Map<string, AppUser>();
-fallbackUsers.set(config.ADMIN_USERNAME, {
-  username: config.ADMIN_USERNAME,
-  password: hashPassword(config.ADMIN_PASSWORD),
-  role: "admin",
-  canResell: false,
-  createdAt: new Date().toISOString(),
-  defaultDays: 30,
-  isTrial: false,
-  balance: 0,
-  hwid: "",
-  hwidLockEnabled: false,
-});
+if (config.ADMIN_USERNAME && config.ADMIN_PASSWORD) {
+  fallbackUsers.set(config.ADMIN_USERNAME, {
+    username: config.ADMIN_USERNAME,
+    password: hashPassword(config.ADMIN_PASSWORD),
+    role: "admin",
+    canResell: false,
+    createdAt: new Date().toISOString(),
+    defaultDays: 30,
+    isTrial: false,
+    balance: 0,
+    hwid: "",
+    hwidLockEnabled: false,
+  });
+}
 
 // ── Trial UID count (in-memory, not persisted) ──
 const trialUidCounts = new Map<string, number>();

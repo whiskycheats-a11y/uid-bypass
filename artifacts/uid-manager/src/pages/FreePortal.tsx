@@ -269,7 +269,7 @@ export default function FreePortal() {
                     <Turnstile
                       siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                       onSuccess={setTurnstileToken}
-                      theme="dark"
+                      options={{ theme: "dark" }}
                     />
                   </div>
 

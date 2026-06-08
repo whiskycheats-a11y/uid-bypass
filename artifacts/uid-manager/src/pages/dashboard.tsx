@@ -1150,7 +1150,7 @@ function LeaderboardView() {
                   <div className="mt-4">
                     <h3 className="font-black text-white text-lg tracking-wide truncate max-w-full">{top2.displayName}</h3>
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
-                      @{top2.username} <span className="opacity-40">·</span> <span className={top2.role === "admin" ? "text-red-400" : "text-violet-400"}>{top2.role === "admin" ? "Admin" : "Reseller"}</span>
+                      @{top2.username} <span className="opacity-40">·</span> <span className={top2.role === "admin" ? "text-red-400" : "text-violet-400"}>{top2.role === "admin" ? "Admin" : "Operator"}</span>
                     </p>
                   </div>
 
@@ -1214,7 +1214,7 @@ function LeaderboardView() {
                       <Trophy className="w-5 h-5 text-yellow-400 drop-shadow-[0_0_5px_rgba(234,179,8,0.5)] shrink-0" />
                     </div>
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
-                      @{top1.username} <span className="opacity-40">·</span> <span className={top1.role === "admin" ? "text-red-400 font-extrabold" : "text-violet-400 font-extrabold"}>{top1.role === "admin" ? "Admin" : "Reseller"}</span>
+                      @{top1.username} <span className="opacity-40">·</span> <span className={top1.role === "admin" ? "text-red-400 font-extrabold" : "text-violet-400 font-extrabold"}>{top1.role === "admin" ? "Admin" : "Operator"}</span>
                     </p>
                   </div>
 
@@ -1269,7 +1269,7 @@ function LeaderboardView() {
                   <div className="mt-4">
                     <h3 className="font-black text-white text-lg tracking-wide truncate max-w-full">{top3.displayName}</h3>
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
-                      @{top3.username} <span className="opacity-40">·</span> <span className={top3.role === "admin" ? "text-red-400" : "text-violet-400"}>{top3.role === "admin" ? "Admin" : "Reseller"}</span>
+                      @{top3.username} <span className="opacity-40">·</span> <span className={top3.role === "admin" ? "text-red-400" : "text-violet-400"}>{top3.role === "admin" ? "Admin" : "Operator"}</span>
                     </p>
                   </div>
 
@@ -1324,7 +1324,7 @@ function LeaderboardView() {
               <Users className="w-10 h-10 text-slate-500" />
             </div>
             <p className="text-slate-300 font-bold mb-2">No Leaderboard Data</p>
-            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Resellers will appear here as they register UIDs</p>
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Operators will appear here as they register UIDs</p>
           </div>
         ) : (
           <div className="p-4 sm:p-6 space-y-3 overflow-y-auto max-h-[600px] custom-scrollbar">
@@ -1369,7 +1369,7 @@ function LeaderboardView() {
                     <div>
                       <div className="font-black text-sm text-white tracking-wide">{user.displayName}</div>
                       <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                        @{user.username} <span className="opacity-40">·</span> <span className={user.role === "admin" ? "text-red-400 font-extrabold" : "text-violet-400 font-extrabold"}>{user.role === "admin" ? "Admin" : "Reseller"}</span>
+                        @{user.username} <span className="opacity-40">·</span> <span className={user.role === "admin" ? "text-red-400 font-extrabold" : "text-violet-400 font-extrabold"}>{user.role === "admin" ? "Admin" : "Operator"}</span>
                       </div>
                     </div>
                   </div>
@@ -2102,7 +2102,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
               <Shield className="w-5 h-5 text-white" />
             </div>
             <div>
-              <div className="font-black text-[11px] uppercase tracking-[0.1em] text-white">UID BYPASS RESELLER</div>
+              <div className="font-black text-[11px] uppercase tracking-[0.1em] text-white">UID BYPASS PANEL</div>
               <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">SM</div>
             </div>
           </div>
@@ -2160,7 +2160,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             <Shield className="w-5 h-5 text-white" />
           </div>
           <div>
-            <div className="font-black text-[11px] uppercase tracking-[0.1em] text-white">UID BYPASS RESELLER</div>
+            <div className="font-black text-[11px] uppercase tracking-[0.1em] text-white">UID BYPASS PANEL</div>
             <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">SM</div>
           </div>
         </div>

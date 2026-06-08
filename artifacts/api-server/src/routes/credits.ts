@@ -7,7 +7,7 @@ const router = Router();
 
 // Admin: add/set credits for a user
 router.patch("/:username", requireAdmin, async (req, res) => {
-  const { username } = req.params;
+  const username = req.params.username as string;
   const { amount } = req.body ?? {};
   if (typeof amount !== "number") {
     return res.status(400).json({ success: false, error: "amount (number) is required" });

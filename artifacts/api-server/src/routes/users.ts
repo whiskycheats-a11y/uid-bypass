@@ -10,8 +10,6 @@ async function removeUidFromExternal(uid: string): Promise<void> {
   try {
     const s = await settingsStore.get();
     let base = (s.externalApiUrl || config.EXTERNAL_API_URL).replace(/\/$/, "");
-    base = base.replace(/\/api\/v1\/uids\/(add|remove|list)$/i, "");
-    base = base.replace(/\/api\/v1\/uids$/i, "");
     let key = s.externalApiKey;
     if (!key) {
       try {
@@ -20,10 +18,27 @@ async function removeUidFromExternal(uid: string): Promise<void> {
         key = "";
       }
     }
-    await fetch(`${base}/api/v1/uids/remove`, {
+    const isPhpApi = base.includes("api_user.php");
+    let url = "";
+    let headers: Record<string, string> = { "Content-Type": "application/json" };
+    let body = "";
+
+    if (isPhpApi) {
+      url = `${base}?action=delete`;
+      headers["X-API-KEY"] = key;
+      body = JSON.stringify({ account_id: uid });
+    } else {
+      base = base.replace(/\/api\/v1\/uids\/(add|remove|list)$/i, "");
+      base = base.replace(/\/api\/v1\/uids$/i, "");
+      url = `${base}/api/v1/uids/remove`;
+      headers["X-AUTH-KEY"] = key;
+      body = JSON.stringify({ uid });
+    }
+
+    await fetch(url, {
       method: "POST",
-      headers: { "X-AUTH-KEY": key, "Content-Type": "application/json" },
-      body: JSON.stringify({ uid }),
+      headers,
+      body,
     });
   } catch (err) {
     logger.warn({ err, uid }, "Failed to remove UID from external API during user cleanup");
@@ -49,7 +64,7 @@ router.get("/", requireAdmin, async (_req, res) => {
 
 router.patch("/:username/resell", requireAdmin, async (req, res) => {
   const { canResell } = req.body ?? {};
-  const updated = await userStore.setCanResell(req.params.username, Boolean(canResell));
+  const updated = await userStore.setCanResell(req.params.username as string, Boolean(canResell));
   if (!updated) {
     return res.status(404).json({ success: false, error: "User not found" });
   }
@@ -58,7 +73,7 @@ router.patch("/:username/resell", requireAdmin, async (req, res) => {
 
 router.patch("/:username/hwid-lock", requireAdmin, async (req, res) => {
   const { enabled } = req.body ?? {};
-  const updated = await userStore.toggleHwidLock(req.params.username, Boolean(enabled));
+  const updated = await userStore.toggleHwidLock(req.params.username as string, Boolean(enabled));
   if (!updated) {
     return res.status(404).json({ success: false, error: "User not found" });
   }
@@ -66,7 +81,7 @@ router.patch("/:username/hwid-lock", requireAdmin, async (req, res) => {
 });
 
 router.post("/:username/hwid-reset", requireAdmin, async (req, res) => {
-  const updated = await userStore.resetHwid(req.params.username);
+  const updated = await userStore.resetHwid(req.params.username as string);
   if (!updated) {
     return res.status(404).json({ success: false, error: "User not found" });
   }
@@ -92,7 +107,7 @@ router.post("/", requireAdmin, async (req, res) => {
 });
 
 router.delete("/:username", requireAdmin, async (req, res) => {
-  const { username } = req.params;
+  const username = req.params.username as string;
 
   const uidsToRemove = await uidStore.removeByUser(username);
   await Promise.all(uidsToRemove.map(removeUidFromExternal));

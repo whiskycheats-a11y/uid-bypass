@@ -68,7 +68,7 @@ const globalRateMap = new Map<string, { count: number; resetAt: number }>();
 const GLOBAL_RATE_LIMIT = 100;
 const GLOBAL_RATE_WINDOW = 60 * 1000; // 1 minute
 
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req: Request, res: Response, next: NextFunction): void => {
   const ip = ((req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0]).trim() || "unknown";
   let record = globalRateMap.get(ip);
   const now = Date.now();
@@ -82,7 +82,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   
   if (record.count > GLOBAL_RATE_LIMIT) {
     res.setHeader("Retry-After", "60");
-    return res.status(429).json({ success: false, error: "Too many requests. Slow down." });
+    res.status(429).json({ success: false, error: "Too many requests. Slow down." });
+    return;
   }
   
   next();
