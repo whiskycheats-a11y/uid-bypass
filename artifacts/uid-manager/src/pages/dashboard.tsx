@@ -192,13 +192,16 @@ function OverviewStatCard({
         </div>
         <div className="w-24 sm:w-28 h-10 mt-2">
           <svg viewBox="0 0 100 30" className="w-full h-full text-cyan-500/50 group-hover:text-cyan-400 transition-colors filter drop-shadow-[0_0_4px_rgba(0,212,255,0.3)]">
-            <path
+            <motion.path
               d={pathD}
               fill="none"
               stroke="currentColor"
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 2.5, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.5 }}
             />
           </svg>
         </div>
