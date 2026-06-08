@@ -16,6 +16,7 @@ import {
   Medal
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
@@ -26,6 +27,7 @@ export default function FreePortal() {
   const [bluestack, setBluestack] = useState(true);
   const [loadingToken, setLoadingToken] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [tokenData, setTokenData] = useState<{
     token: string;
     resellerUsername: string;
@@ -102,7 +104,7 @@ export default function FreePortal() {
       const res = await fetch(`${BASE}/api/uid/free-whitelist`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, uid: uid.trim(), bluestack }),
+        body: JSON.stringify({ token, uid: uid.trim(), bluestack, turnstileToken }),
       });
       const data = await res.json();
       
@@ -263,9 +265,17 @@ export default function FreePortal() {
                     </div>
                   )}
 
+                  <div className="flex justify-center py-2">
+                    <Turnstile
+                      siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+                      onSuccess={setTurnstileToken}
+                      theme="dark"
+                    />
+                  </div>
+
                   <motion.button
                     type="submit"
-                    disabled={submitting || !uid.trim()}
+                    disabled={submitting || !uid.trim() || !turnstileToken}
                     whileHover={{ y: -2 }}
                     whileTap={{ scale: 0.97 }}
                     className="argus-btn w-full h-14 rounded-2xl text-[11px] font-black uppercase tracking-[0.25em] mt-6 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3"

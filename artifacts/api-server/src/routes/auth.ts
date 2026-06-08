@@ -2,6 +2,7 @@ import { Router } from "express";
 import { userStore, sessionStore, loginGuard, verifyPassword } from "../store";
 import { config } from "../config";
 import { logger } from "../lib/logger";
+import { verifyTurnstileToken } from "../lib/turnstile";
 
 const router = Router();
 
@@ -9,10 +10,20 @@ router.post("/login", async (req, res) => {
   const username = typeof req.body?.username === "string" ? req.body.username.trim() : "";
   const password = typeof req.body?.password === "string" ? req.body.password.trim() : "";
   const hwid = typeof req.body?.hwid === "string" ? req.body.hwid.trim() : "";
+  const turnstileToken = typeof req.body?.turnstileToken === "string" ? req.body.turnstileToken.trim() : "";
   const clientIp = ((req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0]).trim() || "unknown";
   
   if (!username || !password) {
     return res.status(400).json({ success: false, error: "Username and password required" });
+  }
+
+  if (!turnstileToken) {
+    return res.status(400).json({ success: false, error: "Cloudflare verification is required" });
+  }
+
+  const isHuman = await verifyTurnstileToken(turnstileToken, clientIp);
+  if (!isHuman) {
+    return res.status(403).json({ success: false, error: "Cloudflare verification failed. Please try again." });
   }
 
   // Check if IP is blocked (brute force protection)

@@ -5,7 +5,7 @@
 export const config = {
   // External UID backend — change IP/port here only.
   // Note: MongoDB AppSettings collection overrides this default.
-  EXTERNAL_API_URL: "https://mani272uidbypass.vercel.app",
+  EXTERNAL_API_URL: "https://gtccheats.xyz/Api/uidbypassapi/api_user.php",
 
   // API key — value is read from the UID_API_KEY environment secret
   API_KEY_ENV: "UID_API_KEY",
@@ -14,8 +14,11 @@ export const config = {
   MONGODB_URI: process.env["MONGODB_URI"] ?? "mongodb+srv://uidbypass:uidbypass@cluster0.igrfjw8.mongodb.net/?appName=Cluster0",
 
   // Admin credentials
-  ADMIN_USERNAME: process.env["ADMIN_USERNAME"] ?? "admin",
-  ADMIN_PASSWORD: process.env["ADMIN_PASSWORD"] ?? "UID@Admin2024",
+  ADMIN_USERNAME: process.env["ADMIN_USERNAME"] ?? "",
+  ADMIN_PASSWORD: process.env["ADMIN_PASSWORD"] ?? "",
+
+  // Cloudflare Turnstile
+  TURNSTILE_SECRET_KEY: process.env["TURNSTILE_SECRET_KEY"] ?? "1x0000000000000000000000000000000AA",
 };
 
 export function getApiKey(): string {

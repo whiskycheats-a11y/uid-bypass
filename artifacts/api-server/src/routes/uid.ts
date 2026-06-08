@@ -2,6 +2,7 @@ import { Router } from "express";
 import { userStore, trialStore, uidStore, settingsStore, tokenStore, sessionStore } from "../store";
 import { config } from "../config";
 import { logger } from "../lib/logger";
+import { verifyTurnstileToken } from "../lib/turnstile";
 
 const router = Router();
 
@@ -38,14 +39,13 @@ async function getKey(): Promise<string> {
   if (s.externalApiKey) return s.externalApiKey;
   const key = process.env[config.API_KEY_ENV];
   if (key) return key;
-  // Hardcoded fallback API key
-  return "MANI272-3D2C30C879C434C35DB85782C62BF60D";
+  return "";
 }
 
-function authHeaders(key: string): Record<string, string> {
+function authHeaders(key: string, isPhpApi = false): Record<string, string> {
   return {
     "Content-Type": "application/json",
-    "X-AUTH-KEY": key,
+    [isPhpApi ? "X-API-KEY" : "X-AUTH-KEY"]: key,
   };
 }
 
@@ -200,14 +200,16 @@ router.post("/add", async (req, res) => {
     const hours = daysToHours(effectiveDays);
     req.log.info({ base, keyLength: key?.length, clientIp }, "External API Call Info");
 
-    const response = await fetch(`${base}/api/v1/uids/add`, {
+    const isPhpApi = base.includes("api_user.php");
+    const url = isPhpApi ? `${base}?action=add` : `${base}/api/v1/uids/add`;
+    const body = isPhpApi 
+      ? { account_id: uid, for_days: effectiveDays }
+      : { uid, days: effectiveDays, name: name || username || "MyUID" };
+
+    const response = await fetch(url, {
       method: "POST",
-      headers: authHeaders(key),
-      body: JSON.stringify({
-        uid,
-        days: effectiveDays,
-        name: name || username || "MyUID",
-      }),
+      headers: authHeaders(key, isPhpApi),
+      body: JSON.stringify(body),
     });
     const data = await response.json() as Record<string, unknown>;
     const success = isSuccess(data);
@@ -287,10 +289,14 @@ router.post("/remove", async (req, res) => {
     const base = await getBase();
     const key = await getKey();
 
-    const response = await fetch(`${base}/api/v1/uids/remove`, {
+    const isPhpApi = base.includes("api_user.php");
+    const url = isPhpApi ? `${base}?action=delete` : `${base}/api/v1/uids/remove`;
+    const body = isPhpApi ? { account_id: uid } : { uid };
+
+    const response = await fetch(url, {
       method: "POST",
-      headers: authHeaders(key),
-      body: JSON.stringify({ uid }),
+      headers: authHeaders(key, isPhpApi),
+      body: JSON.stringify(body),
     });
     const data = await response.json() as Record<string, unknown>;
     const success = isSuccess(data);
@@ -418,11 +424,22 @@ router.get("/token-info/:token", async (req, res) => {
 });
 
 router.post("/free-whitelist", async (req, res) => {
-  const { token, uid, bluestack = true } = req.body ?? {};
+  const { token, uid, turnstileToken, bluestack = true } = req.body ?? {};
   const clientIp = ((req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0]).trim();
 
   if (!token || !uid) {
     res.status(400).json({ success: false, message: "Token and UID are required" });
+    return;
+  }
+
+  if (!turnstileToken) {
+    res.status(400).json({ success: false, message: "Cloudflare verification is required" });
+    return;
+  }
+
+  const isHuman = await verifyTurnstileToken(turnstileToken, clientIp);
+  if (!isHuman) {
+    res.status(403).json({ success: false, message: "Cloudflare verification failed. Please try again." });
     return;
   }
 
@@ -469,14 +486,16 @@ router.post("/free-whitelist", async (req, res) => {
 
     req.log.info({ base, clientIp, token, uid }, "External free-whitelist API Call");
 
-    const response = await fetch(`${base}/api/v1/uids/add`, {
+    const isPhpApi = base.includes("api_user.php");
+    const url = isPhpApi ? `${base}?action=add` : `${base}/api/v1/uids/add`;
+    const body = isPhpApi 
+      ? { account_id: uid, for_days: tokenData.days }
+      : { uid, days: tokenData.days, name: `Trial-${tokenData.resellerUsername}` };
+
+    const response = await fetch(url, {
       method: "POST",
-      headers: authHeaders(key),
-      body: JSON.stringify({
-        uid,
-        days: tokenData.days,
-        name: `Trial-${tokenData.resellerUsername}`,
-      }),
+      headers: authHeaders(key, isPhpApi),
+      body: JSON.stringify(body),
     });
     
     const data = await response.json() as Record<string, unknown>;
@@ -519,10 +538,14 @@ async function cleanupExpiredUids() {
           logger.info({ uid: u.uid }, "Trial expired. Removing expired trial UID...");
           // Expired! Remove from external API first
           try {
-            const response = await fetch(`${base}/api/v1/uids/remove`, {
+            const isPhpApi = base.includes("api_user.php");
+            const url = isPhpApi ? `${base}?action=delete` : `${base}/api/v1/uids/remove`;
+            const body = isPhpApi ? { account_id: u.uid } : { uid: u.uid };
+
+            const response = await fetch(url, {
               method: "POST",
-              headers: authHeaders(key),
-              body: JSON.stringify({ uid: u.uid }),
+              headers: authHeaders(key, isPhpApi),
+              body: JSON.stringify(body),
             });
             const resData = await response.json() as Record<string, unknown>;
             logger.info({ uid: u.uid, resData }, "Expired trial UID remove status from external API");

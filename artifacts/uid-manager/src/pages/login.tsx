@@ -28,6 +28,7 @@ import {
   Timer,
 } from "lucide-react";
 import heroShield from "@assets/hero_3d_shield.png";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 interface LoginProps {
   onLogin: (role: "admin" | "user", username: string) => void;
@@ -206,6 +207,7 @@ export default function Login({ onLogin }: LoginProps) {
   const [isYearly, setIsYearly] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
   const [headerBlur, setHeaderBlur] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
   
   const cardRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -274,7 +276,7 @@ export default function Login({ onLogin }: LoginProps) {
       const res = await fetch(`${BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, hwid: clientHwid }),
+        body: JSON.stringify({ username, password, hwid: clientHwid, turnstileToken }),
       });
       const raw = await res.text();
       let data: any = null;
@@ -331,7 +333,7 @@ export default function Login({ onLogin }: LoginProps) {
       const res = await fetch(`${BASE}/api/uid/free-whitelist`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: trialToken.trim(), uid: playerUid.trim(), bluestack }),
+        body: JSON.stringify({ token: trialToken.trim(), uid: playerUid.trim(), bluestack, turnstileToken }),
       });
       const raw = await res.text();
       let data: any = null;
@@ -814,8 +816,16 @@ export default function Login({ onLogin }: LoginProps) {
                        </motion.div>
                      )}
                    </AnimatePresence>
+
+                   <div className="flex justify-center py-2">
+                     <Turnstile
+                       siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+                       onSuccess={setTurnstileToken}
+                       theme="dark"
+                     />
+                   </div>
                    
-                   <motion.button type="submit" disabled={loading || !username || !password} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} className="argus-btn w-full h-14 rounded-2xl text-[11px] font-black uppercase tracking-[0.25em] mt-6 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3">
+                   <motion.button type="submit" disabled={loading || !username || !password || !turnstileToken} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} className="argus-btn w-full h-14 rounded-2xl text-[11px] font-black uppercase tracking-[0.25em] mt-6 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3">
                      <AnimatePresence mode="wait">
                        {loading ? (
                          <motion.span key="l" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> Verifying Hash...</motion.span>
