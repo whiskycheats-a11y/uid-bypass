@@ -30,10 +30,10 @@ async function getBase(): Promise<string> {
   let envUrl = process.env["EndpointURL"] || process.env["EXTERNAL_API_URL"] || process.env["GTC_API_URL"] || config.EXTERNAL_API_URL;
   let url = "";
   if (envUrl) {
-    url = envUrl;
+    url = envUrl.replace(/^["']|["']$/g, "").trim();
   } else {
     const s = await settingsStore.get();
-    url = s.externalApiUrl || "";
+    url = (s.externalApiUrl || "").replace(/^["']|["']$/g, "").trim();
   }
   url = url.replace(/\/$/, "");
   url = url.replace(/\/api\/v1\/uids\/(add|remove|list)$/i, "");
@@ -43,10 +43,10 @@ async function getBase(): Promise<string> {
 
 async function getKey(): Promise<string> {
   const envKey = getApiKey();
-  if (envKey) return envKey;
+  if (envKey) return envKey.replace(/^["']|["']$/g, "").trim();
   
   const s = await settingsStore.get();
-  return s.externalApiKey || "";
+  return (s.externalApiKey || "").replace(/^["']|["']$/g, "").trim();
 }
 
 function authHeaders(key: string, isPhpApi = false): Record<string, string> {
@@ -219,8 +219,24 @@ router.post("/add", async (req, res) => {
       headers: authHeaders(key, isPhpApi),
       body: JSON.stringify(body),
     });
-    const data = await response.json() as Record<string, unknown>;
-    const success = isSuccess(data);
+    
+    let data: Record<string, unknown> = {};
+    let success = false;
+    
+    try {
+      const text = await response.text();
+      if (text) {
+        data = JSON.parse(text) as Record<string, unknown>;
+        success = isSuccess(data);
+      } else {
+        // If response is empty but ok, treat as success
+        success = response.ok;
+      }
+    } catch (parseErr) {
+      req.log.warn({ parseErr, status: response.status }, "External API returned non-JSON response");
+      success = response.ok;
+      data = { message: `External API returned HTTP ${response.status} with non-JSON body` };
+    }
 
     if (success) {
       if (username && isTrial) trialStore.increment(username);
@@ -306,8 +322,23 @@ router.post("/remove", async (req, res) => {
       headers: authHeaders(key, isPhpApi),
       body: JSON.stringify(body),
     });
-    const data = await response.json() as Record<string, unknown>;
-    const success = isSuccess(data);
+    
+    let data: Record<string, unknown> = {};
+    let success = false;
+    
+    try {
+      const text = await response.text();
+      if (text) {
+        data = JSON.parse(text) as Record<string, unknown>;
+        success = isSuccess(data);
+      } else {
+        success = response.ok;
+      }
+    } catch (parseErr) {
+      req.log.warn({ parseErr, status: response.status }, "External API returned non-JSON response");
+      success = response.ok;
+      data = { message: `External API returned HTTP ${response.status} with non-JSON body` };
+    }
 
     // Always permanently delete from local MongoDB on remove action
     await uidStore.remove(uid);
@@ -506,8 +537,22 @@ router.post("/free-whitelist", async (req, res) => {
       body: JSON.stringify(body),
     });
     
-    const data = await response.json() as Record<string, unknown>;
-    const success = isSuccess(data);
+    let data: Record<string, unknown> = {};
+    let success = false;
+    
+    try {
+      const text = await response.text();
+      if (text) {
+        data = JSON.parse(text) as Record<string, unknown>;
+        success = isSuccess(data);
+      } else {
+        success = response.ok;
+      }
+    } catch (parseErr) {
+      req.log.warn({ parseErr, status: response.status }, "External API returned non-JSON response");
+      success = response.ok;
+      data = { message: `External API returned HTTP ${response.status} with non-JSON body` };
+    }
 
     if (success) {
       await tokenStore.markAsUsed(token, uid, clientIp);
