@@ -27,24 +27,33 @@ function daysToTokens(days: number): number {
 }
 
 async function getBase(): Promise<string> {
-  const s = await settingsStore.get();
-  let url = (s.externalApiUrl || config.EXTERNAL_API_URL).replace(/\/$/, "");
+  let envUrl = process.env["EndpointURL"] || process.env["EXTERNAL_API_URL"] || process.env["GTC_API_URL"] || config.EXTERNAL_API_URL;
+  let url = "";
+  if (envUrl) {
+    url = envUrl;
+  } else {
+    const s = await settingsStore.get();
+    url = s.externalApiUrl || "";
+  }
+  url = url.replace(/\/$/, "");
   url = url.replace(/\/api\/v1\/uids\/(add|remove|list)$/i, "");
   url = url.replace(/\/api\/v1\/uids$/i, "");
   return url;
 }
 
 async function getKey(): Promise<string> {
+  const envKey = getApiKey();
+  if (envKey) return envKey;
+  
   const s = await settingsStore.get();
-  if (s.externalApiKey) return s.externalApiKey;
-  const key = getApiKey();
-  return key;
+  return s.externalApiKey || "";
 }
 
 function authHeaders(key: string, isPhpApi = false): Record<string, string> {
   return {
     "Content-Type": "application/json",
-    [isPhpApi ? "X-API-KEY" : "X-AUTH-KEY"]: key,
+    "X-AUTH-KEY": key,
+    "X-API-KEY": key,
   };
 }
 

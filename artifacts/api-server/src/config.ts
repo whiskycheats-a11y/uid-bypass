@@ -4,7 +4,7 @@
 
 export const config = {
   // External UID backend — set via environment variable
-  EXTERNAL_API_URL: process.env["EXTERNAL_API_URL"] || process.env["GTC_API_URL"] || "",
+  EXTERNAL_API_URL: process.env["EXTERNAL_API_URL"] || process.env["GTC_API_URL"] || process.env["EndpointURL"] || "",
 
   // API key environment variable name fallback
   API_KEY_ENV: "UID_API_KEY",

@@ -266,11 +266,19 @@ export default function Login({ onLogin }: LoginProps) {
     setLoading(true);
     try {
       let clientHwid = localStorage.getItem("velocira_hwid");
-      if (!clientHwid) {
-        clientHwid = typeof crypto !== "undefined" && crypto.randomUUID 
-          ? crypto.randomUUID() 
-          : Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
+      try {
+        const fpPromise = await import('@fingerprintjs/fingerprintjs');
+        const fp = await fpPromise.load();
+        const result = await fp.get();
+        clientHwid = result.visitorId;
         localStorage.setItem("velocira_hwid", clientHwid);
+      } catch (e) {
+        if (!clientHwid) {
+          clientHwid = typeof crypto !== "undefined" && crypto.randomUUID 
+            ? crypto.randomUUID() 
+            : Math.random().toString(36).substring(2);
+          localStorage.setItem("velocira_hwid", clientHwid);
+        }
       }
 
       const res = await fetch(`${BASE}/api/auth/login`, {

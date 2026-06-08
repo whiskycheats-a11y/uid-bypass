@@ -224,6 +224,9 @@ importers:
 
   artifacts/uid-manager:
     dependencies:
+      '@fingerprintjs/fingerprintjs':
+        specifier: ^5.2.0
+        version: 5.2.0
       '@marsidev/react-turnstile':
         specifier: ^1.5.2
         version: 1.5.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -533,6 +536,9 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fingerprintjs/fingerprintjs@5.2.0':
+    resolution: {integrity: sha512-j+2nInkwCQNTJcNhOjvkGM/nLRTuGJTC6xai4quqvUpjob2ssrGwBZjS7k55nOmKvge7qvJT2nS3i/IRvQSTQA==}
 
   '@floating-ui/core@1.7.5':
     resolution: {integrity: sha512-1Ih4WTWyw0+lKyFMcBHGbb5U5FtuHJuujoyyr5zTaWS5EYMeT6Jb2AuDeftsCsEuchO+mM2ij5+q9crhydzLhQ==}
@@ -2536,6 +2542,8 @@ snapshots:
     optional: true
 
   '@esbuild/win32-x64@0.27.3': {}
+
+  '@fingerprintjs/fingerprintjs@5.2.0': {}
 
   '@floating-ui/core@1.7.5':
     dependencies:

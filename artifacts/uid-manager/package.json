@@ -75,6 +75,7 @@
     "zod": "catalog:"
   },
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^5.2.0",
     "@marsidev/react-turnstile": "^1.5.2"
   }
 }
