@@ -6,6 +6,17 @@ import { verifyTurnstileToken } from "../lib/turnstile";
 
 const router = Router();
 
+async function checkVpn(ip: string): Promise<boolean> {
+  if (!ip || ip === "unknown" || ip.startsWith("127.") || ip.startsWith("192.168.") || ip.startsWith("10.") || ip === "::1") return false;
+  try {
+    const res = await fetch(`http://ip-api.com/json/${ip}?fields=proxy,hosting`);
+    const data = await res.json() as any;
+    return data.proxy || data.hosting || false;
+  } catch {
+    return false;
+  }
+}
+
 router.post("/login", async (req, res) => {
   const username = typeof req.body?.username === "string" ? req.body.username.trim() : "";
   const password = typeof req.body?.password === "string" ? req.body.password.trim() : "";
@@ -69,6 +80,15 @@ router.post("/login", async (req, res) => {
         success: false,
         error: "HWID_MISMATCH",
         message: "Account locked to another device. Please contact administration to reset your hardware key."
+      });
+    }
+
+    const isVpn = await checkVpn(clientIp);
+    if (isVpn) {
+      return res.status(403).json({
+        success: false,
+        error: "VPN_DETECTED",
+        message: "VPN or Proxy connection detected. Please disable your VPN to access your account."
       });
     }
   }
