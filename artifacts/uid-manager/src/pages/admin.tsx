@@ -648,7 +648,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     const filteredUids = uidSearchQuery.trim() === "" 
       ? uids 
       : uids.filter(u => u.uid.toLowerCase().includes(uidSearchQuery.toLowerCase()) || (u.name && u.name.toLowerCase().includes(uidSearchQuery.toLowerCase())));
-    const displayedUids = showFull ? [...filteredUids].reverse() : [...filteredUids].reverse().slice(0, 9);
+    const displayedUids = [...filteredUids].reverse();
     
     // Calculate Operator Stats
     const operatorStats = uids.reduce((acc, curr) => {
@@ -716,7 +716,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                         {uidObj.bluestack ? <Activity className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
                       </div>
                       <div>
-                        <div className="text-lg sm:text-xl font-bold text-white tracking-widest font-mono drop-shadow-sm">{uidObj.uid}</div>
+                        <div className="text-base sm:text-lg font-bold text-white tracking-widest font-mono drop-shadow-sm">{uidObj.uid}</div>
                         <div className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5 truncate max-w-[150px] sm:max-w-[200px]">
                           {uidObj.name || `NODE_${uidObj.uid.slice(0, 8)}`}
                         </div>
