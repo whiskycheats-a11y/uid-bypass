@@ -1888,55 +1888,56 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Register an endpoint to begin routing</p>
           </div>
         ) : (
-          <div className={`p-6 sm:p-8 overflow-y-auto custom-scrollbar ${showFull ? 'max-h-[70vh]' : 'max-h-[800px]'}`}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={`p-4 sm:p-6 overflow-y-auto custom-scrollbar ${showFull ? 'max-h-[70vh]' : 'max-h-[800px]'}`}>
+            <div className="flex flex-col gap-3">
               <AnimatePresence>
                 {displayedUids.map((uidObj) => (
                   <motion.div
                     key={uidObj.uid}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
                     onHoverStart={() => setHoveredRow(uidObj.uid)}
                     onHoverEnd={() => setHoveredRow(null)}
-                    className={`group relative bg-black/50 backdrop-blur-md border ${highlightDelete ? 'border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.3)]' : 'border-white/5 shadow-lg'} rounded-3xl p-5 hover:border-white/20 transition-all overflow-hidden flex flex-col justify-center min-h-[140px] hover:bg-white/[0.03] hover:-translate-y-1`}
+                    className={`group flex items-center justify-between p-3.5 sm:p-4 bg-black/40 border ${highlightDelete ? 'border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'border-white/5'} rounded-2xl hover:bg-white/[0.04] hover:border-white/10 transition-all`}
                   >
-                    <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                      style={{ background: uidObj.bluestack ? "radial-gradient(circle at center, rgba(239,68,68,0.05) 0%, transparent 70%)" : "radial-gradient(circle at center, rgba(16,185,129,0.05) 0%, transparent 70%)" }}
-                    />
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm ${uidObj.bluestack ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
+                        {uidObj.bluestack ? <Monitor className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
+                      </div>
+                      <div>
+                        <div className="text-lg sm:text-xl font-bold text-white tracking-widest font-mono drop-shadow-sm">{uidObj.uid}</div>
+                        <div className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5 truncate max-w-[150px] sm:max-w-[200px]">
+                          {uidObj.name || `NODE_${uidObj.uid.slice(0, 8)}`}
+                        </div>
+                      </div>
+                    </div>
                     
-                    {/* Hover delete button */}
-                    <div className="absolute top-4 right-4 z-20">
-                      {hoveredRow === uidObj.uid || highlightDelete ? (
+                    <div className="flex items-center gap-4 sm:gap-6">
+                      <div className="hidden sm:block text-right">
+                        <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">OPERATOR</div>
+                        <div className="text-xs font-bold text-slate-300 uppercase truncate max-w-[120px]">{uidObj.addedBy || "UNKNOWN"}</div>
+                      </div>
+                      
+                      <div className="text-right">
+                        <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">STATUS</div>
+                        <div className={`text-xs font-black uppercase tracking-wider ${getDaysLeft(uidObj.addedAt, uidObj.days) === "Expired" ? 'text-red-400' : 'text-emerald-400'}`}>
+                          {getDaysLeft(uidObj.addedAt, uidObj.days)}
+                        </div>
+                      </div>
+
+                      <div className="pl-2 border-l border-white/5 flex items-center">
                         <button
                           onClick={(e) => { e.stopPropagation(); onRemove(uidObj.uid); }}
                           disabled={removingUid === uidObj.uid}
-                          className="w-8 h-8 rounded-full flex items-center justify-center bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white transition-all cursor-pointer shadow-md"
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                            hoveredRow === uidObj.uid || highlightDelete 
+                              ? 'bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500 hover:text-white' 
+                              : 'bg-transparent text-slate-600 border border-transparent'
+                          }`}
                         >
                           {removingUid === uidObj.uid ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                         </button>
-                      ) : (
-                        <div className={`w-2 h-2 rounded-full ${uidObj.bluestack ? 'bg-red-500' : 'bg-emerald-500'} opacity-30 group-hover:opacity-100 transition-opacity`} />
-                      )}
-                    </div>
-
-                    <div className="flex-grow flex flex-col justify-center items-center text-center mt-2 relative z-10">
-                      <div className="text-2xl sm:text-[28px] font-black text-white tracking-widest font-mono drop-shadow-md">{uidObj.uid}</div>
-                      {uidObj.name && (
-                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1 opacity-0 group-hover:opacity-100 transition-opacity">{uidObj.name}</div>
-                      )}
-                    </div>
-
-                    {/* Operator and Status at the bottom */}
-                    <div className="mt-5 flex items-center justify-between px-1 relative z-10">
-                      <div className="flex items-center gap-1.5 bg-white/5 px-2.5 py-1 rounded-md border border-white/5">
-                        <Users className="w-3 h-3 text-slate-400" />
-                        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest truncate max-w-[100px]">{uidObj.addedBy || "UNKNOWN"}</span>
-                      </div>
-                      <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border ${getDaysLeft(uidObj.addedAt, uidObj.days) === "Expired" ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
-                        <Timer className="w-3 h-3" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest">{getDaysLeft(uidObj.addedAt, uidObj.days)}</span>
                       </div>
                     </div>
                   </motion.div>
