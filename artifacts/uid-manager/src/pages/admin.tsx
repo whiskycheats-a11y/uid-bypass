@@ -365,9 +365,9 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="argus-glass rounded-[2rem] overflow-hidden relative shadow-2xl p-6 border border-white/[0.06] flex flex-col justify-between h-full bg-[#080616]/98"
+        className="neo-glass rounded-[2rem] overflow-hidden relative shadow-2xl p-6 sm:p-8 border border-white/5 flex flex-col justify-between h-full bg-black/40 backdrop-blur-xl"
       >
-        <div className="absolute -left-16 -top-16 w-36 h-36 bg-violet-600/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600/10 rounded-full blur-[80px] pointer-events-none" />
         <div className="absolute -right-16 -bottom-16 w-36 h-36 bg-cyan-600/5 rounded-full blur-3xl pointer-events-none" />
         
         <div>
@@ -408,7 +408,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                 value={noticeText}
                 onChange={(e) => setNoticeText(e.target.value)}
                 placeholder="Enter announcement text to show on reseller and client dashboards..."
-                className="w-full h-24 p-3 rounded-xl bg-white/[0.03] border border-white/10 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-violet-500/50 transition-all resize-none font-sans font-medium leading-relaxed"
+                className="w-full h-28 p-4 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all resize-none font-medium leading-relaxed shadow-inner"
                 required
               />
             </div>
@@ -419,7 +419,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                 <select
                   value={noticeExpiry}
                   onChange={(e) => setNoticeExpiry(e.target.value)}
-                  className="w-full h-10 px-3.5 rounded-xl bg-[#0e0c1f] border border-white/10 text-xs text-slate-300 focus:outline-none focus:border-violet-500/50 focus:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all font-bold"
+                  className="w-full h-12 px-4 rounded-xl bg-black/50 border border-white/10 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all font-bold shadow-inner cursor-pointer"
                 >
                   <option value="indefinite">Indefinite (No expiry)</option>
                   <option value="1h">1 Hour</option>
@@ -436,21 +436,19 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     disabled={savingNotice}
                     className="h-10 px-3 rounded-xl border border-red-500/20 bg-red-500/5 text-xs text-red-400 hover:bg-red-500/10 hover:text-white transition-all cursor-pointer font-bold flex-1"
                   >
-                    Clear
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 )}
                 <motion.button
                   type="submit"
                   disabled={savingNotice || !noticeText.trim()}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="h-10 rounded-xl text-white text-xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-40 relative overflow-hidden flex-grow cursor-pointer"
+                  className="h-12 flex-1 rounded-2xl text-white text-xs font-bold flex items-center justify-center gap-2 disabled:opacity-40 relative overflow-hidden cursor-pointer"
                   style={{
-                    background: "linear-gradient(135deg, #8b5cf6, #06b6d4)",
-                    boxShadow: "0 0 15px rgba(139,92,246,0.25)",
+                    background: "linear-gradient(135deg, rgba(139,92,246,0.8), rgba(6,182,212,0.8))",
+                    boxShadow: "0 0 20px rgba(139,92,246,0.2)",
                   }}
                 >
-                  {savingNotice ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Send className="w-3.5 h-3.5" />Publish</>}
+                  {savingNotice ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" />Broadcast</>}
                 </motion.button>
               </div>
             </div>
@@ -712,8 +710,9 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     className={`group flex items-center justify-between p-3.5 sm:p-4 bg-black/40 border ${highlightDelete ? 'border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'border-white/5'} rounded-2xl hover:bg-white/[0.04] hover:border-white/10 transition-all`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm ${uidObj.bluestack ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
-                        {uidObj.bluestack ? <Activity className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm relative overflow-hidden ${uidObj.bluestack ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
+                        <div className="absolute inset-0 bg-white/5 animate-pulse" />
+                        {uidObj.bluestack ? <Activity className="w-5 h-5 animate-pulse" /> : <Shield className="w-5 h-5" />}
                       </div>
                       <div>
                         <div className="text-base sm:text-lg font-bold text-white tracking-widest font-mono drop-shadow-sm">{uidObj.uid}</div>

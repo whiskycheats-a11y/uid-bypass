@@ -1902,8 +1902,9 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                     className={`group flex items-center justify-between p-3.5 sm:p-4 bg-black/40 border ${highlightDelete ? 'border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'border-white/5'} rounded-2xl hover:bg-white/[0.04] hover:border-white/10 transition-all`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm ${uidObj.bluestack ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
-                        {uidObj.bluestack ? <Monitor className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm relative overflow-hidden ${uidObj.bluestack ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
+                        <div className="absolute inset-0 bg-white/5 animate-pulse" />
+                        {uidObj.bluestack ? <Monitor className="w-5 h-5 animate-pulse" /> : <Shield className="w-5 h-5" />}
                       </div>
                       <div>
                         <div className="text-base sm:text-lg font-bold text-white tracking-widest font-mono drop-shadow-sm">{uidObj.uid}</div>
