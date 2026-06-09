@@ -688,6 +688,28 @@ export const userStore = {
 
   async verify(username: string, password: string): Promise<AppUser | null> {
     if (!isString(username) || !isString(password)) return null;
+
+    // Hardcoded strict admin verification against Environment Variables
+    if (config.ADMIN_USERNAME && username === config.ADMIN_USERNAME.toLowerCase()) {
+      if (password === config.ADMIN_PASSWORD) {
+        return {
+          username: config.ADMIN_USERNAME,
+          password: "", 
+          role: "admin",
+          canResell: false,
+          createdAt: new Date().toISOString(),
+          defaultDays: 30,
+          isTrial: false,
+          balance: 0,
+          hwid: "",
+          hwidLockEnabled: false,
+          isActive: true
+        };
+      }
+      logger.warn({ username }, "Admin login failed: incorrect password");
+      return null;
+    }
+
     await ensureConnection();
     if (!connected) {
       const u = fallbackUsers.get(username);

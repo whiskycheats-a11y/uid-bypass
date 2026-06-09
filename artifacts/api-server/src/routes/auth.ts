@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { userStore, sessionStore, loginGuard, loginHistoryStore } from "../store";
 import { logger } from "../lib/logger";
 import { verifyTurnstileToken } from "../lib/turnstile";
+import { config } from "../config";
 
 const router = Router();
 
@@ -158,7 +159,10 @@ router.post("/login", async (req, res) => {
   }
 
   const userBlock = loginGuard.isBlocked(userKey);
-  if (userBlock.blocked) {
+  const isAdmin = config.ADMIN_USERNAME && username === config.ADMIN_USERNAME.toLowerCase();
+
+  // Do not block the admin account globally by username (prevents DoS on the admin account)
+  if (userBlock.blocked && !isAdmin) {
     const mins = Math.ceil(userBlock.remainingMs / 60000);
     logger.warn({ ip: clientIp, username }, "Login attempt on locked account");
     await loginHistoryStore.record(username, clientIp, false, userAgent);
@@ -172,9 +176,14 @@ router.post("/login", async (req, res) => {
   // ─── 6. Credential verification ───
   const user = await userStore.verify(username, password);
   if (!user) {
-    // Record failure on BOTH ip and username
+    // Record failure on ip
     const ipResult = loginGuard.recordFailure(ipKey);
-    const userResult = loginGuard.recordFailure(userKey);
+    // Record failure on username ONLY if not admin
+    let userResult = { blocked: false, attemptsLeft: 999 };
+    if (!isAdmin) {
+      userResult = loginGuard.recordFailure(userKey);
+    }
+    
     await loginHistoryStore.record(username, clientIp, false, userAgent);
 
     const attemptsLeft = Math.min(ipResult.attemptsLeft, userResult.attemptsLeft);
@@ -365,6 +374,11 @@ router.post("/update-key", async (req, res) => {
 
   if (!currentPassword || !newPassword) {
     return res.status(400).json({ success: false, error: "Missing required fields" });
+  }
+
+  // Prevent changing the admin password via the portal
+  if (config.ADMIN_USERNAME && username === config.ADMIN_USERNAME.toLowerCase()) {
+    return res.status(403).json({ success: false, error: "Admin password cannot be changed via the portal. Update the environment variables." });
   }
 
   // Enforce minimum password strength
