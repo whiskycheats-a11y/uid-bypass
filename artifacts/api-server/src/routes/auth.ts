@@ -1,7 +1,6 @@
 import { Router } from "express";
 import crypto from "crypto";
-import { userStore, sessionStore, loginGuard, verifyPassword, loginHistoryStore } from "../store";
-import { config } from "../config";
+import { userStore, sessionStore, loginGuard, loginHistoryStore } from "../store";
 import { logger } from "../lib/logger";
 import { verifyTurnstileToken } from "../lib/turnstile";
 
@@ -28,9 +27,12 @@ setInterval(() => {
 async function checkVpn(ip: string): Promise<boolean> {
   if (!ip || ip === "unknown" || ip.startsWith("127.") || ip.startsWith("192.168.") || ip.startsWith("10.") || ip === "::1") return false;
   try {
-    const res = await fetch(`http://ip-api.com/json/${ip}?fields=proxy,hosting`);
+    // Only check proxy — NOT hosting, because mobile data/cellular carriers
+    // use cloud infrastructure that ip-api marks as "hosting", causing false positives.
+    // Only actual VPN/SOCKS/HTTP proxies should trigger a block.
+    const res = await fetch(`http://ip-api.com/json/${ip}?fields=proxy`);
     const data = await res.json() as any;
-    return data.proxy || data.hosting || false;
+    return data.proxy === true;
   } catch {
     return false;
   }
@@ -84,19 +86,32 @@ router.post("/login", async (req, res) => {
     return res.status(400).json({ success: false, error: "Username and password required" });
   }
 
-  // Block obviously automated requests (no user-agent)
-  if (!userAgent || userAgent.length < 10) {
-    logger.warn({ ip: clientIp, username, userAgent }, "Login blocked: missing or suspicious user-agent");
+  // ─── Block scripted / automated tools by User-Agent ───
+  const BLOCKED_UA_PATTERNS = [
+    /python/i, /urllib/i, /httpx/i, /requests/i, /aiohttp/i, /pycurl/i,
+    /curl\//i, /wget\//i, /libwww/i, /lwp-trivial/i, /java\//i,
+    /okhttp/i, /go-http-client/i, /axios/i, /node-fetch/i, /got\//i,
+    /superagent/i, /undici/i, /insomnia/i, /postman/i,
+    /^-?$/, // empty or just a dash
+  ];
+  const isBlockedUA = !userAgent
+    || userAgent.length < 10
+    || BLOCKED_UA_PATTERNS.some((p) => p.test(userAgent));
+
+  if (isBlockedUA) {
+    logger.warn({ ip: clientIp, username, userAgent }, "Login blocked: automated/script user-agent");
     return res.status(403).json({ success: false, error: "Access denied" });
   }
 
-  // ─── 2. Request timestamp validation (anti-replay) ───
-  if (requestTimestamp) {
-    const drift = Math.abs(Date.now() - requestTimestamp);
-    if (drift > 2 * 60 * 1000) { // more than 2 minutes drift = suspicious
-      logger.warn({ ip: clientIp, username, drift }, "Login blocked: timestamp drift too large");
-      return res.status(403).json({ success: false, error: "Request expired. Please refresh the page." });
-    }
+  // ─── 2. Request timestamp validation (mandatory — no timestamp = script) ───
+  if (!requestTimestamp) {
+    logger.warn({ ip: clientIp, username }, "Login blocked: missing request timestamp");
+    return res.status(403).json({ success: false, error: "Invalid request. Please use the login page." });
+  }
+  const drift = Math.abs(Date.now() - requestTimestamp);
+  if (drift > 2 * 60 * 1000) {
+    logger.warn({ ip: clientIp, username, drift }, "Login blocked: timestamp drift too large");
+    return res.status(403).json({ success: false, error: "Request expired. Please refresh the page." });
   }
 
   // ─── 3. Login-specific rate limiter ───
@@ -284,26 +299,14 @@ router.post("/profile", async (req, res) => {
     return res.status(400).json({ success: false, error: "Username is required" });
   }
 
-  // Require session token authentication
-  const sessionToken = (req.headers["x-session-token"] as string) || req.cookies?.auth_token;
-  const authUsername = req.headers["x-username"] as string;
-  const authPassword = req.headers["x-password"] as string;
-
-  let isAuthorized = false;
-  if (sessionToken) {
-    const session = sessionStore.get(sessionToken);
-    if (session && (session.username === username || session.role === "admin")) {
-      isAuthorized = true;
-    }
-  } else if (authUsername && authPassword) {
-    if (authUsername === username || (authUsername === config.ADMIN_USERNAME && authPassword === config.ADMIN_PASSWORD)) {
-      const user = await userStore.verify(authUsername, authPassword);
-      if (user) isAuthorized = true;
-      if (authUsername === config.ADMIN_USERNAME && authPassword === config.ADMIN_PASSWORD) isAuthorized = true;
-    }
+  // ONLY allow session-cookie authentication — no header-based auth backdoor
+  const sessionToken = req.cookies?.auth_token;
+  if (!sessionToken) {
+    return res.status(401).json({ success: false, error: "Unauthorized: Please login first." });
   }
 
-  if (!isAuthorized) {
+  const session = sessionStore.get(sessionToken);
+  if (!session || (session.username !== username && session.role !== "admin")) {
     return res.status(403).json({ success: false, error: "Unauthorized: You can only update your own profile" });
   }
 
@@ -340,11 +343,27 @@ router.get("/profile/:username", async (req, res) => {
 });
 
 router.post("/update-key", async (req, res) => {
-  const username = typeof req.body?.username === "string" ? req.body.username.trim() : "";
+  // ── Must have a valid session ──
+  const sessionToken = req.cookies?.auth_token;
+  if (!sessionToken) {
+    return res.status(401).json({ success: false, error: "Unauthorized: Please login first." });
+  }
+  const session = sessionStore.get(sessionToken);
+  if (!session) {
+    return res.status(401).json({ success: false, error: "Invalid or expired session. Please login again." });
+  }
+
+  // ── Rate-limit this endpoint per session user ──
+  const clientIp = ((req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0]).trim() || "unknown";
+  if (!checkLoginRate(clientIp)) {
+    return res.status(429).json({ success: false, error: "Too many requests. Please wait 5 minutes." });
+  }
+
+  const username = session.username; // always use session username — never trust body
   const currentPassword = typeof req.body?.currentPassword === "string" ? req.body.currentPassword.trim() : "";
   const newPassword = typeof req.body?.newPassword === "string" ? req.body.newPassword.trim() : "";
 
-  if (!username || !currentPassword || !newPassword) {
+  if (!currentPassword || !newPassword) {
     return res.status(400).json({ success: false, error: "Missing required fields" });
   }
 
@@ -353,16 +372,27 @@ router.post("/update-key", async (req, res) => {
     return res.status(400).json({ success: false, error: "Password must be at least 8 characters" });
   }
 
+  // ── Brute-force protection on the current-password check ──
+  const ipKey = `ip:${clientIp}`;
+  const userKey = `user:${username}`;
+  if (loginGuard.isBlocked(ipKey).blocked || loginGuard.isBlocked(userKey).blocked) {
+    return res.status(429).json({ success: false, error: "Too many failed attempts. Please wait before trying again." });
+  }
+
   try {
     const user = await userStore.verify(username, currentPassword);
     if (!user) {
+      loginGuard.recordFailure(ipKey);
+      loginGuard.recordFailure(userKey);
       return res.status(401).json({ success: false, error: "Invalid current password" });
     }
+    loginGuard.recordSuccess(ipKey);
+    loginGuard.recordSuccess(userKey);
     const ok = await userStore.updatePassword(username, newPassword);
     if (!ok) {
       return res.status(404).json({ success: false, error: "User not found" });
     }
-    // Invalidate all existing sessions for this user
+    // Invalidate all existing sessions for this user (force re-login)
     sessionStore.removeByUser(username);
     return res.json({ success: true, message: "Password updated successfully. Please re-login." });
   } catch (err) {

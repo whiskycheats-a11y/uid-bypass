@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userStore, uidStore, purgeExpiredTrials, settingsStore, verifyPassword, loginHistoryStore } from "../store";
+import { userStore, uidStore, purgeExpiredTrials, settingsStore, loginHistoryStore } from "../store";
 import { config, getApiKey } from "../config";
 import { logger } from "../lib/logger";
 import { requireAdmin } from "../middlewares/auth";
@@ -63,8 +63,18 @@ router.get("/", requireAdmin, async (_req, res) => {
       balance: u.balance ?? 0,
       hwid: u.hwid ?? "",
       hwidLockEnabled: u.hwidLockEnabled ?? false,
+      isActive: u.isActive !== false,
     })),
   });
+});
+
+router.patch("/:username/active", requireAdmin, async (req, res) => {
+  const { isActive } = req.body ?? {};
+  const updated = await userStore.setActive(req.params.username as string, Boolean(isActive));
+  if (!updated) {
+    return res.status(404).json({ success: false, error: "User not found" });
+  }
+  return res.json({ success: true, isActive: Boolean(isActive) });
 });
 
 router.patch("/:username/resell", requireAdmin, async (req, res) => {

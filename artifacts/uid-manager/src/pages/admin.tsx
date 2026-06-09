@@ -53,6 +53,7 @@ interface ClientUser {
   balance: number;
   hwid?: string;
   hwidLockEnabled?: boolean;
+  isActive?: boolean;
 }
 
 interface AdminProps {

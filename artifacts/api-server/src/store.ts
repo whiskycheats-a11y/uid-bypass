@@ -425,6 +425,7 @@ export interface AppUser {
   avatar?: string;
   hwid?: string;
   hwidLockEnabled?: boolean;
+  isActive?: boolean;
 }
 
 interface UserDoc extends AppUser, Document { }
@@ -442,6 +443,7 @@ const userSchema = new Schema<UserDoc>({
   avatar: { type: String, default: "" },
   hwid: { type: String, default: "" },
   hwidLockEnabled: { type: Boolean, default: false },
+  isActive: { type: Boolean, default: true },
 });
 
 const UserModel = model<UserDoc>("User", userSchema);
@@ -499,6 +501,7 @@ if (config.ADMIN_USERNAME && config.ADMIN_PASSWORD) {
     balance: 0,
     hwid: "",
     hwidLockEnabled: false,
+    isActive: true,
   });
 }
 
@@ -603,13 +606,13 @@ export const userStore = {
     const hashedPw = hashPassword(password);
     if (!connected) {
       if (fallbackUsers.has(username)) return { ok: false, error: "Username already exists" };
-      const user: AppUser = { username, password: hashedPw, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0, hwid: "", hwidLockEnabled: false };
+      const user: AppUser = { username, password: hashedPw, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0, hwid: "", hwidLockEnabled: false, isActive: true };
       fallbackUsers.set(username, user);
       return { ok: true, user };
     }
     const exists = await UserModel.findOne({ username });
     if (exists) return { ok: false, error: "Username already exists" };
-    const user: AppUser = { username, password: hashedPw, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0, hwid: "", hwidLockEnabled: false };
+    const user: AppUser = { username, password: hashedPw, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0, hwid: "", hwidLockEnabled: false, isActive: true };
     await UserModel.create(user);
     return { ok: true, user };
   },
@@ -689,6 +692,11 @@ export const userStore = {
     if (!connected) {
       const u = fallbackUsers.get(username);
       if (!u || !verifyPassword(password, u.password)) return null;
+      // Block disabled accounts — same null return as wrong password (no info leak)
+      if (u.isActive === false) {
+        logger.warn({ username }, "Login blocked: account is disabled");
+        return null;
+      }
       // Auto-migrate plain text to hashed
       if (!u.password.includes(":")) {
         u.password = hashPassword(password);
@@ -699,6 +707,11 @@ export const userStore = {
     const doc = await UserModel.findOne({ username });
     if (!doc) return null;
     if (!verifyPassword(password, doc.password)) return null;
+    // Block disabled accounts — same null return as wrong password (no info leak)
+    if (doc.isActive === false) {
+      logger.warn({ username }, "Login blocked: account is disabled");
+      return null;
+    }
     // Auto-migrate: if stored password is plain text, hash it now
     if (!doc.password.includes(":")) {
       const hashed = hashPassword(password);
@@ -706,6 +719,23 @@ export const userStore = {
       logger.info({ username }, "Auto-migrated plain-text password to hashed");
     }
     return toPlain(doc);
+  },
+
+  async setActive(username: string, isActive: boolean): Promise<boolean> {
+    if (!isString(username)) return false;
+    await ensureConnection();
+    if (!connected) {
+      const u = fallbackUsers.get(username);
+      if (!u) return false;
+      u.isActive = isActive;
+      // Kill all active sessions for this user when disabling
+      if (!isActive) sessionStore.removeByUser(username);
+      return true;
+    }
+    const result = await UserModel.updateOne({ username, role: "user" }, { $set: { isActive } });
+    // Kill all active sessions immediately when disabling
+    if (!isActive) sessionStore.removeByUser(username);
+    return result.matchedCount > 0;
   },
 
   async updateProfile(username: string, displayName: string, avatar: string): Promise<boolean> {
@@ -790,6 +820,7 @@ function toPlain(doc: UserDoc): AppUser {
     avatar: doc.avatar ?? "",
     hwid: doc.hwid ?? "",
     hwidLockEnabled: doc.hwidLockEnabled ?? false,
+    isActive: doc.isActive !== false, // treat missing/undefined as true (backwards compat)
   };
 }
 
