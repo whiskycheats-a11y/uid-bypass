@@ -281,6 +281,25 @@ export default function Login({ onLogin }: LoginProps) {
         body: JSON.stringify({ username, password, turnstileToken, t: Date.now() }),
       });
       const raw = await res.text();
+
+      if (res.ok) {
+        const signature = res.headers.get("X-Response-Signature");
+        const secret = "V3L0C1R4_M1TM_PR0T3CT10N";
+        const encoder = new TextEncoder();
+        const key = await crypto.subtle.importKey(
+          "raw", encoder.encode(secret),
+          { name: "HMAC", hash: "SHA-256" },
+          false, ["sign", "verify"]
+        );
+        const signatureBuffer = await crypto.subtle.sign("HMAC", key, encoder.encode(raw));
+        const hashArray = Array.from(new Uint8Array(signatureBuffer));
+        const expectedSignature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        if (!signature || signature !== expectedSignature) {
+          throw new Error("ERR_NETWORK_TAMPERED: Security validation failed. MITM proxy detected.");
+        }
+      }
+
       let data: any = null;
       try {
         data = raw ? JSON.parse(raw) : null;

@@ -255,7 +255,7 @@ router.post("/login", async (req, res) => {
     });
   }
 
-  return res.json({
+  const responsePayload = JSON.stringify({
     success: true,
     username: user.username,
     role: user.role,
@@ -265,6 +265,13 @@ router.post("/login", async (req, res) => {
     displayName: user.displayName || user.username,
     avatar: user.avatar || "",
   });
+
+  const secret = "V3L0C1R4_M1TM_PR0T3CT10N"; 
+  const signature = crypto.createHmac("sha256", secret).update(responsePayload).digest("hex");
+  res.setHeader("X-Response-Signature", signature);
+  res.setHeader("Content-Type", "application/json");
+
+  return res.status(200).send(responsePayload);
 });
 
 // ══════════════════════════════════════════════════════════════════════════
