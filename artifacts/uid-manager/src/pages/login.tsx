@@ -263,6 +263,15 @@ export default function Login({ onLogin }: LoginProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Block if Turnstile not completed
+    if (!turnstileToken) {
+      setError("Please complete the Cloudflare security check first.");
+      setShake(true);
+      setTimeout(() => setShake(false), 600);
+      return;
+    }
+
     setLoading(true);
     try {
       let clientHwid = localStorage.getItem("velocira_hwid");
@@ -276,7 +285,7 @@ export default function Login({ onLogin }: LoginProps) {
       const res = await fetch(`${BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, hwid: clientHwid, turnstileToken }),
+        body: JSON.stringify({ username, password, hwid: clientHwid, turnstileToken, t: Date.now() }),
       });
       const raw = await res.text();
       let data: any = null;

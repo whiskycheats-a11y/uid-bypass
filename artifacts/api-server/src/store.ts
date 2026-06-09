@@ -66,44 +66,63 @@ interface LoginAttempt {
   count: number;
   firstAttempt: number;
   blockedUntil: number;
+  lockoutMultiplier: number; // escalating lockout
 }
 
 const loginAttempts = new Map<string, LoginAttempt>();
-const MAX_LOGIN_ATTEMPTS = 5;
-const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
-const ATTEMPT_WINDOW = 15 * 60 * 1000;   // 15 minutes window
+const MAX_LOGIN_ATTEMPTS = 3;             // 3 tries only
+const BASE_LOCKOUT_DURATION = 30 * 60 * 1000; // 30 minutes base
+const ATTEMPT_WINDOW = 10 * 60 * 1000;   // 10 minute window
+
+function getOrCreateAttempt(key: string): LoginAttempt {
+  let attempt = loginAttempts.get(key);
+  if (!attempt || (attempt.blockedUntil < Date.now() && Date.now() - attempt.firstAttempt > ATTEMPT_WINDOW)) {
+    attempt = { count: 0, firstAttempt: Date.now(), blockedUntil: 0, lockoutMultiplier: attempt?.lockoutMultiplier || 1 };
+  }
+  return attempt;
+}
 
 export const loginGuard = {
-  isBlocked(ip: string): { blocked: boolean; remainingMs: number } {
-    const attempt = loginAttempts.get(ip);
+  isBlocked(key: string): { blocked: boolean; remainingMs: number } {
+    const attempt = loginAttempts.get(key);
     if (!attempt) return { blocked: false, remainingMs: 0 };
     if (attempt.blockedUntil > Date.now()) {
       return { blocked: true, remainingMs: attempt.blockedUntil - Date.now() };
     }
-    // Reset if window expired
-    if (Date.now() - attempt.firstAttempt > ATTEMPT_WINDOW) {
-      loginAttempts.delete(ip);
+    if (Date.now() - attempt.firstAttempt > ATTEMPT_WINDOW && attempt.blockedUntil < Date.now()) {
+      // Keep lockoutMultiplier but reset count
+      attempt.count = 0;
+      attempt.firstAttempt = Date.now();
+      loginAttempts.set(key, attempt);
       return { blocked: false, remainingMs: 0 };
     }
     return { blocked: false, remainingMs: 0 };
   },
-  recordFailure(ip: string): { attemptsLeft: number; blocked: boolean } {
-    let attempt = loginAttempts.get(ip);
-    if (!attempt || Date.now() - attempt.firstAttempt > ATTEMPT_WINDOW) {
-      attempt = { count: 0, firstAttempt: Date.now(), blockedUntil: 0 };
-    }
+  recordFailure(key: string): { attemptsLeft: number; blocked: boolean } {
+    const attempt = getOrCreateAttempt(key);
     attempt.count++;
     if (attempt.count >= MAX_LOGIN_ATTEMPTS) {
-      attempt.blockedUntil = Date.now() + LOCKOUT_DURATION;
-      loginAttempts.set(ip, attempt);
-      logger.warn({ ip, count: attempt.count }, "IP BLOCKED — too many failed login attempts");
+      // Progressive lockout: 30min → 60min → 120min → 240min...
+      const lockoutMs = BASE_LOCKOUT_DURATION * attempt.lockoutMultiplier;
+      attempt.blockedUntil = Date.now() + lockoutMs;
+      attempt.lockoutMultiplier = Math.min(attempt.lockoutMultiplier * 2, 16); // cap at 8 hours
+      loginAttempts.set(key, attempt);
+      logger.warn({ key, count: attempt.count, lockoutMinutes: lockoutMs / 60000 }, "BLOCKED — too many failed login attempts (progressive)");
       return { attemptsLeft: 0, blocked: true };
     }
-    loginAttempts.set(ip, attempt);
+    loginAttempts.set(key, attempt);
     return { attemptsLeft: MAX_LOGIN_ATTEMPTS - attempt.count, blocked: false };
   },
-  recordSuccess(ip: string): void {
-    loginAttempts.delete(ip);
+  recordSuccess(key: string): void {
+    // Only reset count, keep multiplier for 1 hour after success
+    const attempt = loginAttempts.get(key);
+    if (attempt) {
+      attempt.count = 0;
+      attempt.blockedUntil = 0;
+      loginAttempts.set(key, attempt);
+      // Clear multiplier after 1 hour of good behavior
+      setTimeout(() => loginAttempts.delete(key), 60 * 60 * 1000);
+    }
   },
 };
 

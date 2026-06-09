@@ -1,4 +1,5 @@
 import { Router } from "express";
+import crypto from "crypto";
 import { userStore, sessionStore, loginGuard, verifyPassword, loginHistoryStore } from "../store";
 import { config } from "../config";
 import { logger } from "../lib/logger";
@@ -6,6 +7,24 @@ import { verifyTurnstileToken } from "../lib/turnstile";
 
 const router = Router();
 
+// ── Anti-replay: track used Turnstile tokens (they should be single-use) ──
+const usedTurnstileTokens = new Set<string>();
+const TURNSTILE_TOKEN_TTL = 5 * 60 * 1000; // 5 minutes
+
+function markTurnstileUsed(token: string): boolean {
+  if (usedTurnstileTokens.has(token)) return false; // already used = replay
+  usedTurnstileTokens.add(token);
+  setTimeout(() => usedTurnstileTokens.delete(token), TURNSTILE_TOKEN_TTL);
+  return true;
+}
+
+// Cleanup used tokens periodically
+setInterval(() => {
+  // Set auto-cleans via setTimeout, this is just a safety net
+  if (usedTurnstileTokens.size > 10000) usedTurnstileTokens.clear();
+}, 10 * 60 * 1000);
+
+// ── VPN Detection ──
 async function checkVpn(ip: string): Promise<boolean> {
   if (!ip || ip === "unknown" || ip.startsWith("127.") || ip.startsWith("192.168.") || ip.startsWith("10.") || ip === "::1") return false;
   try {
@@ -17,60 +36,146 @@ async function checkVpn(ip: string): Promise<boolean> {
   }
 }
 
+// ── Login-specific rate limiter (separate from global, stricter) ──
+const loginRateMap = new Map<string, { count: number; resetAt: number }>();
+const LOGIN_RATE_LIMIT = 6;            // 6 login requests per window
+const LOGIN_RATE_WINDOW = 5 * 60 * 1000; // 5 minutes
+
+function checkLoginRate(ip: string): boolean {
+  const now = Date.now();
+  let record = loginRateMap.get(ip);
+  if (!record || record.resetAt < now) {
+    record = { count: 0, resetAt: now + LOGIN_RATE_WINDOW };
+    loginRateMap.set(ip, record);
+  }
+  record.count++;
+  return record.count <= LOGIN_RATE_LIMIT;
+}
+
+// Cleanup
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, record] of loginRateMap.entries()) {
+    if (record.resetAt < now) loginRateMap.delete(ip);
+  }
+}, 5 * 60 * 1000);
+
+// ══════════════════════════════════════════════════════════════════════════
+//  POST /login — HARDENED
+// ══════════════════════════════════════════════════════════════════════════
 router.post("/login", async (req, res) => {
-  const username = typeof req.body?.username === "string" ? req.body.username.trim() : "";
+  const username = typeof req.body?.username === "string" ? req.body.username.trim().toLowerCase() : "";
   const password = typeof req.body?.password === "string" ? req.body.password.trim() : "";
   const hwid = typeof req.body?.hwid === "string" ? req.body.hwid.trim() : "";
   const turnstileToken = typeof req.body?.turnstileToken === "string" ? req.body.turnstileToken.trim() : "";
+  const requestTimestamp = typeof req.body?.t === "number" ? req.body.t : 0;
   const clientIp = ((req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0]).trim() || "unknown";
-  
+  const userAgent = req.headers["user-agent"] || "";
+
+  // ─── 1. Basic input validation ───
   if (!username || !password) {
     return res.status(400).json({ success: false, error: "Username and password required" });
   }
 
+  // Block obviously automated requests (no user-agent)
+  if (!userAgent || userAgent.length < 10) {
+    logger.warn({ ip: clientIp, username, userAgent }, "Login blocked: missing or suspicious user-agent");
+    return res.status(403).json({ success: false, error: "Access denied" });
+  }
+
+  // ─── 2. Request timestamp validation (anti-replay) ───
+  if (requestTimestamp) {
+    const drift = Math.abs(Date.now() - requestTimestamp);
+    if (drift > 2 * 60 * 1000) { // more than 2 minutes drift = suspicious
+      logger.warn({ ip: clientIp, username, drift }, "Login blocked: timestamp drift too large");
+      return res.status(403).json({ success: false, error: "Request expired. Please refresh the page." });
+    }
+  }
+
+  // ─── 3. Login-specific rate limiter ───
+  if (!checkLoginRate(clientIp)) {
+    logger.warn({ ip: clientIp, username }, "Login rate limit exceeded");
+    return res.status(429).json({ 
+      success: false, 
+      error: "Too many login requests. Please wait 5 minutes.",
+      blockedFor: 5
+    });
+  }
+
+  // ─── 4. Turnstile verification (MANDATORY) ───
   if (!turnstileToken) {
-    return res.status(400).json({ success: false, error: "Cloudflare verification is required" });
+    return res.status(400).json({ success: false, error: "Cloudflare verification is required. Please complete the challenge." });
+  }
+
+  // Anti-replay: reject reused turnstile tokens
+  if (!markTurnstileUsed(turnstileToken)) {
+    logger.warn({ ip: clientIp, username }, "Login blocked: reused Turnstile token (replay attack)");
+    return res.status(403).json({ success: false, error: "Security token already used. Please refresh and try again." });
   }
 
   const isHuman = await verifyTurnstileToken(turnstileToken, clientIp);
   if (!isHuman) {
+    logger.warn({ ip: clientIp, username }, "Login blocked: Turnstile verification failed");
     return res.status(403).json({ success: false, error: "Cloudflare verification failed. Please try again." });
   }
 
-  // Check if IP is blocked (brute force protection)
-  const blockStatus = loginGuard.isBlocked(clientIp);
-  if (blockStatus.blocked) {
-    const mins = Math.ceil(blockStatus.remainingMs / 60000);
+  // ─── 5. Brute force protection (per-IP AND per-username) ───
+  const ipKey = `ip:${clientIp}`;
+  const userKey = `user:${username}`;
+
+  const ipBlock = loginGuard.isBlocked(ipKey);
+  if (ipBlock.blocked) {
+    const mins = Math.ceil(ipBlock.remainingMs / 60000);
     logger.warn({ ip: clientIp, username }, "Login attempt from blocked IP");
+    await loginHistoryStore.record(username, clientIp, false, userAgent);
     return res.status(429).json({ 
       success: false, 
-      error: `Too many failed attempts. IP blocked for ${mins} minute(s). Try again later.`,
+      error: `IP blocked for ${mins} minute(s). Too many failed attempts.`,
       blockedFor: mins
     });
   }
 
-  const user = await userStore.verify(username, password);
-  if (!user) {
-    const result = loginGuard.recordFailure(clientIp);
-    await loginHistoryStore.record(username, clientIp, false, req.headers["user-agent"] || "");
-    logger.warn({ ip: clientIp, username, attemptsLeft: result.attemptsLeft }, "Failed login attempt");
-    
-    if (result.blocked) {
-      return res.status(429).json({ 
-        success: false, 
-        error: "Too many failed attempts. Your IP has been blocked for 15 minutes.",
-        blockedFor: 15
-      });
-    }
-    
-    return res.status(401).json({ 
+  const userBlock = loginGuard.isBlocked(userKey);
+  if (userBlock.blocked) {
+    const mins = Math.ceil(userBlock.remainingMs / 60000);
+    logger.warn({ ip: clientIp, username }, "Login attempt on locked account");
+    await loginHistoryStore.record(username, clientIp, false, userAgent);
+    return res.status(429).json({ 
       success: false, 
-      error: "Invalid credentials",
-      attemptsLeft: result.attemptsLeft
+      error: `Account temporarily locked for ${mins} minute(s). Contact admin to unlock.`,
+      blockedFor: mins
     });
   }
 
-  // Check HWID device lock if enabled
+  // ─── 6. Credential verification ───
+  const user = await userStore.verify(username, password);
+  if (!user) {
+    // Record failure on BOTH ip and username
+    const ipResult = loginGuard.recordFailure(ipKey);
+    const userResult = loginGuard.recordFailure(userKey);
+    await loginHistoryStore.record(username, clientIp, false, userAgent);
+
+    const attemptsLeft = Math.min(ipResult.attemptsLeft, userResult.attemptsLeft);
+    
+    logger.warn({ ip: clientIp, username, attemptsLeft }, "Failed login attempt");
+    
+    if (ipResult.blocked || userResult.blocked) {
+      return res.status(429).json({ 
+        success: false, 
+        error: "Too many failed attempts. Account and IP have been locked for 30+ minutes.",
+        blockedFor: 30
+      });
+    }
+    
+    // Don't tell attackers if the username exists — generic error
+    return res.status(401).json({ 
+      success: false, 
+      error: "Invalid credentials",
+      attemptsLeft
+    });
+  }
+
+  // ─── 7. HWID device lock check ───
   if (user.hwidLockEnabled) {
     const clientHwid = hwid || "unknown_device";
     if (!user.hwid) {
@@ -94,10 +199,11 @@ router.post("/login", async (req, res) => {
     }
   }
 
-  // Successful login — clear attempts and create session token
-  loginGuard.recordSuccess(clientIp);
+  // ─── 8. Success — clear attempts and create session ───
+  loginGuard.recordSuccess(ipKey);
+  loginGuard.recordSuccess(userKey);
   const sessionToken = sessionStore.create(user.username, user.role);
-  await loginHistoryStore.record(user.username, clientIp, true, req.headers["user-agent"] || "");
+  await loginHistoryStore.record(user.username, clientIp, true, userAgent);
   logger.info({ username: user.username, ip: clientIp }, "Successful login");
 
   return res.json({
@@ -113,42 +219,25 @@ router.post("/login", async (req, res) => {
   });
 });
 
+// ══════════════════════════════════════════════════════════════════════════
+//  POST /verify-session — SESSION TOKEN ONLY (no legacy password fallback)
+// ══════════════════════════════════════════════════════════════════════════
 router.post("/verify-session", async (req, res) => {
   const username = typeof req.body?.username === "string" ? req.body.username.trim() : "";
-  const password = typeof req.body?.password === "string" ? req.body.password.trim() : "";
   const role = typeof req.body?.role === "string" ? req.body.role.trim() : "";
   const sessionToken = typeof req.body?.sessionToken === "string" ? req.body.sessionToken.trim() : "";
 
-  // Session token verification (preferred, secure method)
-  if (sessionToken) {
-    const session = sessionStore.get(sessionToken);
-    if (session && session.username === username && session.role === role) {
-      return res.json({ success: true });
-    }
-    return res.status(401).json({ success: false, error: "Invalid or expired session" });
+  // ONLY session token verification — no password-based fallback
+  if (!sessionToken) {
+    return res.status(401).json({ success: false, error: "Session token required. Please login again." });
   }
 
-  // Legacy password-based verification (backward compat)
-  if (!username || !password || !role) {
-    return res.status(400).json({ success: false, error: "Missing session fields" });
+  const session = sessionStore.get(sessionToken);
+  if (session && session.username === username && session.role === role) {
+    return res.json({ success: true });
   }
 
-  if (role === "admin") {
-    if (username === config.ADMIN_USERNAME && password === config.ADMIN_PASSWORD) {
-      return res.json({ success: true });
-    }
-    const user = await userStore.find(username);
-    if (user && user.role === "admin" && verifyPassword(password, user.password)) {
-      return res.json({ success: true });
-    }
-  } else if (role === "user") {
-    const user = await userStore.verify(username, password);
-    if (user && user.role === "user") {
-      return res.json({ success: true });
-    }
-  }
-
-  return res.status(401).json({ success: false, error: "Invalid session" });
+  return res.status(401).json({ success: false, error: "Invalid or expired session. Please login again." });
 });
 
 router.post("/logout", async (req, res) => {
@@ -168,7 +257,7 @@ router.post("/profile", async (req, res) => {
     return res.status(400).json({ success: false, error: "Username is required" });
   }
 
-  // Require authentication — verify session token or credentials
+  // Require session token authentication
   const sessionToken = req.headers["x-session-token"] as string;
   const authUsername = req.headers["x-username"] as string;
   const authPassword = req.headers["x-password"] as string;
@@ -183,7 +272,6 @@ router.post("/profile", async (req, res) => {
     if (authUsername === username || (authUsername === config.ADMIN_USERNAME && authPassword === config.ADMIN_PASSWORD)) {
       const user = await userStore.verify(authUsername, authPassword);
       if (user) isAuthorized = true;
-      // Also allow direct admin config check
       if (authUsername === config.ADMIN_USERNAME && authPassword === config.ADMIN_PASSWORD) isAuthorized = true;
     }
   }
@@ -234,8 +322,8 @@ router.post("/update-key", async (req, res) => {
   }
 
   // Enforce minimum password strength
-  if (newPassword.length < 6) {
-    return res.status(400).json({ success: false, error: "Password must be at least 6 characters" });
+  if (newPassword.length < 8) {
+    return res.status(400).json({ success: false, error: "Password must be at least 8 characters" });
   }
 
   try {

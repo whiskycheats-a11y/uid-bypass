@@ -65,7 +65,7 @@ app.use(cors({
 
 // ── Global Rate Limiter (100 req/min per IP) ────────────────────────────
 const globalRateMap = new Map<string, { count: number; resetAt: number }>();
-const GLOBAL_RATE_LIMIT = 100;
+const GLOBAL_RATE_LIMIT = 60;
 const GLOBAL_RATE_WINDOW = 60 * 1000; // 1 minute
 
 app.use((req: Request, res: Response, next: NextFunction): void => {

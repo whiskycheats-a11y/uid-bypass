@@ -17,7 +17,7 @@ export const config = {
   ADMIN_PASSWORD: process.env["ADMIN_PASSWORD"] ?? "",
 
   // Cloudflare Turnstile
-  TURNSTILE_SECRET_KEY: process.env["TURNSTILE_SECRET_KEY"] ?? "1x0000000000000000000000000000000AA",
+  TURNSTILE_SECRET_KEY: process.env["TURNSTILE_SECRET_KEY"] ?? "",
 };
 
 export function getApiKey(): string {
