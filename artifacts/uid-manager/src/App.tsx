@@ -53,18 +53,14 @@ function AppRoot() {
       }
       try {
         const parsed = JSON.parse(session);
-        if (parsed?.username && parsed?.role && (parsed?.sessionToken || parsed?.adminKey)) {
+        if (parsed?.username && parsed?.role) {
           const res = await fetch(`${BASE}/api/auth/verify-session`, {
             method: "POST",
-            headers: { 
-              "Content-Type": "application/json",
-              "x-session-token": parsed.sessionToken || ""
-            },
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               username: parsed.username,
-              password: parsed.adminKey || "", // Fallback
               role: parsed.role,
-              sessionToken: parsed.sessionToken || ""
             }),
           });
           if (res.ok) {
@@ -111,6 +107,12 @@ function AppRoot() {
   };
 
   const handleLogout = () => {
+    const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
+    fetch(`${BASE}/api/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    }).catch(() => {});
     sessionStorage.removeItem("uid_auth");
     setAuth(null);
     setShowSplash(false);

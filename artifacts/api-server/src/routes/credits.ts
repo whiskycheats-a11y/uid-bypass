@@ -21,33 +21,19 @@ router.patch("/:username", requireAdmin, async (req, res) => {
 
 // User: check own balance
 router.get("/me", async (req, res) => {
-  const username = req.headers["x-username"] as string;
-  const password = req.headers["x-password"] as string;
-  const sessionToken = req.headers["x-session-token"] as string;
-
-  if (!username) {
-    return res.status(401).json({ success: false, error: "Unauthorized" });
-  }
+  const sessionToken = req.cookies?.auth_token;
 
   let isAuthorized = false;
   let userBalance = 0;
 
   if (sessionToken) {
     const session = sessionStore.get(sessionToken);
-    if (session && session.username === username) {
-      const user = await userStore.find(username);
+    if (session) {
+      const user = await userStore.find(session.username);
       if (user) {
         isAuthorized = true;
         userBalance = user.balance ?? 0;
       }
-    }
-  }
-
-  if (!isAuthorized && password) {
-    const user = await userStore.verify(username, password);
-    if (user) {
-      isAuthorized = true;
-      userBalance = user.balance ?? 0;
     }
   }
 

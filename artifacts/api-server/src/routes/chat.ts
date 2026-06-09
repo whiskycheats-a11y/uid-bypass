@@ -6,26 +6,12 @@ const router = Router();
 
 // Get recent messages
 router.get("/", async (req, res) => {
-  const username = req.headers["x-username"] as string;
-  const password = req.headers["x-password"] as string;
-  const sessionToken = req.headers["x-session-token"] as string;
+  const sessionToken = req.cookies?.auth_token;
   
-  if (!username) {
-    res.status(401).json({ success: false, error: "Unauthorized" });
-    return;
-  }
-
   let isAuthorized = false;
   if (sessionToken) {
     const session = sessionStore.get(sessionToken);
-    if (session && session.username === username) {
-      isAuthorized = true;
-    }
-  }
-
-  if (!isAuthorized && password) {
-    const user = await userStore.verify(username, password);
-    if (user || (username === config.ADMIN_USERNAME && verifyPassword(password, config.ADMIN_PASSWORD))) {
+    if (session) {
       isAuthorized = true;
     }
   }
@@ -54,15 +40,8 @@ setInterval(() => {
 
 // Post a message
 router.post("/", async (req, res) => {
-  const username = req.headers["x-username"] as string;
-  const password = req.headers["x-password"] as string;
-  const sessionToken = req.headers["x-session-token"] as string;
+  const sessionToken = req.cookies?.auth_token;
   const { message } = req.body ?? {};
-
-  if (!username) {
-    res.status(401).json({ success: false, error: "Unauthorized" });
-    return;
-  }
 
   if (!message || !message.trim()) {
     res.status(400).json({ success: false, error: "Message cannot be empty" });
@@ -70,12 +49,14 @@ router.post("/", async (req, res) => {
   }
 
   let isAuthorized = false;
-  let displayName = username;
+  let username = "";
+  let displayName = "";
   let avatar = "";
 
   if (sessionToken) {
     const session = sessionStore.get(sessionToken);
-    if (session && session.username === username) {
+    if (session) {
+      username = session.username;
       const user = await userStore.find(username);
       if (user) {
         displayName = user.displayName || user.username;
@@ -84,31 +65,6 @@ router.post("/", async (req, res) => {
       } else if (session.role === "admin") {
         displayName = username;
         isAuthorized = true;
-      }
-    }
-  }
-
-  if (!isAuthorized && password) {
-    // Authenticate user or admin
-    const user = await userStore.verify(username, password);
-    if (user) {
-      displayName = user.displayName || user.username;
-      avatar = user.avatar || "";
-      isAuthorized = true;
-    } else {
-      // Admin check
-      const isAdmin = username === config.ADMIN_USERNAME && verifyPassword(password, config.ADMIN_PASSWORD);
-      if (isAdmin) {
-        displayName = "ADMIN";
-        isAuthorized = true;
-      } else {
-        // Check if it's dynamic admin configured username
-        const sysAdmin = await userStore.find(username);
-        if (sysAdmin && sysAdmin.role === "admin" && verifyPassword(password, sysAdmin.password)) {
-          displayName = sysAdmin.displayName || sysAdmin.username;
-          avatar = sysAdmin.avatar || "";
-          isAuthorized = true;
-        }
       }
     }
   }

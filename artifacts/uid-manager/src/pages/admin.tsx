@@ -60,44 +60,31 @@ interface AdminProps {
   onLogout: () => void;
 }
 
-function getAdminKey() {
-  try {
-    const raw = sessionStorage.getItem("uid_auth");
-    if (!raw) return "";
-    return JSON.parse(raw).adminKey ?? "";
-  } catch { return ""; }
+// ── Auth is handled by HttpOnly cookie (auth_token) ──
+// All fetch calls MUST include { credentials: 'include' } to send the cookie.
+// These helpers only provide Content-Type; no secrets are stored client-side.
+
+// Secure fetch wrapper — always sends HttpOnly auth_token cookie
+function apiFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  return fetch(url, {
+    ...init,
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...(init.headers as Record<string, string> || {}),
+    },
+  });
 }
 
+// Legacy helper stubs — kept for call-site compatibility
 function adminHeaders(): Record<string, string> {
-  try {
-    const raw = sessionStorage.getItem("uid_auth");
-    if (!raw) return { "Content-Type": "application/json" };
-    const { adminKey, sessionToken } = JSON.parse(raw);
-    return { 
-      "Content-Type": "application/json", 
-      "x-admin-key": adminKey ?? "",
-      "x-session-token": sessionToken ?? ""
-    };
-  } catch {
-    return { "Content-Type": "application/json" };
-  }
+  return { "Content-Type": "application/json" };
 }
-
 function userHeaders(): Record<string, string> {
-  try {
-    const raw = sessionStorage.getItem("uid_auth");
-    if (!raw) return {};
-    const { username, adminKey, sessionToken } = JSON.parse(raw);
-    return { 
-      "x-username": username ?? "", 
-      "x-password": adminKey ?? "",
-      "x-session-token": sessionToken ?? ""
-    };
-  } catch { return {}; }
+  return { "Content-Type": "application/json" };
 }
-
 function adminHeadersForUids(): Record<string, string> {
-  return userHeaders();
+  return { "Content-Type": "application/json" };
 }
 
 function rand(len: number, chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789") {
@@ -654,7 +641,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       acc[op] = (acc[op] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-    const sortedOperators = Object.entries(operatorStats).sort((a, b) => b[1] - a[1]);
+    const sortedOperators = Object.entries(operatorStats).sort((a: [string, number], b: [string, number]) => b[1] - a[1]);
     
     return (
       <motion.div

@@ -61,16 +61,23 @@ setInterval(() => {
 }, 5 * 60 * 1000);
 
 // ══════════════════════════════════════════════════════════════════════════
-//  POST /login — HARDENED
+//  POST /login — HARDENED (Server-side Cookies & HWID)
 // ══════════════════════════════════════════════════════════════════════════
 router.post("/login", async (req, res) => {
   const username = typeof req.body?.username === "string" ? req.body.username.trim().toLowerCase() : "";
   const password = typeof req.body?.password === "string" ? req.body.password.trim() : "";
-  const hwid = typeof req.body?.hwid === "string" ? req.body.hwid.trim() : "";
   const turnstileToken = typeof req.body?.turnstileToken === "string" ? req.body.turnstileToken.trim() : "";
   const requestTimestamp = typeof req.body?.t === "number" ? req.body.t : 0;
   const clientIp = ((req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0]).trim() || "unknown";
   const userAgent = req.headers["user-agent"] || "";
+
+  // Get HWID from securely stored cookie, or generate a new one if missing
+  let clientHwid = req.cookies?.device_hwid;
+  let isNewHwid = false;
+  if (!clientHwid) {
+    clientHwid = crypto.randomUUID();
+    isNewHwid = true;
+  }
 
   // ─── 1. Basic input validation ───
   if (!username || !password) {
@@ -177,7 +184,6 @@ router.post("/login", async (req, res) => {
 
   // ─── 7. HWID device lock check ───
   if (user.hwidLockEnabled) {
-    const clientHwid = hwid || "unknown_device";
     if (!user.hwid) {
       await userStore.setHwid(user.username, clientHwid);
       user.hwid = clientHwid;
@@ -206,6 +212,25 @@ router.post("/login", async (req, res) => {
   await loginHistoryStore.record(user.username, clientIp, true, userAgent);
   logger.info({ username: user.username, ip: clientIp }, "Successful login");
 
+  // Set secure HttpOnly cookies
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // Must be HTTPS in production
+    sameSite: "strict" as const,
+  };
+
+  res.cookie("auth_token", sessionToken, {
+    ...cookieOptions,
+    maxAge: 4 * 60 * 60 * 1000, // 4 hours
+  });
+
+  if (isNewHwid) {
+    res.cookie("device_hwid", clientHwid, {
+      ...cookieOptions,
+      maxAge: 10 * 365 * 24 * 60 * 60 * 1000, // 10 years (effectively permanent)
+    });
+  }
+
   return res.json({
     success: true,
     username: user.username,
@@ -215,19 +240,17 @@ router.post("/login", async (req, res) => {
     canResell: user.canResell ?? false,
     displayName: user.displayName || user.username,
     avatar: user.avatar || "",
-    sessionToken,
   });
 });
 
 // ══════════════════════════════════════════════════════════════════════════
-//  POST /verify-session — SESSION TOKEN ONLY (no legacy password fallback)
+//  POST /verify-session — SESSION TOKEN ONLY (from HttpOnly cookie)
 // ══════════════════════════════════════════════════════════════════════════
 router.post("/verify-session", async (req, res) => {
   const username = typeof req.body?.username === "string" ? req.body.username.trim() : "";
   const role = typeof req.body?.role === "string" ? req.body.role.trim() : "";
-  const sessionToken = typeof req.body?.sessionToken === "string" ? req.body.sessionToken.trim() : "";
+  const sessionToken = req.cookies?.auth_token;
 
-  // ONLY session token verification — no password-based fallback
   if (!sessionToken) {
     return res.status(401).json({ success: false, error: "Session token required. Please login again." });
   }
@@ -237,14 +260,18 @@ router.post("/verify-session", async (req, res) => {
     return res.json({ success: true });
   }
 
+  // Clear invalid cookie
+  res.clearCookie("auth_token");
   return res.status(401).json({ success: false, error: "Invalid or expired session. Please login again." });
 });
 
 router.post("/logout", async (req, res) => {
-  const sessionToken = typeof req.body?.sessionToken === "string" ? req.body.sessionToken.trim() : "";
+  const sessionToken = req.cookies?.auth_token;
   if (sessionToken) {
     sessionStore.remove(sessionToken);
   }
+  
+  res.clearCookie("auth_token");
   return res.json({ success: true });
 });
 

@@ -71,31 +71,16 @@ function isSuccess(data: Record<string, unknown>): boolean {
 
 router.get("/list", async (req, res) => {
   try {
-    const username = req.headers["x-username"] as string | undefined;
-    const password = req.headers["x-password"] as string | undefined;
-    const sessionToken = req.headers["x-session-token"] as string | undefined;
+    const sessionToken = req.cookies?.auth_token;
 
     let authenticatedUser: string | undefined = undefined;
     let authenticatedRole: string | undefined = undefined;
 
     if (sessionToken) {
       const session = sessionStore.get(sessionToken);
-      if (session && session.username === username) {
+      if (session) {
         authenticatedUser = session.username;
         authenticatedRole = session.role;
-      }
-    }
-
-    if (!authenticatedUser && username && password) {
-      if (username === config.ADMIN_USERNAME && password === config.ADMIN_PASSWORD) {
-        authenticatedUser = username;
-        authenticatedRole = "admin";
-      } else {
-        const user = await userStore.verify(username, password);
-        if (user) {
-          authenticatedUser = user.username;
-          authenticatedRole = user.role;
-        }
       }
     }
 
@@ -125,38 +110,21 @@ router.post("/add", async (req, res) => {
     return;
   }
 
-  const authUser = req.headers["x-username"] as string | undefined;
-  const authPass = req.headers["x-password"] as string | undefined;
-  const sessionToken = req.headers["x-session-token"] as string | undefined;
+  const sessionToken = req.cookies?.auth_token;
 
   let isAuthorized = false;
   let isAdmin = false;
+  let authUser: string | undefined;
 
   if (sessionToken) {
     const session = sessionStore.get(sessionToken);
-    if (session && session.username === authUser) {
+    if (session) {
+      authUser = session.username;
       if (session.role === "admin") {
         isAuthorized = true;
         isAdmin = true;
       } else if (session.username === username) {
         isAuthorized = true;
-      }
-    }
-  }
-
-  if (!isAuthorized && authUser && authPass) {
-    if (authUser === config.ADMIN_USERNAME && authPass === config.ADMIN_PASSWORD) {
-      isAuthorized = true;
-      isAdmin = true;
-    } else {
-      const user = await userStore.verify(authUser, authPass);
-      if (user) {
-        if (user.role === "admin") {
-          isAuthorized = true;
-          isAdmin = true;
-        } else if (user.username === username) {
-          isAuthorized = true;
-        }
       }
     }
   }
@@ -267,39 +235,19 @@ router.post("/remove", async (req, res) => {
   }
 
   try {
-    const username = req.headers["x-username"] as string | undefined;
-    const password = req.headers["x-password"] as string | undefined;
-    const sessionToken = req.headers["x-session-token"] as string | undefined;
+    const sessionToken = req.cookies?.auth_token;
 
     let isAuthorized = false;
 
     if (sessionToken) {
       const session = sessionStore.get(sessionToken);
-      if (session && session.username === username) {
+      if (session) {
         if (session.role === "admin") {
           isAuthorized = true;
         } else {
           const existingUid = await uidStore.get(uid);
-          if (existingUid && existingUid.addedBy === username) {
+          if (existingUid && existingUid.addedBy === session.username) {
             isAuthorized = true;
-          }
-        }
-      }
-    }
-
-    if (!isAuthorized && username && password) {
-      if (username === config.ADMIN_USERNAME && password === config.ADMIN_PASSWORD) {
-        isAuthorized = true;
-      } else {
-        const user = await userStore.verify(username, password);
-        if (user) {
-          if (user.role === "admin") {
-            isAuthorized = true;
-          } else {
-            const existingUid = await uidStore.get(uid);
-            if (existingUid && existingUid.addedBy === username) {
-              isAuthorized = true;
-            }
           }
         }
       }

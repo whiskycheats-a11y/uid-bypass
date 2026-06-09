@@ -274,18 +274,11 @@ export default function Login({ onLogin }: LoginProps) {
 
     setLoading(true);
     try {
-      let clientHwid = localStorage.getItem("velocira_hwid");
-      if (!clientHwid) {
-        clientHwid = typeof crypto !== "undefined" && crypto.randomUUID 
-          ? crypto.randomUUID() 
-          : Math.random().toString(36).substring(2);
-        localStorage.setItem("velocira_hwid", clientHwid);
-      }
-
       const res = await fetch(`${BASE}/api/auth/login`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, hwid: clientHwid, turnstileToken, t: Date.now() }),
+        body: JSON.stringify({ username, password, turnstileToken, t: Date.now() }),
       });
       const raw = await res.text();
       let data: any = null;
@@ -307,8 +300,6 @@ export default function Login({ onLogin }: LoginProps) {
           JSON.stringify({
             role: data.role,
             username: data.username,
-            sessionToken: data.sessionToken,
-            adminKey: password, // Store key/password for fallback legacy endpoints
             defaultDays: data.defaultDays ?? 30,
             isTrial: data.isTrial ?? false,
             canResell: data.canResell ?? false,

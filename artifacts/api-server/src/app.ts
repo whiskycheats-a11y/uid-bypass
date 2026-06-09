@@ -4,6 +4,8 @@ import pinoHttp from "pino-http";
 import path from "path";
 import { fileURLToPath } from "url";
 import { existsSync } from "fs";
+import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -23,7 +25,14 @@ app.use(
   }),
 );
 
-// ── Security Headers ────────────────────────────────────────────────────
+// ── Strict Security Headers ────────────────────────────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: false, // Turn off CSP if frontend builds inline scripts
+  crossOriginEmbedderPolicy: false,
+}));
+app.use(cookieParser());
+
+// ── Legacy Security Headers (Handled mainly by helmet now) ────────────────
 app.use((_req: Request, res: Response, next: NextFunction) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");

@@ -233,25 +233,20 @@ interface DashboardProps {
 
 const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
-function getSessionToken(): string {
-  try {
-    const raw = sessionStorage.getItem("uid_auth");
-    if (!raw) return "";
-    return JSON.parse(raw).sessionToken ?? "";
-  } catch { return ""; }
+// Secure fetch wrapper — always sends HttpOnly auth_token cookie
+function apiFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  return fetch(url, {
+    ...init,
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...(init.headers as Record<string, string> || {}),
+    },
+  });
 }
 
 function userHeaders(): Record<string, string> {
-  try {
-    const raw = sessionStorage.getItem("uid_auth");
-    if (!raw) return {};
-    const { username, adminKey, sessionToken } = JSON.parse(raw);
-    return {
-      "x-username": username ?? "",
-      "x-password": adminKey ?? "",
-      "x-session-token": sessionToken ?? ""
-    };
-  } catch { return {}; }
+  return { "Content-Type": "application/json" };
 }
 
 function CustomDurationSelect({
@@ -485,13 +480,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
   const fetchTokens = async () => {
     setLoadingTokens(true);
     try {
-      const res = await fetch(`${BASE}/api/reseller/trial-tokens`, {
-        headers: { 
-          "x-username": username, 
-          "x-password": getResellerKey(),
-          "x-session-token": getSessionToken()
-        }
-      });
+      const res = await apiFetch(`${BASE}/api/reseller/trial-tokens`);
       const data = await res.json();
       if (data.success) {
         setTokens(data.tokens);
@@ -510,13 +499,8 @@ function ResellerTrialPanel({ username }: { username: string }) {
   const handleDeleteToken = async (token: string) => {
     if (!confirm("Are you sure you want to delete this trial link? All associated UIDs will be permanently revoked!")) return;
     try {
-      const res = await fetch(`${BASE}/api/reseller/trial-token/${token}`, {
+      const res = await apiFetch(`${BASE}/api/reseller/trial-token/${token}`, {
         method: "DELETE",
-        headers: { 
-          "x-username": username, 
-          "x-password": getResellerKey(),
-          "x-session-token": getSessionToken()
-        }
       });
       const data = await res.json();
       if (data.success) {
@@ -576,12 +560,8 @@ function ResellerTrialPanel({ username }: { username: string }) {
     setLoading(true);
     try {
       const resellerKey = getResellerKey();
-      const res = await fetch(`${BASE}/api/reseller/trial-token`, {
+      const res = await apiFetch(`${BASE}/api/reseller/trial-token`, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "x-session-token": getSessionToken()
-        },
         body: JSON.stringify({
           username,
           password: resellerKey,
