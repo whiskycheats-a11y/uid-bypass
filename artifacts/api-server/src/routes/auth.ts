@@ -285,7 +285,7 @@ router.post("/profile", async (req, res) => {
   }
 
   // Require session token authentication
-  const sessionToken = req.headers["x-session-token"] as string;
+  const sessionToken = (req.headers["x-session-token"] as string) || req.cookies?.auth_token;
   const authUsername = req.headers["x-username"] as string;
   const authPassword = req.headers["x-password"] as string;
 
