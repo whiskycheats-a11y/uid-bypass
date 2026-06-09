@@ -650,13 +650,21 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       : uids.filter(u => u.uid.toLowerCase().includes(uidSearchQuery.toLowerCase()) || (u.name && u.name.toLowerCase().includes(uidSearchQuery.toLowerCase())));
     const displayedUids = showFull ? [...filteredUids].reverse() : [...filteredUids].reverse().slice(0, 9);
     
+    // Calculate Operator Stats
+    const operatorStats = uids.reduce((acc, curr) => {
+      const op = curr.addedBy || "UNKNOWN";
+      acc[op] = (acc[op] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    const sortedOperators = Object.entries(operatorStats).sort((a, b) => b[1] - a[1]);
+    
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className={`neo-glass rounded-[2.5rem] overflow-hidden relative shadow-2xl ${showFull ? 'h-full' : ''}`}
       >
-        <div className="flex items-center justify-between px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-black/20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-black/20 gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.3)] border border-red-500/30" style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.2), rgba(0,0,0,0.1))" }}>
               <Activity className="w-5 h-5 text-red-500" />
@@ -666,15 +674,28 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
               <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">{showFull ? "All active connections globally" : "History of recently registered UIDs"}</div>
             </div>
           </div>
-          <div className="w-64 relative">
+          <div className="w-full sm:w-64 relative">
             <Input 
               placeholder="Search UID or Name..." 
               value={uidSearchQuery}
               onChange={(e) => setUidSearchQuery(e.target.value)}
-              className="pl-4 pr-4 h-10 rounded-xl bg-black/40 border-white/10 text-white font-bold transition-all focus-visible:ring-red-500/30 focus-visible:border-red-500/50"
+              className="pl-4 pr-4 h-10 rounded-xl bg-black/40 border-white/10 text-white font-bold transition-all focus-visible:ring-red-500/30 focus-visible:border-red-500/50 w-full"
             />
           </div>
         </div>
+
+        {/* Reseller Stats Bar */}
+        {!isUidsLoading && uids.length > 0 && (
+          <div className="px-6 sm:px-8 py-3 bg-white/[0.02] border-b border-white/[0.05] flex items-center gap-3 overflow-x-auto scrollbar-none">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap flex items-center gap-1"><Users className="w-3.5 h-3.5" /> Operators:</span>
+            {sortedOperators.map(([op, count]) => (
+              <div key={op} className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-white/5 border border-white/10 whitespace-nowrap">
+                <span className="text-[10px] font-bold text-white uppercase tracking-wider">{op}</span>
+                <span className="text-[10px] font-black text-red-400 bg-red-500/10 px-1.5 rounded">{count}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {isUidsLoading ? (
           <div className="flex flex-col items-center justify-center p-20 opacity-50">
@@ -701,15 +722,16 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     exit={{ opacity: 0, scale: 0.9, y: 10 }}
                     onHoverStart={() => setHoveredRow(uidObj.uid)}
                     onHoverEnd={() => setHoveredRow(null)}
-                    className={`group relative bg-black/40 border ${highlightDelete ? 'border-red-500/20' : 'border-white/10'} rounded-[2rem] p-5 hover:border-white/20 hover:bg-white/[0.02] transition-all overflow-hidden flex flex-col justify-between h-40 shadow-lg glow-border hover:shadow-xl`}
+                    className={`group relative bg-[#0a0a0a]/80 backdrop-blur-md border ${highlightDelete ? 'border-red-500/40 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'border-white/[0.08] shadow-[0_4px_20px_rgba(0,0,0,0.3)]'} rounded-[1.5rem] p-5 hover:border-white/20 transition-all overflow-hidden flex flex-col justify-between h-44 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]`}
                   >
                     <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 pointer-events-none"
-                      style={{ background: uidObj.bluestack ? "linear-gradient(135deg, transparent, #ef4444, transparent)" : "linear-gradient(135deg, transparent, #10b981, transparent)" }}
+                      className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none"
+                      style={{ background: uidObj.bluestack ? "radial-gradient(circle at top right, #ef4444, transparent 70%)" : "radial-gradient(circle at top right, #10b981, transparent 70%)" }}
                     />
+                    <div className="absolute top-0 left-0 w-full h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: uidObj.bluestack ? "linear-gradient(90deg, transparent, #ef4444, transparent)" : "linear-gradient(90deg, transparent, #10b981, transparent)" }} />
 
                     {/* Hover delete button */}
-                    <div className="absolute top-5 right-5 z-20">
+                    <div className="absolute top-4 right-4 z-20">
                       {hoveredRow === uidObj.uid || highlightDelete ? (
                         <button
                           onClick={(e) => { e.stopPropagation(); onRemove(uidObj.uid); }}
@@ -719,30 +741,34 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                           {removingUid === uidObj.uid ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                         </button>
                       ) : (
-                        <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_#ef4444] animate-pulse" />
+                        <div className={`w-2 h-2 rounded-full ${uidObj.bluestack ? 'bg-red-500 shadow-[0_0_8px_#ef4444]' : 'bg-emerald-500 shadow-[0_0_8px_#10b981]'} animate-pulse`} />
                       )}
                     </div>
 
                     <div>
                       {/* Friendly name top left */}
-                      <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
-                        {uidObj.bluestack ? <Activity className="w-3.5 h-3.5 text-red-500/80" /> : <Shield className="w-3.5 h-3.5 text-emerald-400/80" />}
-                        <span className="truncate max-w-[150px]">{uidObj.name || `NODE_${uidObj.uid.slice(0, 10)}`}</span>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${uidObj.bluestack ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
+                          {uidObj.bluestack ? <Activity className="w-3.5 h-3.5" /> : <Shield className="w-3.5 h-3.5" />}
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 truncate max-w-[140px]">{uidObj.name || `NODE_${uidObj.uid.slice(0, 8)}`}</span>
                       </div>
                       
                       {/* UID value */}
-                      <div className="text-xl font-black text-white tracking-wider mt-3.5 font-mono drop-shadow-md">{uidObj.uid}</div>
+                      <div className="text-2xl font-black text-white tracking-wider font-mono drop-shadow-md">{uidObj.uid}</div>
                     </div>
 
                     {/* Footer with Operator and Expires */}
-                    <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-4">
-                      <div>
-                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block">OPERATOR</span>
-                        <span className="text-xs font-black text-slate-300 uppercase tracking-wide truncate max-w-[100px] block">{uidObj.addedBy || "UNKNOWN"}</span>
+                    <div className="flex items-end justify-between border-t border-white/[0.06] pt-3 mt-4">
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1"><Users className="w-3 h-3" /> OPERATOR</span>
+                        <span className="text-[11px] font-black text-white/90 uppercase tracking-wider truncate max-w-[120px] px-2 py-0.5 bg-white/5 rounded border border-white/10">{uidObj.addedBy || "UNKNOWN"}</span>
                       </div>
-                      <div className="text-right">
-                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block">EXPIRES</span>
-                        <span className="text-xs font-black text-slate-300 uppercase tracking-wide block">{getDaysLeft(uidObj.addedAt, uidObj.days)}</span>
+                      <div className="flex flex-col items-end">
+                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1"><Timer className="w-3 h-3" /> STATUS</span>
+                        <span className={`text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded border ${getDaysLeft(uidObj.addedAt, uidObj.days) === "Expired" ? 'text-red-400 bg-red-500/10 border-red-500/20' : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'}`}>
+                          {getDaysLeft(uidObj.addedAt, uidObj.days)}
+                        </span>
                       </div>
                     </div>
                   </motion.div>
