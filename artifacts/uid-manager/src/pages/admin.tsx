@@ -6,7 +6,7 @@ import {
   Lock, User as UserIcon, Gift, RefreshCw, Shield, Timer, Settings,
   Coins, Wallet, CreditCard, Check, XCircle, Clock, LayoutDashboard,
   BarChart2, MessageSquare, UserCircle, Camera, Edit2, Trophy, Medal,
-  Send, Menu, CalendarDays,
+  Send, Menu, CalendarDays, KeyRound
 } from "lucide-react";
 import { AmbientScene } from "@/components/ambient-scene";
 import {
