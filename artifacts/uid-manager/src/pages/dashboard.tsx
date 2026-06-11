@@ -1679,7 +1679,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
 
   const form = useForm<AddUidValues>({
     resolver: zodResolver(addUidSchema),
-    defaultValues: { uid: "", days: isTrial ? 1 : defaultDays, bluestack: true },
+    defaultValues: { uid: `KEY-${rand(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")}`, days: isTrial ? 1 : defaultDays, bluestack: false, name: "" },
   });
 
   const handleLogout = () => {
@@ -1769,8 +1769,8 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             }
             if (!isTrial && balance !== null) setBalance(b => b !== null ? Math.max(0, b - tokenCost) : null);
             setShowSuccessBlast(true);
-            toast({ title: "Access Granted", description: `UID ${values.uid} whitelisted successfully.` });
-            form.reset();
+            toast({ title: "Access Granted", description: `Key ${values.uid} generated successfully.` });
+            form.reset({ uid: `KEY-${rand(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")}`, days: isTrial ? 1 : defaultDays, bluestack: false, name: "" });
             queryClient.invalidateQueries({ queryKey: getListUidsQueryKey() });
           } else {
             toast({ title: "Failed", description: (data as any).message, variant: "destructive" });
@@ -1951,11 +1951,11 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 relative z-10">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Friendly Name</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Client Username</label>
               <div className="relative group">
                 <Edit2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-cyan-400 transition-colors pointer-events-none" />
                 <Input
-                  placeholder="Enter your name"
+                  placeholder="Enter client username"
                   className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-cyan-500/30 focus-visible:border-cyan-500/50 text-white font-bold transition-all shadow-inner"
                   {...form.register("name")}
                 />
@@ -1966,12 +1966,12 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Player UID</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Auto-Generated Key</label>
               <div className="relative group">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-cyan-400 transition-colors pointer-events-none" />
+                <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-cyan-400 transition-colors pointer-events-none" />
                 <Input
-                  placeholder="Enter UID number..."
-                  className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-cyan-500/30 focus-visible:border-cyan-500/50 text-white font-bold transition-all shadow-inner"
+                  readOnly
+                  className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 text-slate-400 font-mono font-bold transition-all shadow-inner cursor-not-allowed"
                   {...form.register("uid")}
                 />
               </div>
@@ -2008,20 +2008,6 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
               )}
             </div>
 
-            <div className="flex items-center justify-between p-5 rounded-2xl bg-black/30 border border-white/10 group hover:border-violet-500/30 hover:bg-black/50 transition-all shadow-inner">
-              <div>
-                <div className="flex items-center gap-2 text-sm font-black text-white">
-                  <Monitor className="w-4 h-4 text-cyan-400 drop-shadow-[0_0_5px_rgba(0,212,255,0.5)]" />
-                  BlueStack Protocol
-                </div>
-                <div className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Emulator Routing</div>
-              </div>
-              <Switch
-                checked={form.watch("bluestack")}
-                onCheckedChange={(v) => form.setValue("bluestack", v)}
-                className="data-[state=checked]:bg-cyan-500 data-[state=checked]:shadow-[0_0_15px_rgba(0,212,255,0.5)]"
-              />
-            </div>
 
             {!isTrial && (
               <div className="flex items-center justify-between px-4 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider backdrop-blur-md" style={{ background: hasEnoughBalance ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.1)", border: `1px solid ${hasEnoughBalance ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.3)"}` }}>

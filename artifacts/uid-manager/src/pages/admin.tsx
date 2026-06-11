@@ -196,7 +196,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 
   const form = useForm<AddUidValues>({
     resolver: zodResolver(addUidSchema),
-    defaultValues: { uid: "", name: "", days: 30, bluestack: false },
+    defaultValues: { uid: `KEY-${rand(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")}`, name: "", days: 30, bluestack: false },
   });
 
   const addMutation = useAddUid({
@@ -212,8 +212,8 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
         onSuccess: (data) => {
           if (data.success) {
             setShowSuccessBlast(true);
-            toast({ title: "Access Granted", description: `UID ${values.uid} whitelisted successfully.` });
-            form.reset();
+            toast({ title: "Access Granted", description: `Key ${values.uid} generated successfully.` });
+            form.reset({ uid: `KEY-${rand(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")}`, name: "", days: 30, bluestack: false });
             queryClient.invalidateQueries({ queryKey: getListUidsQueryKey() });
           } else {
             toast({ title: "Failed", description: (data as any).message || "Error", variant: "destructive" });
@@ -765,11 +765,11 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 
         <form onSubmit={form.handleSubmit(onSubmitUid)} className="space-y-6 relative z-10">
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Friendly Name</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Client Username</label>
             <div className="relative group">
               <Edit2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-red-500 transition-colors pointer-events-none" />
               <Input
-                placeholder="Enter your name"
+                placeholder="Enter client username"
                 className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-red-500/30 focus-visible:border-red-500/50 text-white font-bold transition-all shadow-inner"
                 {...form.register("name")}
               />
@@ -780,12 +780,12 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Player UID</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Auto-Generated Key</label>
             <div className="relative group">
-              <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-red-500 transition-colors pointer-events-none" />
+              <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-red-500 transition-colors pointer-events-none" />
               <Input
-                placeholder="Enter UID number..."
-                className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-red-500/30 focus-visible:border-red-500/50 text-white font-bold transition-all shadow-inner"
+                readOnly
+                className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 text-slate-400 font-mono font-bold transition-all shadow-inner cursor-not-allowed"
                 {...form.register("uid")}
               />
             </div>
@@ -811,20 +811,6 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             )}
           </div>
 
-          <div className="flex items-center justify-between p-5 rounded-2xl bg-black/30 border border-white/10 group hover:border-red-500/30 hover:bg-black/50 transition-all shadow-inner">
-            <div>
-              <div className="flex items-center gap-2 text-sm font-black text-white">
-                <Activity className="w-4 h-4 text-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]" />
-                BlueStack Protocol
-              </div>
-              <div className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Emulator Routing</div>
-            </div>
-            <Switch
-              checked={form.watch("bluestack")}
-              onCheckedChange={(v) => form.setValue("bluestack", v)}
-              className="data-[state=checked]:bg-red-500 data-[state=checked]:shadow-[0_0_15px_rgba(239,68,68,0.5)]"
-            />
-          </div>
 
           <motion.button
             type="submit"

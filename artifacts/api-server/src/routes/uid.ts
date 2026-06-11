@@ -157,6 +157,16 @@ router.post("/add", async (req, res) => {
     }
   }
 
+  const existingUid = await uidStore.get(uid);
+  if (existingUid) {
+    const addedTime = new Date(existingUid.addedAt).getTime();
+    const expiryTime = addedTime + existingUid.days * 24 * 60 * 60 * 1000;
+    if (expiryTime > Date.now()) {
+      res.json({ success: false, message: "urs uid is alredy whitlisted" });
+      return;
+    }
+  }
+
   const cost = daysToTokens(effectiveDays);
 
   if (!skipBalanceCheck && username) {
@@ -216,7 +226,11 @@ router.post("/add", async (req, res) => {
     res.json({
       ...data,
       success,
-      message: data.message || data.error || (success ? "Success" : "Unknown error from external API")
+      message: (() => {
+        const m = String(data.message || data.msg || data.error || (success ? "Success" : "Unknown error from external API"));
+        if (!success && m.toLowerCase().includes("already")) return "urs uid is alredy whitlisted";
+        return m;
+      })()
     });
   } catch (err) {
     if (!skipBalanceCheck && username) {
@@ -381,6 +395,9 @@ router.get("/token-info/:token", async (req, res) => {
     const createdTime = new Date(tokenData.createdAt).getTime();
     const isExpired = Date.now() - createdTime > 24 * 60 * 60 * 1000;
     
+    const clientIp = ((req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0]).trim();
+    const isUsedByIp = tokenData.usedIps?.includes(clientIp) || false;
+    
     let isTrialExpired = false;
     const usedByUid = tokenData.usedByUid;
     if (tokenData.used && usedByUid) {
@@ -401,7 +418,7 @@ router.get("/token-info/:token", async (req, res) => {
       token: tokenData.token,
       resellerUsername: tokenData.resellerUsername,
       days: tokenData.days,
-      used: tokenData.used,
+      used: isUsedByIp,
       isExpired,
       isTrialExpired
     });
@@ -437,7 +454,7 @@ router.post("/free-whitelist", async (req, res) => {
       return;
     }
 
-    if (tokenData.used) {
+    if (tokenData.usedIps?.includes(clientIp) || tokenData.usedUids?.includes(uid)) {
       res.json({ success: false, message: "TOKEN_ALREADY_USED" });
       return;
     }
@@ -446,16 +463,6 @@ router.post("/free-whitelist", async (req, res) => {
     if (Date.now() - createdTime > 24 * 60 * 60 * 1000) {
       res.json({ success: false, message: "TOKEN_EXPIRED" });
       return;
-    }
-
-    // Only block if this IP has an ACTIVE (non-expired) free trial UID
-    // This allows re-use after previous trial expires
-    if (clientIp && clientIp !== "unknown" && clientIp !== "::1" && clientIp !== "127.0.0.1") {
-      const activeIpExists = await uidStore.checkActiveIpExists(clientIp);
-      if (activeIpExists) {
-        res.json({ success: false, message: "TRIAL_IP_LIMIT_REACHED" });
-        return;
-      }
     }
 
     const existingUid = await uidStore.get(uid);
@@ -512,7 +519,11 @@ router.post("/free-whitelist", async (req, res) => {
       ...data,
       success,
       days: tokenData.days,
-      message: data.message || data.error || (success ? "Success" : "Unknown error from external API")
+      message: (() => {
+        const m = String(data.message || data.msg || data.error || (success ? "Success" : "Unknown error from external API"));
+        if (!success && m.toLowerCase().includes("already")) return "urs uid is alredy whitlisted";
+        return m;
+      })()
     });
 
   } catch (err) {

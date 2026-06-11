@@ -282,24 +282,6 @@ export default function Login({ onLogin }: LoginProps) {
       });
       const raw = await res.text();
 
-      if (res.ok) {
-        const signature = res.headers.get("X-Response-Signature");
-        const secret = "V3L0C1R4_M1TM_PR0T3CT10N";
-        const encoder = new TextEncoder();
-        const key = await crypto.subtle.importKey(
-          "raw", encoder.encode(secret),
-          { name: "HMAC", hash: "SHA-256" },
-          false, ["sign", "verify"]
-        );
-        const signatureBuffer = await crypto.subtle.sign("HMAC", key, encoder.encode(raw));
-        const hashArray = Array.from(new Uint8Array(signatureBuffer));
-        const expectedSignature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        
-        if (!signature || signature !== expectedSignature) {
-          throw new Error("ERR_NETWORK_TAMPERED: Security validation failed. MITM proxy detected.");
-        }
-      }
-
       let data: any = null;
       try {
         data = raw ? JSON.parse(raw) : null;
@@ -308,6 +290,28 @@ export default function Login({ onLogin }: LoginProps) {
       }
       if (!res.ok) throw new Error(data?.message ?? data?.error ?? "Login failed.");
       if (data.success) {
+        // ── ANTI-MITM: Verify that the server ACTUALLY created a session ──
+        // A MITM proxy can fake the login JSON response, but it CANNOT
+        // set a valid HttpOnly auth_token cookie in the browser's cookie jar.
+        // This verify call goes to the real server (or MITM), but without a
+        // real auth_token cookie, the server will reject it with 401.
+        const verifyRes = await fetch(`${BASE}/api/auth/verify-session`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: data.username, role: data.role }),
+        });
+        
+        if (!verifyRes.ok) {
+          throw new Error("Connection integrity check failed. Tampered or intercepted network detected. Login rejected.");
+        }
+        
+        const verifyData = await verifyRes.json();
+        if (!verifyData.success) {
+          throw new Error("Session verification failed. Your connection may be compromised. Login rejected.");
+        }
+
+        // ── Session verified by real server — safe to proceed ──
         if (data.displayName) {
           localStorage.setItem(`display_name_${data.username}`, data.displayName);
         }

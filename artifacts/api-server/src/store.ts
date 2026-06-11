@@ -280,6 +280,8 @@ export interface TrialToken {
   usedAt?: string;
   usedByUid?: string;
   usedByIp?: string;
+  usedIps?: string[];
+  usedUids?: string[];
 }
 
 interface TokenDoc extends TrialToken, Document {}
@@ -293,6 +295,8 @@ const tokenSchema = new Schema<TokenDoc>({
   usedAt: { type: String },
   usedByUid: { type: String },
   usedByIp: { type: String },
+  usedIps: { type: [String], default: [] },
+  usedUids: { type: [String], default: [] },
 });
 
 const TokenModel = model<TokenDoc>("TrialToken", tokenSchema);
@@ -311,7 +315,9 @@ export const tokenStore = {
       resellerUsername,
       days,
       createdAt: new Date().toISOString(),
-      used: false
+      used: false,
+      usedIps: [],
+      usedUids: []
     };
     if (!connected) {
       fallbackTokens.set(token, tokenData);
@@ -341,7 +347,9 @@ export const tokenStore = {
       used: doc.used,
       usedAt: doc.usedAt,
       usedByUid: doc.usedByUid,
-      usedByIp: doc.usedByIp
+      usedByIp: doc.usedByIp,
+      usedIps: doc.usedIps || [],
+      usedUids: doc.usedUids || []
     } : null;
   },
 
@@ -351,17 +359,21 @@ export const tokenStore = {
     const usedAt = new Date().toISOString();
     if (!connected) {
       const t = fallbackTokens.get(token);
-      if (!t || t.used) return false;
-      t.used = true;
+      if (!t) return false;
+      if (!t.usedIps) t.usedIps = [];
+      if (!t.usedUids) t.usedUids = [];
+      t.usedIps.push(ip);
+      t.usedUids.push(uid);
       t.usedAt = usedAt;
-      t.usedByUid = uid;
-      t.usedByIp = ip;
       return true;
     }
     try {
       const result = await TokenModel.updateOne(
-        { token, used: false },
-        { $set: { used: true, usedAt, usedByUid: uid, usedByIp: ip } }
+        { token },
+        { 
+          $push: { usedIps: ip, usedUids: uid },
+          $set: { usedAt }
+        }
       );
       return result.modifiedCount > 0;
     } catch (err) {
@@ -396,7 +408,9 @@ export const tokenStore = {
       used: doc.used,
       usedAt: doc.usedAt,
       usedByUid: doc.usedByUid,
-      usedByIp: doc.usedByIp
+      usedByIp: doc.usedByIp,
+      usedIps: doc.usedIps || [],
+      usedUids: doc.usedUids || []
     }));
   },
 
