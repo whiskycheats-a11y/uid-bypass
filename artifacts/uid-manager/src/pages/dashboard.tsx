@@ -23,6 +23,7 @@ import {
   Plus,
   Activity,
   LogOut,
+  Clock,
   CalendarDays,
   User,
   Gift,
@@ -1594,6 +1595,7 @@ const SIDEBAR_NAV = [
   { id: "all", label: "All UIDs", icon: Users2 },
   { id: "delete", label: "Delete UID", icon: Trash2 },
   { id: "free", label: "Free Portal", icon: Globe },
+  { id: "history", label: "Login History", icon: Clock },
   { id: "chat", label: "Team Chat", icon: MessageSquare },
   { id: "profile", label: "My Profile", icon: UserCircle },
 ];
@@ -2354,6 +2356,12 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                   />
                 </motion.div>
               )}
+
+              {activeSidebarTab === "history" && (
+                <motion.div key="history" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                  <LoginHistoryPanel />
+                </motion.div>
+              )}
             </AnimatePresence>
 
           </div>
@@ -2419,14 +2427,93 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
           background: rgba(255, 255, 255, 0.02);
           border-radius: 10px;
         }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-        }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(255, 255, 255, 0.2);
         }
       `}</style>
+    </div>
+  );
+}
+
+function LoginHistoryPanel() {
+  const [history, setHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchHistory() {
+      setLoading(true);
+      try {
+        const res = await fetch(`${BASE}/api/users/login-history`);
+        const data = await res.json();
+        if (data.success) {
+          setHistory(data.history || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch login history", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchHistory();
+  }, []);
+
+  return (
+    <div className="panel rounded-3xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.05)] ring-1 ring-white/10" style={{ background: "linear-gradient(160deg, rgba(18,14,34,0.6), rgba(8,6,18,0.8))", backdropFilter: "blur(12px)" }}>
+      <div className="h-[2px]" style={{ background: "linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, transparent)" }} />
+      <div className="px-6 py-5 border-b border-white/[0.04] flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-inner" style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.25)" }}>
+            <Clock className="w-5 h-5 text-violet-400 drop-shadow-md" />
+          </div>
+          <div>
+            <h2 className="font-bold text-base text-foreground tracking-wide">Login History</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Your recent logins across the network</p>
+          </div>
+        </div>
+      </div>
+      <div className="p-0">
+        {loading ? (
+          <div className="flex items-center justify-center py-24">
+            <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+          </div>
+        ) : history.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+            <Clock className="w-12 h-12 mb-4 opacity-20" />
+            <span className="text-sm font-bold">No login history found</span>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-white/5 bg-white/[0.01]">
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-widest text-slate-400 font-black">User</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-widest text-slate-400 font-black">Status</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-widest text-slate-400 font-black">IP Address</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-widest text-slate-400 font-black">Time</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-widest text-slate-400 font-black">Device/Agent</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((record, i) => (
+                  <tr key={i} className="border-b border-white/[0.02] hover:bg-white/[0.04] transition-all group">
+                    <td className="py-4 px-6 font-bold text-sm text-white group-hover:text-violet-300 transition-colors">{record.username}</td>
+                    <td className="py-4 px-6">
+                      {record.success ? (
+                        <span className="text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]">SUCCESS</span>
+                      ) : (
+                        <span className="text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-md bg-red-500/10 text-red-400 border border-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.1)]">FAILED</span>
+                      )}
+                    </td>
+                    <td className="py-4 px-6 font-mono text-xs text-slate-400">{record.ip}</td>
+                    <td className="py-4 px-6 text-xs text-slate-400">{new Date(record.timestamp).toLocaleString()}</td>
+                    <td className="py-4 px-6 text-[11px] text-slate-500 truncate max-w-[200px]" title={record.userAgent}>{record.userAgent || "Unknown"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

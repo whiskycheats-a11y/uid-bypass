@@ -2,7 +2,7 @@ import { Router } from "express";
 import { userStore, uidStore, purgeExpiredTrials, settingsStore, loginHistoryStore } from "../store";
 import { config, getApiKey } from "../config";
 import { logger } from "../lib/logger";
-import { requireAdmin } from "../middlewares/auth";
+import { requireAdmin, requireUser } from "../middlewares/auth";
 
 const router = Router();
 
@@ -45,8 +45,20 @@ async function removeUidFromExternal(uid: string): Promise<void> {
   }
 }
 
-router.get("/login-history", requireAdmin, async (_req, res) => {
-  const history = await loginHistoryStore.getRecent(100);
+router.get("/login-history", requireUser, async (req, res) => {
+  const user = (req as any).user;
+  let history = await loginHistoryStore.getRecent(100);
+  
+  if (user.role !== "admin") {
+    // Resellers only see their own history
+    history = history.filter(h => h.username === user.username);
+  } else {
+    // Admin can filter by "mine" vs "all"
+    if (req.query.mine === "true") {
+      history = history.filter(h => h.username === user.username);
+    }
+  }
+  
   res.json({ success: true, history });
 });
 

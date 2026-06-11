@@ -2218,6 +2218,7 @@ function CreateUserModal({ onClose, onCreate }: {
             </motion.form>
           )}
         </AnimatePresence>
+        </div>
       </motion.div>
     </motion.div>
   );
@@ -3521,11 +3522,14 @@ function TiltWrapper({ children, className = "" }: { children: React.ReactNode; 
 function LoginHistoryPanel() {
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewMine, setViewMine] = useState(false);
 
   useEffect(() => {
     async function fetchHistory() {
+      setLoading(true);
       try {
-        const res = await fetch(`${BASE}/api/users/login-history`, {
+        const url = viewMine ? `${BASE}/api/users/login-history?mine=true` : `${BASE}/api/users/login-history`;
+        const res = await fetch(url, {
           headers: adminHeaders()
         });
         const data = await res.json();
@@ -3539,53 +3543,62 @@ function LoginHistoryPanel() {
       }
     }
     fetchHistory();
-  }, []);
+  }, [viewMine]);
 
   return (
-    <div className="panel rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
-      <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, transparent)" }} />
-      <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.25)" }}>
-          <Clock className="w-4 h-4 text-violet-400" />
+    <div className="panel rounded-3xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.05)] ring-1 ring-white/10" style={{ background: "linear-gradient(160deg, rgba(18,14,34,0.6), rgba(8,6,18,0.8))", backdropFilter: "blur(12px)" }}>
+      <div className="h-[2px]" style={{ background: "linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, transparent)" }} />
+      <div className="px-6 py-5 border-b border-white/[0.04] flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-inner" style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.25)" }}>
+            <Clock className="w-5 h-5 text-violet-400 drop-shadow-md" />
+          </div>
+          <div>
+            <h2 className="font-bold text-base text-foreground tracking-wide">Login History</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Recent admin and user logins across the network</p>
+          </div>
         </div>
-        <div>
-          <h2 className="font-bold text-sm text-foreground">Login History</h2>
-          <p className="text-[11px] text-muted-foreground">Recent admin and user logins across the network</p>
+        <div className="flex items-center bg-black/40 rounded-xl p-1 border border-white/5 shadow-inner">
+          <button onClick={() => setViewMine(false)} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!viewMine ? "bg-white/10 text-white shadow-sm" : "text-muted-foreground hover:text-white"}`}>Network</button>
+          <button onClick={() => setViewMine(true)} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMine ? "bg-white/10 text-white shadow-sm" : "text-muted-foreground hover:text-white"}`}>My Logins</button>
         </div>
       </div>
-      <div className="p-4">
+      <div className="p-0">
         {loading ? (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex items-center justify-center py-24">
             <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
           </div>
         ) : history.length === 0 ? (
-          <div className="text-center py-10 text-slate-500 text-sm font-bold">No login history found</div>
+          <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+            <Clock className="w-12 h-12 mb-4 opacity-20" />
+            <span className="text-sm font-bold">No login history found</span>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-white/5 text-[10px] uppercase tracking-wider text-slate-500 font-bold">
-                  <th className="py-3 px-4">User</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">IP Address</th>
-                  <th className="py-3 px-4">Time</th>
-                  <th className="py-3 px-4">Device/Agent</th>
+                <tr className="border-b border-white/5 bg-white/[0.01]">
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-widest text-slate-400 font-black">User</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-widest text-slate-400 font-black">Status</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-widest text-slate-400 font-black">IP Address</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-widest text-slate-400 font-black">Time</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-widest text-slate-400 font-black">Device/Agent</th>
                 </tr>
               </thead>
               <tbody>
                 {history.map((record, i) => (
-                  <tr key={i} className="border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors text-sm text-slate-300">
-                    <td className="py-3 px-4 font-bold">{record.username}</td>
-                    <td className="py-3 px-4">
+                  <tr key={i} className="border-b border-white/[0.02] hover:bg-white/[0.04] transition-all group">
+                    <td className="py-4 px-6 font-bold text-sm text-white group-hover:text-violet-300 transition-colors">{record.username}</td>
+                    <td className="py-4 px-6">
                       {record.success ? (
-                        <span className="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">SUCCESS</span>
+                        <span className="text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]">SUCCESS</span>
                       ) : (
-                        <span className="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">FAILED</span>
+                        <span className="text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-md bg-red-500/10 text-red-400 border border-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.1)]">FAILED</span>
                       )}
                     </td>
-                    <td className="py-3 px-4 font-mono text-xs text-slate-400">{record.ip}</td>
-                    <td className="py-3 px-4 text-xs text-slate-400">{new Date(record.timestamp).toLocaleString()}</td>
-                    <td className="py-3 px-4 text-[10px] text-slate-500 truncate max-w-[200px]" title={record.userAgent}>{record.userAgent || "Unknown"}</td>
+                    <td className="py-4 px-6 font-mono text-xs text-slate-400">{record.ip}</td>
+                    <td className="py-4 px-6 text-xs text-slate-400">{new Date(record.timestamp).toLocaleString()}</td>
+                    <td className="py-4 px-6 text-[11px] text-slate-500 truncate max-w-[200px]" title={record.userAgent}>{record.userAgent || "Unknown"}</td>
                   </tr>
                 ))}
               </tbody>
