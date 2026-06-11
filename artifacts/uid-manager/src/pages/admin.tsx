@@ -196,7 +196,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 
   const form = useForm<AddUidValues>({
     resolver: zodResolver(addUidSchema),
-    defaultValues: { uid: `KEY-${rand(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")}`, name: "", days: 30, bluestack: false },
+    defaultValues: { uid: "", name: "", days: 30, bluestack: false },
   });
 
   const addMutation = useAddUid({
@@ -212,8 +212,8 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
         onSuccess: (data) => {
           if (data.success) {
             setShowSuccessBlast(true);
-            toast({ title: "Access Granted", description: `Key ${values.uid} generated successfully.` });
-            form.reset({ uid: `KEY-${rand(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")}`, name: "", days: 30, bluestack: false });
+            toast({ title: "Access Granted", description: `UID ${values.uid} whitelisted successfully.` });
+            form.reset();
             queryClient.invalidateQueries({ queryKey: getListUidsQueryKey() });
           } else {
             toast({ title: "Failed", description: (data as any).message || "Error", variant: "destructive" });
@@ -765,11 +765,11 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 
         <form onSubmit={form.handleSubmit(onSubmitUid)} className="space-y-6 relative z-10">
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Client Username</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Friendly Name</label>
             <div className="relative group">
               <Edit2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-red-500 transition-colors pointer-events-none" />
               <Input
-                placeholder="Enter client username"
+                placeholder="Enter your name"
                 className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-red-500/30 focus-visible:border-red-500/50 text-white font-bold transition-all shadow-inner"
                 {...form.register("name")}
               />
@@ -780,12 +780,12 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Auto-Generated Key</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Player UID</label>
             <div className="relative group">
-              <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-red-500 transition-colors pointer-events-none" />
+              <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-red-500 transition-colors pointer-events-none" />
               <Input
-                readOnly
-                className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 text-slate-400 font-mono font-bold transition-all shadow-inner cursor-not-allowed"
+                placeholder="Enter UID number..."
+                className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-red-500/30 focus-visible:border-red-500/50 text-white font-bold transition-all shadow-inner"
                 {...form.register("uid")}
               />
             </div>
@@ -811,6 +811,20 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             )}
           </div>
 
+          <div className="flex items-center justify-between p-5 rounded-2xl bg-black/30 border border-white/10 group hover:border-red-500/30 hover:bg-black/50 transition-all shadow-inner">
+            <div>
+              <div className="flex items-center gap-2 text-sm font-black text-white">
+                <Activity className="w-4 h-4 text-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]" />
+                BlueStack Protocol
+              </div>
+              <div className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Emulator Routing</div>
+            </div>
+            <Switch
+              checked={form.watch("bluestack")}
+              onCheckedChange={(v) => form.setValue("bluestack", v)}
+              className="data-[state=checked]:bg-red-500 data-[state=checked]:shadow-[0_0_15px_rgba(239,68,68,0.5)]"
+            />
+          </div>
 
           <motion.button
             type="submit"
@@ -2102,7 +2116,7 @@ function CreateUserModal({ onClose, onCreate }: {
   onCreate: (user: ClientUser) => void;
 }) {
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState(() => `KEY-${rand(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")}`);
   const [days, setDays] = useState(30);
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -2164,7 +2178,7 @@ function CreateUserModal({ onClose, onCreate }: {
           ) : (
             <motion.form key="form" onSubmit={handleCreate} className="space-y-4">
               {[
-                { label: "Username", value: username, onChange: setUsername, type: "text", placeholder: "client-username", icon: <UserIcon className="w-4 h-4" /> },
+                { label: "Client Username", value: username, onChange: setUsername, type: "text", placeholder: "Enter client username", icon: <UserIcon className="w-4 h-4" /> },
               ].map((f) => (
                 <div key={f.label} className="space-y-1.5">
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{f.label}</label>
@@ -2176,14 +2190,11 @@ function CreateUserModal({ onClose, onCreate }: {
               ))}
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Password</label>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Auto-Generated Password</label>
                 <div className="relative group">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-violet-400 transition-colors" />
-                  <input type={showPass ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Strong password"
-                    className="w-full h-11 pl-10 pr-12 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-violet-500/50 focus:shadow-[0_0_0_3px_rgba(139,92,246,0.1)] transition-all" />
-                  <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1">
-                    {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+                  <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-violet-400 transition-colors" />
+                  <input type="text" readOnly value={password}
+                    className="w-full h-11 pl-10 pr-4 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-slate-400 font-mono cursor-not-allowed focus:outline-none focus:border-violet-500/50 focus:shadow-[0_0_0_3px_rgba(139,92,246,0.1)] transition-all" />
                 </div>
               </div>
 
