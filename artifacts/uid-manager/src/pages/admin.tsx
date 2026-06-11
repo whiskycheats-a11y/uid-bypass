@@ -2146,12 +2146,15 @@ function CreateUserModal({ onClose, onCreate }: {
       style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(16px)" }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <motion.div initial={{ opacity: 0, scale: 0.88, y: 28 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.92, y: 16 }}
-        transition={{ type: "spring", stiffness: 220, damping: 24 }}
-        className="w-full max-w-md relative rounded-2xl p-6 overflow-hidden"
-        style={{ background: "rgba(8,6,22,0.97)", border: "1px solid rgba(139,92,246,0.28)", backdropFilter: "blur(30px)" }}
+      <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-md relative rounded-3xl p-7 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_0_0_1px_rgba(255,255,255,0.05)] overflow-hidden"
+        style={{ background: "linear-gradient(160deg, rgba(18,14,34,0.98), rgba(8,6,18,0.98))", backdropFilter: "blur(12px)" }}
       >
-        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, transparent)" }} />
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-violet-500/60 to-transparent" />
+        <div className="absolute -top-32 -left-32 w-64 h-64 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "rgba(139,92,246,0.18)", border: "1px solid rgba(139,92,246,0.3)" }}>
@@ -2162,7 +2165,7 @@ function CreateUserModal({ onClose, onCreate }: {
               <p className="text-[11px] text-muted-foreground">Full access to UID manager</p>
             </div>
           </div>
-          <button onClick={onClose} className="icon-btn p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 border border-white/5 text-muted-foreground hover:text-white hover:bg-white/10 transition-all shadow-sm">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -2182,19 +2185,19 @@ function CreateUserModal({ onClose, onCreate }: {
               ].map((f) => (
                 <div key={f.label} className="space-y-1.5">
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{f.label}</label>
-                  <div className="relative group">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-violet-400 transition-colors">{f.icon}</span>
-                    <input type={f.type} value={f.value} onChange={(e) => f.onChange(e.target.value)} placeholder={f.placeholder} className="w-full h-11 pl-10 pr-4 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-violet-500/50 focus:shadow-[0_0_0_3px_rgba(139,92,246,0.1)] transition-all" />
+                  <div className="relative group shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] rounded-xl">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-violet-400 transition-colors">{f.icon}</span>
+                    <input type={f.type} value={f.value} onChange={(e) => f.onChange(e.target.value)} placeholder={f.placeholder} className="w-full h-12 pl-12 pr-4 rounded-xl bg-black/40 border border-white/5 text-sm text-white font-medium placeholder:text-muted-foreground/40 focus:outline-none focus:border-violet-500/40 focus:bg-black/60 focus:ring-1 focus:ring-violet-500/40 transition-all" />
                   </div>
                 </div>
               ))}
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Auto-Generated Password</label>
-                <div className="relative group">
-                  <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-violet-400 transition-colors" />
+                <div className="relative group shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] rounded-xl">
+                  <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-violet-400 transition-colors" />
                   <input type="text" readOnly value={password}
-                    className="w-full h-11 pl-10 pr-4 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-slate-400 font-mono cursor-not-allowed focus:outline-none focus:border-violet-500/50 focus:shadow-[0_0_0_3px_rgba(139,92,246,0.1)] transition-all" />
+                    className="w-full h-12 pl-12 pr-4 rounded-xl bg-black/40 border border-white/5 text-sm text-slate-300 font-mono cursor-not-allowed focus:outline-none focus:border-violet-500/40 focus:ring-1 focus:ring-violet-500/40 transition-all" />
                 </div>
               </div>
 
@@ -2202,14 +2205,14 @@ function CreateUserModal({ onClose, onCreate }: {
 
               {error && <div className="flex items-center gap-2 text-red-400 text-xs px-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20"><X className="w-3.5 h-3.5 shrink-0" />{error}</div>}
 
-              <div className="flex gap-2 pt-1">
-                <button type="button" onClick={onClose} className="flex-1 h-11 rounded-xl border border-white/[0.07] text-xs text-muted-foreground hover:text-foreground hover:bg-white/[0.04] transition-all font-semibold">Cancel</button>
-                <motion.button type="submit" disabled={loading || !username || !password} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                  className="flex-1 h-11 rounded-xl text-white text-xs font-bold flex items-center justify-center gap-2 disabled:opacity-50 relative overflow-hidden"
-                  style={{ background: "linear-gradient(135deg, #8b5cf6, #06b6d4)", boxShadow: "0 0 20px rgba(139,92,246,0.3)" }}
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={onClose} className="flex-1 h-12 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-300 hover:text-white hover:bg-white/10 transition-all font-semibold shadow-sm">Cancel</button>
+                <motion.button type="submit" disabled={loading || !username || !password} whileHover={{ scale: 1.02, y: -1 }} whileTap={{ scale: 0.98, y: 1 }}
+                  className="flex-1 h-12 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 relative overflow-hidden transition-all shadow-[0_8px_20px_-6px_rgba(139,92,246,0.5)] border border-white/10"
+                  style={{ background: "linear-gradient(135deg, #7c3aed, #0891b2)" }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/12 to-transparent -skew-x-12 btn-shimmer" />
-                  {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Zap className="w-3.5 h-3.5" />Create</>}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 btn-shimmer" />
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin relative z-10" /> : <><Zap className="w-4 h-4 relative z-10" /><span className="relative z-10 drop-shadow-md">Create Client</span></>}
                 </motion.button>
               </div>
             </motion.form>
