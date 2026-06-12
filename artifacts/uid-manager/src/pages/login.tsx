@@ -422,15 +422,19 @@ export default function Login({ onLogin }: LoginProps) {
             transition={{ duration: 0.7 }}
             className="flex items-center gap-6"
           >
-            <div className="hidden items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/[0.05] px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.1)] sm:flex">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="hidden items-center gap-2.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.15)] backdrop-blur-md sm:flex transition-all hover:bg-emerald-500/20 hover:border-emerald-500/50 cursor-default">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_10px_#10b981]"></span>
+              </span>
               Network Live
             </div>
             <button
               onClick={() => { setError(""); setTrialToken(""); setPlayerUid(""); setClaimSuccess(false); setUsername(""); setPassword(""); setShowLogin(!showLogin); }}
-              className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-2.5 text-xs font-black uppercase tracking-[0.2em] text-white hover:bg-white/[0.1] hover:shadow-[0_0_20px_rgba(124,58,237,0.2)] hover:border-violet-500/30 active:scale-95 transition-all cursor-pointer backdrop-blur-md"
+              className="relative overflow-hidden group flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-8 py-2.5 text-[10px] font-black uppercase tracking-[0.25em] text-white hover:bg-white/[0.1] hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(0,212,255,0.4)] hover:text-cyan-100 active:scale-95 transition-all duration-300 cursor-pointer backdrop-blur-xl"
             >
-              {showLogin ? "← Return" : "Portal"}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700 ease-in-out" />
+              <span className="relative z-10">{showLogin ? "← Return" : "Portal"}</span>
             </button>
           </motion.div>
         </div>

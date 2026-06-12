@@ -648,7 +648,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`neo-glass rounded-[2.5rem] overflow-hidden relative shadow-2xl bg-black/30 backdrop-blur-3xl ${showFull ? 'h-full' : ''}`}
+        className={`neo-glass rounded-[2.5rem] overflow-hidden relative shadow-2xl bg-black/30 backdrop-blur-xl ${showFull ? 'h-full' : ''}`}
       >
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-black/20 gap-4">
           <div className="flex items-center gap-3">
@@ -753,7 +753,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       animate={{ opacity: 1, scale: 1 }}
       className="max-w-xl mx-auto"
     >
-      <div className="neo-glass rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl glow-border bg-black/30 backdrop-blur-3xl">
+      <div className="neo-glass rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl glow-border bg-black/30 backdrop-blur-xl">
         <SuccessAnimation active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
         <div className="flex items-center gap-3 mb-2 relative z-10">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.3)] border border-red-500/30" style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.2), rgba(0,0,0,0.1))" }}>
@@ -865,7 +865,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             animate={{ x: 0 }}
             exit={{ x: -280 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed left-0 top-0 bottom-0 w-72 bg-black/40 backdrop-blur-3xl border-r border-white/5 flex flex-col z-[70] shadow-[10px_0_30px_rgba(0,0,0,0.8)] lg:hidden"
+            className="fixed left-0 top-0 bottom-0 w-72 bg-black/40 backdrop-blur-xl border-r border-white/5 flex flex-col z-[70] shadow-[10px_0_30px_rgba(0,0,0,0.8)] lg:hidden"
           >
             <div className="h-20 flex items-center justify-between px-6 border-b border-white/5">
               <div className="flex items-center gap-3">
@@ -1210,6 +1210,18 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           );
         })}
       </nav>
+
+      {/* Floating Team Chat Button */}
+      <button
+        onClick={() => setActiveSidebarTab("chat")}
+        className="fixed bottom-6 right-6 z-[100] group flex items-center justify-center w-14 h-14 rounded-full bg-black/50 border border-violet-500/50 shadow-[0_0_20px_rgba(124,58,237,0.3)] backdrop-blur-xl hover:bg-violet-600/40 hover:scale-110 hover:border-cyan-400/50 hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] active:scale-95 transition-all duration-300"
+      >
+        <MessageSquare className="w-6 h-6 text-violet-300 group-hover:text-cyan-300 transition-colors" />
+        <span className="absolute top-0 right-0 flex h-3.5 w-3.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)] border-2 border-black/50"></span>
+        </span>
+      </button>
     </div>
   );
 }
@@ -1225,7 +1237,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     onHwidReset: (username: string) => void;
   }) {
     return (
-      <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-3xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, transparent)" }} />
         <div className="px-5 py-4 flex items-center justify-between border-b border-white/[0.04]">
           <div className="flex items-center gap-3">
@@ -1376,7 +1388,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
   return (
     <div className="space-y-4">
       {/* Generator card */}
-      <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-3xl shadow-2xl" style={{ border: "1px solid rgba(245,158,11,0.15)" }}>
+      <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(245,158,11,0.15)" }}>
         <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #f59e0b, #ef4444, transparent)" }} />
         <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.25)" }}>
@@ -1496,7 +1508,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
       </div>
 
       {/* Generated Tokens List */}
-      <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-3xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
+      <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
         <div className="px-5 py-4 border-b border-white/[0.04] bg-black/20 flex items-center justify-between">
           <h2 className="font-bold text-sm text-foreground">Generated Trial Links</h2>
           <span className="text-[10px] bg-white/10 px-2 py-1 rounded-lg text-slate-300">{tokens.length} Links</span>
@@ -1552,7 +1564,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
 
       {/* Active trials list */}
       {trials.length > 0 && (
-        <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-3xl shadow-2xl" style={{ border: "1px solid rgba(245,158,11,0.1)" }}>
+        <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(245,158,11,0.1)" }}>
           <div className="px-5 py-3 border-b border-white/[0.04] flex items-center gap-2">
             <Timer className="w-4 h-4 text-amber-400" />
             <span className="text-sm font-bold text-foreground">Active Trials</span>
@@ -1772,7 +1784,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ type: "spring", stiffness: 240, damping: 26 }}
-        className="w-full max-w-lg relative rounded-[2.5rem] p-6 sm:p-8 overflow-hidden bg-black/40 backdrop-blur-3xl"
+        className="w-full max-w-lg relative rounded-[2.5rem] p-6 sm:p-8 overflow-hidden bg-black/40 backdrop-blur-xl"
         style={{
           border: `1px solid ${
             creditMode === "add"
@@ -2142,7 +2154,7 @@ function CreateUserModal({ onClose, onCreate }: {
     >
       <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md relative rounded-[2.5rem] p-7 shadow-2xl overflow-hidden bg-black/40 backdrop-blur-3xl"
+        className="w-full max-w-md relative rounded-[2.5rem] p-7 shadow-2xl overflow-hidden bg-black/40 backdrop-blur-xl"
         style={{ backdropFilter: "blur(24px)" }}
       >
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-violet-500/60 to-transparent" />
@@ -2362,7 +2374,7 @@ function SettingsPanel() {
   return (
     <div className="space-y-4">
       {/* API Config card */}
-      <div className="rounded-3xl overflow-hidden bg-black/30 backdrop-blur-3xl shadow-2xl" style={{ border: "1px solid rgba(6,182,212,0.15)" }}>
+      <div className="rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(6,182,212,0.15)" }}>
         <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #06b6d4, #10b981, transparent)" }} />
         <div className="px-5 py-4 flex items-center gap-3 border-b border-white/[0.04]">
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(6,182,212,0.15)", border: "1px solid rgba(6,182,212,0.25)" }}>
@@ -2436,7 +2448,7 @@ function SettingsPanel() {
       </div>
 
       {/* Duration info card */}
-      <div className="rounded-3xl overflow-hidden bg-black/30 backdrop-blur-3xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="px-5 py-4 border-b border-white/[0.04]">
           <h3 className="font-bold text-sm text-foreground">Allowed Duration Values</h3>
           <p className="text-[11px] text-muted-foreground mt-0.5">The external API accepts these exact hour values</p>
@@ -3540,59 +3552,70 @@ function LoginHistoryPanel() {
   }, [viewMine]);
 
   return (
-    <div className="panel rounded-3xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.05)] ring-1 ring-white/10" style={{ background: "linear-gradient(160deg, rgba(18,14,34,0.6), rgba(8,6,18,0.8))", backdropFilter: "blur(12px)" }}>
-      <div className="h-[2px]" style={{ background: "linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, transparent)" }} />
-      <div className="px-6 py-5 border-b border-white/[0.04] flex items-center justify-between">
+    <div className="neo-glass rounded-3xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.6)] glow-border">
+      <div className="px-6 py-6 border-b border-white/[0.04] flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-inner" style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.25)" }}>
-            <Clock className="w-5 h-5 text-violet-400 drop-shadow-md" />
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/[0.03] border border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.05)]">
+            <Clock className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
           </div>
           <div>
-            <h2 className="font-bold text-base text-foreground tracking-wide">Login History</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Recent admin and user logins across the network</p>
+            <h2 className="font-black text-lg tracking-wider text-white uppercase">Login History</h2>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Network Access Logs</p>
           </div>
         </div>
-        <div className="flex items-center bg-black/40 rounded-xl p-1 border border-white/5 shadow-inner">
-          <button onClick={() => setViewMine(false)} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!viewMine ? "bg-white/10 text-white shadow-sm" : "text-muted-foreground hover:text-white"}`}>Network</button>
-          <button onClick={() => setViewMine(true)} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMine ? "bg-white/10 text-white shadow-sm" : "text-muted-foreground hover:text-white"}`}>My Logins</button>
+        <div className="flex items-center bg-black/40 rounded-xl p-1 border border-white/5 shadow-inner backdrop-blur-md">
+          <button onClick={() => setViewMine(false)} className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${!viewMine ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.2)]" : "text-slate-500 hover:text-white border border-transparent"}`}>Network</button>
+          <button onClick={() => setViewMine(true)} className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${viewMine ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.2)]" : "text-slate-500 hover:text-white border border-transparent"}`}>My Logins</button>
         </div>
       </div>
       <div className="p-0">
         {loading ? (
           <div className="flex items-center justify-center py-24">
-            <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+            <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
           </div>
         ) : history.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-500">
             <Clock className="w-12 h-12 mb-4 opacity-20" />
-            <span className="text-sm font-bold">No login history found</span>
+            <span className="text-sm font-bold uppercase tracking-widest">No Logs Found</span>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-white/5 bg-white/[0.01]">
-                  <th className="py-4 px-6 text-[10px] uppercase tracking-widest text-slate-400 font-black">User</th>
-                  <th className="py-4 px-6 text-[10px] uppercase tracking-widest text-slate-400 font-black">Status</th>
-                  <th className="py-4 px-6 text-[10px] uppercase tracking-widest text-slate-400 font-black">IP Address</th>
-                  <th className="py-4 px-6 text-[10px] uppercase tracking-widest text-slate-400 font-black">Time</th>
-                  <th className="py-4 px-6 text-[10px] uppercase tracking-widest text-slate-400 font-black">Device/Agent</th>
+                <tr className="border-b border-white/10 bg-black/40">
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-cyan-400 font-black">User</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-cyan-400 font-black">Status</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-cyan-400 font-black">IP Address</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-cyan-400 font-black">Time</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-cyan-400 font-black">Device/Agent</th>
                 </tr>
               </thead>
               <tbody>
                 {history.map((record, i) => (
-                  <tr key={i} className="border-b border-white/[0.02] hover:bg-white/[0.04] transition-all group">
-                    <td className="py-4 px-6 font-bold text-sm text-white group-hover:text-violet-300 transition-colors">{record.username}</td>
+                  <tr key={i} className="border-b border-white/[0.03] hover:bg-white/[0.05] transition-all group">
+                    <td className="py-4 px-6 font-black text-sm text-white group-hover:text-cyan-300 transition-colors drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]">{record.username}</td>
                     <td className="py-4 px-6">
                       {record.success ? (
-                        <span className="text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]">SUCCESS</span>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                          <span className="relative flex h-1.5 w-1.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                          </span>
+                          SUCCESS
+                        </div>
                       ) : (
-                        <span className="text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-md bg-red-500/10 text-red-400 border border-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.1)]">FAILED</span>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-red-300 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                          <span className="relative flex h-1.5 w-1.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
+                          </span>
+                          FAILED
+                        </div>
                       )}
                     </td>
-                    <td className="py-4 px-6 font-mono text-xs text-slate-400">{record.ip}</td>
-                    <td className="py-4 px-6 text-xs text-slate-400">{new Date(record.timestamp).toLocaleString()}</td>
-                    <td className="py-4 px-6 text-[11px] text-slate-500 truncate max-w-[200px]" title={record.userAgent}>{record.userAgent || "Unknown"}</td>
+                    <td className="py-4 px-6 font-mono text-xs text-slate-300 group-hover:text-white transition-colors">{record.ip}</td>
+                    <td className="py-4 px-6 text-xs font-medium text-slate-400 group-hover:text-slate-300">{new Date(record.timestamp).toLocaleString()}</td>
+                    <td className="py-4 px-6 text-[10px] text-slate-500 truncate max-w-[200px]" title={record.userAgent}>{record.userAgent || "Unknown"}</td>
                   </tr>
                 ))}
               </tbody>

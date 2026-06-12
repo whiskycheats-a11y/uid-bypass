@@ -29,10 +29,10 @@ function MeshGradientBackground() {
   useFrame((_, dt) => {
     const cl = Math.min(dt, 0.05);
     springStep(cl);
-    
+
     // Smooth scroll velocity decay
     scroll.v *= Math.exp(-4.0 * cl);
-    
+
     // Time progresses faster if we scroll, for dynamic interactivity
     u.uTime.value += cl * (0.15 + Math.abs(scroll.v) * 0.5);
     u.uMouse.value.copy(mouse.current);
@@ -119,25 +119,25 @@ export default function App() {
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true));
-    
+
     const onM = (e: MouseEvent) => {
       mouse.target.x = (e.clientX / window.innerWidth) * 2 - 1;
       mouse.target.y = -(e.clientY / window.innerHeight) * 2 + 1;
     };
-    
+
     const onT = (e: TouchEvent) => {
-      const t = e.touches[0]; 
+      const t = e.touches[0];
       if (!t) return;
       mouse.target.x = (t.clientX / window.innerWidth) * 2 - 1;
       mouse.target.y = -(t.clientY / window.innerHeight) * 2 + 1;
     };
-    
+
     const onScroll = () => {
       const y = window.scrollY;
       scroll.v = Math.max(-2, Math.min(2, (y - scroll.y) * 0.012));
       scroll.y = y;
     };
-    
+
     const onVis = () => setPaused(document.hidden);
 
     scroll.y = window.scrollY;
@@ -145,7 +145,7 @@ export default function App() {
     window.addEventListener("touchmove", onT, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("visibilitychange", onVis);
-    
+
     return () => {
       window.removeEventListener("mousemove", onM);
       window.removeEventListener("touchmove", onT);
