@@ -17,7 +17,6 @@ import {
   Zap,
   Users,
   Monitor,
-  CheckCircle2,
   XCircle,
   Loader2,
   Plus,
@@ -32,18 +31,11 @@ import {
   CheckCheck,
   Timer,
   Coins,
-  Wallet,
-  QrCode,
-  SendHorizonal,
   LayoutDashboard,
   BarChart2,
-  Settings,
-  Database,
   Trash2,
   Users2,
   Globe,
-  Code,
-  Server,
   MessageSquare,
   UserCircle,
   Camera,
@@ -55,22 +47,9 @@ import {
   KeyRound,
   Lock,
   Send,
-  Menu,
   X,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-
-function rand(len: number, chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789") {
-  return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
-}
-
-function getResellerKey(): string {
-  try {
-    const raw = sessionStorage.getItem("uid_auth");
-    if (!raw) return "";
-    return JSON.parse(raw).adminKey ?? "";
-  } catch { return ""; }
-}
 
 const DURATION_OPTIONS = [
   { label: "24 Hours", days: 1, price: "$0.50", tokens: 10 },
@@ -87,59 +66,6 @@ const addUidSchema = z.object({
   name: z.string().min(1, "Name is required").default(""),
 });
 type AddUidValues = z.infer<typeof addUidSchema>;
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  gradFrom,
-  gradTo,
-  delay,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: number | string;
-  gradFrom: string;
-  gradTo: string;
-  delay: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, type: "spring", stiffness: 200, damping: 22 }}
-      whileHover={{ y: -4, scale: 1.02 }}
-      className="argus-glass rounded-2xl p-4 sm:p-6 relative overflow-hidden cursor-default group"
-    >
-      <div className="scanline" />
-      <div
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-2xl"
-        style={{ background: `linear-gradient(135deg, ${gradFrom}20, ${gradTo}10)` }}
-      />
-      <div
-        className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{ background: `linear-gradient(90deg, transparent, ${gradFrom}, transparent)` }}
-      />
-      <div className="relative z-10 flex items-start justify-between">
-        <div>
-          <div
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center mb-3 sm:mb-4 shadow-[0_0_15px_rgba(0,0,0,0.5)] group-hover:shadow-[0_0_20px_var(--glow)] transition-shadow"
-            style={{ 
-              background: `linear-gradient(135deg, ${gradFrom}30, ${gradTo}20)`, 
-              border: `1px solid ${gradFrom}50`,
-              '--glow': gradFrom 
-            } as any}
-          >
-            <Icon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: gradFrom, filter: `drop-shadow(0 0 5px ${gradFrom})` }} />
-          </div>
-          <div className="text-3xl sm:text-4xl font-black text-white tracking-tight drop-shadow-md">{value}</div>
-          <div className="text-[10px] sm:text-[11px] font-black text-slate-400 mt-1 uppercase tracking-[0.2em]">{label}</div>
-        </div>
-        <div className="absolute -bottom-4 -right-4 w-24 h-24 rounded-full blur-[30px] opacity-10 group-hover:opacity-30 transition-opacity duration-700 pointer-events-none" style={{ background: gradFrom }} />
-      </div>
-    </motion.div>
-  );
-}
 
 function OverviewStatCard({
   label,
@@ -168,7 +94,7 @@ function OverviewStatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, type: "spring", stiffness: 200, damping: 22 }}
       whileHover={{ y: -4, scale: 1.02 }}
-      className="neo-glass glow-border rounded-[2rem] p-6 sm:p-7 relative overflow-hidden cursor-default group flex items-center justify-between bg-black/40 shadow-xl"
+      className="neo-glass glow-border rounded-[2rem] p-6 sm:p-7 relative overflow-hidden cursor-default group flex items-center justify-between shadow-xl"
     >
       <div className="scanline" />
       <div
@@ -202,7 +128,7 @@ function OverviewStatCard({
               strokeLinejoin="round"
               initial={{ pathLength: 0 }}
               animate={{ pathLength: 1 }}
-              transition={{ duration: 2.5, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.5 }}
+              transition={{ duration: 2, ease: "easeInOut" }}
             />
           </svg>
         </div>
@@ -418,7 +344,7 @@ function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete:
 
 function TiltWrapper({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const raf = useRef<number | null>(null);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = ref.current;
@@ -426,10 +352,23 @@ function TiltWrapper({ children, className = "" }: { children: React.ReactNode; 
     const rect = el.getBoundingClientRect();
     const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
     const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
-    setTilt({ x: dy * -6, y: dx * 6 });
+    const tiltX = dy * -6;
+    const tiltY = dx * 6;
+
+    if (raf.current) cancelAnimationFrame(raf.current);
+    raf.current = requestAnimationFrame(() => {
+      if (ref.current) {
+        ref.current.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+      }
+    });
   };
 
-  const handleMouseLeave = () => setTilt({ x: 0, y: 0 });
+  const handleMouseLeave = () => {
+    if (raf.current) cancelAnimationFrame(raf.current);
+    if (ref.current) {
+      ref.current.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+    }
+  };
 
   return (
     <div
@@ -438,29 +377,13 @@ function TiltWrapper({ children, className = "" }: { children: React.ReactNode; 
       onMouseLeave={handleMouseLeave}
       className={className}
       style={{
-        transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
         transformStyle: "preserve-3d",
         transition: "transform 0.25s ease-out",
+        willChange: "transform"
       }}
     >
       {children}
     </div>
-  );
-}
-
-function PlaceholderView({ title, description, icon: Icon }: { title: string; description: string; icon: React.ElementType }) {
-  return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="flex flex-col items-center justify-center p-20 text-center opacity-70 argus-glass rounded-3xl"
-    >
-      <div className="w-24 h-24 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(255,255,255,0.05)]">
-        <Icon className="w-12 h-12 text-slate-400 drop-shadow-md" />
-      </div>
-      <h2 className="text-3xl font-black text-white mb-3 tracking-tight">{title}</h2>
-      <p className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">{description}</p>
-    </motion.div>
   );
 }
 
@@ -495,22 +418,22 @@ function ResellerTrialPanel({ username }: { username: string }) {
 
   useEffect(() => {
     fetchTokens();
-  }, [username]);
+  }, []);
 
-  const handleDeleteToken = async (token: string) => {
-    if (!confirm("Are you sure you want to delete this trial link? All associated UIDs will be permanently revoked!")) return;
+  const [tokenToDelete, setTokenToDelete] = useState<string | null>(null);
+
+  const executeDelete = async (token: string) => {
     try {
-      const res = await apiFetch(`${BASE}/api/reseller/trial-token/${token}`, {
-        method: "DELETE",
-      });
+      const res = await apiFetch(`${BASE}/api/reseller/trial-token/${token}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) {
         fetchTokens();
       } else {
-        alert(data.message || "Failed to delete");
+        toast({ title: "Failed", description: data.message || "Failed to delete", variant: "destructive" });
       }
     } catch (err) {
       console.error("Failed to delete token", err);
+      toast({ title: "Error", description: "Failed to delete token", variant: "destructive" });
     }
   };
 
@@ -560,12 +483,9 @@ function ResellerTrialPanel({ username }: { username: string }) {
     setError("");
     setLoading(true);
     try {
-      const resellerKey = getResellerKey();
       const res = await apiFetch(`${BASE}/api/reseller/trial-token`, {
         method: "POST",
         body: JSON.stringify({
-          username,
-          password: resellerKey,
           days,
           serverName: serverName.trim() || undefined,
         }),
@@ -587,7 +507,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
 
   return (
     <div className="max-w-xl mx-auto space-y-4">
-      <div className="panel rounded-[2rem] overflow-hidden argus-glass text-left border border-white/5" style={{ background: "rgba(255,255,255,0.02)" }}>
+      <div className="panel rounded-[2rem] overflow-hidden argus-glass text-left border border-white/5">
         <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #fbbf24, #ef4444, transparent)" }} />
         <div className="px-6 py-5 border-b border-white/[0.04] flex items-center gap-3 bg-black/20">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-500/10 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
@@ -728,7 +648,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
       </div>
 
       {/* Generated Tokens List */}
-      <div className="panel rounded-[2rem] overflow-hidden argus-glass text-left border border-white/5" style={{ background: "rgba(255,255,255,0.02)" }}>
+      <div className="panel rounded-[2rem] overflow-hidden argus-glass text-left border border-white/5">
         <div className="px-6 py-5 border-b border-white/[0.04] bg-black/20">
           <h2 className="font-black text-base text-white tracking-wide flex items-center justify-between">
             <span>Generated Trial Links</span>
@@ -767,9 +687,17 @@ function ResellerTrialPanel({ username }: { username: string }) {
                       }} className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 transition-colors" title="Copy Link">
                       <Copy className="w-4 h-4" />
                     </button>
-                    <button onClick={() => handleDeleteToken(t.token)} className="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 transition-colors" title="Revoke & Delete">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {tokenToDelete === t.token ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-red-400 font-bold uppercase">Confirm?</span>
+                        <button onClick={() => { setTokenToDelete(null); executeDelete(t.token); }} className="p-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-colors">Yes</button>
+                        <button onClick={() => setTokenToDelete(null)} className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 transition-colors">No</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setTokenToDelete(t.token)} className="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 transition-colors" title="Revoke & Delete">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -836,9 +764,8 @@ function UserProfilePanel({
     }
     setUpdatingKey(true);
     try {
-      const res = await fetch(`${BASE}/api/auth/update-key`, {
+      const res = await apiFetch(`${BASE}/api/auth/update-key`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, currentPassword, newPassword }),
       });
       const data = await res.json();
@@ -863,8 +790,29 @@ function UserProfilePanel({
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64 = reader.result as string;
-        setTempAvatar(base64);
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > 128) {
+              height = Math.round((height * 128) / width);
+              width = 128;
+            }
+          } else {
+            if (height > 128) {
+              width = Math.round((width * 128) / height);
+              height = 128;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+          setTempAvatar(canvas.toDataURL("image/jpeg", 0.8));
+        };
+        img.src = reader.result as string;
       };
       reader.readAsDataURL(file);
     }
@@ -1050,7 +998,7 @@ function LeaderboardView() {
     if (isManual) setRefreshing(true);
     else setLoading(true);
     try {
-      const res = await fetch(`${BASE}/api/uid/leaderboard`);
+      const res = await apiFetch(`${BASE}/api/uid/leaderboard`);
       const json = await res.json();
       if (json.success) {
         setData(json.leaderboard || []);
@@ -1080,8 +1028,6 @@ function LeaderboardView() {
   const top1 = data[0];
   const top2 = data[1];
   const top3 = data[2];
-  const rest = data.slice(3);
-
   return (
     <div className="space-y-10">
       {/* Title & Refresh */}
@@ -1409,14 +1355,13 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const prevCountRef = useRef(0);
 
   const fetchMessages = async (showLoading = false) => {
     if (showLoading) setLoading(true);
     try {
-      const res = await fetch(`${BASE}/api/chat`, {
-        headers: userHeaders(),
-      });
+      const res = await apiFetch(`${BASE}/api/chat`);
       const data = await res.json();
       if (data.success) {
         setMessages(data.messages || []);
@@ -1433,15 +1378,19 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
     
     // Poll for new messages every 3 seconds
     const interval = setInterval(() => {
-      fetchMessages(false);
+      if (!document.hidden) fetchMessages(false);
     }, 3000);
 
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    // Scroll to bottom on load/new message
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messages.length > prevCountRef.current) {
+      if (containerRef.current) {
+        containerRef.current.scrollTop = containerRef.current.scrollHeight;
+      }
+    }
+    prevCountRef.current = messages.length;
   }, [messages]);
 
   const handleSend = async (e: React.FormEvent) => {
@@ -1453,17 +1402,13 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
     setSending(true);
 
     try {
-      const res = await fetch(`${BASE}/api/chat`, {
+      const res = await apiFetch(`${BASE}/api/chat`, {
         method: "POST",
-        headers: {
-          ...userHeaders(),
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({ message: payloadText }),
       });
       const data = await res.json();
       if (data.success) {
-        setMessages((prev) => [...prev, data.chat]);
+        setMessages((prev) => prev.some((m) => m._id === data.chat._id) ? prev : [...prev, data.chat]);
       }
     } catch (err) {
       console.error("Failed to send message:", err);
@@ -1503,7 +1448,7 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
       </div>
 
       {/* Messages Stream */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-black/10">
+      <div ref={containerRef} className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-black/10">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
             <MessageSquare className="w-12 h-12 text-slate-500 mb-4" />
@@ -1559,7 +1504,7 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
             );
           })
         )}
-        <div ref={messagesEndRef} />
+        {/* removed messagesEndRef */}
       </div>
 
       {/* Input Tray */}
@@ -1600,6 +1545,44 @@ const SIDEBAR_NAV = [
   { id: "profile", label: "My Profile", icon: UserCircle },
 ];
 
+function SidebarContent({ activeSidebarTab, setActiveSidebarTab, canResell, onLogout, onCloseMobile }: { activeSidebarTab: string, setActiveSidebarTab: (id: string) => void, canResell: boolean, onLogout: () => void, onCloseMobile?: () => void }) {
+  return (
+    <>
+      <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1.5 custom-scrollbar">
+        {SIDEBAR_NAV.map((nav) => {
+          const Icon = nav.icon;
+          const active = activeSidebarTab === nav.id;
+          if (nav.id === "free" && !canResell) return null;
+          return (
+            <button
+              key={nav.id}
+              onClick={() => { setActiveSidebarTab(nav.id); onCloseMobile?.(); }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
+                ${active 
+                  ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.02)] relative" 
+                  : "text-slate-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}
+              `}
+            >
+              <Icon className={`w-4.5 h-4.5 ${active ? "text-cyan-400" : "text-slate-500"}`} />
+              <span>{nav.label}</span>
+              {active && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />}
+            </button>
+          );
+        })}
+      </div>
+      <div className="p-4 border-t border-white/5">
+        <button
+          onClick={onLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all font-semibold text-sm"
+        >
+          <LogOut className="w-4.5 h-4.5" />
+          <span>Logout</span>
+        </button>
+      </div>
+    </>
+  );
+}
+
 export default function Dashboard({ username, defaultDays = 30, isTrial = false, canResell = false, onLogout }: DashboardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -1607,7 +1590,6 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   const [uidSearchQuery, setUidSearchQuery] = useState("");
   const [removingUid, setRemovingUid] = useState<string | null>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
-  const [showTrialMessage, setShowTrialMessage] = useState(false);
   const [balance, setBalance] = useState<number | null>(null);
   const [showSuccessBlast, setShowSuccessBlast] = useState(false);
   const [profileData, setProfileData] = useState({ displayName: username || "Guest", avatarBase64: "" });
@@ -1616,7 +1598,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
-    fetch(`${BASE}/api/settings/notice`)
+    apiFetch(`${BASE}/api/settings/notice`)
       .then(r => r.json())
       .then(d => {
         if (d.success && d.noticeText) {
@@ -1639,7 +1621,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
       });
 
       // 2. Fetch fresh details from MongoDB database
-      fetch(`${BASE}/api/auth/profile/${encodeURIComponent(username)}`)
+      apiFetch(`${BASE}/api/auth/profile/${encodeURIComponent(username)}`)
         .then((r) => r.json())
         .then((d) => {
           if (d.success) {
@@ -1661,7 +1643,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
 
   useEffect(() => {
     if (isTrial || !username) return;
-    fetch(`${BASE}/api/credits/me`, { headers: userHeaders() })
+    apiFetch(`${BASE}/api/credits/me`)
       .then(r => r.json())
       .then(d => { if (d.success) setBalance(d.balance); })
       .catch(() => { });
@@ -1695,9 +1677,8 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
 
   const handleUpdateProfile = (name: string, avatar: string) => {
     setProfileData({ displayName: name, avatarBase64: avatar });
-    fetch(`${BASE}/api/auth/profile`, {
+    apiFetch(`${BASE}/api/auth/profile`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, displayName: name, avatar }),
     })
       .then((r) => r.json())
@@ -1727,7 +1708,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   const trialLimitReached = isTrial && trialUsed;
 
   const triggerTrialBlock = () => {
-    setShowTrialMessage(true);
+    
     window.open(DISCORD_URL, "_blank");
   };
 
@@ -2110,43 +2091,13 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
           </button>
         </div>
 
-        {/* Navigation Links */}
-        <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1.5 custom-scrollbar">
-          {SIDEBAR_NAV.map((nav) => {
-            const Icon = nav.icon;
-            const active = activeSidebarTab === nav.id;
-            
-            // Hide Free Portal if not a reseller
-            if (nav.id === "free" && !canResell) return null;
-
-            return (
-              <button
-                key={nav.id}
-                onClick={() => { setActiveSidebarTab(nav.id); setMobileSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
-                  ${active 
-                    ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.02)] relative" 
-                    : "text-slate-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}
-                `}
-              >
-                <Icon className={`w-4.5 h-4.5 ${active ? "text-cyan-400" : "text-slate-500"}`} />
-                <span>{nav.label}</span>
-                {active && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Logout */}
-        <div className="p-4 border-t border-white/5">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all font-semibold text-sm"
-          >
-            <LogOut className="w-4.5 h-4.5" />
-            <span>Logout</span>
-          </button>
-        </div>
+        <SidebarContent 
+          activeSidebarTab={activeSidebarTab} 
+          setActiveSidebarTab={setActiveSidebarTab} 
+          canResell={canResell} 
+          onLogout={handleLogout} 
+          onCloseMobile={() => setMobileSidebarOpen(false)} 
+        />
       </motion.aside>
         )}
       </AnimatePresence>
@@ -2164,40 +2115,12 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
           </div>
         </div>
 
-        {/* Navigation Links */}
-        <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1.5 custom-scrollbar">
-          {SIDEBAR_NAV.map((nav) => {
-            const Icon = nav.icon;
-            const active = activeSidebarTab === nav.id;
-            if (nav.id === "free" && !canResell) return null;
-            return (
-              <button
-                key={nav.id}
-                onClick={() => setActiveSidebarTab(nav.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
-                  ${active 
-                    ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.02)] relative" 
-                    : "text-slate-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}
-                `}
-              >
-                <Icon className={`w-4.5 h-4.5 ${active ? "text-cyan-400" : "text-slate-500"}`} />
-                <span>{nav.label}</span>
-                {active && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Logout */}
-        <div className="p-4 border-t border-white/5">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all font-semibold text-sm"
-          >
-            <LogOut className="w-4.5 h-4.5" />
-            <span>Logout</span>
-          </button>
-        </div>
+        <SidebarContent 
+          activeSidebarTab={activeSidebarTab} 
+          setActiveSidebarTab={setActiveSidebarTab} 
+          canResell={canResell} 
+          onLogout={handleLogout} 
+        />
       </aside>
 
       {/* Main Content Area */}
@@ -2426,6 +2349,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
           background: rgba(255, 255, 255, 0.02);
           border-radius: 10px;
         }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(255, 255, 255, 0.2);
         }
@@ -2442,7 +2366,7 @@ function LoginHistoryPanel() {
     async function fetchHistory() {
       setLoading(true);
       try {
-        const res = await fetch(`${BASE}/api/users/login-history`);
+        const res = await apiFetch(`${BASE}/api/users/login-history`);
         const data = await res.json();
         if (data.success) {
           setHistory(data.history || []);

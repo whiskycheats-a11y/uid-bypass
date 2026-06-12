@@ -465,7 +465,7 @@ export default function Login({ onLogin }: LoginProps) {
                   </div>
 
                   <h1 className="text-4xl sm:text-[4.5rem] font-black tracking-tight text-white leading-[1.1] drop-shadow-2xl text-center">
-                    <span className="argus-text-gradient block mb-2">
+                    <span className="bg-gradient-to-r from-cyan-300 to-cyan-50 bg-clip-text text-transparent block mb-2 drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]">
                       <WordReveal text="UID BYPASS" delay={0.3} />
                     </span>
                     <WordReveal text="100% SAFE ALL SERVER" delay={0.65} />
