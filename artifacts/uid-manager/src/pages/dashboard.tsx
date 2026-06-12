@@ -48,6 +48,8 @@ import {
   Lock,
   Send,
   X,
+  Terminal,
+  Code2
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
@@ -703,6 +705,87 @@ function ResellerTrialPanel({ username }: { username: string }) {
               ))}
             </div>
           )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeveloperApiPanel({ apiKey }: { apiKey?: string }) {
+  const [copied, setCopied] = useState(false);
+  
+  const copyKey = () => {
+    if (apiKey) {
+      navigator.clipboard.writeText(apiKey);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-emerald-500/10 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+          <Terminal className="w-6 h-6 text-emerald-400" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-black tracking-tight text-white">Developer API</h1>
+          <p className="text-sm text-emerald-400 font-medium">Automate your workflows programmatically</p>
+        </div>
+      </div>
+      
+      <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl border border-white/5 p-6">
+        <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+          <KeyRound className="w-5 h-5 text-emerald-400" /> Your API Key
+        </h2>
+        <div className="flex items-center gap-4 bg-black/40 border border-white/10 rounded-xl p-4">
+          <code className="text-emerald-300 font-mono text-sm tracking-wider flex-1 break-all">
+            {apiKey || "API Key not generated yet. Please contact admin."}
+          </code>
+          {apiKey && (
+            <button onClick={copyKey} className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors shrink-0">
+              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-emerald-400" />}
+            </button>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground mt-3">
+          Keep this key secret. Do not share it or commit it to your source code.
+        </p>
+      </div>
+
+      <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl border border-white/5 p-6 space-y-6">
+        <div className="flex items-center gap-2 border-b border-white/10 pb-4">
+          <Code2 className="w-5 h-5 text-emerald-400" />
+          <h2 className="text-lg font-bold">API Documentation</h2>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="bg-black/40 border border-white/10 rounded-xl p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-emerald-400">Create UID Token</h3>
+              <span className="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">POST</span>
+            </div>
+            <p className="text-sm text-slate-400">Endpoint: <span className="text-cyan-400 font-mono">/api/reseller/tokens/create</span></p>
+            
+            <div className="bg-black/60 rounded-lg p-4 font-mono text-[11px] sm:text-xs text-slate-300 overflow-x-auto border border-white/5">
+{`curl -X POST https://uid-api-server.onrender.com/api/reseller/tokens/create \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "uid": "123456789",
+    "days": 30
+  }'`}
+            </div>
+            
+            <div className="mt-4 bg-black/60 rounded-lg p-4 font-mono text-[11px] sm:text-xs text-slate-300 border border-white/5">
+{`// Success Response
+{
+  "success": true,
+  "token": "RESELLER-TOKEN-XXXX",
+  "link": "https://uid-bypass.com/activate/RESELLER-TOKEN-XXXX"
+}`}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1533,23 +1616,24 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
 }
 
 // Side Navigation Items
-const SIDEBAR_NAV = [
+const getSidebarNav = (canResell: boolean, apiAccessEnabled: boolean) => [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "analyze", label: "Analyze", icon: BarChart2 },
   { id: "create", label: "Create UID", icon: Plus },
   { id: "all", label: "All UIDs", icon: Users2 },
   { id: "delete", label: "Delete UID", icon: Trash2 },
-  { id: "free", label: "Free Portal", icon: Globe },
+  ...(canResell ? [{ id: "free", label: "Reseller Portal", icon: Globe }] : []),
+  ...(apiAccessEnabled ? [{ id: "api", label: "Developer API", icon: Terminal }] : []),
   { id: "history", label: "Login History", icon: Clock },
   { id: "chat", label: "Team Chat", icon: MessageSquare },
   { id: "profile", label: "My Profile", icon: UserCircle },
 ];
 
-function SidebarContent({ activeSidebarTab, setActiveSidebarTab, canResell, onLogout, onCloseMobile }: { activeSidebarTab: string, setActiveSidebarTab: (id: string) => void, canResell: boolean, onLogout: () => void, onCloseMobile?: () => void }) {
+function SidebarContent({ activeSidebarTab, setActiveSidebarTab, canResell, apiAccessEnabled, onLogout, onCloseMobile }: { activeSidebarTab: string, setActiveSidebarTab: (id: string) => void, canResell: boolean, apiAccessEnabled: boolean, onLogout: () => void, onCloseMobile?: () => void }) {
   return (
     <>
       <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1.5 custom-scrollbar">
-        {SIDEBAR_NAV.map((nav) => {
+        {getSidebarNav(canResell, apiAccessEnabled).map((nav) => {
           const Icon = nav.icon;
           const active = activeSidebarTab === nav.id;
           if (nav.id === "free" && !canResell) return null;
@@ -1592,7 +1676,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [balance, setBalance] = useState<number | null>(null);
   const [showSuccessBlast, setShowSuccessBlast] = useState(false);
-  const [profileData, setProfileData] = useState({ displayName: username || "Guest", avatarBase64: "" });
+  const [profileData, setProfileData] = useState({ displayName: username || "Guest", avatarBase64: "", apiAccessEnabled: false, apiKey: "" });
   const [activeNotice, setActiveNotice] = useState("");
   const [showAnnouncement, setShowAnnouncement] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -1617,7 +1701,9 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
       // 1. Initial load from local storage (fast fallback)
       setProfileData({
         displayName: localStorage.getItem(`display_name_${username}`) || username,
-        avatarBase64: localStorage.getItem(`avatar_${username}`) || ""
+        avatarBase64: localStorage.getItem(`avatar_${username}`) || "",
+        apiAccessEnabled: localStorage.getItem(`apiAccess_${username}`) === "true",
+        apiKey: localStorage.getItem(`apiKey_${username}`) || ""
       });
 
       // 2. Fetch fresh details from MongoDB database
@@ -1628,9 +1714,13 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             setProfileData({
               displayName: d.displayName,
               avatarBase64: d.avatar,
+              apiAccessEnabled: d.apiAccessEnabled || false,
+              apiKey: d.apiKey || ""
             });
             try {
               localStorage.setItem(`display_name_${username}`, d.displayName);
+              if (d.apiAccessEnabled) localStorage.setItem(`apiAccess_${username}`, "true");
+              if (d.apiKey) localStorage.setItem(`apiKey_${username}`, d.apiKey);
               localStorage.setItem(`avatar_${username}`, d.avatar);
             } catch (e) {
               console.warn("Local storage write failed (likely quota exceeded):", e);
@@ -1676,7 +1766,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   };
 
   const handleUpdateProfile = (name: string, avatar: string) => {
-    setProfileData({ displayName: name, avatarBase64: avatar });
+    setProfileData(p => ({ ...p, displayName: name, avatarBase64: avatar }));
     apiFetch(`${BASE}/api/auth/profile`, {
       method: "POST",
       body: JSON.stringify({ username, displayName: name, avatar }),
@@ -2093,8 +2183,9 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
 
         <SidebarContent 
           activeSidebarTab={activeSidebarTab} 
-          setActiveSidebarTab={setActiveSidebarTab} 
+          setActiveSidebarTab={(t) => { setActiveSidebarTab(t); setMobileSidebarOpen(false); }} 
           canResell={canResell} 
+          apiAccessEnabled={profileData.apiAccessEnabled} 
           onLogout={handleLogout} 
           onCloseMobile={() => setMobileSidebarOpen(false)} 
         />
@@ -2119,6 +2210,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
           activeSidebarTab={activeSidebarTab} 
           setActiveSidebarTab={setActiveSidebarTab} 
           canResell={canResell} 
+          apiAccessEnabled={profileData.apiAccessEnabled} 
           onLogout={handleLogout} 
         />
       </aside>
@@ -2146,7 +2238,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
               <span className="hidden sm:block">USER TERMINAL</span>
               <span className="text-slate-600 hidden sm:block">/</span>
               <span className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] uppercase">
-                {SIDEBAR_NAV.find(n => n.id === activeSidebarTab)?.label || "DASHBOARD"}
+                {getSidebarNav(canResell, profileData.apiAccessEnabled).find(n => n.id === activeSidebarTab)?.label || "DASHBOARD"}
               </span>
             </div>
           </div>
@@ -2282,6 +2374,12 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
               {activeSidebarTab === "history" && (
                 <motion.div key="history" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                   <LoginHistoryPanel />
+                </motion.div>
+              )}
+
+              {activeSidebarTab === "api" && profileData.apiAccessEnabled && (
+                <motion.div key="api" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                  <DeveloperApiPanel apiKey={profileData.apiKey} />
                 </motion.div>
               )}
             </AnimatePresence>

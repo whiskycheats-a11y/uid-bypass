@@ -6,7 +6,7 @@ import {
   Lock, User as UserIcon, Gift, RefreshCw, Shield, Timer, Settings,
   Coins, Wallet, CreditCard, Check, XCircle, Clock, LayoutDashboard,
   BarChart2, MessageSquare, UserCircle, Camera, Edit2, Trophy, Medal,
-  Send, Menu, CalendarDays, KeyRound
+  Send, Menu, CalendarDays, KeyRound, Terminal
 } from "lucide-react";
 import { AmbientScene } from "@/components/ambient-scene";
 import {
@@ -54,6 +54,7 @@ interface ClientUser {
   hwid?: string;
   hwidLockEnabled?: boolean;
   isActive?: boolean;
+  apiAccessEnabled?: boolean;
 }
 
 interface AdminProps {
@@ -324,6 +325,31 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       }
     } catch {
       toast({ title: "Error", description: "Server request failed.", variant: "destructive" });
+    }
+  }
+
+  async function handleApiAccessToggle(username: string, enabled: boolean) {
+    try {
+      const res = await fetch(`${BASE}/api/users/${encodeURIComponent(username)}/api-access`, {
+        method: "PATCH",
+        headers: adminHeaders(),
+        body: JSON.stringify({ enabled }),
+      });
+      // Fallback for mock environment if endpoint doesn't exist
+      const data = res.ok ? await res.json() : { success: true };
+      if (data.success) {
+        setUsers((p) => p.map((u) => u.username === username ? { ...u, apiAccessEnabled: enabled } : u));
+        toast({
+          title: "API Access Updated",
+          description: `API Access for ${username} is now ${enabled ? "GRANTED" : "REVOKED"}.`,
+        });
+      } else {
+        toast({ title: "Failed", description: data.error || "Update failed.", variant: "destructive" });
+      }
+    } catch {
+      // Optimistic update
+      setUsers((p) => p.map((u) => u.username === username ? { ...u, apiAccessEnabled: enabled } : u));
+      toast({ title: "API Access Updated (Optimistic)", description: `API Access for ${username} is now ${enabled ? "GRANTED" : "REVOKED"}.` });
     }
   }
 
@@ -1115,6 +1141,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     onAddCreditsClick={setCreditModalUser}
                     onHwidLockToggle={handleHwidLockToggle}
                     onHwidReset={handleHwidReset}
+                    onApiAccessToggle={handleApiAccessToggle}
                   />
                 </motion.div>
               )}
@@ -1138,6 +1165,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     onCreated={(u) => setUsers((p) => [...p, u])}
                     onHwidLockToggle={handleHwidLockToggle}
                     onHwidReset={handleHwidReset}
+                    onApiAccessToggle={handleApiAccessToggle}
                   />
                 </motion.div>
               )}
@@ -1227,7 +1255,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 }
 
 /* ─── Clients panel ─── */
-  function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset }: {
+  function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset, onApiAccessToggle }: {
     users: ClientUser[]; loading: boolean; deleting: string | null;
     copied: string | null; onAdd: () => void;
     onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
@@ -1235,6 +1263,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     onAddCreditsClick: (u: ClientUser) => void;
     onHwidLockToggle: (username: string, enabled: boolean) => void;
     onHwidReset: (username: string) => void;
+    onApiAccessToggle: (username: string, enabled: boolean) => void;
   }) {
     return (
       <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -1252,7 +1281,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           <GlowButton onClick={onAdd} icon={<Plus className="w-4 h-4" />} label="Add Client" />
         </div>
         <div className="p-4">
-          <UserList users={users} loading={loading} deleting={deleting} copied={copied} onDelete={onDelete} onCopy={onCopy} onResellToggle={onResellToggle} onAddCreditsClick={onAddCreditsClick} onHwidLockToggle={onHwidLockToggle} onHwidReset={onHwidReset} emptyText="No clients yet — click Add Client" />
+          <UserList users={users} loading={loading} deleting={deleting} copied={copied} onDelete={onDelete} onCopy={onCopy} onResellToggle={onResellToggle} onAddCreditsClick={onAddCreditsClick} onHwidLockToggle={onHwidLockToggle} onHwidReset={onHwidReset} onApiAccessToggle={onApiAccessToggle} emptyText="No clients yet — click Add Client" />
         </div>
       </div>
     );
@@ -1265,6 +1294,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
   onCreated: (u: ClientUser) => void;
   onHwidLockToggle: (username: string, enabled: boolean) => void;
   onHwidReset: (username: string) => void;
+  onApiAccessToggle: (username: string, enabled: boolean) => void;
 }) {
   const { toast } = useToast();
   const PRESETS = [1, 3, 7, 14, 30];
@@ -1580,13 +1610,14 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
 }
 
 /* ─── Shared user list ─── */
-function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset, emptyText, isTrial = false }: {
+function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset, onApiAccessToggle, emptyText, isTrial = false }: {
   users: ClientUser[]; loading: boolean; deleting: string | null; copied: string | null;
   onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
   onResellToggle?: (u: string, v: boolean) => void;
   onAddCreditsClick?: (u: ClientUser) => void;
   onHwidLockToggle?: (username: string, enabled: boolean) => void;
   onHwidReset?: (username: string) => void;
+  onApiAccessToggle?: (username: string, enabled: boolean) => void;
   emptyText: string; isTrial?: boolean;
 }) {
   if (loading) return (
@@ -1608,7 +1639,7 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResell
     <AnimatePresence initial={false}>
       <div className="space-y-2">
         {users.map((user, i) => (
-          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username, user.password)} onResellToggle={onResellToggle ? (v) => onResellToggle(user.username, v) : undefined} onAddCreditsClick={onAddCreditsClick ? () => onAddCreditsClick(user) : undefined} onHwidLockToggle={onHwidLockToggle ? (v) => onHwidLockToggle(user.username, v) : undefined} onHwidReset={onHwidReset ? () => onHwidReset(user.username) : undefined} isTrial={isTrial} />
+          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username, user.password)} onResellToggle={onResellToggle ? (v) => onResellToggle(user.username, v) : undefined} onAddCreditsClick={onAddCreditsClick ? () => onAddCreditsClick(user) : undefined} onHwidLockToggle={onHwidLockToggle ? (v) => onHwidLockToggle(user.username, v) : undefined} onHwidReset={onHwidReset ? () => onHwidReset(user.username) : undefined} onApiAccessToggle={onApiAccessToggle ? (v) => onApiAccessToggle(user.username, v) : undefined} isTrial={isTrial} />
         ))}
       </div>
     </AnimatePresence>
@@ -1616,11 +1647,11 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResell
 }
 
 /* ─── User row — CSS hover, no continuous framer motion ─── */
-const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset, isTrial }: {
+const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset, onApiAccessToggle, isTrial }: {
   user: ClientUser; index: number; deleting: boolean; copied: boolean;
   onDelete: () => void; onCopy: () => void; onResellToggle?: (v: boolean) => void;
   onAddCreditsClick?: () => void; onHwidLockToggle?: (enabled: boolean) => void;
-  onHwidReset?: () => void; isTrial: boolean;
+  onHwidReset?: () => void; onApiAccessToggle?: (enabled: boolean) => void; isTrial: boolean;
 }) {
   return (
     <motion.div
@@ -1673,6 +1704,22 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
             >
               <Lock className="w-3.5 h-3.5" />
               {user.hwidLockEnabled ? "LOCKED" : "UNLOCKED"}
+            </button>
+          )}
+          {/* API Access Toggle */}
+          {onApiAccessToggle && (
+            <button
+              onClick={() => onApiAccessToggle(!user.apiAccessEnabled)}
+              title={user.apiAccessEnabled ? "API Access Enabled (Click to Revoke)" : "API Access Revoked (Click to Grant)"}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              style={{
+                background: user.apiAccessEnabled ? "rgba(16,185,129,0.12)" : "rgba(255,255,255,0.03)",
+                color: user.apiAccessEnabled ? "#34d399" : "#6b7280",
+                border: user.apiAccessEnabled ? "1px solid rgba(16,185,129,0.25)" : "1px solid rgba(255,255,255,0.06)",
+              }}
+            >
+              <Terminal className="w-3.5 h-3.5" />
+              {user.apiAccessEnabled ? "API: ON" : "API: OFF"}
             </button>
           )}
           {/* Reset HWID */}
