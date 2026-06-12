@@ -55,6 +55,7 @@ interface ClientUser {
   hwidLockEnabled?: boolean;
   isActive?: boolean;
   apiAccessEnabled?: boolean;
+  uidLimit?: number;
 }
 
 interface AdminProps {
@@ -2171,6 +2172,8 @@ function CreateUserModal({ onClose, onCreate }: {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState(() => `KEY-${rand(10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")}`);
   const [days, setDays] = useState(30);
+  const [uidLimit, setUidLimit] = useState<number>(-1);
+  const [isInfinity, setIsInfinity] = useState(true);
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -2183,7 +2186,7 @@ function CreateUserModal({ onClose, onCreate }: {
     try {
       const res = await fetch(`${BASE}/api/users`, {
         method: "POST", headers: adminHeaders(),
-        body: JSON.stringify({ username, password, defaultDays: days, isTrial: false }),
+        body: JSON.stringify({ username, password, defaultDays: days, isTrial: false, uidLimit: isInfinity ? -1 : uidLimit }),
       });
       const data = await res.json();
       if (data.success) {
@@ -2255,6 +2258,29 @@ function CreateUserModal({ onClose, onCreate }: {
               </div>
 
               <DurationPicker value={days} onChange={setDays} presets={[7, 15, 30, 60, 90]} min={7} max={90} theme="violet" />
+
+              <div className="space-y-1.5 pt-2">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center justify-between">
+                  <span>UID Limit</span>
+                  <label className="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors">
+                    <input type="checkbox" checked={isInfinity} onChange={(e) => setIsInfinity(e.target.checked)} className="rounded bg-black/50 border-white/20 text-violet-500 focus:ring-violet-500/50" />
+                    <span className="text-[10px]">Unlimited (Infinity)</span>
+                  </label>
+                </label>
+                {!isInfinity && (
+                  <div className="relative group shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] rounded-xl">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm pointer-events-none group-focus-within:text-violet-400 transition-colors">#</span>
+                    <input 
+                      type="number" 
+                      min="1"
+                      value={uidLimit} 
+                      onChange={(e) => setUidLimit(parseInt(e.target.value) || 1)} 
+                      placeholder="e.g. 10" 
+                      className="w-full h-12 pl-12 pr-4 rounded-xl bg-black/40 border border-white/5 text-sm text-white font-medium placeholder:text-muted-foreground/40 focus:outline-none focus:border-violet-500/40 focus:bg-black/60 focus:ring-1 focus:ring-violet-500/40 transition-all" 
+                    />
+                  </div>
+                )}
+              </div>
 
               {error && <div className="flex items-center gap-2 text-red-400 text-xs px-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20"><X className="w-3.5 h-3.5 shrink-0" />{error}</div>}
 

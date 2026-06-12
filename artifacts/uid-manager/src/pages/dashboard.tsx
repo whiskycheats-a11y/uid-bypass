@@ -1676,7 +1676,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [balance, setBalance] = useState<number | null>(null);
   const [showSuccessBlast, setShowSuccessBlast] = useState(false);
-  const [profileData, setProfileData] = useState({ displayName: username || "Guest", avatarBase64: "", apiAccessEnabled: false, apiKey: "" });
+  const [profileData, setProfileData] = useState({ displayName: username || "Guest", avatarBase64: "", apiAccessEnabled: false, apiKey: "", uidLimit: -1 });
   const [activeNotice, setActiveNotice] = useState("");
   const [showAnnouncement, setShowAnnouncement] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -1703,7 +1703,8 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
         displayName: localStorage.getItem(`display_name_${username}`) || username,
         avatarBase64: localStorage.getItem(`avatar_${username}`) || "",
         apiAccessEnabled: localStorage.getItem(`apiAccess_${username}`) === "true",
-        apiKey: localStorage.getItem(`apiKey_${username}`) || ""
+        apiKey: localStorage.getItem(`apiKey_${username}`) || "",
+        uidLimit: parseInt(localStorage.getItem(`uidLimit_${username}`) || "-1", 10)
       });
 
       // 2. Fetch fresh details from MongoDB database
@@ -1715,13 +1716,15 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
               displayName: d.displayName,
               avatarBase64: d.avatar,
               apiAccessEnabled: d.apiAccessEnabled || false,
-              apiKey: d.apiKey || ""
+              apiKey: d.apiKey || "",
+              uidLimit: d.uidLimit ?? -1
             });
             try {
               localStorage.setItem(`display_name_${username}`, d.displayName);
               if (d.apiAccessEnabled) localStorage.setItem(`apiAccess_${username}`, "true");
               if (d.apiKey) localStorage.setItem(`apiKey_${username}`, d.apiKey);
               localStorage.setItem(`avatar_${username}`, d.avatar);
+              localStorage.setItem(`uidLimit_${username}`, (d.uidLimit ?? -1).toString());
             } catch (e) {
               console.warn("Local storage write failed (likely quota exceeded):", e);
             }
@@ -1810,6 +1813,12 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   const onSubmit = (values: AddUidValues) => {
     if (trialLimitReached) {
       triggerTrialBlock();
+      return;
+    }
+    
+    // Check custom UID Limit
+    if (profileData.uidLimit !== -1 && uids.length >= profileData.uidLimit) {
+      toast({ title: "Account Limit Reached", description: "yours account limit reached messgae zytrone to buy", variant: "destructive" });
       return;
     }
     if (!isTrial && balance !== null && balance < tokenCost) {
