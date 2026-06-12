@@ -930,7 +930,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       </AnimatePresence>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 bg-black/20 backdrop-blur-3xl border-r border-white/5 flex-col z-50 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
+      <aside className="hidden lg:flex w-64 bg-black/30 backdrop-blur-2xl border-r border-white/[0.06] flex-col z-50 shrink-0 shadow-[10px_0_40px_rgba(0,0,0,0.6)]">
         {/* Sidebar Logo Area */}
         <div className="h-20 flex items-center gap-3 px-6 border-b border-white/5">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,0,110,0.4)]" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
@@ -980,14 +980,9 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 
       {/* Main Content Area */}
       <main className="flex-1 relative flex flex-col overflow-hidden h-full">
-        {/* Background Effects for Main Content */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="argus-bg w-full h-full" />
-          <div className="argus-mesh w-full h-full opacity-60" />
-        </div>
 
         {/* Main Content Header */}
-        <header className="h-16 lg:h-20 shrink-0 border-b border-white/5 px-4 lg:px-8 flex items-center justify-between relative z-20 neo-glass-panel rounded-b-3xl mx-2 lg:mx-4 mt-2 mb-4">
+        <header className="h-16 lg:h-20 shrink-0 border-b border-white/[0.06] px-4 lg:px-8 flex items-center justify-between relative z-20 bg-black/25 backdrop-blur-2xl rounded-b-3xl mx-2 lg:mx-4 mt-2 mb-4 shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
           <div className="flex items-center gap-3">
             {/* Hamburger button — only on mobile */}
             <button
