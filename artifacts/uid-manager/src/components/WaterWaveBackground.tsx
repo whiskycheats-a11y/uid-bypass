@@ -1,10 +1,15 @@
-import React, { useRef, useMemo } from "react";
+import React, { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 const AuroraMesh = () => {
   const meshRef = useRef<THREE.Mesh>(null);
   
+  const targetMouse = useRef({ x: 0, y: 0 });
+  const scrollVelocity = useRef(0);
+  const timeOffset = useRef(0);
+  const lastTouchY = useRef(0);
+
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
@@ -15,13 +20,58 @@ const AuroraMesh = () => {
     []
   );
 
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      targetMouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      targetMouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      scrollVelocity.current += e.deltaY * 0.0006;
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      lastTouchY.current = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const deltaY = lastTouchY.current - e.touches[0].clientY;
+      scrollVelocity.current += deltaY * 0.0015;
+      lastTouchY.current = e.touches[0].clientY;
+      
+      targetMouse.current.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+      targetMouse.current.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("wheel", handleWheel, { passive: true });
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+    };
+  }, []);
+
   useFrame((state) => {
     if (meshRef.current) {
       const material = meshRef.current.material as THREE.ShaderMaterial;
-      material.uniforms.uTime.value = state.clock.elapsedTime * 0.5;
       
-      // Very slow floating motion for the whole plane
-      meshRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.2) * 0.1;
+      // Scroll Momentum
+      timeOffset.current += scrollVelocity.current;
+      scrollVelocity.current = THREE.MathUtils.lerp(scrollVelocity.current, 0, 0.08); // Damp velocity
+      
+      material.uniforms.uTime.value = state.clock.elapsedTime * 0.35 + timeOffset.current;
+      
+      // 4D Parallax Tilt
+      meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, -targetMouse.current.y * 0.2, 0.05);
+      meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, targetMouse.current.x * 0.2, 0.05);
+      
+      // Slow floating depth motion
+      meshRef.current.position.z = -2 + Math.sin(state.clock.elapsedTime * 0.3) * 0.2;
     }
   });
 
@@ -47,7 +97,6 @@ const AuroraMesh = () => {
           uniform vec3 uColor3;
           varying vec2 vUv;
 
-          // Simplex 2D noise
           vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
           vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
           vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
@@ -79,30 +128,23 @@ const AuroraMesh = () => {
             vec2 centeredUv = uv - 0.5;
             vec3 finalColor = vec3(0.0);
 
-            // Create multiple overlapping glowing ribbons
             for(float i = 0.0; i < 7.0; i++) {
                 float t = uTime * 0.15 + i * 0.7;
                 
-                // Curve the space using noise and sine waves
                 float noiseVal = snoise(vec2(centeredUv.x * 1.2 + t, i * 0.5)) * 0.35;
                 float lineY = noiseVal + sin(centeredUv.x * 2.5 + t) * 0.15;
                 
-                // Distance to the line
                 float dist = abs(centeredUv.y - lineY);
                 
-                // Base soft glow
                 float glow = 0.003 / (dist + 0.001);
-                // Intense bright core
                 float core = 0.0006 / (dist + 0.0001);
                 
-                // Mix cyan and blue
                 vec3 ribbonColor = mix(uColor1, uColor2, i / 6.0);
                 
                 finalColor += ribbonColor * glow * 1.2;
                 finalColor += uColor3 * core * 1.5;
             }
 
-            // Fade edges to black smoothly
             float alpha = 1.0 - smoothstep(0.1, 0.5, distance(uv, vec2(0.5)));
 
             gl_FragColor = vec4(finalColor, alpha);
@@ -120,7 +162,6 @@ export function WaterWaveBackground() {
         <fog attach="fog" args={["#030014", 2, 10]} />
         <AuroraMesh />
       </Canvas>
-      {/* Overlay to ensure the background is slightly dark so text stays readable */}
       <div className="absolute inset-0 bg-[#030014]/40 pointer-events-none" />
     </div>
   );
