@@ -76,7 +76,7 @@ function OverviewStatCard({
 }: {
   label: string;
   value: number | string;
-  icon: React.ElementType;
+  icon: any;
   delay: number;
   sparklinePoints?: number[];
 }) {
