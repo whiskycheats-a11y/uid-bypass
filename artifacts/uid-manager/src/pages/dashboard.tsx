@@ -300,7 +300,7 @@ function CustomDurationSelect({
             animate={{ opacity: 1, y: 5, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute z-50 w-full rounded-2xl overflow-hidden p-1.5 space-y-1 bg-[#050314]/95 backdrop-blur-3xl border border-white/20 shadow-[0_30px_60px_rgba(0,0,0,0.9)]"
+            className="absolute z-50 w-full rounded-2xl overflow-hidden p-1.5 space-y-1 bg-black/40 backdrop-blur-3xl border border-white/20 shadow-[0_30px_60px_rgba(0,0,0,0.9)]"
           >
             {options.map((opt) => {
               const active = opt.days === value;
@@ -2092,7 +2092,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             animate={{ x: 0 }}
             exit={{ x: -280 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed left-0 top-0 bottom-0 w-72 bg-[#0a0a0a]/98 border-r border-white/5 flex flex-col z-[70] shadow-[10px_0_30px_rgba(0,0,0,0.8)] lg:hidden"
+            className="fixed left-0 top-0 bottom-0 w-72 bg-black/40 backdrop-blur-3xl border-r border-white/5 flex flex-col z-[70] shadow-[10px_0_30px_rgba(0,0,0,0.8)] lg:hidden"
           >
         {/* Sidebar Logo Area */}
         <div className="h-20 flex items-center justify-between px-6 border-b border-white/5">
@@ -2152,7 +2152,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
       </AnimatePresence>
 
       {/* Desktop Sidebar — visible only on lg+ screens */}
-      <aside className="hidden lg:flex w-64 bg-[#0a0a0a]/95 border-r border-white/5 flex-col z-50 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
+      <aside className="hidden lg:flex w-64 bg-black/20 backdrop-blur-3xl border-r border-white/5 flex-col z-50 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
         {/* Sidebar Logo Area */}
         <div className="h-20 flex items-center gap-3 px-6 border-b border-white/5">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,0,110,0.4)]" style={{ background: "linear-gradient(135deg, #ff006e, #7c3aed)" }}>
@@ -2380,7 +2380,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              className="w-full max-w-lg bg-[#0a0a0a] border border-violet-500/30 rounded-[2rem] overflow-hidden shadow-[0_0_40px_rgba(124,58,237,0.15)] relative text-left"
+              className="w-full max-w-lg bg-black/40 backdrop-blur-3xl border border-violet-500/30 rounded-[2rem] overflow-hidden shadow-[0_0_40px_rgba(124,58,237,0.15)] relative text-left"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-transparent pointer-events-none" />
               

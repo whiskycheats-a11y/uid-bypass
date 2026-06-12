@@ -136,7 +136,7 @@ export default function FreePortal() {
       {/* Background aesthetics removed for global 3D water wave */}
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.05] bg-[#030014]/60 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.05] bg-black/20 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
         <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-6 sm:px-10">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 flex items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 via-indigo-500 to-purple-600 shadow-[0_0_30px_rgba(124,58,237,0.3)]">
@@ -320,7 +320,7 @@ export default function FreePortal() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full bg-[#030014]/90 border-t border-white/5 py-8 mt-auto z-10 relative">
+      <footer className="w-full bg-black/20 backdrop-blur-xl border-t border-white/5 py-8 mt-auto z-10 relative">
         <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <span className="text-[9px] font-black uppercase tracking-[0.25em] text-slate-500">UID BYPASS PORTAL &copy; 2026</span>
           <span className="text-[9px] font-black uppercase tracking-[0.25em] text-slate-500 flex items-center gap-2">
@@ -342,7 +342,7 @@ export default function FreePortal() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              className="w-full max-w-lg bg-[#0a0a0a] border border-violet-500/30 rounded-[2rem] overflow-hidden shadow-[0_0_40px_rgba(124,58,237,0.15)] relative text-left"
+              className="w-full max-w-lg bg-black/40 backdrop-blur-3xl border border-violet-500/30 rounded-[2rem] overflow-hidden shadow-[0_0_40px_rgba(124,58,237,0.15)] relative text-left"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-transparent pointer-events-none" />
               

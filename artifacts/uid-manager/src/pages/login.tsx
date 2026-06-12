@@ -398,7 +398,7 @@ export default function Login({ onLogin }: LoginProps) {
       {/* ── Fixed Navigation ── */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          headerBlur ? "border-b border-white/[0.05] bg-[#030014]/60 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.5)]" : "border-transparent bg-transparent"
+          headerBlur ? "border-b border-white/[0.05] bg-black/20 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.5)]" : "border-transparent bg-transparent"
         }`}
       >
         <div className="mx-auto flex h-24 w-full max-w-7xl items-center justify-between px-6 sm:px-10">
@@ -868,7 +868,7 @@ export default function Login({ onLogin }: LoginProps) {
      </main>
 
      {/* ── Footer ── */}
-     <footer className="w-full bg-[#030014]/90 backdrop-blur-md border-t border-white/5 py-12 mt-auto z-10 relative">
+     <footer className="w-full bg-black/20 backdrop-blur-xl border-t border-white/5 py-12 mt-auto z-10 relative">
        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
        <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 flex flex-col sm:flex-row items-center justify-between gap-6">
          <div className="flex items-center gap-3">
