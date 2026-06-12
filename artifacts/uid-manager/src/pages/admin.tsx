@@ -648,7 +648,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`neo-glass rounded-[2.5rem] overflow-hidden relative shadow-2xl ${showFull ? 'h-full' : ''}`}
+        className={`neo-glass rounded-[2.5rem] overflow-hidden relative shadow-2xl bg-black/30 backdrop-blur-3xl ${showFull ? 'h-full' : ''}`}
       >
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-black/20 gap-4">
           <div className="flex items-center gap-3">
@@ -753,7 +753,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       animate={{ opacity: 1, scale: 1 }}
       className="max-w-xl mx-auto"
     >
-      <div className="neo-glass rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl glow-border">
+      <div className="neo-glass rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl glow-border bg-black/30 backdrop-blur-3xl">
         <SuccessAnimation active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
         <div className="flex items-center gap-3 mb-2 relative z-10">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.3)] border border-red-500/30" style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.2), rgba(0,0,0,0.1))" }}>
@@ -1230,7 +1230,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     onHwidReset: (username: string) => void;
   }) {
     return (
-      <div className="panel rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-3xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, transparent)" }} />
         <div className="px-5 py-4 flex items-center justify-between border-b border-white/[0.04]">
           <div className="flex items-center gap-3">
@@ -1381,7 +1381,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
   return (
     <div className="space-y-4">
       {/* Generator card */}
-      <div className="panel rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(245,158,11,0.15)" }}>
+      <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-3xl shadow-2xl" style={{ border: "1px solid rgba(245,158,11,0.15)" }}>
         <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #f59e0b, #ef4444, transparent)" }} />
         <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.25)" }}>
@@ -1501,7 +1501,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
       </div>
 
       {/* Generated Tokens List */}
-      <div className="panel rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
+      <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-3xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
         <div className="px-5 py-4 border-b border-white/[0.04] bg-black/20 flex items-center justify-between">
           <h2 className="font-bold text-sm text-foreground">Generated Trial Links</h2>
           <span className="text-[10px] bg-white/10 px-2 py-1 rounded-lg text-slate-300">{tokens.length} Links</span>
@@ -1557,7 +1557,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
 
       {/* Active trials list */}
       {trials.length > 0 && (
-        <div className="panel rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(245,158,11,0.1)" }}>
+        <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-3xl shadow-2xl" style={{ border: "1px solid rgba(245,158,11,0.1)" }}>
           <div className="px-5 py-3 border-b border-white/[0.04] flex items-center gap-2">
             <Timer className="w-4 h-4 text-amber-400" />
             <span className="text-sm font-bold text-foreground">Active Trials</span>
@@ -1777,9 +1777,8 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ type: "spring", stiffness: 240, damping: 26 }}
-        className="w-full max-w-lg relative rounded-[2rem] p-6 sm:p-8 overflow-hidden"
+        className="w-full max-w-lg relative rounded-[2.5rem] p-6 sm:p-8 overflow-hidden bg-black/40 backdrop-blur-3xl"
         style={{
-          background: "rgba(8,6,22,0.98)",
           border: `1px solid ${
             creditMode === "add"
               ? "rgba(16,185,129,0.3)"
@@ -2148,8 +2147,8 @@ function CreateUserModal({ onClose, onCreate }: {
     >
       <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md relative rounded-3xl p-7 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_0_0_1px_rgba(255,255,255,0.05)] overflow-hidden"
-        style={{ background: "linear-gradient(160deg, rgba(18,14,34,0.98), rgba(8,6,18,0.98))", backdropFilter: "blur(12px)" }}
+        className="w-full max-w-md relative rounded-[2.5rem] p-7 shadow-2xl overflow-hidden bg-black/40 backdrop-blur-3xl"
+        style={{ backdropFilter: "blur(24px)" }}
       >
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-violet-500/60 to-transparent" />
         <div className="absolute -top-32 -left-32 w-64 h-64 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -2368,7 +2367,7 @@ function SettingsPanel() {
   return (
     <div className="space-y-4">
       {/* API Config card */}
-      <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(6,182,212,0.15)" }}>
+      <div className="rounded-3xl overflow-hidden bg-black/30 backdrop-blur-3xl shadow-2xl" style={{ border: "1px solid rgba(6,182,212,0.15)" }}>
         <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #06b6d4, #10b981, transparent)" }} />
         <div className="px-5 py-4 flex items-center gap-3 border-b border-white/[0.04]">
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(6,182,212,0.15)", border: "1px solid rgba(6,182,212,0.25)" }}>
@@ -2442,7 +2441,7 @@ function SettingsPanel() {
       </div>
 
       {/* Duration info card */}
-      <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-3xl overflow-hidden bg-black/30 backdrop-blur-3xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="px-5 py-4 border-b border-white/[0.04]">
           <h3 className="font-bold text-sm text-foreground">Allowed Duration Values</h3>
           <p className="text-[11px] text-muted-foreground mt-0.5">The external API accepts these exact hour values</p>
