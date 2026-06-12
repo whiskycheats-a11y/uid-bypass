@@ -284,6 +284,113 @@ function LightBeams() {
   );
 }
 
+// ─── Floating Holographic Torus Rings ────────────────────────────
+function HoloRings() {
+  const group = useRef<THREE.Group>(null);
+  useFrame((state) => {
+    if (!group.current) return;
+    const t = state.clock.elapsedTime;
+    group.current.rotation.y = t * 0.08;
+    group.current.position.y = Math.sin(t * 0.2) * 0.3 + 0.5;
+  });
+
+  const ringMat = (color: string, opacity: number) => (
+    <meshBasicMaterial
+      color={color}
+      wireframe
+      transparent
+      opacity={opacity}
+      blending={THREE.AdditiveBlending}
+      depthWrite={false}
+    />
+  );
+
+  return (
+    <group ref={group} position={[0, 0.5, -8]}>
+      {/* Outer ring */}
+      <mesh rotation={[Math.PI * 0.5, 0, 0]}>
+        <torusGeometry args={[3.5, 0.015, 8, 80]} />
+        {ringMat("#00e5ff", 0.25)}
+      </mesh>
+      {/* Middle ring — tilted */}
+      <mesh rotation={[Math.PI * 0.35, Math.PI * 0.15, 0]}>
+        <torusGeometry args={[2.8, 0.012, 8, 64]} />
+        {ringMat("#7c3aed", 0.2)}
+      </mesh>
+      {/* Inner ring */}
+      <mesh rotation={[Math.PI * 0.6, -Math.PI * 0.1, Math.PI * 0.25]}>
+        <torusGeometry args={[2.0, 0.01, 8, 48]} />
+        {ringMat("#ec4899", 0.18)}
+      </mesh>
+    </group>
+  );
+}
+
+// ─── Neon Scanner Beam (sweeps across terrain) ───────────────────
+function ScanBeam() {
+  const meshRef = useRef<THREE.Mesh>(null);
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Sweep back and forth across x-axis
+    meshRef.current.position.x = Math.sin(t * 0.12) * 16;
+    meshRef.current.material.opacity = 0.08 + Math.sin(t * 0.5) * 0.03;
+  });
+  return (
+    <mesh ref={meshRef} position={[0, 0, -8]} rotation={[0, 0, 0]}>
+      <planeGeometry args={[0.08, 18, 1, 1]} />
+      <meshBasicMaterial
+        color="#00e5ff"
+        transparent
+        opacity={0.1}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+  );
+}
+
+// ─── Pulsing Energy Orbs ─────────────────────────────────────────
+function EnergyOrbs() {
+  const orbs = useRef<THREE.Group>(null);
+  
+  const orbData = useMemo(() => [
+    { pos: [-5, 0.8, -7] as [number, number, number], color: "#00e5ff", speed: 0.3, phase: 0 },
+    { pos: [4, 1.2, -9] as [number, number, number], color: "#7c3aed", speed: 0.25, phase: 2 },
+    { pos: [0, 0.5, -5] as [number, number, number], color: "#ec4899", speed: 0.35, phase: 4 },
+  ], []);
+
+  useFrame((state) => {
+    if (!orbs.current) return;
+    const t = state.clock.elapsedTime;
+    orbs.current.children.forEach((child, i) => {
+      const d = orbData[i];
+      child.position.y = d.pos[1] + Math.sin(t * d.speed + d.phase) * 0.6;
+      child.position.x = d.pos[0] + Math.cos(t * d.speed * 0.7 + d.phase) * 0.4;
+      const s = 0.8 + Math.sin(t * 0.8 + d.phase) * 0.2;
+      child.scale.setScalar(s);
+    });
+  });
+
+  return (
+    <group ref={orbs}>
+      {orbData.map((d, i) => (
+        <mesh key={i} position={d.pos}>
+          <sphereGeometry args={[0.12, 16, 16]} />
+          <meshBasicMaterial
+            color={d.color}
+            transparent
+            opacity={0.6}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 // ─── Scene Camera Controller ─────────────────────────────────────
 function CameraRig() {
   const { camera } = useThree();
@@ -341,6 +448,9 @@ export function WaterWaveBackground() {
         <CyberTerrain />
         <Starfield />
         <LightBeams />
+        <HoloRings />
+        <ScanBeam />
+        <EnergyOrbs />
       </Canvas>
 
       {/* ── Neon glow overlay at horizon ── */}
