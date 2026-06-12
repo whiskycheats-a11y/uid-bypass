@@ -8,6 +8,7 @@ import Admin from "@/pages/admin";
 import Login from "@/pages/login";
 import FreePortal from "@/pages/FreePortal";
 import { WelcomeSplash } from "@/components/welcome-splash";
+import { WaterWaveBackground } from "@/components/WaterWaveBackground";
 import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient({
@@ -120,9 +121,7 @@ function AppRoot() {
 
   if (!ready) {
     return (
-      <div className="min-h-screen relative flex flex-col items-center justify-center font-sans bg-[#030014] overflow-hidden selection:bg-violet-500/30 selection:text-white">
-        <div className="argus-bg opacity-30" />
-        <div className="argus-mesh opacity-25" />
+      <div className="min-h-screen relative flex flex-col items-center justify-center font-sans text-white overflow-hidden selection:bg-violet-500/30">
         <div className="relative flex flex-col items-center gap-4 z-10 text-center">
           <div className="h-16 w-16 flex items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-indigo-500 to-purple-600 shadow-[0_0_40px_rgba(124,58,237,0.4)] animate-pulse">
             <span className="h-2 w-2 rounded-full bg-white animate-ping" />
@@ -156,13 +155,16 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Switch>
+        <WaterWaveBackground />
+        <div className="relative z-10 min-h-screen">
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <Switch>
             <Route path="/" component={AppRoot} />
             <Route path="/free-portal" component={FreePortal} />
             <Route component={NotFound} />
           </Switch>
         </WouterRouter>
+        </div>
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>

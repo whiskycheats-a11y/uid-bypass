@@ -853,7 +853,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
   );
 
   return (
-    <div className="flex h-screen bg-[#030014] text-white font-sans overflow-hidden relative">
+    <div className="flex h-screen bg-transparent text-white font-sans overflow-hidden relative">
       <div ref={spotlightRef} className="fixed inset-0 pointer-events-none z-0" style={{ willChange: "background" }} />
       
       {/* Sidebar — hidden on mobile, slide-in on mobile when open */}

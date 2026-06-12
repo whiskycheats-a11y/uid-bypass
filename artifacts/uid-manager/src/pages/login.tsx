@@ -393,10 +393,7 @@ export default function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div ref={mainRef} className="min-h-screen relative flex flex-col font-sans overflow-x-hidden selection:bg-violet-500/30 selection:text-white">
-      {/* ── Argus VPN Style Background ── */}
-      <div className="argus-bg" />
-      <div className="argus-mesh" />
+    <div ref={mainRef} className="min-h-screen relative flex flex-col font-sans overflow-x-hidden selection:bg-violet-500/30 selection:text-white bg-transparent">
 
       {/* ── Fixed Navigation ── */}
       <header
@@ -526,8 +523,8 @@ export default function Login({ onLogin }: LoginProps) {
               </section>
 
               {/* ═══════ LIVE STATS ═══════ */}
-              <section className="w-full border-y border-white/[0.05] py-16 bg-[#030014]/60 backdrop-blur-xl relative">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-900/5 to-transparent pointer-events-none" />
+              <section className="w-full border-y border-white/[0.05] py-16 bg-white/[0.02] backdrop-blur-md relative">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-900/10 to-transparent pointer-events-none" />
                 <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 grid sm:grid-cols-3 gap-6">
                   {statusCards.map((card, idx) => (
                     <ScrollReveal key={card.label} delay={idx * 0.12} y={40}>
@@ -750,8 +747,8 @@ export default function Login({ onLogin }: LoginProps) {
              </section>
 
              {/* ═══════ FAQ ═══════ */}
-             <section className="w-full bg-[#030014]/80 backdrop-blur-2xl border-t border-white/[0.05] py-28 sm:py-36 relative">
-               <div className="absolute inset-0 bg-gradient-to-t from-transparent via-cyan-900/5 to-transparent pointer-events-none" />
+             <section className="w-full bg-black/40 backdrop-blur-xl border-t border-white/[0.05] py-28 sm:py-36 relative">
+               <div className="absolute inset-0 bg-gradient-to-t from-transparent via-cyan-900/10 to-transparent pointer-events-none" />
                <div className="w-full max-w-4xl mx-auto px-6 sm:px-10 space-y-16 relative z-10">
                  <div className="text-center space-y-6">
                    <ScrollReveal y={20}>

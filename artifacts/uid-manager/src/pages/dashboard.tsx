@@ -2067,7 +2067,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
   );
 
   return (
-    <div className="flex h-[100dvh] bg-[#030014] text-white font-sans overflow-hidden relative">
+    <div className="flex h-[100dvh] bg-transparent text-white font-sans overflow-hidden relative">
       
       {/* Mobile sidebar overlay */}
       <AnimatePresence>
@@ -2204,8 +2204,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
       <main className="flex-1 relative flex flex-col overflow-hidden h-full min-w-0">
         {/* Background Effects for Main Content */}
         <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="argus-bg w-full h-full" />
-          <div className="argus-mesh w-full h-full opacity-60" />
+          {/* Removed static background to allow 3D water wave to show */}
         </div>
 
         {/* Main Content Header */}

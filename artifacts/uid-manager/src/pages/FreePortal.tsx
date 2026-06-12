@@ -133,9 +133,7 @@ export default function FreePortal() {
 
   return (
     <div className="min-h-screen relative flex flex-col font-sans overflow-x-hidden selection:bg-violet-500/30 selection:text-white">
-      {/* Background aesthetics matching main landing page */}
-      <div className="argus-bg" />
-      <div className="argus-mesh" />
+      {/* Background aesthetics removed for global 3D water wave */}
 
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.05] bg-[#030014]/60 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
