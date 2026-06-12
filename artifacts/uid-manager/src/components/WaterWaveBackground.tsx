@@ -1,209 +1,241 @@
-import React, { useRef, useMemo, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import * as THREE from "three";
+import React, { useRef, useEffect, useCallback } from "react";
 
-const LiquidMesh = () => {
-  const meshRef = useRef<THREE.Mesh>(null);
-  
-  const targetMouse = useRef({ x: 0, y: 0 });
-  const scrollVelocity = useRef(0);
-  const timeOffset = useRef(0);
-  const lastTouchY = useRef(0);
+/* ═══════════════════════════════════════════════════════════════════
+   ✦  Celestial Nebula — Premium Interactive Background
+   ─────────────────────────────────────────────────────────────────
+   Layers (bottom → top):
+     1. Deep-space radial base (#050016)
+     2. Three large GPU-accelerated CSS gradient orbs (animate-float)
+     3. Lightweight HTML5 Canvas particle constellation (mouse-reactive)
+     4. Subtle SVG film-grain texture overlay
+     5. Radial vignette
+   No WebGL. Pure CSS + Canvas2D → buttery 60 fps on any device.
+   ═══════════════════════════════════════════════════════════════════ */
 
-  const uniforms = useMemo(
-    () => ({
-      uTime: { value: 0 },
-      uColorDark: { value: new THREE.Color("#050505") },
-      uColorPurple: { value: new THREE.Color("#4c1d95") },
-      uColorCyan: { value: new THREE.Color("#0891b2") },
-    }),
-    []
-  );
+// ─── Interactive Canvas Particles ──────────────────────────────────
+function useParticleCanvas(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
+  const mouse = useRef({ x: -1000, y: -1000 });
+  const particles = useRef<{ x: number; y: number; vx: number; vy: number; r: number; o: number }[]>([]);
+  const raf = useRef(0);
+
+  const init = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const w = (canvas.width = window.innerWidth);
+    const h = (canvas.height = window.innerHeight);
+
+    // Reduce count on mobile for performance
+    const count = window.innerWidth < 768 ? 45 : 90;
+    particles.current = Array.from({ length: count }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: (Math.random() - 0.5) * 0.25,
+      r: Math.random() * 1.5 + 0.5,
+      o: Math.random() * 0.5 + 0.15,
+    }));
+  }, [canvasRef]);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      targetMouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-      targetMouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d", { alpha: true })!;
+    init();
+
+    const handleResize = () => init();
+    const handleMouse = (e: MouseEvent) => {
+      mouse.current.x = e.clientX;
+      mouse.current.y = e.clientY;
+    };
+    const handleTouch = (e: TouchEvent) => {
+      mouse.current.x = e.touches[0].clientX;
+      mouse.current.y = e.touches[0].clientY;
+    };
+    const handleLeave = () => {
+      mouse.current.x = -1000;
+      mouse.current.y = -1000;
     };
 
-    const handleWheel = (e: WheelEvent) => {
-      // Much slower, subtler scroll momentum
-      scrollVelocity.current += e.deltaY * 0.0001;
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("mousemove", handleMouse, { passive: true });
+    window.addEventListener("touchmove", handleTouch, { passive: true });
+    window.addEventListener("mouseleave", handleLeave);
+
+    const draw = () => {
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const pts = particles.current;
+      const mx = mouse.current.x;
+      const my = mouse.current.y;
+      const connectDist = 140;
+      const mouseDist = 200;
+
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+
+        // Gentle mouse repulsion
+        const dmx = p.x - mx;
+        const dmy = p.y - my;
+        const dm = Math.sqrt(dmx * dmx + dmy * dmy);
+        if (dm < mouseDist && dm > 0) {
+          const force = (mouseDist - dm) / mouseDist * 0.015;
+          p.vx += (dmx / dm) * force;
+          p.vy += (dmy / dm) * force;
+        }
+
+        // Dampen velocity
+        p.vx *= 0.995;
+        p.vy *= 0.995;
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Wrap edges
+        if (p.x < -10) p.x = w + 10;
+        if (p.x > w + 10) p.x = -10;
+        if (p.y < -10) p.y = h + 10;
+        if (p.y > h + 10) p.y = -10;
+
+        // Draw dot
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(180, 200, 255, ${p.o})`;
+        ctx.fill();
+
+        // Constellation lines between nearby particles
+        for (let j = i + 1; j < pts.length; j++) {
+          const q = pts[j];
+          const dx = p.x - q.x;
+          const dy = p.y - q.y;
+          const d = dx * dx + dy * dy;
+          if (d < connectDist * connectDist) {
+            const alpha = (1 - Math.sqrt(d) / connectDist) * 0.12;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.strokeStyle = `rgba(140, 160, 255, ${alpha})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+
+        // Lines to mouse cursor
+        if (dm < mouseDist) {
+          const alpha = (1 - dm / mouseDist) * 0.2;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(mx, my);
+          ctx.strokeStyle = `rgba(120, 140, 255, ${alpha})`;
+          ctx.lineWidth = 0.4;
+          ctx.stroke();
+        }
+      }
+
+      raf.current = requestAnimationFrame(draw);
     };
 
-    const handleTouchStart = (e: TouchEvent) => {
-      lastTouchY.current = e.touches[0].clientY;
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      const deltaY = lastTouchY.current - e.touches[0].clientY;
-      scrollVelocity.current += deltaY * 0.0005;
-      lastTouchY.current = e.touches[0].clientY;
-      
-      targetMouse.current.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
-      targetMouse.current.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("wheel", handleWheel, { passive: true });
-    window.addEventListener("touchstart", handleTouchStart, { passive: true });
-    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    raf.current = requestAnimationFrame(draw);
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("wheel", handleWheel);
-      window.removeEventListener("touchstart", handleTouchStart);
-      window.removeEventListener("touchmove", handleTouchMove);
+      cancelAnimationFrame(raf.current);
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("mousemove", handleMouse);
+      window.removeEventListener("touchmove", handleTouch);
+      window.removeEventListener("mouseleave", handleLeave);
     };
-  }, []);
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      const material = meshRef.current.material as THREE.ShaderMaterial;
-      
-      timeOffset.current += scrollVelocity.current;
-      scrollVelocity.current = THREE.MathUtils.lerp(scrollVelocity.current, 0, 0.05);
-      
-      // Slower base time
-      material.uniforms.uTime.value = state.clock.elapsedTime * 0.15 + timeOffset.current;
-      
-      // Smooth subtle parallax
-      meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, -Math.PI * 0.35 - targetMouse.current.y * 0.05, 0.02);
-      meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, targetMouse.current.x * 0.05, 0.02);
-    }
-  });
-
-  return (
-    <mesh ref={meshRef} position={[0, -1.5, -4]} rotation={[-Math.PI * 0.35, 0, 0]}>
-      <planeGeometry args={[35, 35, 256, 256]} />
-      <shaderMaterial
-        transparent
-        uniforms={uniforms}
-        vertexShader={`
-          uniform float uTime;
-          varying vec2 vUv;
-          varying float vElevation;
-          varying vec3 vNormal;
-          varying vec3 vViewPosition;
-
-          // Simplex 2D noise
-          vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-          vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-          vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
-          float snoise(vec2 v) {
-            const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
-            vec2 i  = floor(v + dot(v, C.yy));
-            vec2 x0 = v -   i + dot(i, C.xx);
-            vec2 i1;
-            i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-            vec4 x12 = x0.xyxy + C.xxzz;
-            x12.xy -= i1;
-            i = mod289(i);
-            vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
-            vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-            m = m*m; m = m*m;
-            vec3 x = 2.0 * fract(p * C.www) - 1.0;
-            vec3 h = abs(x) - 0.5;
-            vec3 ox = floor(x + 0.5);
-            vec3 a0 = x - ox;
-            m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
-            vec3 g;
-            g.x  = a0.x  * x0.x  + h.x  * x0.y;
-            g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-            return 130.0 * dot(m, g);
-          }
-
-          float getElevation(vec2 pos) {
-              float e = snoise(vec2(pos.x * 0.1, pos.y * 0.1 + uTime * 0.5)) * 1.5;
-              e += snoise(vec2(pos.x * 0.25 - uTime * 0.3, pos.y * 0.25)) * 0.5;
-              return e;
-          }
-
-          void main() {
-            vUv = uv;
-            vec3 pos = position;
-            
-            float elevation = getElevation(pos.xy);
-            pos.z += elevation;
-            vElevation = elevation;
-
-            // Calculate normals dynamically for lighting
-            float delta = 0.1;
-            vec3 p1 = vec3(position.x + delta, position.y, getElevation(position.xy + vec2(delta, 0.0)));
-            vec3 p2 = vec3(position.x, position.y + delta, getElevation(position.xy + vec2(0.0, delta)));
-            vec3 p0 = vec3(position.x, position.y, elevation);
-            
-            vec3 computedNormal = normalize(cross(p1 - p0, p2 - p0));
-            vNormal = normalMatrix * computedNormal;
-
-            vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-            vViewPosition = -mvPosition.xyz;
-            gl_Position = projectionMatrix * mvPosition;
-          }
-        `}
-        fragmentShader={`
-          uniform vec3 uColorDark;
-          uniform vec3 uColorPurple;
-          uniform vec3 uColorCyan;
-          
-          varying vec2 vUv;
-          varying float vElevation;
-          varying vec3 vNormal;
-          varying vec3 vViewPosition;
-
-          void main() {
-            vec3 normal = normalize(vNormal);
-            vec3 viewDir = normalize(vViewPosition);
-
-            // Base gradient
-            float mixPurple = smoothstep(-1.0, 1.0, vElevation);
-            float mixCyan = smoothstep(0.5, 2.0, vElevation);
-            
-            vec3 color = mix(uColorDark, uColorPurple, mixPurple * 0.5);
-            color = mix(color, uColorCyan, mixCyan * 0.6);
-
-            // Studio Lighting (Specular & Diffuse)
-            vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
-            vec3 lightColor = vec3(1.0, 1.0, 1.0);
-
-            // Diffuse
-            float diff = max(0.0, dot(normal, lightDir));
-            color += lightColor * diff * 0.15;
-
-            // Specular Gloss
-            vec3 halfVector = normalize(lightDir + viewDir);
-            float spec = pow(max(0.0, dot(normal, halfVector)), 80.0);
-            color += lightColor * spec * 0.6;
-
-            // Edge Fresnel
-            float fresnel = pow(1.0 - max(0.0, dot(normal, viewDir)), 3.0);
-            color += uColorCyan * fresnel * 0.4;
-
-            // Smooth edges
-            float edgeAlpha = 1.0 - smoothstep(0.3, 0.5, distance(vUv, vec2(0.5)));
-
-            gl_FragColor = vec4(color, edgeAlpha);
-          }
-        `}
-      />
-    </mesh>
-  );
-};
+  }, [canvasRef, init]);
+}
 
 export function WaterWaveBackground() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useParticleCanvas(canvasRef);
+
   return (
-    <div className="fixed inset-0 z-[-1] bg-[#030014] overflow-hidden">
-      <Canvas camera={{ position: [0, 2, 5], fov: 60 }}>
-        <fog attach="fog" args={["#030014", 3, 12]} />
-        <LiquidMesh />
-      </Canvas>
-      {/* Cinematic Film Grain Texture */}
-      <div 
-        className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay"
-        style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }}
+    <div className="fixed inset-0 z-[-1] overflow-hidden" style={{ background: "#050016" }}>
+
+      {/* ── Layer 1 : Deep-space radial gradients ── */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `
+            radial-gradient(ellipse 80% 50% at 20% 60%, rgba(88, 28, 135, 0.25) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 40% at 80% 30%, rgba(14, 116, 144, 0.2) 0%, transparent 55%),
+            radial-gradient(ellipse 50% 60% at 50% 100%, rgba(124, 58, 237, 0.12) 0%, transparent 50%)
+          `,
+        }}
       />
-      {/* Gradient Vignette */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#030014_100%)] pointer-events-none opacity-80" />
+
+      {/* ── Layer 2 : Animated gradient orbs (GPU-accelerated) ── */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Orb 1 — large violet */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: "55vmax",
+            height: "55vmax",
+            left: "-8%",
+            top: "5%",
+            background: "radial-gradient(circle, rgba(124, 58, 237, 0.18) 0%, rgba(124, 58, 237, 0) 70%)",
+            filter: "blur(60px)",
+            animation: "orb-float-1 18s ease-in-out infinite",
+            willChange: "transform",
+          }}
+        />
+        {/* Orb 2 — cyan/teal */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: "45vmax",
+            height: "45vmax",
+            right: "-5%",
+            top: "15%",
+            background: "radial-gradient(circle, rgba(6, 182, 212, 0.14) 0%, rgba(6, 182, 212, 0) 70%)",
+            filter: "blur(50px)",
+            animation: "orb-float-2 22s ease-in-out infinite",
+            willChange: "transform",
+          }}
+        />
+        {/* Orb 3 — pink/rose accent */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: "35vmax",
+            height: "35vmax",
+            left: "30%",
+            bottom: "-10%",
+            background: "radial-gradient(circle, rgba(219, 39, 119, 0.1) 0%, rgba(219, 39, 119, 0) 70%)",
+            filter: "blur(55px)",
+            animation: "orb-float-3 26s ease-in-out infinite",
+            willChange: "transform",
+          }}
+        />
+      </div>
+
+      {/* ── Layer 3 : Interactive canvas particles ── */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full"
+        style={{ opacity: 0.7 }}
+      />
+
+      {/* ── Layer 4 : Film grain ── */}
+      <div
+        className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay"
+        style={{
+          backgroundImage:
+            'url("data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E")',
+        }}
+      />
+
+      {/* ── Layer 5 : Vignette ── */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, #050016 100%)",
+          opacity: 0.65,
+        }}
+      />
     </div>
   );
 }
