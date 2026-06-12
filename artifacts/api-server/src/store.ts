@@ -440,6 +440,8 @@ export interface AppUser {
   hwid?: string;
   hwidLockEnabled?: boolean;
   isActive?: boolean;
+  apiAccessEnabled?: boolean;
+  uidLimit?: number;
 }
 
 interface UserDoc extends AppUser, Document { }
@@ -458,6 +460,8 @@ const userSchema = new Schema<UserDoc>({
   hwid: { type: String, default: "" },
   hwidLockEnabled: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
+  apiAccessEnabled: { type: Boolean, default: false },
+  uidLimit: { type: Number, default: -1 },
 });
 
 const UserModel = model<UserDoc>("User", userSchema);
@@ -612,7 +616,7 @@ export const userStore = {
     return docs.map(toPlain);
   },
 
-  async add(username: string, password: string, defaultDays: number, isTrial = false): Promise<{ ok: true; user: AppUser } | { ok: false; error: string }> {
+  async add(username: string, password: string, defaultDays: number, isTrial = false, uidLimit = -1): Promise<{ ok: true; user: AppUser } | { ok: false; error: string }> {
     if (!isString(username) || !isString(password)) {
       return { ok: false, error: "Invalid username or password format" };
     }
@@ -620,13 +624,13 @@ export const userStore = {
     const hashedPw = hashPassword(password);
     if (!connected) {
       if (fallbackUsers.has(username)) return { ok: false, error: "Username already exists" };
-      const user: AppUser = { username, password: hashedPw, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0, hwid: "", hwidLockEnabled: false, isActive: true };
+      const user: AppUser = { username, password: hashedPw, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0, hwid: "", hwidLockEnabled: false, isActive: true, apiAccessEnabled: false, uidLimit };
       fallbackUsers.set(username, user);
       return { ok: true, user };
     }
     const exists = await UserModel.findOne({ username });
     if (exists) return { ok: false, error: "Username already exists" };
-    const user: AppUser = { username, password: hashedPw, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0, hwid: "", hwidLockEnabled: false, isActive: true };
+    const user: AppUser = { username, password: hashedPw, role: "user", canResell: false, createdAt: new Date().toISOString(), defaultDays, isTrial, balance: 0, hwid: "", hwidLockEnabled: false, isActive: true, apiAccessEnabled: false, uidLimit };
     await UserModel.create(user);
     return { ok: true, user };
   },
@@ -811,8 +815,21 @@ export const userStore = {
       u.hwidLockEnabled = enabled;
       return true;
     }
-    const result = await UserModel.updateOne({ username }, { $set: { hwidLockEnabled: enabled } });
-    return result.matchedCount > 0;
+    const res = await UserModel.updateOne({ username }, { hwidLockEnabled: enabled });
+    return res.modifiedCount > 0;
+  },
+
+  async setApiAccess(username: string, enabled: boolean): Promise<boolean> {
+    if (!isString(username)) return false;
+    await ensureConnection();
+    if (!connected) {
+      const u = fallbackUsers.get(username);
+      if (!u) return false;
+      u.apiAccessEnabled = enabled;
+      return true;
+    }
+    const res = await UserModel.updateOne({ username }, { apiAccessEnabled: enabled });
+    return res.modifiedCount > 0;
   },
 
   async resetHwid(username: string): Promise<boolean> {

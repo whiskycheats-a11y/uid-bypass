@@ -352,6 +352,8 @@ router.get("/profile/:username", async (req, res) => {
       username: user.username,
       displayName: user.displayName || user.username,
       avatar: user.avatar || "",
+      apiAccessEnabled: user.apiAccessEnabled || false,
+      uidLimit: user.uidLimit ?? -1,
     });
   } catch (err) {
     return res.status(500).json({ success: false, error: "Failed to fetch profile" });

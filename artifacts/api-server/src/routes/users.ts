@@ -107,6 +107,15 @@ router.patch("/:username/hwid-lock", requireAdmin, async (req, res) => {
   return res.json({ success: true, hwidLockEnabled: Boolean(enabled) });
 });
 
+router.patch("/:username/api-access", requireAdmin, async (req, res) => {
+  const { enabled } = req.body ?? {};
+  const updated = await userStore.setApiAccess(req.params.username as string, Boolean(enabled));
+  if (!updated) {
+    return res.status(404).json({ success: false, error: "User not found" });
+  }
+  return res.json({ success: true, apiAccessEnabled: Boolean(enabled) });
+});
+
 router.post("/:username/hwid-reset", requireAdmin, async (req, res) => {
   const updated = await userStore.resetHwid(req.params.username as string);
   if (!updated) {
@@ -116,12 +125,12 @@ router.post("/:username/hwid-reset", requireAdmin, async (req, res) => {
 });
 
 router.post("/", requireAdmin, async (req, res) => {
-  const { username, password, defaultDays, isTrial } = req.body ?? {};
+  const { username, password, defaultDays, isTrial, uidLimit } = req.body ?? {};
   if (!username || !password) {
     return res.status(400).json({ success: false, error: "Username and password are required" });
   }
   const days = Number(defaultDays) > 0 ? Number(defaultDays) : 30;
-  const result = await userStore.add(username, password, days, Boolean(isTrial));
+  const result = await userStore.add(username, password, days, Boolean(isTrial), uidLimit ?? -1);
   if (!result.ok) {
     return res.status(409).json({ success: false, error: result.error });
   }
@@ -130,6 +139,7 @@ router.post("/", requireAdmin, async (req, res) => {
     username: result.user.username,
     defaultDays: result.user.defaultDays,
     isTrial: result.user.isTrial,
+    uidLimit: result.user.uidLimit,
   });
 });
 
