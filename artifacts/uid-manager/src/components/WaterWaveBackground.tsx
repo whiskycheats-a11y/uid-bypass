@@ -2,7 +2,7 @@ import React, { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-const AuroraMesh = () => {
+const LiquidMesh = () => {
   const meshRef = useRef<THREE.Mesh>(null);
   
   const targetMouse = useRef({ x: 0, y: 0 });
@@ -13,9 +13,9 @@ const AuroraMesh = () => {
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
-      uColor1: { value: new THREE.Color("#06b6d4") }, // Cyan
-      uColor2: { value: new THREE.Color("#4f46e5") }, // Indigo/Blue
-      uColor3: { value: new THREE.Color("#ffffff") }, // White core
+      uColorDark: { value: new THREE.Color("#050505") },
+      uColorPurple: { value: new THREE.Color("#4c1d95") },
+      uColorCyan: { value: new THREE.Color("#0891b2") },
     }),
     []
   );
@@ -27,7 +27,8 @@ const AuroraMesh = () => {
     };
 
     const handleWheel = (e: WheelEvent) => {
-      scrollVelocity.current += e.deltaY * 0.0006;
+      // Much slower, subtler scroll momentum
+      scrollVelocity.current += e.deltaY * 0.0001;
     };
 
     const handleTouchStart = (e: TouchEvent) => {
@@ -36,7 +37,7 @@ const AuroraMesh = () => {
 
     const handleTouchMove = (e: TouchEvent) => {
       const deltaY = lastTouchY.current - e.touches[0].clientY;
-      scrollVelocity.current += deltaY * 0.0015;
+      scrollVelocity.current += deltaY * 0.0005;
       lastTouchY.current = e.touches[0].clientY;
       
       targetMouse.current.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
@@ -60,43 +61,32 @@ const AuroraMesh = () => {
     if (meshRef.current) {
       const material = meshRef.current.material as THREE.ShaderMaterial;
       
-      // Scroll Momentum
       timeOffset.current += scrollVelocity.current;
-      scrollVelocity.current = THREE.MathUtils.lerp(scrollVelocity.current, 0, 0.08); // Damp velocity
+      scrollVelocity.current = THREE.MathUtils.lerp(scrollVelocity.current, 0, 0.05);
       
-      material.uniforms.uTime.value = state.clock.elapsedTime * 0.35 + timeOffset.current;
+      // Slower base time
+      material.uniforms.uTime.value = state.clock.elapsedTime * 0.15 + timeOffset.current;
       
-      // 4D Parallax Tilt
-      meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, -targetMouse.current.y * 0.2, 0.05);
-      meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, targetMouse.current.x * 0.2, 0.05);
-      
-      // Slow floating depth motion
-      meshRef.current.position.z = -2 + Math.sin(state.clock.elapsedTime * 0.3) * 0.2;
+      // Smooth subtle parallax
+      meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, -Math.PI * 0.35 - targetMouse.current.y * 0.05, 0.02);
+      meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, targetMouse.current.x * 0.05, 0.02);
     }
   });
 
   return (
-    <mesh ref={meshRef} position={[0, 0, -2]}>
-      <planeGeometry args={[25, 15, 32, 32]} />
+    <mesh ref={meshRef} position={[0, -1.5, -4]} rotation={[-Math.PI * 0.35, 0, 0]}>
+      <planeGeometry args={[35, 35, 256, 256]} />
       <shaderMaterial
         transparent
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
         uniforms={uniforms}
         vertexShader={`
-          varying vec2 vUv;
-          void main() {
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `}
-        fragmentShader={`
           uniform float uTime;
-          uniform vec3 uColor1;
-          uniform vec3 uColor2;
-          uniform vec3 uColor3;
           varying vec2 vUv;
+          varying float vElevation;
+          varying vec3 vNormal;
+          varying vec3 vViewPosition;
 
+          // Simplex 2D noise
           vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
           vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
           vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
@@ -123,31 +113,76 @@ const AuroraMesh = () => {
             return 130.0 * dot(m, g);
           }
 
+          float getElevation(vec2 pos) {
+              float e = snoise(vec2(pos.x * 0.1, pos.y * 0.1 + uTime * 0.5)) * 1.5;
+              e += snoise(vec2(pos.x * 0.25 - uTime * 0.3, pos.y * 0.25)) * 0.5;
+              return e;
+          }
+
           void main() {
-            vec2 uv = vUv;
-            vec2 centeredUv = uv - 0.5;
-            vec3 finalColor = vec3(0.0);
+            vUv = uv;
+            vec3 pos = position;
+            
+            float elevation = getElevation(pos.xy);
+            pos.z += elevation;
+            vElevation = elevation;
 
-            for(float i = 0.0; i < 7.0; i++) {
-                float t = uTime * 0.15 + i * 0.7;
-                
-                float noiseVal = snoise(vec2(centeredUv.x * 1.2 + t, i * 0.5)) * 0.35;
-                float lineY = noiseVal + sin(centeredUv.x * 2.5 + t) * 0.15;
-                
-                float dist = abs(centeredUv.y - lineY);
-                
-                float glow = 0.003 / (dist + 0.001);
-                float core = 0.0006 / (dist + 0.0001);
-                
-                vec3 ribbonColor = mix(uColor1, uColor2, i / 6.0);
-                
-                finalColor += ribbonColor * glow * 1.2;
-                finalColor += uColor3 * core * 1.5;
-            }
+            // Calculate normals dynamically for lighting
+            float delta = 0.1;
+            vec3 p1 = vec3(position.x + delta, position.y, getElevation(position.xy + vec2(delta, 0.0)));
+            vec3 p2 = vec3(position.x, position.y + delta, getElevation(position.xy + vec2(0.0, delta)));
+            vec3 p0 = vec3(position.x, position.y, elevation);
+            
+            vec3 computedNormal = normalize(cross(p1 - p0, p2 - p0));
+            vNormal = normalMatrix * computedNormal;
 
-            float alpha = 1.0 - smoothstep(0.1, 0.5, distance(uv, vec2(0.5)));
+            vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+            vViewPosition = -mvPosition.xyz;
+            gl_Position = projectionMatrix * mvPosition;
+          }
+        `}
+        fragmentShader={`
+          uniform vec3 uColorDark;
+          uniform vec3 uColorPurple;
+          uniform vec3 uColorCyan;
+          
+          varying vec2 vUv;
+          varying float vElevation;
+          varying vec3 vNormal;
+          varying vec3 vViewPosition;
 
-            gl_FragColor = vec4(finalColor, alpha);
+          void main() {
+            vec3 normal = normalize(vNormal);
+            vec3 viewDir = normalize(vViewPosition);
+
+            // Base gradient
+            float mixPurple = smoothstep(-1.0, 1.0, vElevation);
+            float mixCyan = smoothstep(0.5, 2.0, vElevation);
+            
+            vec3 color = mix(uColorDark, uColorPurple, mixPurple * 0.5);
+            color = mix(color, uColorCyan, mixCyan * 0.6);
+
+            // Studio Lighting (Specular & Diffuse)
+            vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
+            vec3 lightColor = vec3(1.0, 1.0, 1.0);
+
+            // Diffuse
+            float diff = max(0.0, dot(normal, lightDir));
+            color += lightColor * diff * 0.15;
+
+            // Specular Gloss
+            vec3 halfVector = normalize(lightDir + viewDir);
+            float spec = pow(max(0.0, dot(normal, halfVector)), 80.0);
+            color += lightColor * spec * 0.6;
+
+            // Edge Fresnel
+            float fresnel = pow(1.0 - max(0.0, dot(normal, viewDir)), 3.0);
+            color += uColorCyan * fresnel * 0.4;
+
+            // Smooth edges
+            float edgeAlpha = 1.0 - smoothstep(0.3, 0.5, distance(vUv, vec2(0.5)));
+
+            gl_FragColor = vec4(color, edgeAlpha);
           }
         `}
       />
@@ -158,11 +193,17 @@ const AuroraMesh = () => {
 export function WaterWaveBackground() {
   return (
     <div className="fixed inset-0 z-[-1] bg-[#030014] overflow-hidden">
-      <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-        <fog attach="fog" args={["#030014", 2, 10]} />
-        <AuroraMesh />
+      <Canvas camera={{ position: [0, 2, 5], fov: 60 }}>
+        <fog attach="fog" args={["#030014", 3, 12]} />
+        <LiquidMesh />
       </Canvas>
-      <div className="absolute inset-0 bg-[#030014]/40 pointer-events-none" />
+      {/* Cinematic Film Grain Texture */}
+      <div 
+        className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay"
+        style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }}
+      />
+      {/* Gradient Vignette */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#030014_100%)] pointer-events-none opacity-80" />
     </div>
   );
 }
