@@ -129,6 +129,20 @@ router.post("/add", async (req, res) => {
     }
   }
 
+    const apiKeyHeader = req.headers["x-api-key"] || req.headers["authorization"]?.toString().replace("Bearer ", "");
+    if (!isAuthorized && apiKeyHeader) {
+      const apiUser = await userStore.findByApiKey(apiKeyHeader as string);
+      if (apiUser && apiUser.apiAccessEnabled) {
+        authUser = apiUser.username;
+        if (apiUser.role === "admin") {
+          isAuthorized = true;
+          isAdmin = true;
+        } else if (!username || apiUser.username === username) {
+          isAuthorized = true;
+        }
+      }
+    }
+
   if (!isAuthorized) {
     res.status(403).json({ success: false, message: "Unauthorized to add UID" });
     return;
@@ -266,6 +280,21 @@ router.post("/remove", async (req, res) => {
         }
       }
     }
+
+      const apiKeyHeader = req.headers["x-api-key"] || req.headers["authorization"]?.toString().replace("Bearer ", "");
+      if (!isAuthorized && apiKeyHeader) {
+        const apiUser = await userStore.findByApiKey(apiKeyHeader as string);
+        if (apiUser && apiUser.apiAccessEnabled) {
+          if (apiUser.role === "admin") {
+            isAuthorized = true;
+          } else {
+            const existingUid = await uidStore.get(uid);
+            if (existingUid && existingUid.addedBy === apiUser.username) {
+              isAuthorized = true;
+            }
+          }
+        }
+      }
 
     if (!isAuthorized) {
       res.status(403).json({ success: false, message: "Unauthorized to remove this UID" });

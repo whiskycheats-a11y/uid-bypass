@@ -347,6 +347,12 @@ router.get("/profile/:username", async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, error: "User not found" });
     }
+
+    let apiKey = user.apiKey || "";
+    if (!apiKey && user.apiAccessEnabled) {
+      apiKey = await userStore.ensureApiKey(user.username);
+    }
+
     return res.json({
       success: true,
       username: user.username,
@@ -354,6 +360,7 @@ router.get("/profile/:username", async (req, res) => {
       avatar: user.avatar || "",
       apiAccessEnabled: user.apiAccessEnabled || false,
       uidLimit: user.uidLimit ?? -1,
+      apiKey,
     });
   } catch (err) {
     return res.status(500).json({ success: false, error: "Failed to fetch profile" });

@@ -442,6 +442,7 @@ export interface AppUser {
   isActive?: boolean;
   apiAccessEnabled?: boolean;
   uidLimit?: number;
+  apiKey?: string;
 }
 
 interface UserDoc extends AppUser, Document { }
@@ -462,6 +463,7 @@ const userSchema = new Schema<UserDoc>({
   isActive: { type: Boolean, default: true },
   apiAccessEnabled: { type: Boolean, default: false },
   uidLimit: { type: Number, default: -1 },
+  apiKey: { type: String, default: "" },
 });
 
 const UserModel = model<UserDoc>("User", userSchema);
@@ -599,6 +601,14 @@ export const userStore = {
     await ensureConnection();
     if (!connected) return fallbackUsers.get(username);
     const doc = await UserModel.findOne({ username });
+    return doc ? toPlain(doc) : undefined;
+  },
+
+  async findByApiKey(apiKey: string): Promise<AppUser | undefined> {
+    if (!isString(apiKey) || !apiKey) return undefined;
+    await ensureConnection();
+    if (!connected) return undefined; // No fallback for this
+    const doc = await UserModel.findOne({ apiKey });
     return doc ? toPlain(doc) : undefined;
   },
 
@@ -832,6 +842,18 @@ export const userStore = {
     return res.matchedCount > 0;
   },
 
+  async ensureApiKey(username: string): Promise<string> {
+    if (!isString(username)) return "";
+    await ensureConnection();
+    if (!connected) return ""; // In memory fallback doesn't need this yet
+    const u = await UserModel.findOne({ username });
+    if (!u) return "";
+    if (u.apiKey && u.apiKey.length > 5) return u.apiKey;
+    const newKey = "zyt-" + crypto.randomBytes(16).toString("hex");
+    await UserModel.updateOne({ username }, { apiKey: newKey });
+    return newKey;
+  },
+
   async resetHwid(username: string): Promise<boolean> {
     if (!isString(username)) return false;
     await ensureConnection();
@@ -876,6 +898,7 @@ function toPlain(doc: UserDoc): AppUser {
     isActive: doc.isActive !== false, // treat missing/undefined as true (backwards compat)
     apiAccessEnabled: doc.apiAccessEnabled ?? false,
     uidLimit: doc.uidLimit ?? -1,
+    apiKey: doc.apiKey ?? "",
   };
 }
 
