@@ -76,6 +76,8 @@ router.get("/", requireAdmin, async (_req, res) => {
       hwid: u.hwid ?? "",
       hwidLockEnabled: u.hwidLockEnabled ?? false,
       isActive: u.isActive !== false,
+      apiAccessEnabled: u.apiAccessEnabled ?? false,
+      uidLimit: u.uidLimit ?? -1,
     })),
   });
 });
