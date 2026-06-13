@@ -854,6 +854,17 @@ export const userStore = {
     return newKey;
   },
 
+  async resetApiKey(username: string): Promise<string> {
+    if (!isString(username)) return "";
+    await ensureConnection();
+    if (!connected) return ""; 
+    const u = await UserModel.findOne({ username });
+    if (!u) return "";
+    const newKey = "zyt-" + crypto.randomBytes(16).toString("hex");
+    await UserModel.updateOne({ username }, { apiKey: newKey });
+    return newKey;
+  },
+
   async resetHwid(username: string): Promise<boolean> {
     if (!isString(username)) return false;
     await ensureConnection();

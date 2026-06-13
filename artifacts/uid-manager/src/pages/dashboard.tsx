@@ -711,7 +711,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
   );
 }
 
-function DeveloperApiPanel({ apiKey }: { apiKey?: string }) {
+function DeveloperApiPanel({ apiKey, onResetKey, isResetting }: { apiKey?: string, onResetKey?: () => void, isResetting?: boolean }) {
   const [copied, setCopied] = useState(false);
   
   const copyKey = () => {
@@ -735,9 +735,21 @@ function DeveloperApiPanel({ apiKey }: { apiKey?: string }) {
       </div>
       
       <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl border border-white/5 p-6">
-        <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-          <KeyRound className="w-5 h-5 text-emerald-400" /> Your API Key
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold flex items-center gap-2">
+            <KeyRound className="w-5 h-5 text-emerald-400" /> Your API Key
+          </h2>
+          {apiKey && onResetKey && (
+            <button 
+              onClick={onResetKey}
+              disabled={isResetting}
+              className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2 disabled:opacity-50"
+            >
+              {isResetting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+              Reset Key
+            </button>
+          )}
+        </div>
         <div className="flex items-center gap-4 bg-black/40 border border-white/10 rounded-xl p-4">
           <code className="text-emerald-300 font-mono text-sm tracking-wider flex-1 break-all">
             {apiKey || "API Key not generated yet. Please contact admin."}
@@ -1766,6 +1778,30 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
       .catch(() => { });
   }, [username, isTrial]);
 
+
+  const [isResettingKey, setIsResettingKey] = useState(false);
+
+  const handleResetApiKey = async () => {
+    setIsResettingKey(true);
+    try {
+      const res = await apiFetch(`${BASE}/api/auth/reset-api-key`, { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        setProfileData(prev => ({ ...prev, apiKey: data.apiKey }));
+        try {
+          localStorage.setItem(`apiKey_${username}`, data.apiKey);
+        } catch (e) {}
+        toast({ title: "Success", description: "API Key has been reset." });
+      } else {
+        toast({ variant: "destructive", title: "Error", description: data.error || "Failed to reset API key" });
+      }
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error", description: "Failed to reset API key" });
+    } finally {
+      setIsResettingKey(false);
+    }
+  };
+
   const { data: listResponse, isLoading } = useListUids({
     query: { queryKey: getListUidsQueryKey() },
     request: { headers: userHeaders() },
@@ -2412,7 +2448,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
 
               {activeSidebarTab === "api" && profileData.apiAccessEnabled && (
                 <motion.div key="api" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                  <DeveloperApiPanel apiKey={profileData.apiKey} />
+                  <DeveloperApiPanel apiKey={profileData.apiKey} onResetKey={handleResetApiKey} isResetting={isResettingKey} />
                 </motion.div>
               )}
             </AnimatePresence>

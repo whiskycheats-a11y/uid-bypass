@@ -148,6 +148,22 @@ router.post("/add", async (req, res) => {
     return;
   }
 
+  // Enforcement of UID Limit
+  if (!isAdmin && authUser) {
+    const user = await userStore.find(authUser);
+    if (user && user.uidLimit !== undefined && user.uidLimit !== -1) {
+      const allUids = await uidStore.list();
+      const userUidsCount = allUids.filter(u => u.addedBy === authUser).length;
+      if (userUidsCount >= user.uidLimit) {
+        res.status(403).json({ 
+          success: false, 
+          message: `UID Limit Reached. You can only add up to ${user.uidLimit} UIDs. Please contact admin to increase your limit.` 
+        });
+        return;
+      }
+    }
+  }
+
   let effectiveDays = days;
   let isTrial = false;
   let skipBalanceCheck = isAdmin;
