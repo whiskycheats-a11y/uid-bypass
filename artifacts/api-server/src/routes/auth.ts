@@ -26,17 +26,7 @@ setInterval(() => {
 
 // ── VPN Detection ──
 async function checkVpn(ip: string): Promise<boolean> {
-  if (!ip || ip === "unknown" || ip.startsWith("127.") || ip.startsWith("192.168.") || ip.startsWith("10.") || ip === "::1") return false;
-  try {
-    // Only check proxy — NOT hosting, because mobile data/cellular carriers
-    // use cloud infrastructure that ip-api marks as "hosting", causing false positives.
-    // Only actual VPN/SOCKS/HTTP proxies should trigger a block.
-    const res = await fetch(`http://ip-api.com/json/${ip}?fields=proxy`);
-    const data = await res.json() as any;
-    return data.proxy === true;
-  } catch {
-    return false;
-  }
+  return false; // Disabled by admin request
 }
 
 // ── Login-specific rate limiter (separate from global, stricter) ──
@@ -45,14 +35,7 @@ const LOGIN_RATE_LIMIT = 6;            // 6 login requests per window
 const LOGIN_RATE_WINDOW = 5 * 60 * 1000; // 5 minutes
 
 function checkLoginRate(ip: string): boolean {
-  const now = Date.now();
-  let record = loginRateMap.get(ip);
-  if (!record || record.resetAt < now) {
-    record = { count: 0, resetAt: now + LOGIN_RATE_WINDOW };
-    loginRateMap.set(ip, record);
-  }
-  record.count++;
-  return record.count <= LOGIN_RATE_LIMIT;
+  return true; // Disabled by admin request
 }
 
 // Cleanup
@@ -147,31 +130,8 @@ router.post("/login", async (req, res) => {
   const userKey = `user:${username}`;
 
   const ipBlock = loginGuard.isBlocked(ipKey);
-  if (ipBlock.blocked) {
-    const mins = Math.ceil(ipBlock.remainingMs / 60000);
-    logger.warn({ ip: clientIp, username }, "Login attempt from blocked IP");
-    await loginHistoryStore.record(username, clientIp, false, userAgent);
-    return res.status(429).json({ 
-      success: false, 
-      error: `IP blocked for ${mins} minute(s). Too many failed attempts.`,
-      blockedFor: mins
-    });
-  }
-
   const userBlock = loginGuard.isBlocked(userKey);
   const isAdmin = config.ADMIN_USERNAME && username === config.ADMIN_USERNAME.toLowerCase();
-
-  // Do not block the admin account globally by username (prevents DoS on the admin account)
-  if (userBlock.blocked && !isAdmin) {
-    const mins = Math.ceil(userBlock.remainingMs / 60000);
-    logger.warn({ ip: clientIp, username }, "Login attempt on locked account");
-    await loginHistoryStore.record(username, clientIp, false, userAgent);
-    return res.status(429).json({ 
-      success: false, 
-      error: `Account temporarily locked for ${mins} minute(s). Contact admin to unlock.`,
-      blockedFor: mins
-    });
-  }
 
   // ─── 6. Credential verification ───
   const user = await userStore.verify(username, password);
@@ -189,14 +149,6 @@ router.post("/login", async (req, res) => {
     const attemptsLeft = Math.min(ipResult.attemptsLeft, userResult.attemptsLeft);
     
     logger.warn({ ip: clientIp, username, attemptsLeft }, "Failed login attempt");
-    
-    if (ipResult.blocked || userResult.blocked) {
-      return res.status(429).json({ 
-        success: false, 
-        error: "Too many failed attempts. Account and IP have been locked for 30+ minutes.",
-        blockedFor: 30
-      });
-    }
     
     // Don't tell attackers if the username exists — generic error
     return res.status(401).json({ 
