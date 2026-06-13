@@ -829,7 +829,7 @@ export const userStore = {
       return true;
     }
     const res = await UserModel.updateOne({ username }, { apiAccessEnabled: enabled });
-    return res.modifiedCount > 0;
+    return res.matchedCount > 0;
   },
 
   async resetHwid(username: string): Promise<boolean> {
