@@ -767,17 +767,17 @@ function DeveloperApiPanel({ apiKey }: { apiKey?: string }) {
             </div>
             <p className="text-sm text-slate-400">Endpoint: <span className="text-cyan-400 font-mono">/api/uid/add</span></p>
             
-            <div className="bg-black/60 rounded-lg p-4 font-mono text-[11px] sm:text-xs text-slate-300 overflow-x-auto border border-white/5">
-{`curl -X POST https://uid-api-server.onrender.com/api/uid/add \
-  -H "X-API-KEY: YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
+            <div className="bg-black/60 rounded-lg p-4 font-mono text-[11px] sm:text-xs text-slate-300 overflow-x-auto whitespace-pre border border-white/5">
+{`curl -X POST https://uid-api-server.onrender.com/api/uid/add \\
+  -H "X-API-KEY: YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
   -d '{
     "uid": "123456789",
     "days": 30
   }'`}
             </div>
             
-            <div className="mt-4 bg-black/60 rounded-lg p-4 font-mono text-[11px] sm:text-xs text-slate-300 border border-white/5">
+            <div className="mt-4 bg-black/60 rounded-lg p-4 font-mono text-[11px] sm:text-xs text-slate-300 whitespace-pre border border-white/5">
 {`// Success Response
 {
   "success": true,
@@ -793,16 +793,16 @@ function DeveloperApiPanel({ apiKey }: { apiKey?: string }) {
             </div>
             <p className="text-sm text-slate-400">Endpoint: <span className="text-cyan-400 font-mono">/api/uid/remove</span></p>
             
-            <div className="bg-black/60 rounded-lg p-4 font-mono text-[11px] sm:text-xs text-slate-300 overflow-x-auto border border-white/5">
-{`curl -X POST https://uid-api-server.onrender.com/api/uid/remove \
-  -H "X-API-KEY: YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
+            <div className="bg-black/60 rounded-lg p-4 font-mono text-[11px] sm:text-xs text-slate-300 overflow-x-auto whitespace-pre border border-white/5">
+{`curl -X POST https://uid-api-server.onrender.com/api/uid/remove \\
+  -H "X-API-KEY: YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
   -d '{
     "uid": "123456789"
   }'`}
             </div>
             
-            <div className="mt-4 bg-black/60 rounded-lg p-4 font-mono text-[11px] sm:text-xs text-slate-300 border border-white/5">
+            <div className="mt-4 bg-black/60 rounded-lg p-4 font-mono text-[11px] sm:text-xs text-slate-300 whitespace-pre border border-white/5">
 {`// Success Response
 {
   "success": true,
