@@ -874,6 +874,8 @@ function toPlain(doc: UserDoc): AppUser {
     hwid: doc.hwid ?? "",
     hwidLockEnabled: doc.hwidLockEnabled ?? false,
     isActive: doc.isActive !== false, // treat missing/undefined as true (backwards compat)
+    apiAccessEnabled: doc.apiAccessEnabled ?? false,
+    uidLimit: doc.uidLimit ?? -1,
   };
 }
 
