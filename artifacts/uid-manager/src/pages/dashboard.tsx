@@ -2320,10 +2320,10 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            {!isTrial && profileData.uidLimit !== undefined && profileData.uidLimit !== -1 && (
+            {!isTrial && (
               <div className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-[0_0_15px_rgba(59,130,246,0.1)] border" style={{ background: "rgba(59,130,246,0.1)", color: "#60a5fa", borderColor: "rgba(59,130,246,0.25)" }}>
                 <Shield className="w-3.5 h-3.5" />
-                <span>LIMIT: {uids.length} / {profileData.uidLimit}</span>
+                <span>LIMIT: {profileData.uidLimit === -1 || profileData.uidLimit === undefined ? "NO LIMIT" : `${uids.length} / ${profileData.uidLimit}`}</span>
               </div>
             )}
             {username && (
