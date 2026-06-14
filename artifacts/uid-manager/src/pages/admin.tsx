@@ -6,8 +6,9 @@ import {
   Lock, User as UserIcon, Gift, RefreshCw, Shield, Timer, Settings,
   Coins, Wallet, CreditCard, Check, XCircle, Clock, LayoutDashboard,
   BarChart2, MessageSquare, UserCircle, Camera, Edit2, Trophy, Medal,
-  Send, Menu, CalendarDays, KeyRound, Terminal, ShieldAlert, Unlock, Laptop2
+  Send, Menu, CalendarDays, KeyRound, Terminal, ShieldAlert, Unlock, Laptop2, MoreHorizontal
 } from "lucide-react";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
 import { AmbientScene } from "@/components/ambient-scene";
 import {
   useListUids,
@@ -1773,67 +1774,64 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
             )}
           </div>
 
-          {/* Action Toggles Group */}
-          <div className="flex items-center gap-1 bg-black/40 border border-white/5 p-1 rounded-lg">
-            {/* Resell toggle */}
-            {!isTrial && onResellToggle && (
-              <button onClick={() => onResellToggle(!user.canResell)} title={user.canResell ? "Revoke reseller" : "Allow reseller"}
-                className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${user.canResell ? 'bg-amber-500/20 text-amber-400' : 'hover:bg-white/5 text-slate-500'}`}
-              >
-                <Gift className="w-3.5 h-3.5" />
+          {/* Actions Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="w-8 h-8 flex items-center justify-center rounded-lg transition-all hover:bg-white/10 text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                <MoreHorizontal className="w-4 h-4" />
               </button>
-            )}
-            {/* HWID Lock Toggle */}
-            {onHwidLockToggle && (
-              <button
-                onClick={() => onHwidLockToggle(!user.hwidLockEnabled)}
-                title={user.hwidLockEnabled ? "HWID Lock Enabled (Click to Disable)" : "HWID Lock Disabled (Click to Enable)"}
-                className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${user.hwidLockEnabled ? 'bg-red-500/20 text-red-400' : 'hover:bg-white/5 text-slate-500'}`}
-              >
-                {user.hwidLockEnabled ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
-              </button>
-            )}
-            {/* API Access Toggle */}
-            {onApiAccessToggle && (
-              <button
-                onClick={() => onApiAccessToggle(!user.apiAccessEnabled)}
-                title={user.apiAccessEnabled ? "API Access Enabled (Click to Revoke)" : "API Access Revoked (Click to Grant)"}
-                className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${user.apiAccessEnabled ? 'bg-emerald-500/20 text-emerald-400' : 'hover:bg-white/5 text-slate-500'}`}
-              >
-                <Terminal className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 bg-black/90 backdrop-blur-xl border border-white/10 text-slate-300 rounded-xl shadow-2xl p-2 font-mono z-50">
+              <DropdownMenuLabel className="text-[10px] text-slate-500 font-bold uppercase tracking-widest px-2 pt-1 pb-2">Client Actions</DropdownMenuLabel>
+              
+              <DropdownMenuItem onClick={onCopy} className="gap-3 cursor-pointer focus:bg-white/10 focus:text-white rounded-lg py-2">
+                {copied ? <CheckCheck className="w-4 h-4 text-cyan-400" /> : <Copy className="w-4 h-4 opacity-70" />}
+                <span className="text-sm">Copy Credentials</span>
+              </DropdownMenuItem>
 
-          {/* Destructive / Reset Group */}
-          <div className="flex items-center gap-1 bg-black/40 border border-white/5 p-1 rounded-lg">
-            {/* Reset HWID */}
-            {user.hwidLockEnabled && onHwidReset && (
-              <button
-                onClick={onHwidReset}
-                title="Reset client HWID fingerprint"
-                className="w-7 h-7 flex items-center justify-center rounded-md transition-all hover:bg-amber-500/20 text-amber-400/70 hover:text-amber-400"
-              >
-                <Laptop2 className="w-3.5 h-3.5" />
-              </button>
-            )}
-            {/* API Key Reset button */}
-            {user.apiAccessEnabled && onApiResetClick && (
-              <button
-                onClick={onApiResetClick}
-                title="Reset API Key"
-                className="w-7 h-7 flex items-center justify-center rounded-md transition-all hover:bg-red-500/20 text-red-400/70 hover:text-red-400"
-              >
-                <KeyRound className="w-3.5 h-3.5" />
-              </button>
-            )}
-            <button onClick={onCopy} className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${copied ? 'bg-cyan-500/20 text-cyan-400' : 'hover:bg-white/5 text-slate-400'}`} title="Copy credentials">
-              {copied ? <CheckCheck className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-            </button>
-            <button onClick={onDelete} disabled={deleting} className="w-7 h-7 flex items-center justify-center rounded-md transition-all hover:bg-red-500/20 text-slate-400 hover:text-red-400 disabled:opacity-40">
-              {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-            </button>
-          </div>
+              {!isTrial && onResellToggle && (
+                <DropdownMenuItem onClick={() => onResellToggle(!user.canResell)} className={`gap-3 cursor-pointer focus:bg-white/10 focus:text-white rounded-lg py-2 ${user.canResell ? 'text-amber-400' : ''}`}>
+                  <Gift className={`w-4 h-4 ${user.canResell ? '' : 'opacity-70'}`} />
+                  <span className="text-sm">{user.canResell ? "Revoke Reseller" : "Grant Reseller"}</span>
+                </DropdownMenuItem>
+              )}
+
+              {onHwidLockToggle && (
+                <DropdownMenuItem onClick={() => onHwidLockToggle(!user.hwidLockEnabled)} className={`gap-3 cursor-pointer focus:bg-white/10 focus:text-white rounded-lg py-2 ${user.hwidLockEnabled ? 'text-red-400' : ''}`}>
+                  {user.hwidLockEnabled ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4 opacity-70" />}
+                  <span className="text-sm">{user.hwidLockEnabled ? "Disable HWID Lock" : "Enable HWID Lock"}</span>
+                </DropdownMenuItem>
+              )}
+
+              {onApiAccessToggle && (
+                <DropdownMenuItem onClick={() => onApiAccessToggle(!user.apiAccessEnabled)} className={`gap-3 cursor-pointer focus:bg-white/10 focus:text-white rounded-lg py-2 ${user.apiAccessEnabled ? 'text-emerald-400' : ''}`}>
+                  <Terminal className={`w-4 h-4 ${user.apiAccessEnabled ? '' : 'opacity-70'}`} />
+                  <span className="text-sm">{user.apiAccessEnabled ? "Revoke API Access" : "Grant API Access"}</span>
+                </DropdownMenuItem>
+              )}
+
+              <DropdownMenuSeparator className="bg-white/10 my-2" />
+
+              {user.hwidLockEnabled && onHwidReset && (
+                <DropdownMenuItem onClick={onHwidReset} className="gap-3 cursor-pointer focus:bg-amber-500/20 focus:text-amber-400 text-amber-400/80 rounded-lg py-2 transition-colors">
+                  <Laptop2 className="w-4 h-4" />
+                  <span className="text-sm">Reset HWID</span>
+                </DropdownMenuItem>
+              )}
+
+              {user.apiAccessEnabled && onApiResetClick && (
+                <DropdownMenuItem onClick={onApiResetClick} className="gap-3 cursor-pointer focus:bg-red-500/20 focus:text-red-400 text-red-400/80 rounded-lg py-2 transition-colors">
+                  <KeyRound className="w-4 h-4" />
+                  <span className="text-sm">Reset API Key</span>
+                </DropdownMenuItem>
+              )}
+
+              <DropdownMenuItem onClick={onDelete} disabled={deleting} className="gap-3 cursor-pointer focus:bg-red-500/20 focus:text-red-400 text-red-400/60 rounded-lg py-2 transition-colors mt-1">
+                {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                <span className="text-sm">Delete Client</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </motion.div>
