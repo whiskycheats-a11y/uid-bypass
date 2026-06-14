@@ -2,42 +2,53 @@ import { useMemo, useRef, useEffect, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-// Sleek, glowing 3D wireframe ocean
-function DataOcean() {
+// Ultra-attractive, smooth Liquid Silk Wave (0 particles, just fluid geometry)
+function LiquidSilkWave() {
   const meshRef = useRef<THREE.Mesh>(null);
   const uniforms = useMemo(() => ({
     uTime: { value: 0 },
-    uColor1: { value: new THREE.Color("#00d4ff") }, // Cyan
-    uColor2: { value: new THREE.Color("#ff006e") }, // Pink
-    uColor3: { value: new THREE.Color("#7c3aed") }  // Violet
+    uColor1: { value: new THREE.Color("#00d4ff") }, // Vibrant Cyan
+    uColor2: { value: new THREE.Color("#7c3aed") }, // Deep Violet
+    uColor3: { value: new THREE.Color("#ff006e") }  // Neon Pink
   }), []);
 
   useFrame((state) => {
     if (meshRef.current) {
-      uniforms.uTime.value = state.clock.elapsedTime * 0.5;
+      uniforms.uTime.value = state.clock.elapsedTime * 0.4;
     }
   });
 
   return (
-    <mesh ref={meshRef} rotation={[-Math.PI / 2.2, 0, 0]} position={[0, -8, -20]}>
-      <planeGeometry args={[120, 120, 100, 100]} />
+    <mesh ref={meshRef} rotation={[-Math.PI / 3, 0, 0]} position={[0, -2, -8]}>
+      {/* 
+        A single high-res plane is incredibly cheap to render on modern GPUs.
+        It avoids the "dots" look entirely, looking like a solid sheet of glowing fluid.
+      */}
+      <planeGeometry args={[25, 25, 128, 128]} />
       <shaderMaterial
-        wireframe={true}
+        wireframe={false} // Solid fluid
         transparent={true}
         blending={THREE.AdditiveBlending}
         uniforms={uniforms}
         vertexShader={`
           uniform float uTime;
           varying vec3 vPos;
+          varying vec2 vUv;
           
           void main() {
+            vUv = uv;
             vec3 pos = position;
-            // Fluid, undulating ocean effect using cheap sine waves (0 lag)
-            float wave1 = sin(pos.x * 0.1 + uTime) * 3.0;
-            float wave2 = sin(pos.y * 0.15 - uTime * 0.8) * 3.0;
-            float wave3 = sin((pos.x + pos.y) * 0.05 + uTime * 1.2) * 4.0;
             
-            pos.z += wave1 + wave2 + wave3;
+            // Ultra-smooth liquid distortion combining diagonal sine waves
+            float wave1 = sin(pos.x * 0.5 + uTime) * 1.5;
+            float wave2 = sin(pos.y * 0.4 - uTime * 0.8) * 1.5;
+            float wave3 = sin((pos.x + pos.y) * 0.3 + uTime * 1.2) * 1.0;
+            
+            // Create a flowing peak in the center
+            float dist = length(pos.xy);
+            float centerBulge = exp(-dist * 0.05) * 4.0;
+            
+            pos.z += (wave1 + wave2 + wave3) * exp(-dist * 0.1) + centerBulge;
             vPos = pos;
             
             gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
@@ -48,92 +59,29 @@ function DataOcean() {
           uniform vec3 uColor2;
           uniform vec3 uColor3;
           varying vec3 vPos;
+          varying vec2 vUv;
           
           void main() {
-            // Height-based coloring for a premium 3D look
-            float h = vPos.z / 10.0; 
+            // Iridescent coloring based on height and UV coordinates
+            float h = (vPos.z + 2.0) / 6.0; 
             
-            vec3 color = mix(uColor3, uColor1, smoothstep(-1.0, 0.0, h));
-            color = mix(color, uColor2, smoothstep(0.0, 1.0, h));
+            // Mix colors to create a beautiful gradient
+            vec3 color = mix(uColor2, uColor1, smoothstep(0.0, 0.5, h));
+            color = mix(color, uColor3, smoothstep(0.5, 1.0, h));
             
-            // Fade out edges smoothly into the background
+            // Create a soft glowing grid pattern overlaid on the fluid
+            float grid = sin(vUv.x * 100.0) * sin(vUv.y * 100.0);
+            grid = smoothstep(0.8, 1.0, grid) * 0.15;
+            
+            // Fade out edges smoothly so it blends into the deep background
             float dist = length(vPos.xy);
-            float alpha = 1.0 - smoothstep(20.0, 55.0, dist);
+            float alpha = 1.0 - smoothstep(5.0, 15.0, dist);
             
-            gl_FragColor = vec4(color, alpha * 0.4);
+            gl_FragColor = vec4(color + vec3(grid), alpha * 0.6);
           }
         `}
       />
     </mesh>
-  );
-}
-
-// Subtle data sparks rising from the ocean
-function DataSparks() {
-  const pointsRef = useRef<THREE.Points>(null);
-
-  const { positions, randoms } = useMemo(() => {
-    const count = 1500;
-    const positions = new Float32Array(count * 3);
-    const randoms = new Float32Array(count);
-
-    for (let i = 0; i < count; i++) {
-      positions[i * 3 + 0] = (Math.random() - 0.5) * 60;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 40;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 30 - 15;
-      randoms[i] = Math.random();
-    }
-    return { positions, randoms };
-  }, []);
-
-  const uniforms = useMemo(() => ({
-    uTime: { value: 0 }
-  }), []);
-
-  useFrame((state) => {
-    if (!pointsRef.current) return;
-    uniforms.uTime.value = state.clock.elapsedTime * 0.3;
-  });
-
-  return (
-    <points ref={pointsRef}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" count={positions.length / 3} array={positions} itemSize={3} />
-        <bufferAttribute attach="attributes-aRandom" count={randoms.length} array={randoms} itemSize={1} />
-      </bufferGeometry>
-      <shaderMaterial
-        depthWrite={false}
-        transparent={true}
-        blending={THREE.AdditiveBlending}
-        uniforms={uniforms}
-        vertexShader={`
-          uniform float uTime;
-          attribute float aRandom;
-          varying float vRandom;
-          void main() {
-            vRandom = aRandom;
-            vec3 pos = position;
-            
-            // Slowly drift upwards and sway
-            pos.y += mod(uTime * 10.0 * aRandom, 40.0) - 20.0;
-            pos.x += sin(uTime * 2.0 + aRandom * 10.0) * 2.0;
-            
-            vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-            gl_PointSize = (4.0 * aRandom + 1.0) * (25.0 / -mvPosition.z);
-            gl_Position = projectionMatrix * mvPosition;
-          }
-        `}
-        fragmentShader={`
-          varying float vRandom;
-          void main() {
-            float dist = length(gl_PointCoord - vec2(0.5));
-            if (dist > 0.5) discard;
-            float alpha = smoothstep(0.5, 0.1, dist) * (0.3 + 0.7 * vRandom);
-            gl_FragColor = vec4(0.0, 0.83, 1.0, alpha * 0.5); // Cyan glow
-          }
-        `}
-      />
-    </points>
   );
 }
 
@@ -154,16 +102,16 @@ export function WaterWaveBackground() {
       }}
     >
       <Canvas 
-        camera={{ position: [0, 2, 10], fov: 60 }}
-        dpr={[1, 1.5]} // Extremely optimized pixel ratio to prevent any lag
+        camera={{ position: [0, 0, 10], fov: 60 }}
+        // STRICTLY limit pixel ratio to 1. This prevents lag on ANY machine.
+        dpr={[1, 1]} 
         gl={{ antialias: false, powerPreference: "high-performance", alpha: false, depth: false }}
       >
-        <fog attach="fog" args={["#030014", 10, 40]} />
-        <DataOcean />
-        <DataSparks />
+        <fog attach="fog" args={["#030014", 5, 20]} />
+        <LiquidSilkWave />
       </Canvas>
-      {/* Fallback elegant vignette overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#030014_100%)] opacity-80" />
+      {/* Elegant vignette overlay to deepen the colors and focus the center */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#030014_100%)] opacity-90" />
     </div>
   );
 }

@@ -28,6 +28,8 @@ import {
   Timer,
 } from "lucide-react";
 import heroShield from "@assets/hero_3d_shield.png";
+import { CustomCursor } from "@/components/CustomCursor";
+import { WaterWaveBackground } from "@/components/WaterWaveBackground";
 import { Turnstile } from "@marsidev/react-turnstile";
 
 interface LoginProps {
@@ -401,6 +403,7 @@ export default function Login({ onLogin }: LoginProps) {
 
   return (
     <div ref={mainRef} className="min-h-screen relative flex flex-col font-sans overflow-x-hidden selection:bg-violet-500/30 selection:text-white bg-transparent">
+      <WaterWaveBackground />
 
       {/* ── Fixed Navigation ── */}
       <header
