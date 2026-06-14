@@ -9,7 +9,7 @@ import {
   Send, Menu, CalendarDays, KeyRound, Terminal, ShieldAlert, Unlock, Laptop2, MoreHorizontal
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
-import { AmbientScene } from "@/components/ambient-scene";
+import { WaterWaveBackground } from '@/components/WaterWaveBackground';
 import {
   useListUids,
   getListUidsQueryKey,
@@ -115,7 +115,7 @@ function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete:
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="absolute inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md rounded-[2rem]"
+          className="absolute inset-0 z-[100] flex items-center justify-center bg-white/[0.02] backdrop-blur-md rounded-[2rem]"
         >
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}
@@ -129,27 +129,27 @@ function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete:
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: "spring" }}
-                className="absolute inset-0 bg-red-500/20 rounded-full blur-xl"
+                className="absolute inset-0 bg-white/5 rounded-full blur-xl"
               />
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.1, type: "spring" }}
-                className="w-20 h-20 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(239,68,68,0.5)] z-10"
+                className="w-20 h-20 bg-gradient-to-br from-white/20 to-white/5 rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-10"
               >
                 <Check className="w-10 h-10 text-white" strokeWidth={3} />
               </motion.div>
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-[-10px] border-2 border-red-500/30 border-t-red-400 rounded-full z-0"
+                className="absolute inset-[-10px] border-2 border-white/10 border-t-red-400 rounded-full z-0"
               />
             </div>
             <motion.h3
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-2xl font-black text-white tracking-widest drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]"
+              className="text-2xl font-black text-white tracking-widest drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
             >
               ACCESS GRANTED
             </motion.h3>
@@ -157,7 +157,7 @@ function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete:
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="text-red-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2 text-center"
+              className="text-white/70 font-bold uppercase tracking-[0.2em] text-[10px] mt-2 text-center"
             >
               UID Successfully Whitelisted
             </motion.p>
@@ -419,16 +419,16 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="neo-glass rounded-[2rem] overflow-hidden relative shadow-2xl p-6 sm:p-8 border border-white/5 flex flex-col justify-between h-full bg-black/40 backdrop-blur-xl"
+        className="bg-[#0a0a0c]/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)] rounded-[2rem] overflow-hidden relative shadow-2xl p-6 sm:p-8 border border-white/5 flex flex-col justify-between h-full bg-white/[0.02] backdrop-blur-xl"
       >
-        <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600/10 rounded-full blur-[80px] pointer-events-none" />
-        <div className="absolute -right-16 -bottom-16 w-36 h-36 bg-cyan-600/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute -right-16 -bottom-16 w-36 h-36 bg-white/5 rounded-full blur-3xl pointer-events-none" />
         
         <div>
           {/* Header */}
           <div className="flex items-center gap-3 pb-4 border-b border-white/[0.05] mb-5">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-violet-500/10 border border-violet-500/25">
-              <Medal className="w-4.5 h-4.5 text-violet-400" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/5 border border-white/10">
+              <Medal className="w-4.5 h-4.5 text-white/90" />
             </div>
             <div>
               <h3 className="font-black text-sm text-white tracking-wide">Notice Broadcast</h3>
@@ -438,8 +438,8 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 
           {/* Active Notice Info Banner */}
           {activeNotice ? (
-            <div className="bg-violet-950/20 border border-violet-900/30 rounded-2xl p-4 mb-5 text-left text-xs">
-              <span className="text-[9px] font-black text-violet-400 uppercase tracking-wider block mb-1">CURRENTLY BROADCASTING</span>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-5 text-left text-xs">
+              <span className="text-[9px] font-black text-white/90 uppercase tracking-wider block mb-1">CURRENTLY BROADCASTING</span>
               <p className="text-slate-200 font-medium leading-relaxed font-sans">{activeNotice}</p>
               <div className="flex items-center gap-1.5 mt-2.5 text-[10px] text-slate-500 font-bold">
                 <Clock className="w-3.5 h-3.5 text-slate-500" />
@@ -449,7 +449,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
               </div>
             </div>
           ) : (
-            <div className="bg-black/30 border border-white/5 rounded-2xl p-4 mb-5 text-center text-xs text-slate-500 font-bold py-6">
+            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 mb-5 text-center text-xs text-slate-500 font-bold py-6">
               No active announcements.
             </div>
           )}
@@ -462,7 +462,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                 value={noticeText}
                 onChange={(e) => setNoticeText(e.target.value)}
                 placeholder="Enter announcement text to show on reseller and client dashboards..."
-                className="w-full h-28 p-4 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all resize-none font-medium leading-relaxed shadow-inner"
+                className="w-full h-28 p-4 rounded-xl bg-white/[0.02] border border-white/10 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-white/10 transition-all resize-none font-medium leading-relaxed shadow-inner"
                 required
               />
             </div>
@@ -473,7 +473,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                 <select
                   value={noticeExpiry}
                   onChange={(e) => setNoticeExpiry(e.target.value)}
-                  className="w-full h-12 px-4 rounded-xl bg-black/50 border border-white/10 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all font-bold shadow-inner cursor-pointer"
+                  className="w-full h-12 px-4 rounded-xl bg-white/[0.02] border border-white/10 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-white/10 transition-all font-bold shadow-inner cursor-pointer"
                 >
                   <option value="indefinite">Indefinite (No expiry)</option>
                   <option value="1h">1 Hour</option>
@@ -488,7 +488,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     type="button"
                     onClick={handleClearNotice}
                     disabled={savingNotice}
-                    className="h-10 px-3 rounded-xl border border-red-500/20 bg-red-500/5 text-xs text-red-400 hover:bg-red-500/10 hover:text-white transition-all cursor-pointer font-bold flex-1"
+                    className="h-10 px-3 rounded-xl border border-white/10 bg-white/5 text-xs text-white/70 hover:bg-white/5 hover:text-white transition-all cursor-pointer font-bold flex-1"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -498,8 +498,8 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                   disabled={savingNotice || !noticeText.trim()}
                   className="h-12 flex-1 rounded-2xl text-white text-xs font-bold flex items-center justify-center gap-2 disabled:opacity-40 relative overflow-hidden cursor-pointer"
                   style={{
-                    background: "linear-gradient(135deg, rgba(139,92,246,0.8), rgba(6,182,212,0.8))",
-                    boxShadow: "0 0 20px rgba(139,92,246,0.2)",
+                    background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(6,182,212,0.8))",
+                    boxShadow: "0 0 20px rgba(255,255,255,0.1)",
                   }}
                 >
                   {savingNotice ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" />Broadcast</>}
@@ -602,7 +602,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       rafRef.current = requestAnimationFrame(() => {
         if (spotlightRef.current) {
           spotlightRef.current.style.background =
-            `radial-gradient(500px circle at ${e.clientX}px ${e.clientY}px, rgba(139,92,246,0.07), transparent 70%)`;
+            `radial-gradient(500px circle at ${e.clientX}px ${e.clientY}px, rgba(255,255,255,0.1), transparent 70%)`;
         }
       });
     };
@@ -732,12 +732,12 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`neo-glass rounded-[2.5rem] overflow-hidden relative shadow-2xl bg-black/30 backdrop-blur-xl ${showFull ? 'h-full' : ''}`}
+        className={`bg-[#0a0a0c]/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)] rounded-[2.5rem] overflow-hidden relative shadow-2xl bg-white/[0.02] backdrop-blur-xl ${showFull ? 'h-full' : ''}`}
       >
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-black/20 gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-white/[0.02] gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.3)] border border-red-500/30" style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.2), rgba(0,0,0,0.1))" }}>
-              <Activity className="w-5 h-5 text-red-500" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.1))" }}>
+              <Activity className="w-5 h-5 text-white/90" />
             </div>
             <div>
               <h2 className="font-black text-lg text-white tracking-wide">{showFull ? "Global Endpoints" : "Recent UIDs"}</h2>
@@ -749,14 +749,14 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
               placeholder="Search UID or Name..." 
               value={uidSearchQuery}
               onChange={(e) => setUidSearchQuery(e.target.value)}
-              className="pl-4 pr-4 h-10 rounded-xl bg-black/40 border-white/10 text-white font-bold transition-all focus-visible:ring-red-500/30 focus-visible:border-red-500/50 w-full"
+              className="pl-4 pr-4 h-10 rounded-xl bg-white/[0.02] border-white/10 text-white font-bold transition-all focus-visible:ring-red-500/30 focus-visible:border-white/10 w-full"
             />
           </div>
         </div>
 
         {isUidsLoading ? (
           <div className="flex flex-col items-center justify-center p-20 opacity-50">
-            <Loader2 className="w-12 h-12 text-red-500 animate-spin mb-4" />
+            <Loader2 className="w-12 h-12 text-white/90 animate-spin mb-4" />
             <p className="text-xs font-black uppercase tracking-widest text-slate-400">Syncing with Auth Mesh...</p>
           </div>
         ) : uids.length === 0 ? (
@@ -779,10 +779,10 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     exit={{ opacity: 0, x: -10 }}
                     onHoverStart={() => setHoveredRow(uidObj.uid)}
                     onHoverEnd={() => setHoveredRow(null)}
-                    className={`group flex items-center justify-between p-3.5 sm:p-4 bg-black/40 border ${highlightDelete ? 'border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'border-white/5'} rounded-2xl hover:bg-white/[0.04] hover:border-white/10 transition-all`}
+                    className={`group flex items-center justify-between p-3.5 sm:p-4 bg-white/[0.02] border ${highlightDelete ? 'border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]' : 'border-white/5'} rounded-2xl hover:bg-white/[0.04] hover:border-white/10 transition-all`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm relative overflow-hidden ${uidObj.bluestack ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm relative overflow-hidden ${uidObj.bluestack ? 'bg-white/5 text-white/90 border-white/10' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
                         <div className="absolute inset-0 bg-white/5 animate-pulse" />
                         {uidObj.bluestack ? <Activity className="w-5 h-5 animate-pulse" /> : <Shield className="w-5 h-5" />}
                       </div>
@@ -802,7 +802,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                       
                       <div className="text-right">
                         <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">STATUS</div>
-                        <div className={`text-xs font-black uppercase tracking-wider ${getDaysLeft(uidObj.addedAt, uidObj.days) === "Expired" ? 'text-red-400' : 'text-emerald-400'}`}>
+                        <div className={`text-xs font-black uppercase tracking-wider ${getDaysLeft(uidObj.addedAt, uidObj.days) === "Expired" ? 'text-white/70' : 'text-emerald-400'}`}>
                           {getDaysLeft(uidObj.addedAt, uidObj.days)}
                         </div>
                       </div>
@@ -813,7 +813,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                           disabled={removingUid === uidObj.uid}
                           className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
                             hoveredRow === uidObj.uid || highlightDelete 
-                              ? 'bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500 hover:text-white' 
+                              ? 'bg-white/5 text-white/70 border border-white/10 hover:bg-red-500 hover:text-white' 
                               : 'bg-transparent text-slate-600 border border-transparent'
                           }`}
                         >
@@ -837,11 +837,11 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       animate={{ opacity: 1, scale: 1 }}
       className="max-w-xl mx-auto"
     >
-      <div className="neo-glass rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl glow-border bg-black/30 backdrop-blur-xl">
+      <div className="bg-[#0a0a0c]/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)] rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl glow-border bg-white/[0.02] backdrop-blur-xl">
         <SuccessAnimation active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
         <div className="flex items-center gap-3 mb-2 relative z-10">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.3)] border border-red-500/30" style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.2), rgba(0,0,0,0.1))" }}>
-            <Plus className="w-5 h-5 text-red-500" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.1))" }}>
+            <Plus className="w-5 h-5 text-white/90" />
           </div>
           <h2 className="font-black text-lg text-white tracking-wide">Register UID</h2>
         </div>
@@ -851,54 +851,54 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Friendly Name</label>
             <div className="relative group">
-              <Edit2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-red-500 transition-colors pointer-events-none" />
+              <Edit2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-white/90 transition-colors pointer-events-none" />
               <Input
                 placeholder="Enter your name"
-                className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-red-500/30 focus-visible:border-red-500/50 text-white font-bold transition-all shadow-inner"
+                className="pl-12 h-14 rounded-2xl bg-white/[0.02] border-white/10 focus-visible:ring-red-500/30 focus-visible:border-white/10 text-white font-bold transition-all shadow-inner"
                 {...form.register("name")}
               />
             </div>
             {form.formState.errors.name && (
-              <p className="text-[10px] font-bold text-red-400 px-2 mt-1">{form.formState.errors.name.message}</p>
+              <p className="text-[10px] font-bold text-white/70 px-2 mt-1">{form.formState.errors.name.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Player UID</label>
             <div className="relative group">
-              <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-red-500 transition-colors pointer-events-none" />
+              <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-white/90 transition-colors pointer-events-none" />
               <Input
                 placeholder="Enter UID number..."
-                className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-red-500/30 focus-visible:border-red-500/50 text-white font-bold transition-all shadow-inner"
+                className="pl-12 h-14 rounded-2xl bg-white/[0.02] border-white/10 focus-visible:ring-red-500/30 focus-visible:border-white/10 text-white font-bold transition-all shadow-inner"
                 {...form.register("uid")}
               />
             </div>
             {form.formState.errors.uid && (
-              <p className="text-[10px] font-bold text-red-400 px-2 mt-1">{form.formState.errors.uid.message}</p>
+              <p className="text-[10px] font-bold text-white/70 px-2 mt-1">{form.formState.errors.uid.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Duration (Days)</label>
             <div className="relative group">
-              <Timer className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-red-500 transition-colors pointer-events-none" />
+              <Timer className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-white/90 transition-colors pointer-events-none" />
               <Input
                 type="number"
                 min="1"
                 placeholder="Number of days..."
-                className="pl-12 h-14 rounded-2xl bg-black/40 border-white/10 focus-visible:ring-red-500/30 focus-visible:border-red-500/50 text-white font-bold transition-all shadow-inner"
+                className="pl-12 h-14 rounded-2xl bg-white/[0.02] border-white/10 focus-visible:ring-red-500/30 focus-visible:border-white/10 text-white font-bold transition-all shadow-inner"
                 {...form.register("days", { valueAsNumber: true })}
               />
             </div>
             {form.formState.errors.days && (
-              <p className="text-[10px] font-bold text-red-400 px-2 mt-1">{form.formState.errors.days.message}</p>
+              <p className="text-[10px] font-bold text-white/70 px-2 mt-1">{form.formState.errors.days.message}</p>
             )}
           </div>
 
-          <div className="flex items-center justify-between p-5 rounded-2xl bg-black/30 border border-white/10 group hover:border-red-500/30 hover:bg-black/50 transition-all shadow-inner">
+          <div className="flex items-center justify-between p-5 rounded-2xl bg-white/[0.02] border border-white/10 group hover:border-white/10 hover:bg-white/[0.02] transition-all shadow-inner">
             <div>
               <div className="flex items-center gap-2 text-sm font-black text-white">
-                <Activity className="w-4 h-4 text-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]" />
+                <Activity className="w-4 h-4 text-white/90 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
                 BlueStack Protocol
               </div>
               <div className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Emulator Routing</div>
@@ -906,7 +906,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             <Switch
               checked={form.watch("bluestack")}
               onCheckedChange={(v) => form.setValue("bluestack", v)}
-              className="data-[state=checked]:bg-red-500 data-[state=checked]:shadow-[0_0_15px_rgba(239,68,68,0.5)]"
+              className="data-[state=checked]:bg-red-500 data-[state=checked]:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
             />
           </div>
 
@@ -915,7 +915,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             disabled={addMutation.isPending}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 mt-2 bg-red-500 hover:bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-all"
+            className="w-full h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 mt-2 bg-red-500 hover:bg-red-600 text-white shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all"
           >
             <AnimatePresence mode="wait">
               {addMutation.isPending ? (
@@ -949,11 +949,11 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             animate={{ x: 0 }}
             exit={{ x: -280 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed left-0 top-0 bottom-0 w-72 bg-black/40 backdrop-blur-xl border-r border-white/5 flex flex-col z-[70] shadow-[10px_0_30px_rgba(0,0,0,0.8)] lg:hidden"
+            className="fixed left-0 top-0 bottom-0 w-72 bg-white/[0.02] backdrop-blur-xl border-r border-white/5 flex flex-col z-[70] shadow-[10px_0_30px_rgba(0,0,0,0.8)] lg:hidden"
           >
             <div className="h-20 flex items-center justify-between px-6 border-b border-white/5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,0,110,0.4)]" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)]" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
                   <Crown className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -975,11 +975,11 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     onClick={() => { setActiveSidebarTab(nav.id); setMobileSidebarOpen(false); }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
                       ${active 
-                        ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.02)] relative" 
+                        ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_10px_30px_rgba(0,0,0,0.5)] relative" 
                         : "text-slate-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}
                     `}
                   >
-                    <Icon className={`w-4.5 h-4.5 ${active ? "text-red-500" : "text-slate-500"}`} />
+                    <Icon className={`w-4.5 h-4.5 ${active ? "text-white/90" : "text-slate-500"}`} />
                     <span>{nav.label}</span>
                     {active && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]" />}
                   </button>
@@ -989,7 +989,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             <div className="p-4 border-t border-white/5">
               <button
                 onClick={onLogout}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all font-semibold text-sm"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white/70 hover:bg-white/5 transition-all font-semibold text-sm"
               >
                 <LogOut className="w-4.5 h-4.5" />
                 <span>Logout</span>
@@ -1008,16 +1008,16 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setMobileSidebarOpen(false)}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] lg:hidden"
+            className="fixed inset-0 bg-white/[0.02] backdrop-blur-sm z-[60] lg:hidden"
           />
         )}
       </AnimatePresence>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 bg-black/30 backdrop-blur-2xl border-r border-white/[0.06] flex-col z-50 shrink-0 shadow-[10px_0_40px_rgba(0,0,0,0.6)]">
+      <aside className="hidden lg:flex w-64 bg-white/[0.02] backdrop-blur-2xl border-r border-white/[0.06] flex-col z-50 shrink-0 shadow-[10px_0_40px_rgba(0,0,0,0.6)]">
         {/* Sidebar Logo Area */}
         <div className="h-20 flex items-center gap-3 px-6 border-b border-white/5">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,0,110,0.4)]" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)]" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
             <Crown className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -1038,11 +1038,11 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                 onClick={() => setActiveSidebarTab(nav.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
                   ${active 
-                    ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.02)] relative" 
+                    ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_10px_30px_rgba(0,0,0,0.5)] relative" 
                     : "text-slate-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}
                 `}
               >
-                <Icon className={`w-4.5 h-4.5 ${active ? "text-red-500" : "text-slate-500"}`} />
+                <Icon className={`w-4.5 h-4.5 ${active ? "text-white/90" : "text-slate-500"}`} />
                 <span>{nav.label}</span>
                 {active && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]" />}
               </button>
@@ -1054,7 +1054,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
         <div className="p-4 border-t border-white/5">
           <button
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all font-semibold text-sm"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white/70 hover:bg-white/5 transition-all font-semibold text-sm"
           >
             <LogOut className="w-4.5 h-4.5" />
             <span>Logout</span>
@@ -1066,7 +1066,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       <main className="flex-1 relative flex flex-col overflow-hidden h-full">
 
         {/* Main Content Header */}
-        <header className="h-16 lg:h-20 shrink-0 border-b border-white/[0.06] px-4 lg:px-8 flex items-center justify-between relative z-20 bg-black/25 backdrop-blur-2xl rounded-b-3xl mx-2 lg:mx-4 mt-2 mb-4 shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
+        <header className="h-16 lg:h-20 shrink-0 border-b border-white/[0.06] px-4 lg:px-8 flex items-center justify-between relative z-20 bg-white/[0.02] backdrop-blur-2xl rounded-b-3xl mx-2 lg:mx-4 mt-2 mb-4 shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
           <div className="flex items-center gap-3">
             {/* Hamburger button — only on mobile */}
             <button
@@ -1079,7 +1079,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 hidden sm:flex">
               <span>ADMIN TERMINAL</span>
               <span className="text-slate-600">/</span>
-              <span className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] uppercase">
+              <span className="text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] uppercase">
                 {SIDEBAR_NAV.find(n => n.id === activeSidebarTab)?.label || "DASHBOARD"}
               </span>
             </div>
@@ -1092,7 +1092,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/10 bg-white/[0.03] text-xs text-slate-300 font-bold shadow-inner">
               {profileData.avatarBase64 ? (
-                <img src={profileData.avatarBase64} alt="Avatar" className="w-5 h-5 rounded-full object-cover shadow-[0_0_10px_rgba(239,68,68,0.3)]" />
+                <img src={profileData.avatarBase64} alt="Avatar" className="w-5 h-5 rounded-full object-cover shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
               ) : (
                 <Crown className="w-3.5 h-3.5 text-amber-500" />
               )}
@@ -1118,7 +1118,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                   {/* Title */}
                   <div className="text-left">
                     <div className="flex items-center gap-3">
-                      <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">System Overview</h1>
+                      <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">System Overview</h1>
                       <span className="px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">GLOBAL CONTROL</span>
                     </div>
                     <p className="text-slate-400 font-semibold text-sm mt-2">Real-time global routing status of all registered endpoints</p>
@@ -1212,7 +1212,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                   {/* Title */}
                   <div className="text-left">
                     <div className="flex items-center gap-3">
-                      <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">Free Trials</h1>
+                      <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">Free Trials</h1>
                       <span className="px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">PROMO ENGINES</span>
                     </div>
                     <p className="text-slate-400 font-semibold text-sm mt-2">Generate free trial keys and manage active trial accounts.</p>
@@ -1299,7 +1299,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
               onClick={() => setActiveSidebarTab(nav.id)}
               className={`flex flex-col items-center gap-1 py-1 px-3.5 rounded-xl transition-all shrink-0 cursor-pointer ${
                 active 
-                  ? "text-red-500 bg-white/[0.05]" 
+                  ? "text-white/90 bg-white/[0.05]" 
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -1313,12 +1313,12 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       {/* Floating Team Chat Button */}
       <button
         onClick={() => setActiveSidebarTab("chat")}
-        className="fixed bottom-6 right-6 z-[100] group flex items-center justify-center w-14 h-14 rounded-full bg-black/50 border border-violet-500/50 shadow-[0_0_20px_rgba(124,58,237,0.3)] backdrop-blur-xl hover:bg-violet-600/40 hover:scale-110 hover:border-cyan-400/50 hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] active:scale-95 transition-all duration-300"
+        className="fixed bottom-6 right-6 z-[100] group flex items-center justify-center w-14 h-14 rounded-full bg-white/[0.02] border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-xl hover:bg-white/5 hover:scale-110 hover:border-white/10 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] active:scale-95 transition-all duration-300"
       >
-        <MessageSquare className="w-6 h-6 text-violet-300 group-hover:text-cyan-300 transition-colors" />
+        <MessageSquare className="w-6 h-6 text-white/90 group-hover:text-white/90 transition-colors" />
         <span className="absolute top-0 right-0 flex h-3.5 w-3.5">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)] border-2 border-black/50"></span>
+          <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border-2 border-black/50"></span>
         </span>
       </button>
     </div>
@@ -1339,12 +1339,12 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     onApiResetClick: (username: string) => void;
   }) {
     return (
-      <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="panel rounded-3xl overflow-hidden bg-white/[0.02] backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, transparent)" }} />
         <div className="px-5 py-4 flex items-center justify-between border-b border-white/[0.04]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.25)" }}>
-              <Users className="w-4 h-4 text-violet-400" />
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.1)" }}>
+              <Users className="w-4 h-4 text-white/90" />
             </div>
             <div>
               <h2 className="font-bold text-sm text-foreground">Client Accounts</h2>
@@ -1352,7 +1352,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={onClearUids} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)]">
+            <button onClick={onClearUids} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white/5 text-white/70 hover:bg-white/5 border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
               <Trash2 className="w-3.5 h-3.5" />
               Wipe UIDs
             </button>
@@ -1497,7 +1497,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
   return (
     <div className="space-y-4">
       {/* Generator card */}
-      <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(245,158,11,0.15)" }}>
+      <div className="panel rounded-3xl overflow-hidden bg-white/[0.02] backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(245,158,11,0.15)" }}>
         <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #f59e0b, #ef4444, transparent)" }} />
         <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.25)" }}>
@@ -1540,9 +1540,9 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
                       </button>
                     </div>
                   ))}
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)" }}>
-                    <Timer className="w-3.5 h-3.5 text-violet-400" />
-                    <span className="text-xs font-semibold text-violet-400">{linkData.days} days access</span>
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                    <Timer className="w-3.5 h-3.5 text-white/90" />
+                    <span className="text-xs font-semibold text-white/90">{linkData.days} days access</span>
                   </div>
                 </div>
 
@@ -1555,7 +1555,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
                   style={{
                     background: copiedCard
                       ? "linear-gradient(135deg, rgba(16,185,129,0.25), rgba(6,182,212,0.15))"
-                      : "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(239,68,68,0.1))",
+                      : "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(255,255,255,0.1))",
                     border: copiedCard ? "1px solid rgba(16,185,129,0.4)" : "1px solid rgba(245,158,11,0.3)",
                     color: copiedCard ? "#34d399" : "#f59e0b",
                     boxShadow: copiedCard ? "0 0 18px rgba(16,185,129,0.2)" : "0 0 18px rgba(245,158,11,0.15)",
@@ -1580,7 +1580,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
               <motion.form key="form" onSubmit={handleGenerate} className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Server Name (Prefix)</label>
-                  <div className="flex items-center gap-3 border border-white/10 bg-black/40 backdrop-blur-md rounded-xl px-4 py-3 focus-within:border-amber-500/50 transition-all">
+                  <div className="flex items-center gap-3 border border-white/10 bg-white/[0.02] backdrop-blur-md rounded-xl px-4 py-3 focus-within:border-amber-500/50 transition-all">
                     <input
                       type="text"
                       value={serverName}
@@ -1595,7 +1595,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
                 <DurationPicker value={days} onChange={setDays} presets={PRESETS} min={1} max={30} theme="amber" />
 
                 {error && (
-                  <div className="flex items-center gap-2 text-red-400 text-xs px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20">
+                  <div className="flex items-center gap-2 text-white/70 text-xs px-3 py-2 rounded-xl bg-white/5 border border-white/10">
                     <X className="w-3.5 h-3.5 shrink-0" />{error}
                   </div>
                 )}
@@ -1617,8 +1617,8 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
       </div>
 
       {/* Generated Tokens List */}
-      <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
-        <div className="px-5 py-4 border-b border-white/[0.04] bg-black/20 flex items-center justify-between">
+      <div className="panel rounded-3xl overflow-hidden bg-white/[0.02] backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
+        <div className="px-5 py-4 border-b border-white/[0.04] bg-white/[0.02] flex items-center justify-between">
           <h2 className="font-bold text-sm text-foreground">Generated Trial Links</h2>
           <span className="text-[10px] bg-white/10 px-2 py-1 rounded-lg text-slate-300">{tokens.length} Links</span>
         </div>
@@ -1630,12 +1630,12 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
           ) : (
             <div className="space-y-2">
               {tokens.map((t) => (
-                <div key={t.token} className="p-3 rounded-xl bg-black/40 border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div key={t.token} className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-mono font-bold text-xs text-amber-400 truncate">{t.token}</span>
                       {t.used ? (
-                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-red-500/20 text-red-400 border border-red-500/30 uppercase tracking-widest">Used</span>
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-white/5 text-white/70 border border-white/10 uppercase tracking-widest">Used</span>
                       ) : (
                         <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-widest">Active</span>
                       )}
@@ -1647,7 +1647,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
                       {t.resellerUsername && (
                         <>
                           <span className="w-1 h-1 rounded-full bg-slate-700" />
-                          <span className="text-cyan-400">By: {t.resellerUsername}</span>
+                          <span className="text-white/90">By: {t.resellerUsername}</span>
                         </>
                       )}
                     </div>
@@ -1660,7 +1660,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
                       }} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 transition-colors" title="Copy Link">
                       <Copy className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => handleDeleteToken(t.token)} className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 transition-colors" title="Revoke & Delete">
+                    <button onClick={() => handleDeleteToken(t.token)} className="p-2 rounded-lg bg-white/5 hover:bg-white/5 border border-white/10 text-white/70 transition-colors" title="Revoke & Delete">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -1673,7 +1673,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
 
       {/* Active trials list */}
       {trials.length > 0 && (
-        <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(245,158,11,0.1)" }}>
+        <div className="panel rounded-3xl overflow-hidden bg-white/[0.02] backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(245,158,11,0.1)" }}>
           <div className="px-5 py-3 border-b border-white/[0.04] flex items-center gap-2">
             <Timer className="w-4 h-4 text-amber-400" />
             <span className="text-sm font-bold text-foreground">Active Trials</span>
@@ -1710,7 +1710,7 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResell
   );
   if (users.length === 0) return (
     <div className="py-12 flex flex-col items-center gap-3 text-muted-foreground">
-      <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.1)" }}>
+      <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.1)" }}>
         <Users className="w-8 h-8 opacity-15" />
       </div>
       <p className="text-sm opacity-60">{emptyText}</p>
@@ -1746,8 +1746,8 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
       <div className="user-row relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 py-3.5">
         <div className="user-row-bar absolute left-0 top-2 bottom-2 w-0.5 rounded-full" style={{ background: isTrial ? "linear-gradient(180deg, #f59e0b, #ef4444)" : "linear-gradient(180deg, #8b5cf6, #06b6d4)" }} />
         <div className="flex items-center gap-3 ml-2 min-w-0 w-full sm:w-auto">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 user-row-icon" style={{ background: isTrial ? "rgba(245,158,11,0.12)" : "rgba(139,92,246,0.12)", border: `1px solid ${isTrial ? "rgba(245,158,11,0.2)" : "rgba(139,92,246,0.2)"}` }}>
-            {isTrial ? <Gift className="w-4 h-4 text-amber-400" /> : <UserIcon className="w-4 h-4 text-violet-400" />}
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 user-row-icon" style={{ background: isTrial ? "rgba(245,158,11,0.12)" : "rgba(255,255,255,0.1)", border: `1px solid ${isTrial ? "rgba(245,158,11,0.2)" : "rgba(255,255,255,0.1)"}` }}>
+            {isTrial ? <Gift className="w-4 h-4 text-amber-400" /> : <UserIcon className="w-4 h-4 text-white/90" />}
           </div>
           <div className="min-w-0">
             <div className="font-mono font-bold text-sm text-foreground truncate">{user.username}</div>
@@ -1774,7 +1774,7 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
           </span>
 
           {/* Quick Stats Group */}
-          <div className="flex items-center gap-1.5 bg-black/40 border border-white/5 p-1 rounded-lg">
+          <div className="flex items-center gap-1.5 bg-white/[0.02] border border-white/5 p-1 rounded-lg">
             {/* UID Limit edit button */}
             {onUidLimitClick && (
               <button
@@ -1806,11 +1806,11 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
                 <MoreHorizontal className="w-4 h-4" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-black/90 backdrop-blur-xl border border-white/10 text-slate-300 rounded-xl shadow-2xl p-2 font-mono z-50">
+            <DropdownMenuContent align="end" className="w-56 bg-white/[0.02] backdrop-blur-xl border border-white/10 text-slate-300 rounded-xl shadow-2xl p-2 font-mono z-50">
               <DropdownMenuLabel className="text-[10px] text-slate-500 font-bold uppercase tracking-widest px-2 pt-1 pb-2">Client Actions</DropdownMenuLabel>
               
               <DropdownMenuItem onClick={onCopy} className="gap-3 cursor-pointer focus:bg-white/10 focus:text-white rounded-lg py-2">
-                {copied ? <CheckCheck className="w-4 h-4 text-cyan-400" /> : <Copy className="w-4 h-4 opacity-70" />}
+                {copied ? <CheckCheck className="w-4 h-4 text-white/90" /> : <Copy className="w-4 h-4 opacity-70" />}
                 <span className="text-sm">Copy Credentials</span>
               </DropdownMenuItem>
 
@@ -1822,7 +1822,7 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
               )}
 
               {onHwidLockToggle && (
-                <DropdownMenuItem onClick={() => onHwidLockToggle(!user.hwidLockEnabled)} className={`gap-3 cursor-pointer focus:bg-white/10 focus:text-white rounded-lg py-2 ${user.hwidLockEnabled ? 'text-red-400' : ''}`}>
+                <DropdownMenuItem onClick={() => onHwidLockToggle(!user.hwidLockEnabled)} className={`gap-3 cursor-pointer focus:bg-white/10 focus:text-white rounded-lg py-2 ${user.hwidLockEnabled ? 'text-white/70' : ''}`}>
                   {user.hwidLockEnabled ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4 opacity-70" />}
                   <span className="text-sm">{user.hwidLockEnabled ? "Disable HWID Lock" : "Enable HWID Lock"}</span>
                 </DropdownMenuItem>
@@ -1845,13 +1845,13 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
               )}
 
               {user.apiAccessEnabled && onApiResetClick && (
-                <DropdownMenuItem onClick={onApiResetClick} className="gap-3 cursor-pointer focus:bg-red-500/20 focus:text-red-400 text-red-400/80 rounded-lg py-2 transition-colors">
+                <DropdownMenuItem onClick={onApiResetClick} className="gap-3 cursor-pointer focus:bg-white/5 focus:text-white/70 text-white/70/80 rounded-lg py-2 transition-colors">
                   <KeyRound className="w-4 h-4" />
                   <span className="text-sm">Reset API Key</span>
                 </DropdownMenuItem>
               )}
 
-              <DropdownMenuItem onClick={onDelete} disabled={deleting} className="gap-3 cursor-pointer focus:bg-red-500/20 focus:text-red-400 text-red-400/60 rounded-lg py-2 transition-colors mt-1">
+              <DropdownMenuItem onClick={onDelete} disabled={deleting} className="gap-3 cursor-pointer focus:bg-white/5 focus:text-white/70 text-white/70/60 rounded-lg py-2 transition-colors mt-1">
                 {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                 <span className="text-sm">Delete Client</span>
               </DropdownMenuItem>
@@ -1924,20 +1924,20 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ type: "spring", stiffness: 240, damping: 26 }}
-        className="w-full max-w-lg relative rounded-[2.5rem] p-6 sm:p-8 overflow-hidden bg-black/40 backdrop-blur-xl"
+        className="w-full max-w-lg relative rounded-[2.5rem] p-6 sm:p-8 overflow-hidden bg-white/[0.02] backdrop-blur-xl"
         style={{
           border: `1px solid ${
             creditMode === "add"
               ? "rgba(16,185,129,0.3)"
               : creditMode === "deduct"
-              ? "rgba(239,68,68,0.3)"
+              ? "rgba(255,255,255,0.1)"
               : "rgba(6,182,212,0.3)"
           }`,
           boxShadow: `0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 40px ${
             creditMode === "add"
               ? "rgba(16,185,129,0.05)"
               : creditMode === "deduct"
-              ? "rgba(239,68,68,0.05)"
+              ? "rgba(255,255,255,0.1)"
               : "rgba(6,182,212,0.05)"
           }`,
         }}
@@ -1956,7 +1956,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
         />
 
         {/* Ambient background glows */}
-        <div className="absolute -left-20 -top-20 w-40 h-40 bg-violet-600/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -left-20 -top-20 w-40 h-40 bg-white/5 rounded-full blur-3xl pointer-events-none" />
         <div
           className="absolute -right-20 -bottom-20 w-40 h-40 rounded-full blur-3xl pointer-events-none transition-all duration-500"
           style={{
@@ -1964,7 +1964,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
               creditMode === "add"
                 ? "rgba(16,185,129,0.05)"
                 : creditMode === "deduct"
-                ? "rgba(239,68,68,0.05)"
+                ? "rgba(255,255,255,0.1)"
                 : "rgba(6,182,212,0.05)",
           }}
         />
@@ -1979,13 +1979,13 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                   creditMode === "add"
                     ? "rgba(16,185,129,0.12)"
                     : creditMode === "deduct"
-                    ? "rgba(239,68,68,0.12)"
+                    ? "rgba(255,255,255,0.1)"
                     : "rgba(6,182,212,0.12)",
                 borderColor:
                   creditMode === "add"
                     ? "rgba(16,185,129,0.25)"
                     : creditMode === "deduct"
-                    ? "rgba(239,68,68,0.25)"
+                    ? "rgba(255,255,255,0.1)"
                     : "rgba(6,182,212,0.25)",
               }}
             >
@@ -1994,15 +1994,15 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                   creditMode === "add"
                     ? "text-emerald-400"
                     : creditMode === "deduct"
-                    ? "text-red-400"
-                    : "text-cyan-400"
+                    ? "text-white/70"
+                    : "text-white/90"
                 }`}
               />
             </div>
             <div>
               <h3 className="font-black text-base text-white tracking-wide">Manage Balance</h3>
               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-0.5">
-                Client: <span className="text-violet-400 font-mono">@{user.username}</span>
+                Client: <span className="text-white/90 font-mono">@{user.username}</span>
               </p>
             </div>
           </div>
@@ -2015,7 +2015,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
         </div>
 
         {/* Transaction Preview Block */}
-        <div className="bg-black/20 border border-white/5 rounded-2xl p-6 mb-6 text-center relative overflow-hidden flex flex-col items-center justify-center">
+        <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 mb-6 text-center relative overflow-hidden flex flex-col items-center justify-center">
           <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
           <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">
             Transaction Preview
@@ -2041,8 +2041,8 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                   creditMode === "add"
                     ? "text-emerald-400"
                     : creditMode === "deduct"
-                    ? "text-red-400"
-                    : "text-cyan-400"
+                    ? "text-white/70"
+                    : "text-white/90"
                 }`}
               >
                 ➜
@@ -2060,10 +2060,10 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className={`text-3xl font-black font-mono tracking-tighter transition-colors duration-300 ${
                   creditMode === "add"
-                    ? "text-emerald-400 drop-shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+                    ? "text-emerald-400 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
                     : creditMode === "deduct"
-                    ? "text-red-400 drop-shadow-[0_0_12px_rgba(239,68,68,0.4)]"
-                    : "text-cyan-400 drop-shadow-[0_0_12px_rgba(6,182,212,0.4)]"
+                    ? "text-white/70 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+                    : "text-white/90 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
                 }`}
               >
                 {newBalance}
@@ -2078,7 +2078,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
               Operation Mode
             </label>
-            <div className="grid grid-cols-3 gap-2 p-1 rounded-2xl bg-black/40 border border-white/5">
+            <div className="grid grid-cols-3 gap-2 p-1 rounded-2xl bg-white/[0.02] border border-white/5">
               {(["add", "deduct", "set"] as const).map((m) => (
                 <button
                   key={m}
@@ -2090,10 +2090,10 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                   className={`py-3 rounded-xl text-xs font-black uppercase tracking-[0.1em] transition-all cursor-pointer ${
                     creditMode === m
                       ? m === "add"
-                        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+                        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
                         : m === "deduct"
-                        ? "bg-red-500/20 text-red-400 border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.15)]"
-                        : "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)]"
+                        ? "bg-white/5 text-white/70 border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+                        : "bg-white/5 text-white/90 border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
                       : "text-slate-500 hover:text-slate-300 bg-transparent border border-transparent"
                   }`}
                 >
@@ -2124,7 +2124,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                           ? creditMode === "add"
                             ? "rgba(16,185,129,0.15)"
                             : creditMode === "deduct"
-                            ? "rgba(239,68,68,0.15)"
+                            ? "rgba(255,255,255,0.1)"
                             : "rgba(6,182,212,0.15)"
                           : "rgba(255,255,255,0.02)",
                       color:
@@ -2140,7 +2140,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                           ? creditMode === "add"
                             ? "rgba(16,185,129,0.3)"
                             : creditMode === "deduct"
-                            ? "rgba(239,68,68,0.3)"
+                            ? "rgba(255,255,255,0.1)"
                             : "rgba(6,182,212,0.3)"
                           : "rgba(255,255,255,0.08)",
                     }}
@@ -2176,13 +2176,13 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                     ? "Enter amount to deduct..."
                     : "Enter new token balance..."
                 }
-                className="w-full h-12 pl-10 pr-4 rounded-xl bg-black/40 border text-sm text-white placeholder-slate-600 font-mono focus:outline-none transition-all"
+                className="w-full h-12 pl-10 pr-4 rounded-xl bg-white/[0.02] border text-sm text-white placeholder-slate-600 font-mono focus:outline-none transition-all"
                 style={{
                   borderColor:
                     creditMode === "add"
                       ? "rgba(16,185,129,0.2)"
                       : creditMode === "deduct"
-                      ? "rgba(239,68,68,0.2)"
+                      ? "rgba(255,255,255,0.1)"
                       : "rgba(6,182,212,0.2)",
                 }}
               />
@@ -2215,7 +2215,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                   creditMode === "add"
                     ? "0 0 25px rgba(16,185,129,0.3)"
                     : creditMode === "deduct"
-                    ? "0 0 25px rgba(239,68,68,0.3)"
+                    ? "0 0 25px rgba(255,255,255,0.1)"
                     : "0 0 25px rgba(6,182,212,0.3)",
               }}
             >
@@ -2276,17 +2276,17 @@ function CreateUserModal({ onClose, onCreate }: {
     >
       <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md relative rounded-[2.5rem] p-7 shadow-2xl overflow-hidden bg-black/40 backdrop-blur-xl"
+        className="w-full max-w-md relative rounded-[2.5rem] p-7 shadow-2xl overflow-hidden bg-white/[0.02] backdrop-blur-xl"
         style={{ backdropFilter: "blur(24px)" }}
       >
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-violet-500/60 to-transparent" />
-        <div className="absolute -top-32 -left-32 w-64 h-64 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-32 -left-32 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "rgba(139,92,246,0.18)", border: "1px solid rgba(139,92,246,0.3)" }}>
-              <Plus className="w-4 h-4 text-violet-400" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.1)" }}>
+              <Plus className="w-4 h-4 text-white/90" />
             </div>
             <div>
               <h3 className="font-bold text-sm text-foreground">Create Client Account</h3>
@@ -2314,8 +2314,8 @@ function CreateUserModal({ onClose, onCreate }: {
                 <div key={f.label} className="space-y-1.5">
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{f.label}</label>
                   <div className="relative group shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] rounded-xl">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-violet-400 transition-colors">{f.icon}</span>
-                    <input type={f.type} value={f.value} onChange={(e) => f.onChange(e.target.value)} placeholder={f.placeholder} className="w-full h-12 pl-12 pr-4 rounded-xl bg-black/40 border border-white/5 text-sm text-white font-medium placeholder:text-muted-foreground/40 focus:outline-none focus:border-violet-500/40 focus:bg-black/60 focus:ring-1 focus:ring-violet-500/40 transition-all" />
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-white/90 transition-colors">{f.icon}</span>
+                    <input type={f.type} value={f.value} onChange={(e) => f.onChange(e.target.value)} placeholder={f.placeholder} className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.02] border border-white/5 text-sm text-white font-medium placeholder:text-muted-foreground/40 focus:outline-none focus:border-white/10 focus:bg-white/[0.02] focus:ring-1 focus:ring-violet-500/40 transition-all" />
                   </div>
                 </div>
               ))}
@@ -2323,9 +2323,9 @@ function CreateUserModal({ onClose, onCreate }: {
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Auto-Generated Password</label>
                 <div className="relative group shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] rounded-xl">
-                  <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-violet-400 transition-colors" />
+                  <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-white/90 transition-colors" />
                   <input type="text" readOnly value={password}
-                    className="w-full h-12 pl-12 pr-4 rounded-xl bg-black/40 border border-white/5 text-sm text-slate-300 font-mono cursor-not-allowed focus:outline-none focus:border-violet-500/40 focus:ring-1 focus:ring-violet-500/40 transition-all" />
+                    className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.02] border border-white/5 text-sm text-slate-300 font-mono cursor-not-allowed focus:outline-none focus:border-white/10 focus:ring-1 focus:ring-violet-500/40 transition-all" />
                 </div>
               </div>
 
@@ -2334,34 +2334,34 @@ function CreateUserModal({ onClose, onCreate }: {
               <div className="space-y-2 pt-2">
                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Device / UID Limit</label>
                 
-                <div className="flex gap-2 p-1 rounded-xl bg-black/40 border border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]">
-                   <button type="button" onClick={() => setIsInfinity(true)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${isInfinity ? 'bg-violet-500/20 text-violet-400 shadow-[0_0_15px_rgba(139,92,246,0.2)] border border-violet-500/30' : 'text-slate-500 hover:text-slate-300'}`}>Unlimited</button>
-                   <button type="button" onClick={() => setIsInfinity(false)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${!isInfinity ? 'bg-cyan-500/20 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)] border border-cyan-500/30' : 'text-slate-500 hover:text-slate-300'}`}>Custom Limit</button>
+                <div className="flex gap-2 p-1 rounded-xl bg-white/[0.02] border border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]">
+                   <button type="button" onClick={() => setIsInfinity(true)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${isInfinity ? 'bg-white/5 text-white/90 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10' : 'text-slate-500 hover:text-slate-300'}`}>Unlimited</button>
+                   <button type="button" onClick={() => setIsInfinity(false)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${!isInfinity ? 'bg-white/5 text-white/90 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10' : 'text-slate-500 hover:text-slate-300'}`}>Custom Limit</button>
                 </div>
 
                 <AnimatePresence>
                 {!isInfinity && (
                   <motion.div initial={{ opacity: 0, height: 0, marginTop: 0 }} animate={{ opacity: 1, height: "auto", marginTop: 8 }} exit={{ opacity: 0, height: 0, marginTop: 0 }} className="relative group shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] rounded-xl overflow-hidden">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm pointer-events-none group-focus-within:text-cyan-400 transition-colors">#</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm pointer-events-none group-focus-within:text-white/90 transition-colors">#</span>
                     <input 
                       type="number" 
                       min="1"
                       value={uidLimit} 
                       onChange={(e) => setUidLimit(parseInt(e.target.value) || 1)} 
                       placeholder="Enter max allowed devices" 
-                      className="w-full h-12 pl-12 pr-4 rounded-xl bg-black/40 border border-white/5 text-sm text-white font-medium placeholder:text-muted-foreground/40 focus:outline-none focus:border-cyan-500/40 focus:bg-black/60 focus:ring-1 focus:ring-cyan-500/40 transition-all" 
+                      className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.02] border border-white/5 text-sm text-white font-medium placeholder:text-muted-foreground/40 focus:outline-none focus:border-white/10 focus:bg-white/[0.02] focus:ring-1 focus:ring-cyan-500/40 transition-all" 
                     />
                   </motion.div>
                 )}
                 </AnimatePresence>
               </div>
 
-              {error && <div className="flex items-center gap-2 text-red-400 text-xs px-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20"><X className="w-3.5 h-3.5 shrink-0" />{error}</div>}
+              {error && <div className="flex items-center gap-2 text-white/70 text-xs px-3 py-2.5 rounded-xl bg-white/5 border border-white/10"><X className="w-3.5 h-3.5 shrink-0" />{error}</div>}
 
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={onClose} className="flex-1 h-12 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-300 hover:text-white hover:bg-white/10 transition-all font-semibold shadow-sm">Cancel</button>
                 <motion.button type="submit" disabled={loading || !username || !password} whileHover={{ scale: 1.02, y: -1 }} whileTap={{ scale: 0.98, y: 1 }}
-                  className="flex-1 h-12 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 relative overflow-hidden transition-all shadow-[0_8px_20px_-6px_rgba(139,92,246,0.5)] border border-white/10"
+                  className="flex-1 h-12 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 relative overflow-hidden transition-all shadow-[0_8px_20px_-6px_rgba(255,255,255,0.1)] border border-white/10"
                   style={{ background: "linear-gradient(135deg, #7c3aed, #0891b2)" }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 btn-shimmer" />
@@ -2399,7 +2399,7 @@ function DurationPicker({ value, onChange, presets, min = 1, max = 90, theme = "
             max={max} 
             value={value}
             onChange={(e) => onChange(Math.min(max, Math.max(min, parseInt(e.target.value) || min)))}
-            className="w-full h-9 px-3 rounded-lg bg-black/40 border border-white/5 text-sm text-center font-bold font-mono focus:outline-none focus:border-violet-500/40 focus:ring-1 focus:ring-violet-500/40 transition-all text-white" 
+            className="w-full h-9 px-3 rounded-lg bg-white/[0.02] border border-white/5 text-sm text-center font-bold font-mono focus:outline-none focus:border-white/10 focus:ring-1 focus:ring-violet-500/40 transition-all text-white" 
             style={{ color: hex1 }}
           />
         </div>
@@ -2483,11 +2483,11 @@ function SettingsPanel() {
   return (
     <div className="space-y-4">
       {/* API Config card */}
-      <div className="rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(6,182,212,0.15)" }}>
+      <div className="rounded-3xl overflow-hidden bg-white/[0.02] backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(6,182,212,0.15)" }}>
         <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #06b6d4, #10b981, transparent)" }} />
         <div className="px-5 py-4 flex items-center gap-3 border-b border-white/[0.04]">
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(6,182,212,0.15)", border: "1px solid rgba(6,182,212,0.25)" }}>
-            <Settings className="w-4 h-4 text-cyan-400" />
+            <Settings className="w-4 h-4 text-white/90" />
           </div>
           <div>
             <h2 className="font-bold text-sm text-foreground">External API Configuration</h2>
@@ -2505,11 +2505,11 @@ function SettingsPanel() {
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">API Base URL</label>
               <div className="relative group">
-                <Shield className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-cyan-400 transition-colors" />
+                <Shield className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-white/90 transition-colors" />
                 <input
                   type="url" value={apiUrl} onChange={(e) => setApiUrl(e.target.value)}
                   placeholder="https://your-api.example.com/api/endpoint.php"
-                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all font-mono text-[12px]"
+                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-white/10 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all font-mono text-[12px]"
                 />
               </div>
             </div>
@@ -2525,12 +2525,12 @@ function SettingsPanel() {
                 )}
               </div>
               <div className="relative group">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-cyan-400 transition-colors" />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-white/90 transition-colors" />
                 <input
                   type={showKey ? "text" : "password"} value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   placeholder={hasCustomKey ? "Enter new key to replace current…" : "Paste your API key here"}
-                  className="w-full h-11 pl-10 pr-12 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all font-mono text-[12px]"
+                  className="w-full h-11 pl-10 pr-12 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-white/10 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all font-mono text-[12px]"
                 />
                 <button type="button" onClick={() => setShowKey(!showKey)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1">
                   {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -2540,7 +2540,7 @@ function SettingsPanel() {
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 text-red-400 text-xs px-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20">
+              <div className="flex items-center gap-2 text-white/70 text-xs px-3 py-2.5 rounded-xl bg-white/5 border border-white/10">
                 <X className="w-3.5 h-3.5 shrink-0" />{error}
               </div>
             )}
@@ -2557,7 +2557,7 @@ function SettingsPanel() {
       </div>
 
       {/* Duration info card */}
-      <div className="rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-3xl overflow-hidden bg-white/[0.02] backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="px-5 py-4 border-b border-white/[0.04]">
           <h3 className="font-bold text-sm text-foreground">Allowed Duration Values</h3>
           <p className="text-[11px] text-muted-foreground mt-0.5">The external API accepts these exact hour values</p>
@@ -2565,7 +2565,7 @@ function SettingsPanel() {
         <div className="p-4 grid grid-cols-5 gap-2">
           {HOUR_PRESETS.map(({ h, label }) => (
             <div key={h} className="flex flex-col items-center gap-1 py-3 rounded-xl" style={{ background: "rgba(6,182,212,0.06)", border: "1px solid rgba(6,182,212,0.12)" }}>
-              <span className="text-xl font-black text-cyan-400">{h}</span>
+              <span className="text-xl font-black text-white/90">{h}</span>
               <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">hrs</span>
               <span className="text-[10px] text-muted-foreground/60">{label}</span>
             </div>
@@ -2573,11 +2573,11 @@ function SettingsPanel() {
         </div>
         <div className="px-5 pb-4">
           <div className="rounded-xl px-4 py-3 text-[11px] font-mono" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "#6b7280" }}>
-            <span className="text-cyan-400/70">{"{base_url}"}</span>
+            <span className="text-white/90/70">{"{base_url}"}</span>
             <span className="text-muted-foreground/40">?api=</span>
             <span className="text-amber-400/70">{"{key}"}</span>
             <span className="text-muted-foreground/40">&action=create&uid=</span>
-            <span className="text-violet-400/70">{"{uid}"}</span>
+            <span className="text-white/90/70">{"{uid}"}</span>
             <span className="text-muted-foreground/40">&duration=</span>
             <span className="text-emerald-400/70">{"{hours}"}</span>
           </div>
@@ -2677,14 +2677,14 @@ function PaymentsPanel({
                       onClick={() => act(p._id, onReject)}
                       disabled={acting === p._id}
                       className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
-                      style={{ background: "rgba(239,68,68,0.1)", color: "#f87171", border: "1px solid rgba(239,68,68,0.25)" }}
+                      style={{ background: "rgba(255,255,255,0.1)", color: "#f87171", border: "1px solid rgba(255,255,255,0.1)" }}
                     >
                       <XCircle className="w-3 h-3" />
                       Reject
                     </button>
                   </div>
                 ) : (
-                  <span className={`shrink-0 flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold ${p.status === "approved" ? "text-emerald-400" : "text-red-400"}`} style={{ background: p.status === "approved" ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", border: `1px solid ${p.status === "approved" ? "rgba(16,185,129,0.25)" : "rgba(239,68,68,0.2)"}` }}>
+                  <span className={`shrink-0 flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold ${p.status === "approved" ? "text-emerald-400" : "text-white/70"}`} style={{ background: p.status === "approved" ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.1)", border: `1px solid ${p.status === "approved" ? "rgba(16,185,129,0.25)" : "rgba(255,255,255,0.1)"}` }}>
                     {p.status === "approved" ? <Check className="w-2.5 h-2.5" /> : <XCircle className="w-2.5 h-2.5" />}
                     {p.status === "approved" ? "Approved" : "Rejected"}
                   </span>
@@ -2844,7 +2844,7 @@ function UserProfilePanel({
     <div className="max-w-2xl mx-auto space-y-10">
       <div className="mb-8 text-left">
         <div className="flex items-center gap-3">
-          <UserCircle className="w-8 h-8 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
+          <UserCircle className="w-8 h-8 text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
           <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-md">Account Profile</h1>
         </div>
         <p className="text-slate-400 font-semibold text-sm mt-2">Personalize your identity for the team chat and dashboard.</p>
@@ -2867,13 +2867,13 @@ function UserProfilePanel({
 
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
           <div className="relative shrink-0 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-            <div className="w-28 h-28 rounded-full bg-black/40 border-2 border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.5)] overflow-hidden flex items-center justify-center relative hover:border-cyan-500/50 group/preview transition-all">
+            <div className="w-28 h-28 rounded-full bg-white/[0.02] border-2 border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden flex items-center justify-center relative hover:border-white/10 group/preview transition-all">
               {tempAvatar ? (
                 <img src={tempAvatar} alt="DP Preview" className="w-full h-full object-cover" />
               ) : (
                 <UserCircle className="w-16 h-16 text-slate-600" />
               )}
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/preview:opacity-100 flex items-center justify-center transition-opacity">
+              <div className="absolute inset-0 bg-white/[0.02] opacity-0 group-hover/preview:opacity-100 flex items-center justify-center transition-opacity">
                 <Camera className="w-6 h-6 text-white" />
               </div>
             </div>
@@ -2887,7 +2887,7 @@ function UserProfilePanel({
                 type="text" 
                 value={tempName} 
                 onChange={(e) => setTempName(e.target.value)}
-                className="w-full h-12 px-4 rounded-xl bg-black/40 border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_15px_rgba(0,212,255,0.15)] transition-all text-sm"
+                className="w-full h-12 px-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all text-sm"
                 placeholder="Enter display name..."
               />
             </div>
@@ -2898,7 +2898,7 @@ function UserProfilePanel({
                 type="text" 
                 value={tempAvatar} 
                 onChange={(e) => setTempAvatar(e.target.value)}
-                className="w-full h-12 px-4 rounded-xl bg-black/40 border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_15px_rgba(0,212,255,0.15)] transition-all text-sm"
+                className="w-full h-12 px-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all text-sm"
                 placeholder="https://image-link.com/photo.jpg or Base64..."
               />
               <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1">Use a direct link to an image file.</p>
@@ -2949,7 +2949,7 @@ function UserProfilePanel({
                 type="password" 
                 value={currentPassword} 
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full h-12 pl-12 pr-4 rounded-xl bg-black/40 border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-red-500/50 focus:shadow-[0_0_15px_rgba(239,68,68,0.15)] transition-all text-sm"
+                className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all text-sm"
                 placeholder="••••••••"
               />
             </div>
@@ -2963,7 +2963,7 @@ function UserProfilePanel({
                 type="password" 
                 value={newPassword} 
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full h-12 pl-12 pr-4 rounded-xl bg-black/40 border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-red-500/50 focus:shadow-[0_0_15px_rgba(239,68,68,0.15)] transition-all text-sm"
+                className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all text-sm"
                 placeholder="Enter new password"
               />
             </div>
@@ -3030,7 +3030,7 @@ function LeaderboardView() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center p-20 opacity-60">
-        <Loader2 className="w-12 h-12 text-red-500 animate-spin mb-4" />
+        <Loader2 className="w-12 h-12 text-white/90 animate-spin mb-4" />
         <p className="text-xs font-black uppercase tracking-widest text-slate-400">Loading Leaderboard...</p>
       </div>
     );
@@ -3046,7 +3046,7 @@ function LeaderboardView() {
       <div className="flex items-center justify-between text-left">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">Leaderboard</h1>
+            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">Leaderboard</h1>
             <span className="px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">REAL-TIME RANKINGS</span>
           </div>
           <p className="text-slate-400 font-semibold text-sm mt-2">Ranked by UIDs added on the global authorization mesh</p>
@@ -3057,7 +3057,7 @@ function LeaderboardView() {
           disabled={refreshing}
           className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 flex items-center justify-center text-slate-300 hover:text-white transition-all disabled:opacity-50"
         >
-          <RefreshCw className={`w-5 h-5 ${refreshing ? "animate-spin text-red-500" : ""}`} />
+          <RefreshCw className={`w-5 h-5 ${refreshing ? "animate-spin text-white/90" : ""}`} />
         </button>
       </div>
 
@@ -3074,7 +3074,7 @@ function LeaderboardView() {
                 <div className="argus-glass rounded-[2rem] p-6 text-center border border-white/5 relative overflow-hidden shadow-xl md:h-[280px] flex flex-col justify-between">
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-400 to-slate-200" />
                   <div className="flex justify-center -mt-12 relative">
-                    <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-slate-400 shadow-[0_0_20px_rgba(148,163,184,0.3)] overflow-hidden flex items-center justify-center relative">
+                    <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-slate-400 shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden flex items-center justify-center relative">
                       {top2.avatar ? (
                         <img src={top2.avatar} alt="Rank 2" className="w-full h-full object-cover" />
                       ) : (
@@ -3089,21 +3089,21 @@ function LeaderboardView() {
                   <div className="mt-4">
                     <h3 className="font-black text-white text-lg tracking-wide truncate max-w-full">{top2.displayName}</h3>
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
-                      @{top2.username} <span className="opacity-40">·</span> <span className={top2.role === "admin" ? "text-red-400" : "text-violet-400"}>{top2.role === "admin" ? "Admin" : "Reseller"}</span>
+                      @{top2.username} <span className="opacity-40">·</span> <span className={top2.role === "admin" ? "text-white/70" : "text-white/90"}>{top2.role === "admin" ? "Admin" : "Reseller"}</span>
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-black/40 border border-white/5 text-[10px] font-bold text-slate-400">
+                  <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-white/[0.02] border border-white/5 text-[10px] font-bold text-slate-400">
                     <div>
                       <div className="text-emerald-400 font-extrabold">{top2.today}</div>
                       <div>TODAY</div>
                     </div>
                     <div>
-                      <div className="text-cyan-400 font-extrabold">{top2.active}</div>
+                      <div className="text-white/90 font-extrabold">{top2.active}</div>
                       <div>ACTIVE</div>
                     </div>
                     <div>
-                      <div className="text-red-400 font-extrabold">{top2.expired}</div>
+                      <div className="text-white/70 font-extrabold">{top2.expired}</div>
                       <div>EXPIRED</div>
                     </div>
                   </div>
@@ -3126,17 +3126,17 @@ function LeaderboardView() {
               className="md:order-2 z-10"
             >
               <TiltWrapper>
-                <div className="argus-glass rounded-[2rem] p-8 text-center border border-yellow-500/30 relative overflow-hidden shadow-2xl md:h-[320px] flex flex-col justify-between" style={{ background: "linear-gradient(135deg, rgba(251,191,36,0.05), rgba(239,68,68,0.05))" }}>
-                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 shadow-[0_0_15px_rgba(245,158,11,0.5)]" />
+                <div className="argus-glass rounded-[2rem] p-8 text-center border border-yellow-500/30 relative overflow-hidden shadow-2xl md:h-[320px] flex flex-col justify-between" style={{ background: "linear-gradient(135deg, rgba(251,191,36,0.05), rgba(255,255,255,0.1))" }}>
+                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
                   
                   <div className="flex justify-center -mt-16 relative">
-                    <div className="w-24 h-24 rounded-full bg-slate-900/90 border-4 border-yellow-500 shadow-[0_0_30px_rgba(245,158,11,0.4)] overflow-hidden flex items-center justify-center relative">
+                    <div className="w-24 h-24 rounded-full bg-white/[0.02]/90 border-4 border-yellow-500 shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden flex items-center justify-center relative">
                       {top1.avatar ? (
                         <img src={top1.avatar} alt="Rank 1" className="w-full h-full object-cover" />
                       ) : (
                         <UserCircle className="w-14 h-14 text-yellow-500" />
                       )}
-                      <Crown className="w-6 h-6 text-yellow-400 drop-shadow-[0_0_8px_rgba(234,179,8,0.6)] absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full animate-bounce" />
+                      <Crown className="w-6 h-6 text-yellow-400 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full animate-bounce" />
                       <div className="absolute -bottom-2 right-1/2 translate-x-1/2 w-7 h-7 rounded-full bg-yellow-500 text-black text-sm font-black flex items-center justify-center shadow-lg border-2 border-yellow-800">
                         1
                       </div>
@@ -3146,31 +3146,31 @@ function LeaderboardView() {
                   <div className="mt-4">
                     <div className="flex items-center justify-center gap-1.5">
                       <h3 className="font-black text-white text-xl tracking-wide truncate max-w-full">{top1.displayName}</h3>
-                      <Trophy className="w-5 h-5 text-yellow-400 drop-shadow-[0_0_5px_rgba(234,179,8,0.5)] shrink-0" />
+                      <Trophy className="w-5 h-5 text-yellow-400 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] shrink-0" />
                     </div>
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
-                      @{top1.username} <span className="opacity-40">·</span> <span className={top1.role === "admin" ? "text-red-400 font-extrabold" : "text-violet-400 font-extrabold"}>{top1.role === "admin" ? "Admin" : "Reseller"}</span>
+                      @{top1.username} <span className="opacity-40">·</span> <span className={top1.role === "admin" ? "text-white/70 font-extrabold" : "text-white/90 font-extrabold"}>{top1.role === "admin" ? "Admin" : "Reseller"}</span>
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-black/40 border border-white/5 text-[10px] font-bold text-slate-400">
+                  <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-white/[0.02] border border-white/5 text-[10px] font-bold text-slate-400">
                     <div>
                       <div className="text-emerald-400 font-extrabold">{top1.today}</div>
                       <div>TODAY</div>
                     </div>
                     <div>
-                      <div className="text-cyan-400 font-extrabold">{top1.active}</div>
+                      <div className="text-white/90 font-extrabold">{top1.active}</div>
                       <div>ACTIVE</div>
                     </div>
                     <div>
-                      <div className="text-red-400 font-extrabold">{top1.expired}</div>
+                      <div className="text-white/70 font-extrabold">{top1.expired}</div>
                       <div>EXPIRED</div>
                     </div>
                   </div>
 
                   <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">TOTAL UIDs</span>
-                    <span className="text-2xl font-black text-yellow-400 tracking-tight drop-shadow-[0_0_10px_rgba(234,179,8,0.3)]">{top1.total}</span>
+                    <span className="text-2xl font-black text-yellow-400 tracking-tight drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">{top1.total}</span>
                   </div>
                 </div>
               </TiltWrapper>
@@ -3188,7 +3188,7 @@ function LeaderboardView() {
                 <div className="argus-glass rounded-[2rem] p-6 text-center border border-white/5 relative overflow-hidden shadow-xl md:h-[280px] flex flex-col justify-between">
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-600 to-amber-400" />
                   <div className="flex justify-center -mt-12 relative">
-                    <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-amber-600 shadow-[0_0_20px_rgba(217,119,6,0.3)] overflow-hidden flex items-center justify-center relative">
+                    <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-amber-600 shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden flex items-center justify-center relative">
                       {top3.avatar ? (
                         <img src={top3.avatar} alt="Rank 3" className="w-full h-full object-cover" />
                       ) : (
@@ -3203,21 +3203,21 @@ function LeaderboardView() {
                   <div className="mt-4">
                     <h3 className="font-black text-white text-lg tracking-wide truncate max-w-full">{top3.displayName}</h3>
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
-                      @{top3.username} <span className="opacity-40">·</span> <span className={top3.role === "admin" ? "text-red-400" : "text-violet-400"}>{top3.role === "admin" ? "Admin" : "Reseller"}</span>
+                      @{top3.username} <span className="opacity-40">·</span> <span className={top3.role === "admin" ? "text-white/70" : "text-white/90"}>{top3.role === "admin" ? "Admin" : "Reseller"}</span>
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-black/40 border border-white/5 text-[10px] font-bold text-slate-400">
+                  <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-white/[0.02] border border-white/5 text-[10px] font-bold text-slate-400">
                     <div>
                       <div className="text-emerald-400 font-extrabold">{top3.today}</div>
                       <div>TODAY</div>
                     </div>
                     <div>
-                      <div className="text-cyan-400 font-extrabold">{top3.active}</div>
+                      <div className="text-white/90 font-extrabold">{top3.active}</div>
                       <div>ACTIVE</div>
                     </div>
                     <div>
-                      <div className="text-red-400 font-extrabold">{top3.expired}</div>
+                      <div className="text-white/70 font-extrabold">{top3.expired}</div>
                       <div>EXPIRED</div>
                     </div>
                   </div>
@@ -3240,9 +3240,9 @@ function LeaderboardView() {
         animate={{ opacity: 1, y: 0 }}
         className="argus-glass rounded-[2rem] overflow-hidden relative shadow-2xl border border-white/5 text-left"
       >
-        <div className="flex items-center gap-3 px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-black/20">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.2)] border border-red-500/20" style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.1), rgba(0,0,0,0.05))" }}>
-            <Users className="w-5 h-5 text-red-500" />
+        <div className="flex items-center gap-3 px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-white/[0.02]">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.05))" }}>
+            <Users className="w-5 h-5 text-white/90" />
           </div>
           <div>
             <h2 className="font-black text-lg text-white tracking-wide">Rankings</h2>
@@ -3264,8 +3264,8 @@ function LeaderboardView() {
               <div className="col-span-1">Rank</div>
               <div className="col-span-4">Operator</div>
               <div className="col-span-2 text-center text-emerald-500">Today</div>
-              <div className="col-span-2 text-center text-cyan-400">Active</div>
-              <div className="col-span-2 text-center text-red-400">Expired</div>
+              <div className="col-span-2 text-center text-white/90">Active</div>
+              <div className="col-span-2 text-center text-white/70">Expired</div>
               <div className="col-span-1 text-right text-slate-300">Total</div>
             </div>
 
@@ -3275,21 +3275,21 @@ function LeaderboardView() {
                   key={user.username}
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="group relative bg-black/40 border border-white/10 rounded-2xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-12 items-center gap-4 transition-all hover:bg-white/[0.03] hover:border-white/20 overflow-hidden"
+                  className="group relative bg-white/[0.02] border border-white/10 rounded-2xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-12 items-center gap-4 transition-all hover:bg-white/[0.03] hover:border-white/20 overflow-hidden"
                 >
                   <div className="col-span-1 flex items-center gap-2">
                     <span className={`w-8 h-8 rounded-xl font-black text-xs flex items-center justify-center border shadow-inner ${
                       idx === 0 ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" :
                       idx === 1 ? "bg-slate-400/20 text-slate-300 border-slate-400/30" :
                       idx === 2 ? "bg-amber-600/20 text-amber-500 border-amber-600/30" :
-                      "bg-black/50 text-slate-400 border-white/5"
+                      "bg-white/[0.02] text-slate-400 border-white/5"
                     }`}>
                       #{idx + 1}
                     </span>
                   </div>
 
                   <div className="col-span-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-black/40 border border-white/10 overflow-hidden flex items-center justify-center shadow-inner">
+                    <div className="w-10 h-10 rounded-xl bg-white/[0.02] border border-white/10 overflow-hidden flex items-center justify-center shadow-inner">
                       {user.avatar ? (
                         <img src={user.avatar} alt={user.displayName} className="w-full h-full object-cover" />
                       ) : (
@@ -3299,7 +3299,7 @@ function LeaderboardView() {
                     <div>
                       <div className="font-black text-sm text-white tracking-wide">{user.displayName}</div>
                       <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                        @{user.username} <span className="opacity-40">·</span> <span className={user.role === "admin" ? "text-red-400 font-extrabold" : "text-violet-400 font-extrabold"}>{user.role === "admin" ? "Admin" : "Reseller"}</span>
+                        @{user.username} <span className="opacity-40">·</span> <span className={user.role === "admin" ? "text-white/70 font-extrabold" : "text-white/90 font-extrabold"}>{user.role === "admin" ? "Admin" : "Reseller"}</span>
                       </div>
                     </div>
                   </div>
@@ -3311,12 +3311,12 @@ function LeaderboardView() {
 
                   <div className="col-span-2 text-center flex sm:block justify-between items-center sm:border-0 border-b border-white/5 py-1 sm:py-0">
                     <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Active</span>
-                    <span className="text-cyan-400 font-extrabold text-sm sm:bg-cyan-500/10 sm:border sm:border-cyan-500/20 px-2.5 py-1 rounded-lg">{user.active}</span>
+                    <span className="text-white/90 font-extrabold text-sm sm:bg-white/5 sm:border sm:border-white/10 px-2.5 py-1 rounded-lg">{user.active}</span>
                   </div>
 
                   <div className="col-span-2 text-center flex sm:block justify-between items-center sm:border-0 border-b border-white/5 py-1 sm:py-0">
                     <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Expired</span>
-                    <span className="text-red-400 font-extrabold text-sm sm:bg-red-500/10 sm:border sm:border-red-500/20 px-2.5 py-1 rounded-lg">{user.expired}</span>
+                    <span className="text-white/70 font-extrabold text-sm sm:bg-white/5 sm:border sm:border-white/10 px-2.5 py-1 rounded-lg">{user.expired}</span>
                   </div>
 
                   <div className="col-span-1 text-right flex sm:block justify-between items-center py-1 sm:py-0">
@@ -3413,7 +3413,7 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center p-20 opacity-60">
-        <Loader2 className="w-12 h-12 text-red-500 animate-spin mb-4" />
+        <Loader2 className="w-12 h-12 text-white/90 animate-spin mb-4" />
         <p className="text-xs font-black uppercase tracking-widest text-slate-400">Loading Secure Channel...</p>
       </div>
     );
@@ -3421,10 +3421,10 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col h-[75vh] argus-glass rounded-[2rem] overflow-hidden border border-white/5 relative text-left">
-      <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.05] bg-black/25">
+      <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.05] bg-white/[0.02]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.2)]">
-            <MessageSquare className="w-5 h-5 text-red-400" />
+          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <MessageSquare className="w-5 h-5 text-white/70" />
           </div>
           <div>
             <h2 className="font-black text-base text-white tracking-wide">Team Cryptochat</h2>
@@ -3434,12 +3434,12 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
             </div>
           </div>
         </div>
-        <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-black/30 border border-white/5 px-3 py-1 rounded-md">
+        <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-white/[0.02] border border-white/5 px-3 py-1 rounded-md">
           {messages.length} packets
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-black/10">
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-white/[0.02]">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
             <MessageSquare className="w-12 h-12 text-slate-500 mb-4" />
@@ -3458,25 +3458,25 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
                 animate={{ opacity: 1, y: 0 }}
                 className={`flex gap-3 max-w-[80%] ${isMe ? "ml-auto flex-row-reverse" : "mr-auto text-left"}`}
               >
-                <div className="w-9 h-9 rounded-full bg-black/40 border border-white/10 overflow-hidden shrink-0 flex items-center justify-center shadow-inner">
+                <div className="w-9 h-9 rounded-full bg-white/[0.02] border border-white/10 overflow-hidden shrink-0 flex items-center justify-center shadow-inner">
                   {msg.avatar ? (
                     <img src={msg.avatar} alt={msg.displayName} className="w-full h-full object-cover" />
                   ) : (
-                    <UserCircle className={`w-6 h-6 ${isAdminMsg ? "text-red-400" : "text-slate-500"}`} />
+                    <UserCircle className={`w-6 h-6 ${isAdminMsg ? "text-white/70" : "text-slate-500"}`} />
                   )}
                 </div>
 
                 <div>
-                  <div className={`text-[10px] font-black tracking-wide uppercase mb-1 ${isMe ? "text-right text-cyan-400" : isAdminMsg ? "text-red-400" : "text-violet-400"}`}>
+                  <div className={`text-[10px] font-black tracking-wide uppercase mb-1 ${isMe ? "text-right text-white/90" : isAdminMsg ? "text-white/70" : "text-white/90"}`}>
                     {msg.displayName}
-                    {isAdminMsg && <span className="ml-1 px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[8px] font-black border border-red-500/30 tracking-widest">ADMIN</span>}
+                    {isAdminMsg && <span className="ml-1 px-1.5 py-0.5 rounded bg-white/5 text-white/70 text-[8px] font-black border border-white/10 tracking-widest">ADMIN</span>}
                   </div>
                   
                   <div className={`p-4 rounded-2xl text-sm font-semibold leading-relaxed shadow-lg border ${
                     isMe 
-                      ? "bg-cyan-500/10 border-cyan-500/30 text-white rounded-tr-none" 
+                      ? "bg-white/5 border-white/10 text-white rounded-tr-none" 
                       : isAdminMsg
-                        ? "bg-red-500/10 border-red-500/20 text-white rounded-tl-none"
+                        ? "bg-white/5 border-white/10 text-white rounded-tl-none"
                         : "bg-white/[0.03] border-white/10 text-slate-200 rounded-tl-none"
                   }`}>
                     {msg.message}
@@ -3493,18 +3493,18 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSend} className="p-4 border-t border-white/[0.05] bg-black/25 flex items-center gap-3">
+      <form onSubmit={handleSend} className="p-4 border-t border-white/[0.05] bg-white/[0.02] flex items-center gap-3">
         <input
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Transmit encrypted message to team..."
-          className="flex-1 h-12 px-5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-slate-600 text-sm font-bold focus:outline-none focus:border-red-500/50 focus:shadow-[0_0_15px_rgba(239,68,68,0.15)] transition-all"
+          className="flex-1 h-12 px-5 rounded-xl bg-white/[0.02] border border-white/10 text-white placeholder-slate-600 text-sm font-bold focus:outline-none focus:border-white/10 focus:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all"
         />
         <button
           type="submit"
           disabled={!text.trim() || sending}
-          className="h-12 w-12 rounded-xl bg-red-600 hover:bg-red-500 text-white flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          className="h-12 w-12 rounded-xl bg-red-600 hover:bg-red-500 text-white flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {sending ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -3545,12 +3545,12 @@ function OverviewStatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, type: "spring", stiffness: 200, damping: 22 }}
       whileHover={{ y: -4, scale: 1.02 }}
-      className="neo-glass glow-border rounded-[2rem] p-6 sm:p-7 relative overflow-hidden cursor-default group flex items-center justify-between bg-black/40 shadow-xl text-left"
+      className="bg-[#0a0a0c]/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)] glow-border rounded-[2rem] p-6 sm:p-7 relative overflow-hidden cursor-default group flex items-center justify-between bg-white/[0.02] shadow-xl text-left"
     >
       <div className="scanline" />
       <div
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-[2rem] pointer-events-none"
-        style={{ background: "radial-gradient(circle at top right, rgba(239,68,68,0.1), transparent 70%)" }}
+        style={{ background: "radial-gradient(circle at top right, rgba(255,255,255,0.1), transparent 70%)" }}
       />
       <div
         className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none glow-pulse"
@@ -3565,11 +3565,11 @@ function OverviewStatCard({
       </div>
 
       <div className="flex flex-col items-end justify-between h-full relative z-10 gap-3">
-        <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center group-hover:bg-red-500/20 transition-colors shadow-[0_0_10px_rgba(239,68,68,0.1)] group-hover:shadow-[0_0_15px_rgba(239,68,68,0.3)]">
-          <Icon className="w-4 h-4 text-red-400/80 group-hover:text-red-300 transition-colors" />
+        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/5 transition-colors shadow-[0_10px_30px_rgba(0,0,0,0.5)] group-hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+          <Icon className="w-4 h-4 text-white/70/80 group-hover:text-red-300 transition-colors" />
         </div>
         <div className="w-24 sm:w-28 h-10 mt-2">
-          <svg viewBox="0 0 100 30" className="w-full h-full text-red-500/80 group-hover:text-red-400 transition-colors filter drop-shadow-[0_0_4px_rgba(239,68,68,0.3)]">
+          <svg viewBox="0 0 100 30" className="w-full h-full text-white/90/80 group-hover:text-white/70 transition-colors filter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
             <motion.path
               d={pathD}
               fill="none"
@@ -3661,26 +3661,26 @@ function LoginHistoryPanel() {
   }, [viewMine]);
 
   return (
-    <div className="neo-glass rounded-3xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.6)] glow-border">
+    <div className="bg-[#0a0a0c]/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)] rounded-3xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.6)] glow-border">
       <div className="px-6 py-6 border-b border-white/[0.04] flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/[0.03] border border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.05)]">
-            <Clock className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/[0.03] border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <Clock className="w-6 h-6 text-white/90 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
           </div>
           <div>
             <h2 className="font-black text-lg tracking-wider text-white uppercase">Login History</h2>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Network Access Logs</p>
           </div>
         </div>
-        <div className="flex items-center bg-black/40 rounded-xl p-1 border border-white/5 shadow-inner backdrop-blur-md">
-          <button onClick={() => setViewMine(false)} className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${!viewMine ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.2)]" : "text-slate-500 hover:text-white border border-transparent"}`}>Network</button>
-          <button onClick={() => setViewMine(true)} className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${viewMine ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.2)]" : "text-slate-500 hover:text-white border border-transparent"}`}>My Logins</button>
+        <div className="flex items-center bg-white/[0.02] rounded-xl p-1 border border-white/5 shadow-inner backdrop-blur-md">
+          <button onClick={() => setViewMine(false)} className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${!viewMine ? "bg-white/5 text-white/90 border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]" : "text-slate-500 hover:text-white border border-transparent"}`}>Network</button>
+          <button onClick={() => setViewMine(true)} className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${viewMine ? "bg-white/5 text-white/90 border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]" : "text-slate-500 hover:text-white border border-transparent"}`}>My Logins</button>
         </div>
       </div>
       <div className="p-0">
         {loading ? (
           <div className="flex items-center justify-center py-24">
-            <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
+            <Loader2 className="w-8 h-8 animate-spin text-white/90" />
           </div>
         ) : history.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-500">
@@ -3691,21 +3691,21 @@ function LoginHistoryPanel() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-white/10 bg-black/40">
-                  <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-cyan-400 font-black">User</th>
-                  <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-cyan-400 font-black">Status</th>
-                  <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-cyan-400 font-black">IP Address</th>
-                  <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-cyan-400 font-black">Time</th>
-                  <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-cyan-400 font-black">Device/Agent</th>
+                <tr className="border-b border-white/10 bg-white/[0.02]">
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-white/90 font-black">User</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-white/90 font-black">Status</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-white/90 font-black">IP Address</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-white/90 font-black">Time</th>
+                  <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-white/90 font-black">Device/Agent</th>
                 </tr>
               </thead>
               <tbody>
                 {history.map((record, i) => (
                   <tr key={i} className="border-b border-white/[0.03] hover:bg-white/[0.05] transition-all group">
-                    <td className="py-4 px-6 font-black text-sm text-white group-hover:text-cyan-300 transition-colors drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]">{record.username}</td>
+                    <td className="py-4 px-6 font-black text-sm text-white group-hover:text-white/90 transition-colors drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">{record.username}</td>
                     <td className="py-4 px-6">
                       {record.success ? (
-                        <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
                           <span className="relative flex h-1.5 w-1.5">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
@@ -3713,7 +3713,7 @@ function LoginHistoryPanel() {
                           SUCCESS
                         </div>
                       ) : (
-                        <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-red-300 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-red-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
                           <span className="relative flex h-1.5 w-1.5">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
@@ -3752,10 +3752,10 @@ function SetUidLimitModal({ user, onClose, onSave }: { user: ClientUser; onClose
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.8)", backdropFilter: "blur(24px)" }} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", stiffness: 240, damping: 26 }} className="w-full max-w-sm relative rounded-[2.5rem] p-6 sm:p-8 overflow-hidden bg-black/40 backdrop-blur-xl" style={{ border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 40px rgba(59,130,246,0.05)" }}>
+      <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", stiffness: 240, damping: 26 }} className="w-full max-w-sm relative rounded-[2.5rem] p-6 sm:p-8 overflow-hidden bg-white/[0.02] backdrop-blur-xl" style={{ border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 40px rgba(59,130,246,0.05)" }}>
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
         <div className="flex items-center gap-3.5 mb-6">
-          <div className="w-11 h-11 rounded-2xl flex items-center justify-center border bg-blue-500/10 border-blue-500/30 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center border bg-blue-500/10 border-blue-500/30 text-blue-400 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
             <ShieldAlert className="w-5 h-5" />
           </div>
           <div>
@@ -3767,13 +3767,13 @@ function SetUidLimitModal({ user, onClose, onSave }: { user: ClientUser; onClose
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">Hardware ID Limit</label>
             <div className="relative">
-              <input autoFocus type="number" value={limitInput} onChange={e => setLimitInput(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all font-mono" placeholder="-1 for Unlimited" />
+              <input autoFocus type="number" value={limitInput} onChange={e => setLimitInput(e.target.value)} className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all font-mono" placeholder="-1 for Unlimited" />
             </div>
             <p className="text-[10px] text-slate-500 font-medium pl-1 mt-1">-1 means the client can add unlimited UIDs.</p>
           </div>
           <div className="flex items-center justify-end gap-3 pt-2">
             <button type="button" onClick={onClose} disabled={saving} className="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">Cancel</button>
-            <button type="submit" disabled={saving} className="px-6 py-2.5 rounded-xl font-bold text-sm bg-blue-500 hover:bg-blue-400 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all flex items-center gap-2 disabled:opacity-50">
+            <button type="submit" disabled={saving} className="px-6 py-2.5 rounded-xl font-bold text-sm bg-blue-500 hover:bg-blue-400 text-white shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all flex items-center gap-2 disabled:opacity-50">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
               Save Limit
             </button>
