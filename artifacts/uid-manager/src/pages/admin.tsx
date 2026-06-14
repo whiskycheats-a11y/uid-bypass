@@ -2015,29 +2015,29 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
         </div>
 
         {/* Transaction Preview Block */}
-        <div className="bg-black/40 border border-white/5 rounded-2xl p-5 mb-6 text-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.01] to-transparent pointer-events-none" />
-          <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">
+        <div className="bg-black/20 border border-white/5 rounded-2xl p-6 mb-6 text-center relative overflow-hidden flex flex-col items-center justify-center">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
+          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">
             Transaction Preview
           </div>
 
-          <div className="flex items-center justify-center gap-6">
-            <div className="text-center">
-              <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+          <div className="flex items-center justify-center gap-6 w-full">
+            <div className="text-center flex-1">
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
                 Current
               </div>
-              <div className="text-3xl font-black text-slate-300 font-mono tracking-tight">
+              <div className="text-2xl font-black text-slate-300 font-mono tracking-tighter">
                 {currentBalance}
               </div>
             </div>
 
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center justify-center w-12">
               <motion.div
                 animate={{
-                  x: creditMode === "add" ? [0, 4, 0] : creditMode === "deduct" ? [0, -4, 0] : 0,
+                  x: creditMode === "add" ? [0, 5, 0] : creditMode === "deduct" ? [0, -5, 0] : 0,
                 }}
-                transition={{ repeat: Infinity, duration: 1.5 }}
-                className={`text-xl font-bold ${
+                transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                className={`text-lg font-black ${
                   creditMode === "add"
                     ? "text-emerald-400"
                     : creditMode === "deduct"
@@ -2047,43 +2047,23 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
               >
                 ➜
               </motion.div>
-              {val > 0 && (
-                <div
-                  className="text-[9px] font-black px-1.5 py-0.5 rounded-full mt-1.5 uppercase"
-                  style={{
-                    background:
-                      creditMode === "add"
-                        ? "rgba(16,185,129,0.15)"
-                        : creditMode === "deduct"
-                        ? "rgba(239,68,68,0.15)"
-                        : "rgba(6,182,212,0.15)",
-                    color:
-                      creditMode === "add"
-                        ? "#34d399"
-                        : creditMode === "deduct"
-                        ? "#f87171"
-                        : "#22d3ee",
-                  }}
-                >
-                  {creditMode === "add" ? `+${val}` : creditMode === "deduct" ? `-${val}` : `=${val}`}
-                </div>
-              )}
             </div>
 
-            <div className="text-center">
-              <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+            <div className="text-center flex-1">
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
                 Prospective
               </div>
               <motion.div
                 key={newBalance}
-                initial={{ scale: 0.9, opacity: 0.8 }}
+                initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className={`text-3xl font-black font-mono tracking-tight transition-colors duration-300 ${
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className={`text-3xl font-black font-mono tracking-tighter transition-colors duration-300 ${
                   creditMode === "add"
-                    ? "text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                    ? "text-emerald-400 drop-shadow-[0_0_12px_rgba(16,185,129,0.4)]"
                     : creditMode === "deduct"
-                    ? "text-red-400 drop-shadow-[0_0_10px_rgba(239,68,68,0.3)]"
-                    : "text-cyan-400 drop-shadow-[0_0_10px_rgba(6,182,212,0.3)]"
+                    ? "text-red-400 drop-shadow-[0_0_12px_rgba(239,68,68,0.4)]"
+                    : "text-cyan-400 drop-shadow-[0_0_12px_rgba(6,182,212,0.4)]"
                 }`}
               >
                 {newBalance}
@@ -2351,27 +2331,29 @@ function CreateUserModal({ onClose, onCreate }: {
 
               <DurationPicker value={days} onChange={setDays} presets={[7, 15, 30, 60, 90]} min={7} max={90} theme="violet" />
 
-              <div className="space-y-1.5 pt-2">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center justify-between">
-                  <span>UID Limit</span>
-                  <label className="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors">
-                    <input type="checkbox" checked={isInfinity} onChange={(e) => setIsInfinity(e.target.checked)} className="rounded bg-black/50 border-white/20 text-violet-500 focus:ring-violet-500/50" />
-                    <span className="text-[10px]">Unlimited (Infinity)</span>
-                  </label>
-                </label>
+              <div className="space-y-2 pt-2">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Device / UID Limit</label>
+                
+                <div className="flex gap-2 p-1 rounded-xl bg-black/40 border border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]">
+                   <button type="button" onClick={() => setIsInfinity(true)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${isInfinity ? 'bg-violet-500/20 text-violet-400 shadow-[0_0_15px_rgba(139,92,246,0.2)] border border-violet-500/30' : 'text-slate-500 hover:text-slate-300'}`}>Unlimited</button>
+                   <button type="button" onClick={() => setIsInfinity(false)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${!isInfinity ? 'bg-cyan-500/20 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)] border border-cyan-500/30' : 'text-slate-500 hover:text-slate-300'}`}>Custom Limit</button>
+                </div>
+
+                <AnimatePresence>
                 {!isInfinity && (
-                  <div className="relative group shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] rounded-xl">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm pointer-events-none group-focus-within:text-violet-400 transition-colors">#</span>
+                  <motion.div initial={{ opacity: 0, height: 0, marginTop: 0 }} animate={{ opacity: 1, height: "auto", marginTop: 8 }} exit={{ opacity: 0, height: 0, marginTop: 0 }} className="relative group shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] rounded-xl overflow-hidden">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm pointer-events-none group-focus-within:text-cyan-400 transition-colors">#</span>
                     <input 
                       type="number" 
                       min="1"
                       value={uidLimit} 
                       onChange={(e) => setUidLimit(parseInt(e.target.value) || 1)} 
-                      placeholder="e.g. 10" 
-                      className="w-full h-12 pl-12 pr-4 rounded-xl bg-black/40 border border-white/5 text-sm text-white font-medium placeholder:text-muted-foreground/40 focus:outline-none focus:border-violet-500/40 focus:bg-black/60 focus:ring-1 focus:ring-violet-500/40 transition-all" 
+                      placeholder="Enter max allowed devices" 
+                      className="w-full h-12 pl-12 pr-4 rounded-xl bg-black/40 border border-white/5 text-sm text-white font-medium placeholder:text-muted-foreground/40 focus:outline-none focus:border-cyan-500/40 focus:bg-black/60 focus:ring-1 focus:ring-cyan-500/40 transition-all" 
                     />
-                  </div>
+                  </motion.div>
                 )}
+                </AnimatePresence>
               </div>
 
               {error && <div className="flex items-center gap-2 text-red-400 text-xs px-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20"><X className="w-3.5 h-3.5 shrink-0" />{error}</div>}
@@ -2400,85 +2382,47 @@ function DurationPicker({ value, onChange, presets, min = 1, max = 90, theme = "
   value: number; onChange: (v: number) => void; presets: number[];
   min?: number; max?: number; theme?: "violet" | "amber";
 }) {
-  const pct = Math.round(((value - min) / (max - min)) * 100);
   const isViolet = theme === "violet";
   const c1 = isViolet ? "139,92,246" : "245,158,11";
   const c2 = isViolet ? "6,182,212" : "239,68,68";
   const hex1 = isViolet ? "#8b5cf6" : "#f59e0b";
-  const hex2 = isViolet ? "#06b6d4" : "#ef4444";
-
-  const label =
-    value === 1 ? "1 Day" :
-    value === 7 ? "1 Week" :
-    value === 14 ? "2 Weeks" :
-    value === 30 ? "1 Month" :
-    value === 60 ? "2 Months" :
-    value === 90 ? "3 Months" :
-    `${value} Days`;
 
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-3">
       {/* Header row */}
       <div className="flex items-center justify-between">
         <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Duration</label>
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-2xl font-black tabular-nums" style={{ background: `linear-gradient(135deg, ${hex1}, ${hex2})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{value}</span>
-          <span className="text-[11px] font-semibold" style={{ color: `rgba(${c1},0.7)` }}>day{value !== 1 ? "s" : ""}</span>
-          <span className="text-[10px] text-muted-foreground/40 ml-1">• {label}</span>
+        <div className="relative group shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] rounded-lg w-24">
+          <input 
+            type="number" 
+            min={min} 
+            max={max} 
+            value={value}
+            onChange={(e) => onChange(Math.min(max, Math.max(min, parseInt(e.target.value) || min)))}
+            className="w-full h-9 px-3 rounded-lg bg-black/40 border border-white/5 text-sm text-center font-bold font-mono focus:outline-none focus:border-violet-500/40 focus:ring-1 focus:ring-violet-500/40 transition-all text-white" 
+            style={{ color: hex1 }}
+          />
         </div>
       </div>
 
-      {/* Slider track */}
-      <div className="relative h-10 flex items-center px-1">
-        {/* bg track */}
-        <div className="absolute inset-x-1 h-[5px] rounded-full" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.04)" }} />
-        {/* fill */}
-        <div
-          className="absolute left-1 h-[5px] rounded-full transition-all duration-100"
-          style={{ width: `calc(${pct}% - ${pct * 0.02}rem)`, background: `linear-gradient(90deg, ${hex1}, ${hex2})`, boxShadow: `0 0 10px rgba(${c1},0.5)` }}
-        />
-        {/* invisible native input */}
-        <input type="range" min={min} max={max} value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
-          className="absolute inset-x-0 w-full h-10 cursor-pointer z-10"
-          style={{ opacity: 0 }}
-        />
-        {/* custom thumb */}
-        <div
-          className="absolute w-[18px] h-[18px] rounded-full pointer-events-none transition-all duration-100"
-          style={{
-            left: `calc(${pct}% - 9px + ${pct === 0 ? "0.25rem" : pct === 100 ? "-0.25rem" : "0px"})`,
-            background: `linear-gradient(135deg, ${hex1}, ${hex2})`,
-            border: "2px solid rgba(255,255,255,0.25)",
-            boxShadow: `0 0 0 3px rgba(${c1},0.2), 0 0 14px rgba(${c1},0.6)`,
-          }}
-        />
-      </div>
-
-      {/* Min / Max labels */}
-      <div className="flex justify-between px-1 -mt-1.5">
-        <span className="text-[10px] text-muted-foreground/40">{min}d</span>
-        <span className="text-[10px] text-muted-foreground/40">{max}d</span>
-      </div>
-
       {/* Preset chips */}
-      <div className="flex gap-1.5 pt-0.5">
+      <div className="flex gap-2">
         {presets.map((d) => {
           const active = value === d;
           return (
             <button key={d} type="button" onClick={() => onChange(d)}
-              className="flex-1 flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-bold transition-all duration-150 relative overflow-hidden"
+              className="flex-1 flex flex-col items-center justify-center py-2.5 rounded-xl transition-all duration-200 relative overflow-hidden"
               style={{
-                background: active ? `linear-gradient(135deg, rgba(${c1},0.2), rgba(${c2},0.15))` : "rgba(255,255,255,0.025)",
-                color: active ? hex1 : "#4b5563",
-                border: active ? `1px solid rgba(${c1},0.45)` : "1px solid rgba(255,255,255,0.05)",
-                boxShadow: active ? `0 0 12px rgba(${c1},0.3), inset 0 1px 0 rgba(255,255,255,0.06)` : "none",
-                transform: active ? "translateY(-1px)" : "none",
+                background: active ? `linear-gradient(135deg, rgba(${c1},0.2), rgba(${c2},0.15))` : "rgba(255,255,255,0.03)",
+                color: active ? hex1 : "#64748b",
+                border: active ? `1px solid rgba(${c1},0.5)` : "1px solid rgba(255,255,255,0.05)",
+                boxShadow: active ? `0 0 15px rgba(${c1},0.25), inset 0 1px 0 rgba(255,255,255,0.05)` : "none",
+                transform: active ? "translateY(-2px)" : "none",
               }}
             >
-              {active && <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />}
-              <span className="text-[13px] font-black leading-none">{d}</span>
-              <span className="text-[9px] opacity-60 mt-0.5">days</span>
+              {active && <div className="absolute inset-0 bg-gradient-to-b from-white/[0.08] to-transparent pointer-events-none" />}
+              <span className="text-sm font-black tracking-tight">{d}</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider opacity-60">Days</span>
             </button>
           );
         })}
