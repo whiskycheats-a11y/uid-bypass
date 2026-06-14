@@ -135,7 +135,7 @@ function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete:
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.1, type: "spring" }}
-                className="w-20 h-20 bg-gradient-to-br from-white/20 to-white/5 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)] z-10"
+                className="w-20 h-20 bg-gradient-to-br from-white/20 to-white/5 rounded-full flex items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-10"
               >
                 <Check className="w-10 h-10 text-white" strokeWidth={3} />
               </motion.div>
@@ -149,7 +149,7 @@ function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete:
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-2xl font-black text-white tracking-widest drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
+              className="text-2xl font-black text-white tracking-widest drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
             >
               ACCESS GRANTED
             </motion.h3>
@@ -736,7 +736,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       >
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-white/[0.02] gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)] border border-white/10" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.1))" }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-white/10" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.1))" }}>
               <Activity className="w-5 h-5 text-white/90" />
             </div>
             <div>
@@ -779,7 +779,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     exit={{ opacity: 0, x: -10 }}
                     onHoverStart={() => setHoveredRow(uidObj.uid)}
                     onHoverEnd={() => setHoveredRow(null)}
-                    className={`group flex items-center justify-between p-3.5 sm:p-4 bg-white/[0.02] border ${highlightDelete ? 'border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.4)]' : 'border-white/5'} rounded-2xl hover:bg-white/[0.04] hover:border-white/10 transition-all`}
+                    className={`group flex items-center justify-between p-3.5 sm:p-4 bg-white/[0.02] border ${highlightDelete ? 'border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)]' : 'border-white/5'} rounded-2xl hover:bg-white/[0.04] hover:border-white/10 transition-all`}
                   >
                     <div className="flex items-center gap-4">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm relative overflow-hidden ${uidObj.bluestack ? 'bg-white/5 text-white/90 border-white/10' : 'bg-teal-500/10 text-teal-400 border-teal-500/20'}`}>
@@ -840,7 +840,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       <div className="bg-[#030305]/60 backdrop-blur-3xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)] rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl glow-border bg-white/[0.02] backdrop-blur-xl">
         <SuccessAnimation active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
         <div className="flex items-center gap-3 mb-2 relative z-10">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)] border border-white/10" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.1))" }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-white/10" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.1))" }}>
             <Plus className="w-5 h-5 text-white/90" />
           </div>
           <h2 className="font-black text-lg text-white tracking-wide">Register UID</h2>
@@ -898,7 +898,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           <div className="flex items-center justify-between p-5 rounded-2xl bg-white/[0.02] border border-white/10 group hover:border-white/10 hover:bg-white/[0.02] transition-all shadow-inner">
             <div>
               <div className="flex items-center gap-2 text-sm font-black text-white">
-                <Activity className="w-4 h-4 text-white/90 drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]" />
+                <Activity className="w-4 h-4 text-white/90 drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]" />
                 BlueStack Protocol
               </div>
               <div className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Emulator Routing</div>
@@ -906,7 +906,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             <Switch
               checked={form.watch("bluestack")}
               onCheckedChange={(v) => form.setValue("bluestack", v)}
-              className="data-[state=checked]:bg-red-500 data-[state=checked]:shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
+              className="data-[state=checked]:bg-white data-[state=checked]:shadow-[0_0_15px_rgba(255,255,255,0.4)] data-[state=checked]:shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
             />
           </div>
 
@@ -915,7 +915,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             disabled={addMutation.isPending}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 mt-2 bg-red-500 hover:bg-red-600 text-white shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all"
+            className="w-full h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 mt-2 bg-white text-black hover:bg-white/90 hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.1)] shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all"
           >
             <AnimatePresence mode="wait">
               {addMutation.isPending ? (
@@ -953,7 +953,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           >
             <div className="h-20 flex items-center justify-between px-6 border-b border-white/5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)]" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.5)]" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
                   <Crown className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -975,7 +975,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     onClick={() => { setActiveSidebarTab(nav.id); setMobileSidebarOpen(false); }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
                       ${active 
-                        ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_8px_30px_rgba(0,0,0,0.4)] relative" 
+                        ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_10px_40px_rgba(0,0,0,0.5)] relative" 
                         : "text-slate-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}
                     `}
                   >
@@ -1017,7 +1017,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       <aside className="hidden lg:flex w-64 bg-white/[0.02] backdrop-blur-2xl border-r border-white/[0.06] flex-col z-50 shrink-0 shadow-[10px_0_40px_rgba(0,0,0,0.6)]">
         {/* Sidebar Logo Area */}
         <div className="h-20 flex items-center gap-3 px-6 border-b border-white/5">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)]" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.5)]" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
             <Crown className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -1038,7 +1038,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                 onClick={() => setActiveSidebarTab(nav.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
                   ${active 
-                    ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_8px_30px_rgba(0,0,0,0.4)] relative" 
+                    ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_10px_40px_rgba(0,0,0,0.5)] relative" 
                     : "text-slate-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}
                 `}
               >
@@ -1079,7 +1079,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 hidden sm:flex">
               <span>ADMIN TERMINAL</span>
               <span className="text-slate-600">/</span>
-              <span className="text-white drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)] uppercase">
+              <span className="text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)] uppercase">
                 {SIDEBAR_NAV.find(n => n.id === activeSidebarTab)?.label || "DASHBOARD"}
               </span>
             </div>
@@ -1092,7 +1092,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/10 bg-white/[0.03] text-xs text-slate-300 font-bold shadow-inner">
               {profileData.avatarBase64 ? (
-                <img src={profileData.avatarBase64} alt="Avatar" className="w-5 h-5 rounded-full object-cover shadow-[0_8px_30px_rgba(0,0,0,0.4)]" />
+                <img src={profileData.avatarBase64} alt="Avatar" className="w-5 h-5 rounded-full object-cover shadow-[0_10px_40px_rgba(0,0,0,0.5)]" />
               ) : (
                 <Crown className="w-3.5 h-3.5 text-amber-500" />
               )}
@@ -1118,7 +1118,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                   {/* Title */}
                   <div className="text-left">
                     <div className="flex items-center gap-3">
-                      <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]">System Overview</h1>
+                      <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]">System Overview</h1>
                       <span className="px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">GLOBAL CONTROL</span>
                     </div>
                     <p className="text-slate-400 font-semibold text-sm mt-2">Real-time global routing status of all registered endpoints</p>
@@ -1212,7 +1212,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                   {/* Title */}
                   <div className="text-left">
                     <div className="flex items-center gap-3">
-                      <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]">Free Trials</h1>
+                      <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]">Free Trials</h1>
                       <span className="px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">PROMO ENGINES</span>
                     </div>
                     <p className="text-slate-400 font-semibold text-sm mt-2">Generate free trial keys and manage active trial accounts.</p>
@@ -1289,7 +1289,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
         )}
       </AnimatePresence>
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="fixed bottom-4 left-4 right-4 z-50 hidden argus-glass rounded-2xl flex items-center justify-around py-3 px-2 shadow-[0_8px_30px_rgba(0,0,0,0.4)] border border-white/10 overflow-x-auto scrollbar-none gap-2">
+      <nav className="fixed bottom-4 left-4 right-4 z-50 hidden argus-glass rounded-2xl flex items-center justify-around py-3 px-2 shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-white/10 overflow-x-auto scrollbar-none gap-2">
         {SIDEBAR_NAV.map((nav) => {
           const Icon = nav.icon;
           const active = activeSidebarTab === nav.id;
@@ -1313,12 +1313,12 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       {/* Floating Team Chat Button */}
       <button
         onClick={() => setActiveSidebarTab("chat")}
-        className="fixed bottom-6 right-6 z-[100] group flex items-center justify-center w-14 h-14 rounded-full bg-white/[0.02] border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.4)] backdrop-blur-xl hover:bg-white/5 hover:scale-110 hover:border-white/10 hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] active:scale-95 transition-all duration-300"
+        className="fixed bottom-6 right-6 z-[100] group flex items-center justify-center w-14 h-14 rounded-full bg-white/[0.02] border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] backdrop-blur-xl hover:bg-white/5 hover:scale-110 hover:border-white/10 hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] active:scale-95 transition-all duration-300"
       >
         <MessageSquare className="w-6 h-6 text-white/90 group-hover:text-white/90 transition-colors" />
         <span className="absolute top-0 right-0 flex h-3.5 w-3.5">
           
-          <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 shadow-[0_8px_30px_rgba(0,0,0,0.4)] border-2 border-black/50"></span>
+          <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 shadow-[0_10px_40px_rgba(0,0,0,0.5)] border-2 border-black/50"></span>
         </span>
       </button>
     </div>
@@ -1352,7 +1352,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={onClearUids} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white/5 text-white/70 hover:bg-white/5 border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+            <button onClick={onClearUids} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white/5 text-white/70 hover:bg-white/5 border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
               <Trash2 className="w-3.5 h-3.5" />
               Wipe UIDs
             </button>
@@ -1802,7 +1802,7 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
           {/* Actions Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg transition-all hover:bg-white/10 text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+              <button className="w-8 h-8 flex items-center justify-center rounded-lg transition-all hover:bg-white/10 text-slate-400 focus:outline-none focus:ring-2 focus:ring-white/30">
                 <MoreHorizontal className="w-4 h-4" />
               </button>
             </DropdownMenuTrigger>
@@ -2060,10 +2060,10 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className={`text-3xl font-black font-mono tracking-tighter transition-colors duration-300 ${
                   creditMode === "add"
-                    ? "text-teal-400 drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
+                    ? "text-teal-400 drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
                     : creditMode === "deduct"
-                    ? "text-white/70 drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
-                    : "text-white/90 drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
+                    ? "text-white/70 drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
+                    : "text-white/90 drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
                 }`}
               >
                 {newBalance}
@@ -2090,10 +2090,10 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                   className={`py-3 rounded-xl text-xs font-black uppercase tracking-[0.1em] transition-all cursor-pointer ${
                     creditMode === m
                       ? m === "add"
-                        ? "bg-emerald-500/20 text-teal-400 border border-teal-500/20 shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
+                        ? "bg-emerald-500/20 text-teal-400 border border-teal-500/20 shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
                         : m === "deduct"
-                        ? "bg-white/5 text-white/70 border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
-                        : "bg-white/5 text-white/90 border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
+                        ? "bg-white/5 text-white/70 border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
+                        : "bg-white/5 text-white/90 border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
                       : "text-slate-500 hover:text-slate-300 bg-transparent border border-transparent"
                   }`}
                 >
@@ -2335,8 +2335,8 @@ function CreateUserModal({ onClose, onCreate }: {
                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Device / UID Limit</label>
                 
                 <div className="flex gap-2 p-1 rounded-xl bg-white/[0.02] border border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]">
-                   <button type="button" onClick={() => setIsInfinity(true)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${isInfinity ? 'bg-white/5 text-white/90 shadow-[0_8px_30px_rgba(0,0,0,0.4)] border border-white/10' : 'text-slate-500 hover:text-slate-300'}`}>Unlimited</button>
-                   <button type="button" onClick={() => setIsInfinity(false)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${!isInfinity ? 'bg-white/5 text-white/90 shadow-[0_8px_30px_rgba(0,0,0,0.4)] border border-white/10' : 'text-slate-500 hover:text-slate-300'}`}>Custom Limit</button>
+                   <button type="button" onClick={() => setIsInfinity(true)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${isInfinity ? 'bg-white/5 text-white/90 shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-white/10' : 'text-slate-500 hover:text-slate-300'}`}>Unlimited</button>
+                   <button type="button" onClick={() => setIsInfinity(false)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${!isInfinity ? 'bg-white/5 text-white/90 shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-white/10' : 'text-slate-500 hover:text-slate-300'}`}>Custom Limit</button>
                 </div>
 
                 <AnimatePresence>
@@ -2844,7 +2844,7 @@ function UserProfilePanel({
     <div className="max-w-2xl mx-auto space-y-10">
       <div className="mb-8 text-left">
         <div className="flex items-center gap-3">
-          <UserCircle className="w-8 h-8 text-white drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]" />
+          <UserCircle className="w-8 h-8 text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]" />
           <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-md">Account Profile</h1>
         </div>
         <p className="text-slate-400 font-semibold text-sm mt-2">Personalize your identity for the team chat and dashboard.</p>
@@ -2867,7 +2867,7 @@ function UserProfilePanel({
 
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
           <div className="relative shrink-0 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-            <div className="w-28 h-28 rounded-full bg-white/[0.02] border-2 border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden flex items-center justify-center relative hover:border-white/10 group/preview transition-all">
+            <div className="w-28 h-28 rounded-full bg-white/[0.02] border-2 border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden flex items-center justify-center relative hover:border-white/10 group/preview transition-all">
               {tempAvatar ? (
                 <img src={tempAvatar} alt="DP Preview" className="w-full h-full object-cover" />
               ) : (
@@ -2887,7 +2887,7 @@ function UserProfilePanel({
                 type="text" 
                 value={tempName} 
                 onChange={(e) => setTempName(e.target.value)}
-                className="w-full h-12 px-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all text-sm"
+                className="w-full h-12 px-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all text-sm"
                 placeholder="Enter display name..."
               />
             </div>
@@ -2898,7 +2898,7 @@ function UserProfilePanel({
                 type="text" 
                 value={tempAvatar} 
                 onChange={(e) => setTempAvatar(e.target.value)}
-                className="w-full h-12 px-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all text-sm"
+                className="w-full h-12 px-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all text-sm"
                 placeholder="https://image-link.com/photo.jpg or Base64..."
               />
               <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1">Use a direct link to an image file.</p>
@@ -2949,7 +2949,7 @@ function UserProfilePanel({
                 type="password" 
                 value={currentPassword} 
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all text-sm"
+                className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all text-sm"
                 placeholder="••••••••"
               />
             </div>
@@ -2963,7 +2963,7 @@ function UserProfilePanel({
                 type="password" 
                 value={newPassword} 
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all text-sm"
+                className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all text-sm"
                 placeholder="Enter new password"
               />
             </div>
@@ -3046,7 +3046,7 @@ function LeaderboardView() {
       <div className="flex items-center justify-between text-left">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]">Leaderboard</h1>
+            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]">Leaderboard</h1>
             <span className="px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">REAL-TIME RANKINGS</span>
           </div>
           <p className="text-slate-400 font-semibold text-sm mt-2">Ranked by UIDs added on the global authorization mesh</p>
@@ -3074,7 +3074,7 @@ function LeaderboardView() {
                 <div className="argus-glass rounded-[2rem] p-6 text-center border border-white/5 relative overflow-hidden shadow-xl md:h-[280px] flex flex-col justify-between">
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-400 to-slate-200" />
                   <div className="flex justify-center -mt-12 relative">
-                    <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-slate-400 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden flex items-center justify-center relative">
+                    <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-slate-400 shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden flex items-center justify-center relative">
                       {top2.avatar ? (
                         <img src={top2.avatar} alt="Rank 2" className="w-full h-full object-cover" />
                       ) : (
@@ -3127,16 +3127,16 @@ function LeaderboardView() {
             >
               <TiltWrapper>
                 <div className="argus-glass rounded-[2rem] p-8 text-center border border-yellow-500/30 relative overflow-hidden shadow-2xl md:h-[320px] flex flex-col justify-between" style={{ background: "linear-gradient(135deg, rgba(251,191,36,0.05), rgba(255,255,255,0.1))" }}>
-                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 shadow-[0_8px_30px_rgba(0,0,0,0.4)]" />
+                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 shadow-[0_10px_40px_rgba(0,0,0,0.5)]" />
                   
                   <div className="flex justify-center -mt-16 relative">
-                    <div className="w-24 h-24 rounded-full bg-white/[0.02]/90 border-4 border-yellow-500 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden flex items-center justify-center relative">
+                    <div className="w-24 h-24 rounded-full bg-white/[0.02]/90 border-4 border-yellow-500 shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden flex items-center justify-center relative">
                       {top1.avatar ? (
                         <img src={top1.avatar} alt="Rank 1" className="w-full h-full object-cover" />
                       ) : (
                         <UserCircle className="w-14 h-14 text-yellow-500" />
                       )}
-                      <Crown className="w-6 h-6 text-yellow-400 drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)] absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full animate-bounce" />
+                      <Crown className="w-6 h-6 text-yellow-400 drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)] absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full animate-bounce" />
                       <div className="absolute -bottom-2 right-1/2 translate-x-1/2 w-7 h-7 rounded-full bg-yellow-500 text-black text-sm font-black flex items-center justify-center shadow-lg border-2 border-yellow-800">
                         1
                       </div>
@@ -3146,7 +3146,7 @@ function LeaderboardView() {
                   <div className="mt-4">
                     <div className="flex items-center justify-center gap-1.5">
                       <h3 className="font-black text-white text-xl tracking-wide truncate max-w-full">{top1.displayName}</h3>
-                      <Trophy className="w-5 h-5 text-yellow-400 drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)] shrink-0" />
+                      <Trophy className="w-5 h-5 text-yellow-400 drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)] shrink-0" />
                     </div>
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
                       @{top1.username} <span className="opacity-40">·</span> <span className={top1.role === "admin" ? "text-white/70 font-extrabold" : "text-white/90 font-extrabold"}>{top1.role === "admin" ? "Admin" : "Reseller"}</span>
@@ -3170,7 +3170,7 @@ function LeaderboardView() {
 
                   <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">TOTAL UIDs</span>
-                    <span className="text-2xl font-black text-yellow-400 tracking-tight drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]">{top1.total}</span>
+                    <span className="text-2xl font-black text-yellow-400 tracking-tight drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]">{top1.total}</span>
                   </div>
                 </div>
               </TiltWrapper>
@@ -3188,7 +3188,7 @@ function LeaderboardView() {
                 <div className="argus-glass rounded-[2rem] p-6 text-center border border-white/5 relative overflow-hidden shadow-xl md:h-[280px] flex flex-col justify-between">
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-600 to-amber-400" />
                   <div className="flex justify-center -mt-12 relative">
-                    <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-amber-600 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden flex items-center justify-center relative">
+                    <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-amber-600 shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden flex items-center justify-center relative">
                       {top3.avatar ? (
                         <img src={top3.avatar} alt="Rank 3" className="w-full h-full object-cover" />
                       ) : (
@@ -3241,7 +3241,7 @@ function LeaderboardView() {
         className="argus-glass rounded-[2rem] overflow-hidden relative shadow-2xl border border-white/5 text-left"
       >
         <div className="flex items-center gap-3 px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-white/[0.02]">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)] border border-white/10" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.05))" }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-white/10" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.05))" }}>
             <Users className="w-5 h-5 text-white/90" />
           </div>
           <div>
@@ -3423,7 +3423,7 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
     <div className="max-w-4xl mx-auto flex flex-col h-[75vh] argus-glass rounded-[2rem] overflow-hidden border border-white/5 relative text-left">
       <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.05] bg-white/[0.02]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
             <MessageSquare className="w-5 h-5 text-white/70" />
           </div>
           <div>
@@ -3499,12 +3499,12 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Transmit encrypted message to team..."
-          className="flex-1 h-12 px-5 rounded-xl bg-white/[0.02] border border-white/10 text-white placeholder-slate-600 text-sm font-bold focus:outline-none focus:border-white/10 focus:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all"
+          className="flex-1 h-12 px-5 rounded-xl bg-white/[0.02] border border-white/10 text-white placeholder-slate-600 text-sm font-bold focus:outline-none focus:border-white/10 focus:shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all"
         />
         <button
           type="submit"
           disabled={!text.trim() || sending}
-          className="h-12 w-12 rounded-xl bg-red-600 hover:bg-red-500 text-white flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          className="h-12 w-12 rounded-xl bg-white text-black hover:bg-white/90 hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {sending ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -3565,11 +3565,11 @@ function OverviewStatCard({
       </div>
 
       <div className="flex flex-col items-end justify-between h-full relative z-10 gap-3">
-        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/5 transition-colors shadow-[0_8px_30px_rgba(0,0,0,0.4)] group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/5 transition-colors shadow-[0_10px_40px_rgba(0,0,0,0.5)] group-hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
           <Icon className="w-4 h-4 text-white/70/80 group-hover:text-rose-400 transition-colors" />
         </div>
         <div className="w-24 sm:w-28 h-10 mt-2">
-          <svg viewBox="0 0 100 30" className="w-full h-full text-white/90/80 group-hover:text-white/70 transition-colors filter drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+          <svg viewBox="0 0 100 30" className="w-full h-full text-white/90/80 group-hover:text-white/70 transition-colors filter drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
             <motion.path
               d={pathD}
               fill="none"
@@ -3664,8 +3664,8 @@ function LoginHistoryPanel() {
     <div className="bg-[#030305]/60 backdrop-blur-3xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)] rounded-3xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.6)] glow-border">
       <div className="px-6 py-6 border-b border-white/[0.04] flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/[0.03] border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
-            <Clock className="w-6 h-6 text-white/90 drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]" />
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/[0.03] border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+            <Clock className="w-6 h-6 text-white/90 drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]" />
           </div>
           <div>
             <h2 className="font-black text-lg tracking-wider text-white uppercase">Login History</h2>
@@ -3673,8 +3673,8 @@ function LoginHistoryPanel() {
           </div>
         </div>
         <div className="flex items-center bg-white/[0.02] rounded-xl p-1 border border-white/5 shadow-inner backdrop-blur-md">
-          <button onClick={() => setViewMine(false)} className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${!viewMine ? "bg-white/5 text-white/90 border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.4)]" : "text-slate-500 hover:text-white border border-transparent"}`}>Network</button>
-          <button onClick={() => setViewMine(true)} className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${viewMine ? "bg-white/5 text-white/90 border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.4)]" : "text-slate-500 hover:text-white border border-transparent"}`}>My Logins</button>
+          <button onClick={() => setViewMine(false)} className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${!viewMine ? "bg-white/5 text-white/90 border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)]" : "text-slate-500 hover:text-white border border-transparent"}`}>Network</button>
+          <button onClick={() => setViewMine(true)} className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${viewMine ? "bg-white/5 text-white/90 border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)]" : "text-slate-500 hover:text-white border border-transparent"}`}>My Logins</button>
         </div>
       </div>
       <div className="p-0">
@@ -3702,10 +3702,10 @@ function LoginHistoryPanel() {
               <tbody>
                 {history.map((record, i) => (
                   <tr key={i} className="border-b border-white/[0.03] hover:bg-white/[0.05] transition-all group">
-                    <td className="py-4 px-6 font-black text-sm text-white group-hover:text-white/90 transition-colors drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]">{record.username}</td>
+                    <td className="py-4 px-6 font-black text-sm text-white group-hover:text-white/90 transition-colors drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]">{record.username}</td>
                     <td className="py-4 px-6">
                       {record.success ? (
-                        <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/20 bg-teal-500/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-300 shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/20 bg-teal-500/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-300 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
                           <span className="relative flex h-1.5 w-1.5">
                             
                             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
@@ -3713,7 +3713,7 @@ function LoginHistoryPanel() {
                           SUCCESS
                         </div>
                       ) : (
-                        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-rose-400 shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-rose-400 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
                           <span className="relative flex h-1.5 w-1.5">
                             
                             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
@@ -3755,7 +3755,7 @@ function SetUidLimitModal({ user, onClose, onSave }: { user: ClientUser; onClose
       <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", stiffness: 240, damping: 26 }} className="w-full max-w-sm relative rounded-[2.5rem] p-6 sm:p-8 overflow-hidden bg-white/[0.02] backdrop-blur-xl" style={{ border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 40px rgba(59,130,246,0.05)" }}>
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
         <div className="flex items-center gap-3.5 mb-6">
-          <div className="w-11 h-11 rounded-2xl flex items-center justify-center border bg-blue-500/10 border-blue-500/30 text-blue-400 shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center border bg-blue-500/10 border-blue-500/30 text-blue-400 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
             <ShieldAlert className="w-5 h-5" />
           </div>
           <div>
@@ -3767,13 +3767,13 @@ function SetUidLimitModal({ user, onClose, onSave }: { user: ClientUser; onClose
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">Hardware ID Limit</label>
             <div className="relative">
-              <input autoFocus type="number" value={limitInput} onChange={e => setLimitInput(e.target.value)} className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all font-mono" placeholder="-1 for Unlimited" />
+              <input autoFocus type="number" value={limitInput} onChange={e => setLimitInput(e.target.value)} className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-white/30 transition-all font-mono" placeholder="-1 for Unlimited" />
             </div>
             <p className="text-[10px] text-slate-500 font-medium pl-1 mt-1">-1 means the client can add unlimited UIDs.</p>
           </div>
           <div className="flex items-center justify-end gap-3 pt-2">
             <button type="button" onClick={onClose} disabled={saving} className="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">Cancel</button>
-            <button type="submit" disabled={saving} className="px-6 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all flex items-center gap-2 disabled:opacity-50">
+            <button type="submit" disabled={saving} className="px-6 py-2.5 rounded-xl font-bold text-sm bg-white text-black hover:bg-white/90 hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.1)] shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all flex items-center gap-2 disabled:opacity-50">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
               Save Limit
             </button>
