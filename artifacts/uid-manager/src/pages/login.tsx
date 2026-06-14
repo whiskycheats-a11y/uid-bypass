@@ -797,7 +797,7 @@ export default function Login({ onLogin }: LoginProps) {
                <motion.div
                  ref={cardRef}
                  animate={shake ? { x: [-12, 12, -8, 8, -4, 4, 0] } : {}}
-                 style={{ rotateX: tilt.x, rotateY: tilt.y, transformStyle: "preserve-3d", transition: shake ? undefined : "transform 0.3s ease-out" }}
+                 style={{ rotateX, rotateY, transformStyle: "preserve-3d", transition: shake ? undefined : "transform 0.3s ease-out" }}
                  transition={{ duration: 0.45 }}
                  className="argus-glass shadow-[0_40px_100px_rgba(0,0,0,0.8)] rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-10 relative overflow-hidden"
                >
