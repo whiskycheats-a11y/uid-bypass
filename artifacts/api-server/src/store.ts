@@ -842,6 +842,19 @@ export const userStore = {
     return res.matchedCount > 0;
   },
 
+  async setUidLimit(username: string, limit: number): Promise<boolean> {
+    if (!isString(username)) return false;
+    await ensureConnection();
+    if (!connected) {
+      const u = fallbackUsers.get(username);
+      if (!u) return false;
+      u.uidLimit = limit;
+      return true;
+    }
+    const res = await UserModel.updateOne({ username }, { uidLimit: limit });
+    return res.matchedCount > 0;
+  },
+
   async ensureApiKey(username: string): Promise<string> {
     if (!isString(username)) return "";
     await ensureConnection();

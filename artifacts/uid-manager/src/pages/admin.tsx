@@ -354,6 +354,50 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     }
   }
 
+  async function handleUidLimitChange(username: string) {
+    const newLimit = window.prompt(`Enter new UID limit for ${username} (use -1 for no limit):`);
+    if (newLimit === null) return;
+    const num = parseInt(newLimit, 10);
+    if (isNaN(num)) {
+      toast({ variant: "destructive", title: "Error", description: "Invalid number" });
+      return;
+    }
+    try {
+      const res = await fetch(`${BASE}/api/users/${encodeURIComponent(username)}/uid-limit`, {
+        method: "PATCH",
+        headers: adminHeaders(),
+        body: JSON.stringify({ limit: num }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUsers((p) => p.map((u) => u.username === username ? { ...u, uidLimit: num } : u));
+        toast({ title: "Success", description: "UID limit updated." });
+      } else {
+        toast({ variant: "destructive", title: "Error", description: data.error || "Failed to update limit." });
+      }
+    } catch {
+      toast({ variant: "destructive", title: "Error", description: "Network error." });
+    }
+  }
+
+  async function handleApiResetAdmin(username: string) {
+    if (!window.confirm(`Are you sure you want to reset the API key for ${username}? This will break their existing integrations.`)) return;
+    try {
+      const res = await fetch(`${BASE}/api/users/${encodeURIComponent(username)}/api-reset`, {
+        method: "POST",
+        headers: adminHeaders(),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast({ title: "Success", description: "API key reset successfully." });
+      } else {
+        toast({ variant: "destructive", title: "Error", description: data.error || "Failed to reset API key." });
+      }
+    } catch {
+      toast({ variant: "destructive", title: "Error", description: "Network error." });
+    }
+  }
+
   async function handleHwidReset(username: string) {
     try {
       const res = await fetch(`${BASE}/api/users/${encodeURIComponent(username)}/hwid-reset`, {
@@ -1143,6 +1187,8 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     onHwidLockToggle={handleHwidLockToggle}
                     onHwidReset={handleHwidReset}
                     onApiAccessToggle={handleApiAccessToggle}
+                    onUidLimitClick={handleUidLimitChange}
+                    onApiResetClick={handleApiResetAdmin}
                   />
                 </motion.div>
               )}
@@ -1265,6 +1311,8 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     onHwidLockToggle: (username: string, enabled: boolean) => void;
     onHwidReset: (username: string) => void;
     onApiAccessToggle: (username: string, enabled: boolean) => void;
+    onUidLimitClick: (username: string) => void;
+    onApiResetClick: (username: string) => void;
   }) {
     return (
       <div className="panel rounded-3xl overflow-hidden bg-black/30 backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -1282,7 +1330,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           <GlowButton onClick={onAdd} icon={<Plus className="w-4 h-4" />} label="Add Client" />
         </div>
         <div className="p-4">
-          <UserList users={users} loading={loading} deleting={deleting} copied={copied} onDelete={onDelete} onCopy={onCopy} onResellToggle={onResellToggle} onAddCreditsClick={onAddCreditsClick} onHwidLockToggle={onHwidLockToggle} onHwidReset={onHwidReset} onApiAccessToggle={onApiAccessToggle} emptyText="No clients yet — click Add Client" />
+          <UserList users={users} loading={loading} deleting={deleting} copied={copied} onDelete={onDelete} onCopy={onCopy} onResellToggle={onResellToggle} onAddCreditsClick={onAddCreditsClick} onHwidLockToggle={onHwidLockToggle} onHwidReset={onHwidReset} onApiAccessToggle={onApiAccessToggle} onUidLimitClick={onUidLimitClick} onApiResetClick={onApiResetClick} emptyText="No clients yet — click Add Client" />
         </div>
       </div>
     );
@@ -1611,7 +1659,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
 }
 
 /* ─── Shared user list ─── */
-function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset, onApiAccessToggle, emptyText, isTrial = false }: {
+function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset, onApiAccessToggle, onUidLimitClick, onApiResetClick, emptyText, isTrial = false }: {
   users: ClientUser[]; loading: boolean; deleting: string | null; copied: string | null;
   onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
   onResellToggle?: (u: string, v: boolean) => void;
@@ -1619,6 +1667,8 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResell
   onHwidLockToggle?: (username: string, enabled: boolean) => void;
   onHwidReset?: (username: string) => void;
   onApiAccessToggle?: (username: string, enabled: boolean) => void;
+  onUidLimitClick?: (username: string) => void;
+  onApiResetClick?: (username: string) => void;
   emptyText: string; isTrial?: boolean;
 }) {
   if (loading) return (
@@ -1640,7 +1690,7 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResell
     <AnimatePresence initial={false}>
       <div className="space-y-2">
         {users.map((user, i) => (
-          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username, user.password)} onResellToggle={onResellToggle ? (v) => onResellToggle(user.username, v) : undefined} onAddCreditsClick={onAddCreditsClick ? () => onAddCreditsClick(user) : undefined} onHwidLockToggle={onHwidLockToggle ? (v) => onHwidLockToggle(user.username, v) : undefined} onHwidReset={onHwidReset ? () => onHwidReset(user.username) : undefined} onApiAccessToggle={onApiAccessToggle ? (v) => onApiAccessToggle(user.username, v) : undefined} isTrial={isTrial} />
+          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username, user.password)} onResellToggle={onResellToggle ? (v) => onResellToggle(user.username, v) : undefined} onAddCreditsClick={onAddCreditsClick ? () => onAddCreditsClick(user) : undefined} onHwidLockToggle={onHwidLockToggle ? (v) => onHwidLockToggle(user.username, v) : undefined} onHwidReset={onHwidReset ? () => onHwidReset(user.username) : undefined} onApiAccessToggle={onApiAccessToggle ? (v) => onApiAccessToggle(user.username, v) : undefined} onUidLimitClick={onUidLimitClick ? () => onUidLimitClick(user.username) : undefined} onApiResetClick={onApiResetClick ? () => onApiResetClick(user.username) : undefined} isTrial={isTrial} />
         ))}
       </div>
     </AnimatePresence>
@@ -1648,11 +1698,12 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResell
 }
 
 /* ─── User row — CSS hover, no continuous framer motion ─── */
-const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset, onApiAccessToggle, isTrial }: {
+const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset, onApiAccessToggle, onUidLimitClick, onApiResetClick, isTrial }: {
   user: ClientUser; index: number; deleting: boolean; copied: boolean;
   onDelete: () => void; onCopy: () => void; onResellToggle?: (v: boolean) => void;
   onAddCreditsClick?: () => void; onHwidLockToggle?: (enabled: boolean) => void;
-  onHwidReset?: () => void; onApiAccessToggle?: (enabled: boolean) => void; isTrial: boolean;
+  onHwidReset?: () => void; onApiAccessToggle?: (enabled: boolean) => void;
+  onUidLimitClick?: () => void; onApiResetClick?: () => void; isTrial: boolean;
 }) {
   return (
     <motion.div
@@ -1736,7 +1787,39 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
               }}
             >
               <RefreshCw className="w-3 h-3" />
-              RESET
+              HWID
+            </button>
+          )}
+          {/* UID Limit edit button */}
+          {onUidLimitClick && (
+            <button
+              onClick={onUidLimitClick}
+              title="Set UID Limit"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              style={{
+                background: "rgba(59,130,246,0.12)",
+                color: "#60a5fa",
+                border: "1px solid rgba(59,130,246,0.25)",
+              }}
+            >
+              <ShieldAlert className="w-3 h-3" />
+              {user.uidLimit === -1 || user.uidLimit === undefined ? "NO LIMIT" : `LIMIT: ${user.uidLimit}`}
+            </button>
+          )}
+          {/* API Key Reset button */}
+          {user.apiAccessEnabled && onApiResetClick && (
+            <button
+              onClick={onApiResetClick}
+              title="Reset API Key"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              style={{
+                background: "rgba(239,68,68,0.12)",
+                color: "#f87171",
+                border: "1px solid rgba(239,68,68,0.25)",
+              }}
+            >
+              <RefreshCw className="w-3 h-3" />
+              API
             </button>
           )}
           {/* Resell toggle */}

@@ -126,6 +126,27 @@ router.post("/:username/hwid-reset", requireAdmin, async (req, res) => {
   return res.json({ success: true, message: "HWID reset successful" });
 });
 
+router.patch("/:username/uid-limit", requireAdmin, async (req, res) => {
+  const { limit } = req.body ?? {};
+  const limitValue = parseInt(limit, 10);
+  if (isNaN(limitValue)) {
+    return res.status(400).json({ success: false, error: "Invalid limit value" });
+  }
+  const updated = await userStore.setUidLimit(req.params.username as string, limitValue);
+  if (!updated) {
+    return res.status(404).json({ success: false, error: "User not found" });
+  }
+  return res.json({ success: true, uidLimit: limitValue });
+});
+
+router.post("/:username/api-reset", requireAdmin, async (req, res) => {
+  const newKey = await userStore.resetApiKey(req.params.username as string);
+  if (!newKey) {
+    return res.status(404).json({ success: false, error: "User not found" });
+  }
+  return res.json({ success: true, message: "API key reset successful" });
+});
+
 router.post("/", requireAdmin, async (req, res) => {
   const { username, password, defaultDays, isTrial, uidLimit } = req.body ?? {};
   if (!username || !password) {
