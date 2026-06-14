@@ -157,6 +157,12 @@ const UidModel = model<UidDoc>("WhitelistedUid", uidSchema);
 
 const fallbackUids = new Map<string, WhitelistedUid>();
 
+function isUidExpired(addedAt?: string, days?: number): boolean {
+  if (!addedAt || !days || days <= 0) return false;
+  const expiresAt = new Date(addedAt).getTime() + days * 24 * 60 * 60 * 1000;
+  return Date.now() > expiresAt;
+}
+
 export const uidStore = {
   async save(uid: string, days: number, bluestack: boolean, addedBy: string, name = "", ip = ""): Promise<void> {
     if (!isString(uid)) return;
@@ -192,10 +198,28 @@ export const uidStore = {
     if (!isString(username)) return [];
     await ensureConnection();
     if (!connected) {
-      return Array.from(fallbackUids.values()).filter(u => u.addedBy === username);
+      const uids = Array.from(fallbackUids.values()).filter(u => u.addedBy === username);
+      const valid = [];
+      for (const u of uids) {
+        if (isUidExpired(u.addedAt, u.days)) {
+          fallbackUids.delete(u.uid);
+        } else {
+          valid.push(u);
+        }
+      }
+      return valid;
     }
     const docs = await UidModel.find({ addedBy: username });
-    return docs.map(d => ({ uid: d.uid, days: d.days, bluestack: d.bluestack, addedBy: d.addedBy, name: d.name || "", ip: d.ip || "", addedAt: d.addedAt }));
+    const validDocs = [];
+    for (const d of docs) {
+      if (isUidExpired(d.addedAt, d.days)) {
+        await UidModel.deleteOne({ uid: d.uid });
+        logger.info({ uid: d.uid }, "Expired UID automatically deleted from MongoDB");
+      } else {
+        validDocs.push({ uid: d.uid, days: d.days, bluestack: d.bluestack, addedBy: d.addedBy, name: d.name || "", ip: d.ip || "", addedAt: d.addedAt });
+      }
+    }
+    return validDocs;
   },
 
   async removeByUser(username: string): Promise<string[]> {
@@ -223,20 +247,61 @@ export const uidStore = {
   async list(): Promise<WhitelistedUid[]> {
     await ensureConnection();
     if (!connected) {
-      return Array.from(fallbackUids.values());
+      const uids = Array.from(fallbackUids.values());
+      const valid = [];
+      for (const u of uids) {
+        if (isUidExpired(u.addedAt, u.days)) {
+          fallbackUids.delete(u.uid);
+        } else {
+          valid.push(u);
+        }
+      }
+      return valid;
     }
     const docs = await UidModel.find({});
-    return docs.map(d => ({ uid: d.uid, days: d.days, bluestack: d.bluestack, addedBy: d.addedBy, name: d.name || "", ip: d.ip || "", addedAt: d.addedAt }));
+    const validDocs = [];
+    for (const d of docs) {
+      if (isUidExpired(d.addedAt, d.days)) {
+        await UidModel.deleteOne({ uid: d.uid });
+        logger.info({ uid: d.uid }, "Expired UID automatically deleted from MongoDB");
+      } else {
+        validDocs.push({ uid: d.uid, days: d.days, bluestack: d.bluestack, addedBy: d.addedBy, name: d.name || "", ip: d.ip || "", addedAt: d.addedAt });
+      }
+    }
+    return validDocs;
   },
 
   async get(uid: string): Promise<WhitelistedUid | null> {
     if (!isString(uid)) return null;
     await ensureConnection();
     if (!connected) {
-      return fallbackUids.get(uid) ?? null;
+      const u = fallbackUids.get(uid);
+      if (u && isUidExpired(u.addedAt, u.days)) {
+        fallbackUids.delete(uid);
+        return null;
+      }
+      return u ?? null;
     }
     const doc = await UidModel.findOne({ uid });
-    return doc ? { uid: doc.uid, days: doc.days, bluestack: doc.bluestack, addedBy: doc.addedBy, name: doc.name || "", ip: doc.ip || "", addedAt: doc.addedAt } : null;
+    if (doc) {
+      if (isUidExpired(doc.addedAt, doc.days)) {
+        await UidModel.deleteOne({ uid });
+        logger.info({ uid }, "Expired UID automatically deleted from MongoDB");
+        return null;
+      }
+      return { uid: doc.uid, days: doc.days, bluestack: doc.bluestack, addedBy: doc.addedBy, name: doc.name || "", ip: doc.ip || "", addedAt: doc.addedAt };
+    }
+    return null;
+  },
+
+  async clearAll(): Promise<void> {
+    await ensureConnection();
+    if (!connected) {
+      fallbackUids.clear();
+      return;
+    }
+    await UidModel.deleteMany({});
+    logger.info("All UIDs wiped from MongoDB");
   },
 
   async checkIpExists(ip: string): Promise<boolean> {

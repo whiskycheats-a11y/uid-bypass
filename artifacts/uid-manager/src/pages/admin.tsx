@@ -622,6 +622,24 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     } finally { setLoading(false); }
   }
 
+  async function handleClearAllUids() {
+    if (!window.confirm("Are you SURE you want to clear ALL Whitelisted UIDs from the database? This cannot be undone!")) return;
+    try {
+      const res = await fetch(`${BASE}/api/settings/clear-all-uids`, {
+        method: "POST",
+        headers: adminHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast({ title: "Success", description: "All UIDs cleared successfully." });
+      } else {
+        toast({ variant: "destructive", title: "Error", description: data.error || "Failed to clear UIDs" });
+      }
+    } catch (err) {
+      toast({ variant: "destructive", title: "Error", description: "Network error" });
+    }
+  }
+
   async function handleDelete(username: string) {
     setDeleting(username);
     try {
@@ -1175,6 +1193,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     deleting={deleting}
                     copied={copied}
                     onAdd={() => setShowModal(true)}
+                    onClearUids={handleClearAllUids}
                     onDelete={handleDelete}
                     onCopy={copy}
                     onResellToggle={handleResellToggle}
@@ -1307,9 +1326,9 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 }
 
 /* ─── Clients panel ─── */
-  function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset, onApiAccessToggle, onUidLimitClick, onApiResetClick }: {
+  function ClientsPanel({ users, loading, deleting, copied, onAdd, onClearUids, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset, onApiAccessToggle, onUidLimitClick, onApiResetClick }: {
     users: ClientUser[]; loading: boolean; deleting: string | null;
-    copied: string | null; onAdd: () => void;
+    copied: string | null; onAdd: () => void; onClearUids: () => void;
     onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
     onResellToggle: (u: string, v: boolean) => void;
     onAddCreditsClick: (u: ClientUser) => void;
@@ -1332,7 +1351,13 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
               <p className="text-[11px] text-muted-foreground">Full access users · 1 token = 1 day</p>
             </div>
           </div>
-          <GlowButton onClick={onAdd} icon={<Plus className="w-4 h-4" />} label="Add Client" />
+          <div className="flex items-center gap-2">
+            <button onClick={onClearUids} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)]">
+              <Trash2 className="w-3.5 h-3.5" />
+              Wipe UIDs
+            </button>
+            <GlowButton onClick={onAdd} icon={<Plus className="w-4 h-4" />} label="Add Client" />
+          </div>
         </div>
         <div className="p-4">
           <UserList users={users} loading={loading} deleting={deleting} copied={copied} onDelete={onDelete} onCopy={onCopy} onResellToggle={onResellToggle} onAddCreditsClick={onAddCreditsClick} onHwidLockToggle={onHwidLockToggle} onHwidReset={onHwidReset} onApiAccessToggle={onApiAccessToggle} onUidLimitClick={onUidLimitClick} onApiResetClick={onApiResetClick} emptyText="No clients yet — click Add Client" />

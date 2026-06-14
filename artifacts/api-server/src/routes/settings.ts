@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { settingsStore } from "../store";
+import { settingsStore, uidStore } from "../store";
 import { config } from "../config";
 import { requireAdmin } from "../middlewares/auth";
 
@@ -63,6 +63,15 @@ router.patch("/notice", requireAdmin, async (req, res) => {
     noticeExpiry: expiryTime
   });
   res.json({ success: true, noticeText: noticeText || "", expiry: expiryTime });
+});
+
+router.post("/clear-all-uids", requireAdmin, async (req, res) => {
+  try {
+    await uidStore.clearAll();
+    res.json({ success: true, message: "All UIDs cleared successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to clear UIDs" });
+  }
 });
 
 export default router;
