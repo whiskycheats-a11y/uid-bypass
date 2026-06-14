@@ -3353,9 +3353,7 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
   const fetchMessages = async (showLoading = false) => {
     if (showLoading) setLoading(true);
     try {
-      const res = await fetch(`${BASE}/api/chat`, {
-        headers: userHeaders(),
-      });
+      const res = await apiFetch(`${BASE}/api/chat`);
       const data = await res.json();
       if (data.success) {
         setMessages(data.messages || []);
@@ -3390,12 +3388,8 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
     setSending(true);
 
     try {
-      const res = await fetch(`${BASE}/api/chat`, {
+      const res = await apiFetch(`${BASE}/api/chat`, {
         method: "POST",
-        headers: {
-          ...userHeaders(),
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({ message: payloadText }),
       });
       const data = await res.json();
