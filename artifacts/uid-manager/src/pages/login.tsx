@@ -587,7 +587,6 @@ export default function Login({ onLogin }: LoginProps) {
                   {features.map((feature, idx) => (
                     <ScrollReveal key={feature.title} delay={idx * 0.1} y={50}>
                       <motion.div
-                        style={{ rotateX, rotateY }}
                         className="w-full sm:w-[420px] mx-auto perspective-1000 argus-glass p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] flex flex-col justify-between group h-full cursor-default"
                       >
                         <div className="space-y-6">
