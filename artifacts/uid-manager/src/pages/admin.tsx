@@ -722,7 +722,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     
     // Calculate Operator Stats
     const operatorStats = uids.reduce((acc, curr) => {
-      const op = curr.addedBy || "UNKNOWN";
+      const op = curr.addedBy || "ADMIN";
       acc[op] = (acc[op] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -797,7 +797,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     <div className="flex items-center gap-4 sm:gap-6">
                       <div className="hidden sm:block text-right">
                         <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">OPERATOR</div>
-                        <div className="text-xs font-bold text-slate-300 uppercase truncate max-w-[120px]">{uidObj.addedBy || "UNKNOWN"}</div>
+                        <div className="text-xs font-bold text-slate-300 uppercase truncate max-w-[120px]">{uidObj.addedBy || "ADMIN"}</div>
                       </div>
                       
                       <div className="text-right">

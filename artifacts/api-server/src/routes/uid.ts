@@ -248,7 +248,7 @@ router.post("/add", async (req, res) => {
 
     if (success) {
       if (username && isTrial) trialStore.increment(username);
-      await uidStore.save(uid, effectiveDays, bluestack, username ?? "", name ?? "", clientIp);
+      await uidStore.save(uid, effectiveDays, bluestack, username || authUser || "ADMIN", name || username || authUser || "MyUID", clientIp);
     } else if (!skipBalanceCheck && username) {
       await userStore.adjustBalance(username, cost);
     }

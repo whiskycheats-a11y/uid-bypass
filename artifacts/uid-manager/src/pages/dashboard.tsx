@@ -2039,7 +2039,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                     <div className="flex items-center gap-4 sm:gap-6">
                       <div className="hidden sm:block text-right">
                         <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">OPERATOR</div>
-                        <div className="text-xs font-bold text-slate-300 uppercase truncate max-w-[120px]">{uidObj.addedBy || "UNKNOWN"}</div>
+                        <div className="text-xs font-bold text-slate-300 uppercase truncate max-w-[120px]">{uidObj.addedBy || "ADMIN"}</div>
                       </div>
                       
                       <div className="text-right">
