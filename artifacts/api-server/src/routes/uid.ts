@@ -234,19 +234,20 @@ router.post("/add", async (req, res) => {
     let data: Record<string, unknown> = {};
     let success = false;
     
+    let rawText = "";
     try {
-      const text = await response.text();
-      if (text) {
-        data = JSON.parse(text) as Record<string, unknown>;
+      rawText = await response.text();
+      if (rawText) {
+        data = JSON.parse(rawText) as Record<string, unknown>;
         success = isSuccess(data);
       } else {
         // If response is empty but ok, treat as success
         success = response.ok;
       }
     } catch (parseErr) {
-      req.log.warn({ parseErr, status: response.status }, "External API returned non-JSON response");
+      req.log.warn({ parseErr, status: response.status, rawText: rawText.substring(0, 200) }, "External API returned non-JSON response");
       success = response.ok;
-      data = { message: `External API returned HTTP ${response.status} with non-JSON body` };
+      data = { message: `External API Error: HTTP ${response.status}. Response: ${rawText.substring(0, 100)}` };
     }
 
     if (success) {
