@@ -179,6 +179,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
   const [paymentsLoading, setPaymentsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [creditModalUser, setCreditModalUser] = useState<ClientUser | null>(null);
+  const [uidLimitModalUser, setUidLimitModalUser] = useState<ClientUser | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
@@ -354,14 +355,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     }
   }
 
-  async function handleUidLimitChange(username: string) {
-    const newLimit = window.prompt(`Enter new UID limit for ${username} (use -1 for no limit):`);
-    if (newLimit === null) return;
-    const num = parseInt(newLimit, 10);
-    if (isNaN(num)) {
-      toast({ variant: "destructive", title: "Error", description: "Invalid number" });
-      return;
-    }
+  async function handleUidLimitChange(username: string, num: number) {
     try {
       const res = await fetch(`${BASE}/api/users/${encodeURIComponent(username)}/uid-limit`, {
         method: "PATCH",
@@ -1187,7 +1181,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     onHwidLockToggle={handleHwidLockToggle}
                     onHwidReset={handleHwidReset}
                     onApiAccessToggle={handleApiAccessToggle}
-                    onUidLimitClick={handleUidLimitChange}
+                    onUidLimitClick={(user) => setUidLimitModalUser(user)}
                     onApiResetClick={handleApiResetAdmin}
                   />
                 </motion.div>
@@ -1263,6 +1257,16 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             }}
           />
         )}
+        {uidLimitModalUser && (
+          <SetUidLimitModal
+            user={uidLimitModalUser}
+            onClose={() => setUidLimitModalUser(null)}
+            onSave={async (limit) => {
+              await handleUidLimitChange(uidLimitModalUser.username, limit);
+              setUidLimitModalUser(null);
+            }}
+          />
+        )}
       </AnimatePresence>
       {/* Mobile Bottom Navigation Bar */}
       <nav className="fixed bottom-4 left-4 right-4 z-50 hidden argus-glass rounded-2xl flex items-center justify-around py-3 px-2 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10 overflow-x-auto scrollbar-none gap-2">
@@ -1311,7 +1315,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     onHwidLockToggle: (username: string, enabled: boolean) => void;
     onHwidReset: (username: string) => void;
     onApiAccessToggle: (username: string, enabled: boolean) => void;
-    onUidLimitClick: (username: string) => void;
+    onUidLimitClick: (u: ClientUser) => void;
     onApiResetClick: (username: string) => void;
   }) {
     return (
@@ -1667,7 +1671,7 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResell
   onHwidLockToggle?: (username: string, enabled: boolean) => void;
   onHwidReset?: (username: string) => void;
   onApiAccessToggle?: (username: string, enabled: boolean) => void;
-  onUidLimitClick?: (username: string) => void;
+  onUidLimitClick?: (u: ClientUser) => void;
   onApiResetClick?: (username: string) => void;
   emptyText: string; isTrial?: boolean;
 }) {
@@ -1690,7 +1694,7 @@ function UserList({ users, loading, deleting, copied, onDelete, onCopy, onResell
     <AnimatePresence initial={false}>
       <div className="space-y-2">
         {users.map((user, i) => (
-          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username, user.password)} onResellToggle={onResellToggle ? (v) => onResellToggle(user.username, v) : undefined} onAddCreditsClick={onAddCreditsClick ? () => onAddCreditsClick(user) : undefined} onHwidLockToggle={onHwidLockToggle ? (v) => onHwidLockToggle(user.username, v) : undefined} onHwidReset={onHwidReset ? () => onHwidReset(user.username) : undefined} onApiAccessToggle={onApiAccessToggle ? (v) => onApiAccessToggle(user.username, v) : undefined} onUidLimitClick={onUidLimitClick ? () => onUidLimitClick(user.username) : undefined} onApiResetClick={onApiResetClick ? () => onApiResetClick(user.username) : undefined} isTrial={isTrial} />
+          <UserRow key={user.username} user={user} index={i} deleting={deleting === user.username} copied={copied === user.username} onDelete={() => onDelete(user.username)} onCopy={() => onCopy(user.username, user.password)} onResellToggle={onResellToggle ? (v) => onResellToggle(user.username, v) : undefined} onAddCreditsClick={onAddCreditsClick ? () => onAddCreditsClick(user) : undefined} onHwidLockToggle={onHwidLockToggle ? (v) => onHwidLockToggle(user.username, v) : undefined} onHwidReset={onHwidReset ? () => onHwidReset(user.username) : undefined} onApiAccessToggle={onApiAccessToggle ? (v) => onApiAccessToggle(user.username, v) : undefined} onUidLimitClick={onUidLimitClick ? () => onUidLimitClick(user) : undefined} onApiResetClick={onApiResetClick ? () => onApiResetClick(user.username) : undefined} isTrial={isTrial} />
         ))}
       </div>
     </AnimatePresence>
@@ -3762,5 +3766,53 @@ function LoginHistoryPanel() {
         )}
       </div>
     </div>
+  );
+}
+
+function SetUidLimitModal({ user, onClose, onSave }: { user: ClientUser; onClose: () => void; onSave: (limit: number) => Promise<void> }) {
+  const [limitInput, setLimitInput] = useState(user.uidLimit === -1 || user.uidLimit === undefined ? "-1" : String(user.uidLimit));
+  const [saving, setSaving] = useState(false);
+
+  const handleApply = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const val = parseInt(limitInput, 10);
+    if (isNaN(val)) return;
+    setSaving(true);
+    await onSave(val);
+    setSaving(false);
+    onClose();
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.8)", backdropFilter: "blur(24px)" }} onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", stiffness: 240, damping: 26 }} className="w-full max-w-sm relative rounded-[2.5rem] p-6 sm:p-8 overflow-hidden bg-black/40 backdrop-blur-xl" style={{ border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 40px rgba(59,130,246,0.05)" }}>
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
+        <div className="flex items-center gap-3.5 mb-6">
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center border bg-blue-500/10 border-blue-500/30 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+            <ShieldAlert className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-white tracking-tight">Set UID Limit</h2>
+            <p className="text-xs text-blue-400/80 font-bold tracking-wider uppercase mt-0.5">{user.username}</p>
+          </div>
+        </div>
+        <form onSubmit={handleApply} className="space-y-5 relative z-10">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">Hardware ID Limit</label>
+            <div className="relative">
+              <input autoFocus type="number" value={limitInput} onChange={e => setLimitInput(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all font-mono" placeholder="-1 for Unlimited" />
+            </div>
+            <p className="text-[10px] text-slate-500 font-medium pl-1 mt-1">-1 means the client can add unlimited UIDs.</p>
+          </div>
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button type="button" onClick={onClose} disabled={saving} className="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">Cancel</button>
+            <button type="submit" disabled={saving} className="px-6 py-2.5 rounded-xl font-bold text-sm bg-blue-500 hover:bg-blue-400 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all flex items-center gap-2 disabled:opacity-50">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+              Save Limit
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </motion.div>
   );
 }
