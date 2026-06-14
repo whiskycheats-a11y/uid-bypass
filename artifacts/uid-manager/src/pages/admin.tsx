@@ -1356,7 +1356,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={onClearUids} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white/5 text-white/70 hover:bg-white/5 border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+            <button onClick={onClearUids} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white/5 text-white/70 hover:bg-white/5 border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] whitespace-nowrap">
               <Trash2 className="w-3.5 h-3.5" />
               Wipe UIDs
             </button>
@@ -1778,14 +1778,13 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
           </span>
 
           {/* Quick Stats Group */}
-          <div className="flex items-center gap-1.5 bg-white/[0.02] border border-white/5 p-1 rounded-lg">
+          <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 p-1 rounded-lg">
             {/* UID Limit edit button */}
             {onUidLimitClick && (
               <button
                 onClick={onUidLimitClick}
                 title="Set UID Limit"
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold transition-all hover:bg-white/5"
-                style={{ color: "#60a5fa" }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-bold transition-all text-white hover:bg-white/10 whitespace-nowrap"
               >
                 <ShieldAlert className="w-3.5 h-3.5 opacity-70" />
                 {user.uidLimit === -1 || user.uidLimit === undefined ? "NO LIMIT" : `LIMIT ${user.uidLimit}`}
@@ -1794,8 +1793,7 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
             {/* Add credits button */}
             {!isTrial && onAddCreditsClick && (
               <button onClick={onAddCreditsClick} title="Add tokens"
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold transition-all hover:bg-white/5 border-l border-white/5"
-                style={{ color: "#10b981" }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-bold transition-all text-white hover:bg-white/10 border-l border-white/10 whitespace-nowrap"
               >
                 <Wallet className="w-3.5 h-3.5 opacity-70" />
                 +TOKENS
@@ -2722,10 +2720,7 @@ function PaymentsPanel({
 /* ─── Glow button ─── */
 function GlowButton({ onClick, icon, label }: { onClick: () => void; icon: React.ReactNode; label: string }) {
   return (
-    <button onClick={onClick} className="glow-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white relative overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #8b5cf6, #06b6d4)" }}
-    >
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12 btn-shimmer" />
+    <button onClick={onClick} className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-black bg-white hover:bg-white/90 hover:scale-[1.02] transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] whitespace-nowrap">
       {icon}{label}
     </button>
   );
