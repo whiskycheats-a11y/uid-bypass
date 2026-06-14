@@ -89,6 +89,16 @@
   }
 }
 
+/* ── Custom Cursor Support ── */
+@media (hover: hover) and (pointer: fine) {
+  body {
+    cursor: none;
+  }
+  a, button, input, [role="button"], select, textarea, .cursor-pointer {
+    cursor: none !important;
+  }
+}
+
 /* ── Argus VPN Style Aurora Background ── */
 .argus-bg {
   position: fixed;
