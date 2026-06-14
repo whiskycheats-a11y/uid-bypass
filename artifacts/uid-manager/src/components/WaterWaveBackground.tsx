@@ -27,7 +27,7 @@ function GlassOrb() {
       floatIntensity={2}
     >
       <mesh ref={orbRef}>
-        <sphereGeometry args={[2.2, 128, 128]} />
+        <sphereGeometry args={[2.2, 64, 64]} />
 
         <MeshTransmissionMaterial
           thickness={1.5}
@@ -36,8 +36,8 @@ function GlassOrb() {
           ior={1.5}
           chromaticAberration={0.08}
           backside
-          samples={8}
-          resolution={512}
+          samples={3}
+          resolution={128}
         />
       </mesh>
     </Float>
@@ -154,7 +154,8 @@ export function WaterWaveBackground() {
           position: [0, 0, 8],
           fov: 45,
         }}
-        dpr={[1, 1.5]}
+        dpr={[1, 1]}
+        gl={{ antialias: false, powerPreference: "high-performance" }}
       >
         <color
           attach="background"
