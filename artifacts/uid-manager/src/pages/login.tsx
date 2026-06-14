@@ -247,7 +247,7 @@ export default function Login({ onLogin }: LoginProps) {
                   <FadeIn delay={0.1}>
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-500/20 bg-blue-500/10 backdrop-blur-md mb-4">
                       <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                        
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                       </span>
                       <span className="text-[10px] uppercase tracking-widest font-bold text-blue-300">System Operational</span>
@@ -256,10 +256,10 @@ export default function Login({ onLogin }: LoginProps) {
                   
                   <h1 className="text-5xl sm:text-7xl lg:text-[7.5rem] font-medium tracking-tight leading-[1] mb-6">
                     <FadeIn delay={0.2}>
-                      <span className="text-white">UID BYPASS</span>
+                      <span className="text-white">UID Bypass</span>
                     </FadeIn>
                     <FadeIn delay={0.3}>
-                      <span className="text-white/40">PROTOCOL.</span>
+                      <span className="text-white/40">All Server Safe</span>
                     </FadeIn>
                   </h1>
 
@@ -497,7 +497,7 @@ export default function Login({ onLogin }: LoginProps) {
 
                     <AnimatePresence>
                       {error && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-center text-red-400 text-xs font-medium tracking-wide pt-2">
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-center text-rose-400 text-xs font-medium tracking-wide pt-2">
                           {error}
                         </motion.div>
                       )}

@@ -6,81 +6,105 @@ export function WaterWaveBackground() {
       className="fixed inset-0 pointer-events-none overflow-hidden"
       style={{
         zIndex: -50,
-        backgroundColor: "#02030d",
+        background:
+          "radial-gradient(circle at center, #060816 0%, #02030d 60%, #01020a 100%)",
       }}
     >
-      {/* Deep Space Radial Gradient Background */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(circle at center, transparent 0%, rgba(2,3,13,.5) 50%, rgba(2,3,13,1) 100%)",
-        }}
-      />
-
-      {/* Aurora Ambient Glow (Top Right) */}
+      {/* Top Aurora */}
       <motion.div
+        className="absolute -top-40 right-0 w-[700px] h-[700px] rounded-full"
         animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
+          scale: [1, 1.08, 1],
+          opacity: [0.2, 0.35, 0.2],
         }}
         transition={{
           duration: 12,
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="absolute -top-[20%] -right-[10%] w-[60%] h-[60%] rounded-full mix-blend-screen filter blur-[120px]"
         style={{
-          background: "radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, rgba(0, 212, 255, 0) 70%)",
+          background:
+            "radial-gradient(circle, rgba(0,212,255,.22) 0%, rgba(0,212,255,0) 70%)",
+          filter: "blur(80px)",
+          willChange: "transform, opacity",
         }}
       />
 
-      {/* Aurora Ambient Glow (Bottom Left) */}
+      {/* Bottom Aurora */}
       <motion.div
+        className="absolute -bottom-52 -left-20 w-[800px] h-[800px] rounded-full"
         animate={{
-          scale: [1, 1.3, 1],
-          opacity: [0.2, 0.4, 0.2],
+          scale: [1, 1.1, 1],
+          opacity: [0.15, 0.28, 0.15],
         }}
         transition={{
           duration: 15,
           repeat: Infinity,
           ease: "easeInOut",
-          delay: 2,
         }}
-        className="absolute -bottom-[20%] -left-[10%] w-[70%] h-[70%] rounded-full mix-blend-screen filter blur-[140px]"
         style={{
-          background: "radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0) 70%)",
+          background:
+            "radial-gradient(circle, rgba(139,92,246,.20) 0%, rgba(139,92,246,0) 70%)",
+          filter: "blur(90px)",
+          willChange: "transform, opacity",
         }}
       />
 
-      {/* Center Focus Glow (Replaces GlassOrb) */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        {/* Core highlight */}
-        <motion.div
-          animate={{
-            scale: [1, 1.05, 1],
-            opacity: [0.5, 0.8, 0.5],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="w-[500px] h-[500px] rounded-full mix-blend-screen filter blur-[100px]"
-          style={{
-            background: "radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 60%)",
-          }}
-        />
-      </div>
-
-      {/* Vignette Overlay for Depth */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,#02030d_100%)] opacity-80" />
-      
-      {/* Subtle Noise Texture */}
-      <div 
-        className="absolute inset-0 opacity-[0.03] mix-blend-overlay"
+      {/* Center Energy Core */}
+      <motion.div
+        className="absolute left-1/2 top-1/2 w-[420px] h-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        animate={{
+          scale: [1, 1.04, 1],
+          opacity: [0.4, 0.65, 0.4],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          background:
+            "radial-gradient(circle, rgba(255,255,255,.08) 0%, rgba(120,119,255,.06) 40%, rgba(255,255,255,0) 70%)",
+          filter: "blur(60px)",
+          willChange: "transform, opacity",
+        }}
+      />
+
+      {/* Floating Accent Glow */}
+      <motion.div
+        className="absolute left-[20%] top-[35%] w-40 h-40 rounded-full"
+        animate={{
+          y: [-20, 20, -20],
+          opacity: [0.15, 0.3, 0.15],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        style={{
+          background:
+            "radial-gradient(circle, rgba(255,0,110,.35) 0%, transparent 70%)",
+          filter: "blur(40px)",
+        }}
+      />
+
+      {/* Vignette */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(circle at center, transparent 20%, rgba(2,3,13,.75) 100%)",
+        }}
+      />
+
+      {/* Lightweight Noise */}
+      <div
+        className="absolute inset-0 opacity-[0.015]"
+        style={{
+          backgroundImage:
+            "radial-gradient(rgba(255,255,255,.12) 1px, transparent 1px)",
+          backgroundSize: "4px 4px",
         }}
       />
     </div>

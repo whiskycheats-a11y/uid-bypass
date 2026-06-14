@@ -96,7 +96,7 @@ function OverviewStatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, type: "spring", stiffness: 200, damping: 22 }}
       whileHover={{ y: -4, scale: 1.02 }}
-      className="bg-[#0a0a0c]/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)] glow-border rounded-[2rem] p-6 sm:p-7 relative overflow-hidden cursor-default group flex items-center justify-between shadow-xl"
+      className="bg-[#030305]/60 backdrop-blur-3xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)] glow-border rounded-[2rem] p-6 sm:p-7 relative overflow-hidden cursor-default group flex items-center justify-between shadow-xl"
     >
       <div className="scanline" />
       <div
@@ -116,11 +116,11 @@ function OverviewStatCard({
       </div>
 
       <div className="flex flex-col items-end justify-between h-full relative z-10 gap-3">
-        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/5 transition-colors shadow-[0_10px_30px_rgba(0,0,0,0.5)] group-hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/5 transition-colors shadow-[0_8px_30px_rgba(0,0,0,0.4)] group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
           <Icon className="w-4 h-4 text-white/90/80 group-hover:text-white/90 transition-colors" />
         </div>
         <div className="w-24 sm:w-28 h-10 mt-2">
-          <svg viewBox="0 0 100 30" className="w-full h-full text-white/90/50 group-hover:text-white/90 transition-colors filter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+          <svg viewBox="0 0 100 30" className="w-full h-full text-white/90/50 group-hover:text-white/90 transition-colors filter drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
             <motion.path
               d={pathD}
               fill="none"
@@ -311,21 +311,21 @@ function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete:
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.1, type: "spring" }}
-                className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-10"
+                className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)] z-10"
               >
                 <Check className="w-10 h-10 text-white" strokeWidth={3} />
               </motion.div>
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-[-10px] border-2 border-emerald-500/30 border-t-emerald-400 rounded-full z-0"
+                className="absolute inset-[-10px] border-2 border-teal-500/20 border-t-emerald-400 rounded-full z-0"
               />
             </div>
             <motion.h3
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-2xl font-black text-white tracking-widest drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+              className="text-2xl font-black text-white tracking-widest drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
             >
               ACCESS GRANTED
             </motion.h3>
@@ -333,7 +333,7 @@ function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete:
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="text-emerald-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2 text-center"
+              className="text-teal-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2 text-center"
             >
               UID Successfully Whitelisted
             </motion.p>
@@ -512,7 +512,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
       <div className="panel rounded-[2rem] overflow-hidden argus-glass text-left border border-white/5">
         <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #fbbf24, #ef4444, transparent)" }} />
         <div className="px-6 py-5 border-b border-white/[0.04] flex items-center gap-3 bg-white/[0.02]">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-500/10 border border-amber-500/20 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-500/10 border border-amber-500/20 shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
             <Gift className="w-5 h-5 text-amber-400" />
           </div>
           <div>
@@ -525,12 +525,12 @@ function ResellerTrialPanel({ username }: { username: string }) {
           <AnimatePresence mode="wait">
             {linkData ? (
               <motion.div key="creds" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-5">
-                <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
-                  <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 1.5, repeat: Infinity }} className="w-9 h-9 rounded-xl flex items-center justify-center bg-emerald-500/20 border border-emerald-500/30">
-                    <Check className="w-5 h-5 text-emerald-400" />
+                <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-emerald-500/5 border border-teal-500/20">
+                  <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 1.5, repeat: Infinity }} className="w-9 h-9 rounded-xl flex items-center justify-center bg-emerald-500/20 border border-teal-500/20">
+                    <Check className="w-5 h-5 text-teal-400" />
                   </motion.div>
                   <div>
-                    <p className="text-sm font-black text-emerald-400">Trial Link Created!</p>
+                    <p className="text-sm font-black text-teal-400">Trial Link Created!</p>
                     <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Valid for 24h to activate — share the activation link</p>
                   </div>
                 </div>
@@ -546,7 +546,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
                         <div className="font-mono font-bold text-sm text-white truncate">{f.value}</div>
                       </div>
                       <button onClick={() => copyField(f.value, f.key)} className="p-2 rounded-lg transition-all hover:bg-white/[0.06] text-slate-500 hover:text-white shrink-0">
-                        {copiedField === f.key ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                        {copiedField === f.key ? <Check className="w-4 h-4 text-teal-400" /> : <Copy className="w-4 h-4" />}
                       </button>
                     </div>
                   ))}
@@ -589,7 +589,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
               <motion.form key="form" onSubmit={handleGenerate} className="space-y-6">
                 <div className="space-y-2.5">
                   <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Server Name (Prefix)</label>
-                  <div className="flex items-center gap-3 border border-white/10 bg-white/[0.02] backdrop-blur-md rounded-2xl px-5 py-4 focus-within:border-amber-500/50 focus-within:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all">
+                  <div className="flex items-center gap-3 border border-white/10 bg-white/[0.02] backdrop-blur-md rounded-2xl px-5 py-4 focus-within:border-amber-500/50 focus-within:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all">
                     <input
                       type="text"
                       value={serverName}
@@ -672,7 +672,7 @@ function ResellerTrialPanel({ username }: { username: string }) {
                       {t.used ? (
                         <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[9px] font-black text-white/70 uppercase tracking-widest">Used</span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-500/30 text-[9px] font-black text-emerald-400 uppercase tracking-widest">Active</span>
+                        <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-teal-500/20 text-[9px] font-black text-teal-400 uppercase tracking-widest">Active</span>
                       )}
                     </div>
                     <div className="flex items-center gap-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
@@ -725,19 +725,19 @@ function DeveloperApiPanel({ apiKey, onResetKey, isResetting }: { apiKey?: strin
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-emerald-500/10 border border-emerald-500/20 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-          <Terminal className="w-6 h-6 text-emerald-400" />
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-teal-500/10 border border-teal-500/20 shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+          <Terminal className="w-6 h-6 text-teal-400" />
         </div>
         <div>
           <h1 className="text-3xl font-black tracking-tight text-white">Developer API</h1>
-          <p className="text-sm text-emerald-400 font-medium">Automate your workflows programmatically</p>
+          <p className="text-sm text-teal-400 font-medium">Automate your workflows programmatically</p>
         </div>
       </div>
       
       <div className="panel rounded-3xl overflow-hidden bg-white/[0.02] backdrop-blur-xl border border-white/5 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold flex items-center gap-2">
-            <KeyRound className="w-5 h-5 text-emerald-400" /> Your API Key
+            <KeyRound className="w-5 h-5 text-teal-400" /> Your API Key
           </h2>
           {apiKey && onResetKey && (
             <button 
@@ -756,7 +756,7 @@ function DeveloperApiPanel({ apiKey, onResetKey, isResetting }: { apiKey?: strin
           </code>
           {apiKey && (
             <button onClick={copyKey} className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors shrink-0">
-              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-emerald-400" />}
+              {copied ? <Check className="w-4 h-4 text-teal-400" /> : <Copy className="w-4 h-4 text-teal-400" />}
             </button>
           )}
         </div>
@@ -767,15 +767,15 @@ function DeveloperApiPanel({ apiKey, onResetKey, isResetting }: { apiKey?: strin
 
       <div className="panel rounded-3xl overflow-hidden bg-white/[0.02] backdrop-blur-xl border border-white/5 p-6 space-y-6">
         <div className="flex items-center gap-2 border-b border-white/10 pb-4">
-          <Code2 className="w-5 h-5 text-emerald-400" />
+          <Code2 className="w-5 h-5 text-teal-400" />
           <h2 className="text-lg font-bold">API Documentation</h2>
         </div>
         
                 <div className="space-y-4">
           <div className="bg-white/[0.02] border border-white/10 rounded-xl p-5 space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-emerald-400">Add UID</h3>
-              <span className="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">POST</span>
+              <h3 className="font-bold text-teal-400">Add UID</h3>
+              <span className="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-teal-500/20">POST</span>
             </div>
             <p className="text-sm text-slate-400">Endpoint: <span className="text-white/90 font-mono">/api/uid/add</span></p>
             
@@ -801,7 +801,7 @@ function DeveloperApiPanel({ apiKey, onResetKey, isResetting }: { apiKey?: strin
           <div className="bg-white/[0.02] border border-white/10 rounded-xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-white/70">Remove UID</h3>
-              <span className="px-2 py-0.5 rounded text-[10px] font-black bg-white/5 text-red-300 border border-white/10">POST</span>
+              <span className="px-2 py-0.5 rounded text-[10px] font-black bg-white/5 text-rose-400 border border-white/10">POST</span>
             </div>
             <p className="text-sm text-slate-400">Endpoint: <span className="text-white/90 font-mono">/api/uid/remove</span></p>
             
@@ -942,7 +942,7 @@ function UserProfilePanel({
       {/* Page Title */}
       <div className="mb-8 text-left">
         <div className="flex items-center gap-3">
-          <User className="w-8 h-8 text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
+          <User className="w-8 h-8 text-white drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]" />
           <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-md">Account Profile</h1>
         </div>
         <p className="text-slate-400 font-semibold text-sm mt-2">Personalize your identity for the team chat and dashboard.</p>
@@ -969,7 +969,7 @@ function UserProfilePanel({
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
           {/* Circular DP preview on left */}
           <div className="relative shrink-0 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-            <div className="w-28 h-28 rounded-full bg-white/[0.02] border-2 border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden flex items-center justify-center relative hover:border-white/10 group/preview transition-all">
+            <div className="w-28 h-28 rounded-full bg-white/[0.02] border-2 border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden flex items-center justify-center relative hover:border-white/10 group/preview transition-all">
               {tempAvatar ? (
                 <img src={tempAvatar} alt="DP Preview" className="w-full h-full object-cover" />
               ) : (
@@ -991,7 +991,7 @@ function UserProfilePanel({
                 type="text" 
                 value={tempName} 
                 onChange={(e) => setTempName(e.target.value)}
-                className="w-full h-12 px-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all text-sm"
+                className="w-full h-12 px-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all text-sm"
                 placeholder="Enter display name..."
               />
             </div>
@@ -1002,7 +1002,7 @@ function UserProfilePanel({
                 type="text" 
                 value={tempAvatar} 
                 onChange={(e) => setTempAvatar(e.target.value)}
-                className="w-full h-12 px-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all text-sm"
+                className="w-full h-12 px-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all text-sm"
                 placeholder="https://image-link.com/photo.jpg or Base64..."
               />
               <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1">Use a direct link to an image file.</p>
@@ -1057,7 +1057,7 @@ function UserProfilePanel({
                 type="password" 
                 value={currentPassword} 
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all text-sm"
+                className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all text-sm"
                 placeholder="••••••••"
               />
             </div>
@@ -1071,7 +1071,7 @@ function UserProfilePanel({
                 type="password" 
                 value={newPassword} 
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all text-sm"
+                className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/10 focus:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all text-sm"
                 placeholder="Enter new password"
               />
             </div>
@@ -1153,7 +1153,7 @@ function LeaderboardView() {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">Leaderboard</h1>
+            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]">Leaderboard</h1>
             <span className="px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">REAL-TIME RANKINGS</span>
           </div>
           <p className="text-slate-400 font-semibold text-sm mt-2">Ranked by UIDs added on the global authorization mesh</p>
@@ -1184,7 +1184,7 @@ function LeaderboardView() {
                 <div className="argus-glass rounded-[2rem] p-6 text-center border border-white/5 relative overflow-hidden shadow-xl md:h-[280px] flex flex-col justify-between">
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-400 to-slate-200" />
                   <div className="flex justify-center -mt-12 relative">
-                    <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-slate-400 shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden flex items-center justify-center relative">
+                    <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-slate-400 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden flex items-center justify-center relative">
                       {top2.avatar ? (
                         <img src={top2.avatar} alt="Rank 2" className="w-full h-full object-cover" />
                       ) : (
@@ -1205,7 +1205,7 @@ function LeaderboardView() {
 
                   <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-white/[0.02] border border-white/5 text-[10px] font-bold text-slate-400">
                     <div>
-                      <div className="text-emerald-400 font-extrabold">{top2.today}</div>
+                      <div className="text-teal-400 font-extrabold">{top2.today}</div>
                       <div>TODAY</div>
                     </div>
                     <div>
@@ -1238,10 +1238,10 @@ function LeaderboardView() {
             >
               <TiltWrapper>
                 <div className="argus-glass rounded-[2rem] p-8 text-center border border-yellow-500/30 relative overflow-hidden shadow-2xl md:h-[320px] flex flex-col justify-between" style={{ background: "linear-gradient(135deg, rgba(251,191,36,0.05), rgba(124,58,237,0.05))" }}>
-                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
+                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 shadow-[0_8px_30px_rgba(0,0,0,0.4)]" />
                   
                   <div className="flex justify-center -mt-16 relative">
-                    <div className="w-24 h-24 rounded-full bg-white/[0.02]/90 border-4 border-yellow-500 shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden flex items-center justify-center relative">
+                    <div className="w-24 h-24 rounded-full bg-white/[0.02]/90 border-4 border-yellow-500 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden flex items-center justify-center relative">
                       {top1.avatar ? (
                         <img src={top1.avatar} alt="Rank 1" className="w-full h-full object-cover" />
                       ) : (
@@ -1249,7 +1249,7 @@ function LeaderboardView() {
                       )}
                       
                       {/* Crown */}
-                      <Crown className="w-6 h-6 text-yellow-400 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full animate-bounce" />
+                      <Crown className="w-6 h-6 text-yellow-400 drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)] absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full animate-bounce" />
 
                       <div className="absolute -bottom-2 right-1/2 translate-x-1/2 w-7 h-7 rounded-full bg-yellow-500 text-black text-sm font-black flex items-center justify-center shadow-lg border-2 border-yellow-800">
                         1
@@ -1260,7 +1260,7 @@ function LeaderboardView() {
                   <div className="mt-4">
                     <div className="flex items-center justify-center gap-1.5">
                       <h3 className="font-black text-white text-xl tracking-wide truncate max-w-full">{top1.displayName}</h3>
-                      <Trophy className="w-5 h-5 text-yellow-400 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] shrink-0" />
+                      <Trophy className="w-5 h-5 text-yellow-400 drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)] shrink-0" />
                     </div>
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
                       @{top1.username} <span className="opacity-40">·</span> <span className={top1.role === "admin" ? "text-white/70 font-extrabold" : "text-white/90 font-extrabold"}>{top1.role === "admin" ? "Admin" : "Operator"}</span>
@@ -1269,7 +1269,7 @@ function LeaderboardView() {
 
                   <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-white/[0.02] border border-white/5 text-[10px] font-bold text-slate-400">
                     <div>
-                      <div className="text-emerald-400 font-extrabold">{top1.today}</div>
+                      <div className="text-teal-400 font-extrabold">{top1.today}</div>
                       <div>TODAY</div>
                     </div>
                     <div>
@@ -1284,7 +1284,7 @@ function LeaderboardView() {
 
                   <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">TOTAL UIDs</span>
-                    <span className="text-2xl font-black text-yellow-400 tracking-tight drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">{top1.total}</span>
+                    <span className="text-2xl font-black text-yellow-400 tracking-tight drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]">{top1.total}</span>
                   </div>
                 </div>
               </TiltWrapper>
@@ -1303,7 +1303,7 @@ function LeaderboardView() {
                 <div className="argus-glass rounded-[2rem] p-6 text-center border border-white/5 relative overflow-hidden shadow-xl md:h-[280px] flex flex-col justify-between">
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-600 to-amber-400" />
                   <div className="flex justify-center -mt-12 relative">
-                    <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-amber-600 shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden flex items-center justify-center relative">
+                    <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-amber-600 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden flex items-center justify-center relative">
                       {top3.avatar ? (
                         <img src={top3.avatar} alt="Rank 3" className="w-full h-full object-cover" />
                       ) : (
@@ -1324,7 +1324,7 @@ function LeaderboardView() {
 
                   <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-white/[0.02] border border-white/5 text-[10px] font-bold text-slate-400">
                     <div>
-                      <div className="text-emerald-400 font-extrabold">{top3.today}</div>
+                      <div className="text-teal-400 font-extrabold">{top3.today}</div>
                       <div>TODAY</div>
                     </div>
                     <div>
@@ -1358,7 +1358,7 @@ function LeaderboardView() {
         className="argus-glass rounded-[2rem] overflow-hidden relative shadow-2xl border border-white/5"
       >
         <div className="flex items-center gap-3 px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-white/[0.02]">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10" style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.1), rgba(124,58,237,0.05))" }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)] border border-white/10" style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.1), rgba(124,58,237,0.05))" }}>
             <Users className="w-5 h-5 text-white/90" />
           </div>
           <div>
@@ -1428,7 +1428,7 @@ function LeaderboardView() {
                     {/* Today Count */}
                     <div className="col-span-1 sm:col-span-2 text-left sm:text-center flex sm:block justify-between items-center sm:border-0 border-b border-white/5 py-1.5 sm:py-0">
                       <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Today</span>
-                    <span className="text-emerald-400 font-extrabold text-sm sm:bg-emerald-500/10 sm:border sm:border-emerald-500/20 px-2.5 py-1 rounded-lg">{user.today}</span>
+                    <span className="text-teal-400 font-extrabold text-sm sm:bg-teal-500/10 sm:border sm:border-teal-500/20 px-2.5 py-1 rounded-lg">{user.today}</span>
                   </div>
 
                     {/* Active Count */}
@@ -1550,12 +1550,12 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
       {/* Chat Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.05] bg-white/[0.02]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
             <MessageSquare className="w-5 h-5 text-white/90" />
           </div>
           <div className="text-left">
             <h2 className="font-black text-base text-white tracking-wide">Team Cryptochat</h2>
-            <div className="text-[9px] font-black text-emerald-400 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
+            <div className="text-[9px] font-black text-teal-400 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
               Secured aes-256 node
             </div>
@@ -1633,12 +1633,12 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Transmit encrypted message to team..."
-          className="flex-1 h-12 px-5 rounded-xl bg-white/[0.02] border border-white/10 text-white placeholder-slate-600 text-sm font-bold focus:outline-none focus:border-white/10 focus:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all"
+          className="flex-1 h-12 px-5 rounded-xl bg-white/[0.02] border border-white/10 text-white placeholder-slate-600 text-sm font-bold focus:outline-none focus:border-white/10 focus:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all"
         />
         <button
           type="submit"
           disabled={!text.trim() || sending}
-          className="h-12 w-12 rounded-xl bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          className="h-12 w-12 rounded-xl bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {sending ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -1679,7 +1679,7 @@ function SidebarContent({ activeSidebarTab, setActiveSidebarTab, canResell, apiA
               onClick={() => { setActiveSidebarTab(nav.id); onCloseMobile?.(); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
                 ${active 
-                  ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_10px_30px_rgba(0,0,0,0.5)] relative" 
+                  ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_8px_30px_rgba(0,0,0,0.4)] relative" 
                   : "text-slate-400 hover:text-white hover:bg-white/[0.02] border border-transparent"}
               `}
             >
@@ -1961,11 +1961,11 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`bg-[#0a0a0c]/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)] rounded-[2.5rem] overflow-hidden relative shadow-2xl ${showFull ? 'h-full' : ''}`}
+        className={`bg-[#030305]/60 backdrop-blur-3xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)] rounded-[2.5rem] overflow-hidden relative shadow-2xl ${showFull ? 'h-full' : ''}`}
       >
         <div className="flex items-center justify-between px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-white/[0.02]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10" style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.1))" }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)] border border-white/10" style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.1))" }}>
               <Activity className="w-5 h-5 text-white/90" />
             </div>
             <div>
@@ -2021,10 +2021,10 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                     exit={{ opacity: 0, x: -10 }}
                     onHoverStart={() => setHoveredRow(uidObj.uid)}
                     onHoverEnd={() => setHoveredRow(null)}
-                    className={`group flex items-center justify-between p-3.5 sm:p-4 bg-white/[0.02] border ${highlightDelete ? 'border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]' : 'border-white/5'} rounded-2xl hover:bg-white/[0.04] hover:border-white/10 transition-all`}
+                    className={`group flex items-center justify-between p-3.5 sm:p-4 bg-white/[0.02] border ${highlightDelete ? 'border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.4)]' : 'border-white/5'} rounded-2xl hover:bg-white/[0.04] hover:border-white/10 transition-all`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm relative overflow-hidden ${uidObj.bluestack ? 'bg-white/5 text-white/90 border-white/10' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm relative overflow-hidden ${uidObj.bluestack ? 'bg-white/5 text-white/90 border-white/10' : 'bg-teal-500/10 text-teal-400 border-teal-500/20'}`}>
                         <div className="absolute inset-0 bg-white/5 animate-pulse" />
                         {uidObj.bluestack ? <Monitor className="w-5 h-5 animate-pulse" /> : <Shield className="w-5 h-5" />}
                       </div>
@@ -2044,7 +2044,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                       
                       <div className="text-right">
                         <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">STATUS</div>
-                        <div className={`text-xs font-black uppercase tracking-wider ${getDaysLeft(uidObj.addedAt, uidObj.days) === "Expired" ? 'text-white/70' : 'text-emerald-400'}`}>
+                        <div className={`text-xs font-black uppercase tracking-wider ${getDaysLeft(uidObj.addedAt, uidObj.days) === "Expired" ? 'text-white/70' : 'text-teal-400'}`}>
                           {getDaysLeft(uidObj.addedAt, uidObj.days)}
                         </div>
                       </div>
@@ -2080,18 +2080,18 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
       className="max-w-xl mx-auto"
     >
       <TiltWrapper>
-        <div className="bg-[#0a0a0c]/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)] rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl glow-border">
+        <div className="bg-[#030305]/60 backdrop-blur-3xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)] rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl glow-border">
           <SuccessAnimation active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
           
           <div className="flex items-center justify-between mb-2 relative z-10">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10" style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.2), rgba(0,212,255,0.1))" }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)] border border-white/10" style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.2), rgba(0,212,255,0.1))" }}>
                 <Plus className="w-5 h-5 text-white/90" />
               </div>
               <h2 className="font-black text-lg text-white tracking-wide">Register UID</h2>
             </div>
             {profileData.uidLimit !== -1 && (
-              <div className="text-[10px] font-black px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 tracking-widest uppercase shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+              <div className="text-[10px] font-black px-3 py-1.5 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400 tracking-widest uppercase shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
                 Limit: {uids.length} / {profileData.uidLimit}
               </div>
             )}
@@ -2160,7 +2160,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             <div className="flex items-center justify-between p-5 rounded-2xl bg-white/[0.02] border border-white/10 group hover:border-white/10 hover:bg-white/[0.02] transition-all shadow-inner">
               <div>
                 <div className="flex items-center gap-2 text-sm font-black text-white">
-                  <Monitor className="w-4 h-4 text-white/90 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
+                  <Monitor className="w-4 h-4 text-white/90 drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]" />
                   BlueStack Protocol
                 </div>
                 <div className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Emulator Routing</div>
@@ -2168,7 +2168,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
               <Switch
                 checked={form.watch("bluestack")}
                 onCheckedChange={(v) => form.setValue("bluestack", v)}
-                className="data-[state=checked]:bg-cyan-500 data-[state=checked]:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+                className="data-[state=checked]:bg-cyan-500 data-[state=checked]:shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
               />
             </div>
 
@@ -2244,7 +2244,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
         {/* Sidebar Logo Area */}
         <div className="h-20 flex items-center justify-between px-6 border-b border-white/5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)]" style={{ background: "linear-gradient(135deg, #ff006e, #7c3aed)" }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)]" style={{ background: "linear-gradient(135deg, #ff006e, #7c3aed)" }}>
               <Shield className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -2273,7 +2273,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
       <aside className="hidden lg:flex w-64 bg-white/[0.02] backdrop-blur-xl border-r border-white/5 flex-col z-50 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
         {/* Sidebar Logo Area */}
         <div className="h-20 flex items-center gap-3 px-6 border-b border-white/5">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)]" style={{ background: "linear-gradient(135deg, #ff006e, #7c3aed)" }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.4)]" style={{ background: "linear-gradient(135deg, #ff006e, #7c3aed)" }}>
             <Shield className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -2299,7 +2299,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
         </div>
 
         {/* Main Content Header */}
-        <header className="h-16 lg:h-20 shrink-0 border-b border-white/5 px-4 lg:px-8 flex items-center justify-between relative z-20 bg-[#0a0a0c]/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)]-panel rounded-b-3xl mx-2 lg:mx-4 mt-2 mb-4">
+        <header className="h-16 lg:h-20 shrink-0 border-b border-white/5 px-4 lg:px-8 flex items-center justify-between relative z-20 bg-[#030305]/60 backdrop-blur-3xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)]-panel rounded-b-3xl mx-2 lg:mx-4 mt-2 mb-4">
           <div className="flex items-center gap-3">
             {/* Hamburger button — only on mobile */}
             <button
@@ -2313,7 +2313,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
               <span className="hidden sm:block">USER TERMINAL</span>
               <span className="text-slate-600 hidden sm:block">/</span>
-              <span className="text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] uppercase">
+              <span className="text-white drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)] uppercase">
                 {getSidebarNav(canResell, profileData.apiAccessEnabled).find(n => n.id === activeSidebarTab)?.label || "DASHBOARD"}
               </span>
             </div>
@@ -2321,7 +2321,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
 
           <div className="flex items-center gap-2 sm:gap-4">
             {!isTrial && (
-              <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-[0_10px_30px_rgba(0,0,0,0.5)] border" style={{ background: "rgba(59,130,246,0.1)", color: "#60a5fa", borderColor: "rgba(59,130,246,0.25)" }}>
+              <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-[0_8px_30px_rgba(0,0,0,0.4)] border" style={{ background: "rgba(59,130,246,0.1)", color: "#60a5fa", borderColor: "rgba(59,130,246,0.25)" }}>
                 <Shield className="w-3.5 h-3.5" />
                 <span>LIMIT: {profileData.uidLimit === -1 || profileData.uidLimit === undefined ? "NO LIMIT" : `${uids.length} / ${profileData.uidLimit}`}</span>
               </div>
@@ -2329,7 +2329,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
             {username && (
               <div className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/10 bg-white/[0.03] text-xs text-slate-300 font-bold shadow-inner">
                 {profileData.avatarBase64 ? (
-                  <img src={profileData.avatarBase64} alt="Avatar" className="w-5 h-5 rounded-full object-cover shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
+                  <img src={profileData.avatarBase64} alt="Avatar" className="w-5 h-5 rounded-full object-cover shadow-[0_8px_30px_rgba(0,0,0,0.4)]" />
                 ) : (
                   <User className="w-3.5 h-3.5 text-white/90" />
                 )}
@@ -2342,7 +2342,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
               </div>
             )}
             {!isTrial && balance !== null && (
-              <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-[0_10px_30px_rgba(0,0,0,0.5)] border" style={{ background: balance > 0 ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.1)", color: balance > 0 ? "#10b981" : "#ef4444", borderColor: balance > 0 ? "rgba(16,185,129,0.25)" : "rgba(255,255,255,0.1)" }}>
+              <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-[0_8px_30px_rgba(0,0,0,0.4)] border" style={{ background: balance > 0 ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.1)", color: balance > 0 ? "#10b981" : "#ef4444", borderColor: balance > 0 ? "rgba(16,185,129,0.25)" : "rgba(255,255,255,0.1)" }}>
                 <Coins className="w-3.5 h-3.5" />
                 <span>{balance} tokens</span>
               </div>
@@ -2360,7 +2360,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                   {/* Title */}
                   <div>
                     <div className="flex items-center gap-3">
-                      <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">Overview</h1>
+                      <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]">Overview</h1>
                       <span className="px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">v5.0-STABLE</span>
                     </div>
                     <p className="text-slate-400 font-semibold text-sm mt-2">Real-time status of all active UIDs</p>
@@ -2483,13 +2483,13 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              className="w-full max-w-lg bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)] relative text-left"
+              className="w-full max-w-lg bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.4)] relative text-left"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-transparent pointer-events-none" />
               
               <div className="p-6 sm:p-8">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                  <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
                     <Medal className="w-6 h-6 text-white/90" />
                   </div>
                   <div>
@@ -2508,7 +2508,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                       localStorage.setItem("dismissedNotice", activeNotice);
                       setShowAnnouncement(false);
                     }}
-                    className="h-12 px-8 rounded-xl bg-violet-500 hover:bg-violet-600 text-white font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex items-center gap-2"
+                    className="h-12 px-8 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-[0_8px_30px_rgba(0,0,0,0.4)] flex items-center gap-2"
                   >
                     <CheckCheck className="w-4 h-4" />
                     I Agree
@@ -2523,12 +2523,12 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
       {/* Floating Team Chat Button */}
       <button
         onClick={() => setActiveSidebarTab("chat")}
-        className="fixed bottom-6 right-6 z-[100] group flex items-center justify-center w-14 h-14 rounded-full bg-white/[0.02] border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-xl hover:bg-white/5 hover:scale-110 hover:border-white/10 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] active:scale-95 transition-all duration-300"
+        className="fixed bottom-6 right-6 z-[100] group flex items-center justify-center w-14 h-14 rounded-full bg-white/[0.02] border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.4)] backdrop-blur-xl hover:bg-white/5 hover:scale-110 hover:border-white/10 hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] active:scale-95 transition-all duration-300"
       >
         <MessageSquare className="w-6 h-6 text-white/90 group-hover:text-white/90 transition-colors" />
         <span className="absolute top-0 right-0 flex h-3.5 w-3.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border-2 border-black/50"></span>
+          
+          <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 shadow-[0_8px_30px_rgba(0,0,0,0.4)] border-2 border-black/50"></span>
         </span>
       </button>
 
@@ -2573,11 +2573,11 @@ function LoginHistoryPanel() {
   }, []);
 
   return (
-    <div className="bg-[#0a0a0c]/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)] rounded-3xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.6)] glow-border">
+    <div className="bg-[#030305]/60 backdrop-blur-3xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.6)] rounded-3xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.6)] glow-border">
       <div className="px-6 py-6 border-b border-white/[0.04] flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/[0.03] border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-            <Clock className="w-6 h-6 text-white/90 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/[0.03] border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+            <Clock className="w-6 h-6 text-white/90 drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]" />
           </div>
           <div>
             <h2 className="font-black text-lg tracking-wider text-white uppercase">Login History</h2>
@@ -2610,20 +2610,20 @@ function LoginHistoryPanel() {
               <tbody>
                 {history.map((record, i) => (
                   <tr key={i} className="border-b border-white/[0.03] hover:bg-white/[0.05] transition-all group">
-                    <td className="py-4 px-6 font-black text-sm text-white group-hover:text-white/90 transition-colors drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">{record.username}</td>
+                    <td className="py-4 px-6 font-black text-sm text-white group-hover:text-white/90 transition-colors drop-shadow-[0_8px_30px_rgba(0,0,0,0.4)]">{record.username}</td>
                     <td className="py-4 px-6">
                       {record.success ? (
-                        <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/20 bg-teal-500/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-300 shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
                           <span className="relative flex h-1.5 w-1.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            
                             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                           </span>
                           SUCCESS
                         </div>
                       ) : (
-                        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-red-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-rose-400 shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
                           <span className="relative flex h-1.5 w-1.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            
                             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
                           </span>
                           FAILED

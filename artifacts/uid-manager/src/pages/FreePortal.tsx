@@ -147,7 +147,7 @@ export default function FreePortal() {
               <p className="text-[8px] font-black uppercase tracking-[0.25em] text-cyan-400/80">FREE PORTAL</p>
             </div>
           </div>
-          <div className="hidden sm:flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/[0.05] px-4 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-400">
+          <div className="hidden sm:flex items-center gap-2 rounded-full border border-teal-500/20 bg-emerald-500/[0.05] px-4 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-teal-400">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
             Bypass Live
           </div>
@@ -175,15 +175,15 @@ export default function FreePortal() {
               /* Success Panel */
               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-6 text-center">
                 <div className="flex justify-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]">
-                    <Check className="w-10 h-10 text-emerald-400" />
+                  <div className="w-20 h-20 rounded-full bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+                    <Check className="w-10 h-10 text-teal-400" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <h2 className="text-2xl font-black text-white tracking-tight">Access Granted!</h2>
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Your Player UID is now whitelisted</p>
                 </div>
-                <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 space-y-2.5 text-left text-xs font-bold text-slate-300">
+                <div className="p-4 rounded-2xl bg-emerald-500/5 border border-teal-500/20 space-y-2.5 text-left text-xs font-bold text-slate-300">
                   <div className="flex justify-between">
                     <span className="text-slate-500 uppercase tracking-widest text-[9px]">Player UID</span>
                     <span className="font-mono text-white text-sm">{uid}</span>
@@ -194,7 +194,7 @@ export default function FreePortal() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500 uppercase tracking-widest text-[9px]">Status</span>
-                    <span className="text-emerald-400 flex items-center gap-1.5 uppercase text-[9px] bg-emerald-950/30 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    <span className="text-teal-400 flex items-center gap-1.5 uppercase text-[9px] bg-emerald-950/30 px-2 py-0.5 rounded-full border border-teal-500/20">
                       <span className="h-1 w-1 bg-emerald-400 rounded-full animate-pulse" /> Active
                     </span>
                   </div>
@@ -257,7 +257,7 @@ export default function FreePortal() {
                   </div>
 
                   {errorMsg && (
-                    <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-xs font-bold text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.15)] flex items-start gap-2.5">
+                    <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 p-4 text-xs font-bold text-rose-400 shadow-[0_0_15px_rgba(239,68,68,0.15)] flex items-start gap-2.5">
                       <XCircle className="w-4.5 h-4.5 shrink-0 mt-0.5" />
                       <span>{errorMsg}</span>
                     </div>
@@ -299,15 +299,15 @@ export default function FreePortal() {
               /* Error Panel */
               <div className="space-y-6 text-center">
                 <div className="flex justify-center mb-6">
-                  <div className="w-18 h-18 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center shadow-[0_0_30px_rgba(239,68,68,0.25)]">
-                    <XCircle className="w-10 h-10 text-red-500" />
+                  <div className="w-18 h-18 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(239,68,68,0.25)]">
+                    <XCircle className="w-10 h-10 text-rose-400" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <h2 className="text-xl font-black text-white tracking-tight">Activation Error</h2>
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Invalid Trial Session</p>
                 </div>
-                <div className="p-4 rounded-2xl border border-red-500/20 bg-red-500/5 text-xs font-bold text-red-400 leading-relaxed uppercase tracking-wider">
+                <div className="p-4 rounded-2xl border border-red-500/20 bg-red-500/5 text-xs font-bold text-rose-400 leading-relaxed uppercase tracking-wider">
                   {errorMsg || "This trial link is invalid, expired, or has already been used."}
                 </div>
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] pt-4">
@@ -367,7 +367,7 @@ export default function FreePortal() {
                       localStorage.setItem("dismissedNotice", activeNotice);
                       setShowAnnouncement(false);
                     }}
-                    className="h-12 px-8 rounded-xl bg-violet-500 hover:bg-violet-600 text-white font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-[0_0_20px_rgba(124,58,237,0.4)] flex items-center gap-2"
+                    className="h-12 px-8 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-[0_0_20px_rgba(124,58,237,0.4)] flex items-center gap-2"
                   >
                     <Check className="w-4 h-4" />
                     I Agree
