@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { AnimatePresence, motion, useScroll, useTransform, useInView } from "framer-motion";
+import { AnimatePresence, motion, useScroll, useTransform, useInView, useMotionValue, useSpring } from "framer-motion";
 import {
   ArrowRight,
   Cpu,
@@ -203,7 +203,10 @@ export default function Login({ onLogin }: LoginProps) {
   const [bluestack, setBluestack] = useState(true);
   const [claimSuccess, setClaimSuccess] = useState(false);
   const [claimDays, setClaimDays] = useState(0);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const tiltX = useMotionValue(0);
+  const tiltY = useMotionValue(0);
+  const rotateX = useSpring(tiltX, { stiffness: 300, damping: 20 });
+  const rotateY = useSpring(tiltY, { stiffness: 300, damping: 20 });
   const [isYearly, setIsYearly] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
   const [headerBlur, setHeaderBlur] = useState(false);
@@ -256,9 +259,13 @@ export default function Login({ onLogin }: LoginProps) {
     const rect = el.getBoundingClientRect();
     const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
     const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
-    setTilt({ x: dy * -8, y: dx * 8 });
+    tiltX.set(dy * -8);
+    tiltY.set(dx * 8);
   };
-  const handleMouseLeave = () => setTilt({ x: 0, y: 0 });
+  const handleMouseLeave = () => {
+    tiltX.set(0);
+    tiltY.set(0);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -577,9 +584,8 @@ export default function Login({ onLogin }: LoginProps) {
                   {features.map((feature, idx) => (
                     <ScrollReveal key={feature.title} delay={idx * 0.1} y={50}>
                       <motion.div
-                        whileHover={{ y: -8, scale: 1.01 }}
-                        transition={{ duration: 0.4 }}
-                        className="argus-glass p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] flex flex-col justify-between group h-full cursor-default"
+                        style={{ rotateX, rotateY }}
+                        className="w-full sm:w-[420px] mx-auto perspective-1000 argus-glass p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] flex flex-col justify-between group h-full cursor-default"
                       >
                         <div className="space-y-6">
                           <div className="flex items-center justify-between">
