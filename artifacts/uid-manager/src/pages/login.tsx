@@ -173,16 +173,34 @@ export default function Login({ onLogin }: LoginProps) {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, turnstileToken }),
+        body: JSON.stringify({ username, password, turnstileToken, t: Date.now() }),
       });
       const raw = await res.text();
       const data = raw ? JSON.parse(raw) : null;
-      if (!res.ok) throw new Error(data?.message || "Authentication failed");
+      if (!res.ok) throw new Error(data?.message || data?.error || "Authentication failed");
+      
       if (data.success) {
+        // ── ANTI-MITM: Verify that the server ACTUALLY created a session ──
+        const verifyRes = await fetch(`${BASE}/api/auth/verify-session`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: data.username, role: data.role }),
+        });
+        
+        if (!verifyRes.ok) {
+          throw new Error("Connection integrity check failed. Login rejected.");
+        }
+        
+        const verifyData = await verifyRes.json();
+        if (!verifyData.success) {
+          throw new Error("Session verification failed. Login rejected.");
+        }
+
         sessionStorage.setItem("uid_auth", JSON.stringify({ role: data.role, username: data.username, defaultDays: data.defaultDays ?? 30 }));
         onLogin(data.role, data.username);
       } else {
-        throw new Error("Invalid credentials");
+        throw new Error(data.message || "Invalid credentials");
       }
     } catch (err: any) {
       setLoading(false);
@@ -433,43 +451,46 @@ export default function Login({ onLogin }: LoginProps) {
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               className="w-full max-w-[440px] perspective-1000 mt-20 sm:mt-32 pb-20 mx-auto"
             >
-              <div onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+              <div onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} className="relative">
+                {/* Subtle outer glow for the card */}
+                <div className="absolute -inset-0.5 bg-gradient-to-br from-white/10 to-transparent rounded-[2.5rem] blur opacity-50" />
+                
                 <motion.div
                   ref={cardRef}
                   animate={shake ? { x: [-10, 10, -8, 8, -5, 5, 0] } : {}}
                   style={{ rotateX, rotateY, transformStyle: "preserve-3d", transition: shake ? undefined : "transform 0.2s ease-out" }}
-                  className="bg-white/[0.02] border border-white/5 backdrop-blur-[40px] p-8 sm:p-10 rounded-[2.5rem] shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
+                  className="relative bg-[#0a0a0c]/80 border border-white/10 backdrop-blur-2xl p-8 sm:p-10 rounded-[2.5rem] shadow-[0_20px_40px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.1)]"
                 >
                   <div className="flex flex-col items-center text-center mb-10">
-                    <div className="h-16 w-16 rounded-3xl border border-white/10 bg-white/5 flex items-center justify-center mb-6 shadow-2xl">
-                      <Fingerprint className="h-7 w-7 text-white/80" strokeWidth={1.5} />
+                    <div className="h-16 w-16 rounded-[1.25rem] border border-white/10 bg-gradient-to-b from-white/10 to-transparent flex items-center justify-center mb-6 shadow-[0_10px_20px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.2)]">
+                      <Fingerprint className="h-7 w-7 text-white" strokeWidth={1.5} />
                     </div>
-                    <h2 className="text-2xl font-medium tracking-tight mb-2">Authentication</h2>
-                    <p className="text-xs text-white/40 tracking-widest uppercase font-semibold">Verify your identity</p>
+                    <h2 className="text-2xl font-semibold tracking-tight text-white mb-2">Authentication</h2>
+                    <p className="text-[10px] text-white/50 tracking-[0.2em] uppercase font-bold">Verify your identity</p>
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
                     <div>
-                      <div className="relative flex items-center">
-                        <User className="absolute left-4 h-4 w-4 text-white/30" />
+                      <div className="relative flex items-center group">
+                        <User className="absolute left-4 h-4.5 w-4.5 text-white/40 group-focus-within:text-white transition-colors" />
                         <input
                           type="text"
                           value={username}
                           onChange={(e) => { setUsername(e.target.value); setError(""); }}
                           placeholder="Operator ID"
-                          className="w-full bg-black/20 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/20 focus:bg-white/5 transition-all"
+                          className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 focus:bg-white/5 focus:shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all"
                         />
                       </div>
                     </div>
                     <div>
-                      <div className="relative flex items-center">
-                        <Lock className="absolute left-4 h-4 w-4 text-white/30" />
+                      <div className="relative flex items-center group">
+                        <Lock className="absolute left-4 h-4.5 w-4.5 text-white/40 group-focus-within:text-white transition-colors" />
                         <input
                           type="password"
                           value={password}
                           onChange={(e) => { setPassword(e.target.value); setError(""); }}
                           placeholder="Passphrase"
-                          className="w-full bg-black/20 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/20 focus:bg-white/5 transition-all"
+                          className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 focus:bg-white/5 focus:shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all"
                         />
                       </div>
                     </div>
