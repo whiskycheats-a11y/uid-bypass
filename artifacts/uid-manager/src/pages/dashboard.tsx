@@ -2083,11 +2083,18 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
         <div className="neo-glass rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl glow-border">
           <SuccessAnimation active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
           
-          <div className="flex items-center gap-3 mb-2 relative z-10">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(124,58,237,0.3)] border border-violet-500/30" style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.2), rgba(0,212,255,0.1))" }}>
-              <Plus className="w-5 h-5 text-cyan-400" />
+          <div className="flex items-center justify-between mb-2 relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(124,58,237,0.3)] border border-violet-500/30" style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.2), rgba(0,212,255,0.1))" }}>
+                <Plus className="w-5 h-5 text-cyan-400" />
+              </div>
+              <h2 className="font-black text-lg text-white tracking-wide">Register UID</h2>
             </div>
-            <h2 className="font-black text-lg text-white tracking-wide">Register UID</h2>
+            {profileData.uidLimit !== -1 && (
+              <div className="text-[10px] font-black px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 tracking-widest uppercase shadow-[0_0_10px_rgba(16,185,129,0.1)]">
+                Limit: {uids.length} / {profileData.uidLimit}
+              </div>
+            )}
           </div>
           <p className="text-xs font-semibold text-slate-400 mb-8 relative z-10">Add a new endpoint to the global authorization mesh.</p>
 
