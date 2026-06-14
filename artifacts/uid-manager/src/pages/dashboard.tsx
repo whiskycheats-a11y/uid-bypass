@@ -117,10 +117,10 @@ function OverviewStatCard({
 
       <div className="flex flex-col items-end justify-between h-full relative z-10 gap-3">
         <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/5 transition-colors shadow-[0_10px_40px_rgba(0,0,0,0.5)] group-hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
-          <Icon className="w-4 h-4 text-white/90/80 group-hover:text-white/90 transition-colors" />
+          <Icon className="w-4 h-4 text-white/80 group-hover:text-white/90 transition-colors" />
         </div>
         <div className="w-24 sm:w-28 h-10 mt-2">
-          <svg viewBox="0 0 100 30" className="w-full h-full text-white/90/50 group-hover:text-white/90 transition-colors filter drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+          <svg viewBox="0 0 100 30" className="w-full h-full text-white/50 group-hover:text-white/90 transition-colors filter drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
             <motion.path
               d={pathD}
               fill="none"
@@ -1538,7 +1538,7 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-20 opacity-60">
+      <div className="max-w-4xl mx-auto flex flex-col h-[75vh] items-center justify-center argus-glass rounded-[2rem] border border-white/5 opacity-60">
         <Loader2 className="w-12 h-12 text-white/90 animate-spin mb-4" />
         <p className="text-xs font-black uppercase tracking-widest text-slate-400">Loading Secure Channel...</p>
       </div>

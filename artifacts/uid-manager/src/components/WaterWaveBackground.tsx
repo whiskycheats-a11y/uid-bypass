@@ -24,8 +24,7 @@ export function WaterWaveBackground() {
         }}
         style={{
           background:
-            "radial-gradient(circle, rgba(0,212,255,.22) 0%, rgba(0,212,255,0) 70%)",
-          filter: "blur(80px)",
+            "radial-gradient(circle, rgba(0,212,255,0.18) 0%, rgba(0,212,255,0.06) 45%, rgba(0,212,255,0) 70%)",
           willChange: "transform, opacity",
         }}
       />
@@ -44,8 +43,7 @@ export function WaterWaveBackground() {
         }}
         style={{
           background:
-            "radial-gradient(circle, rgba(139,92,246,.20) 0%, rgba(139,92,246,0) 70%)",
-          filter: "blur(90px)",
+            "radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.04) 45%, rgba(139,92,246,0) 70%)",
           willChange: "transform, opacity",
         }}
       />
@@ -64,8 +62,7 @@ export function WaterWaveBackground() {
         }}
         style={{
           background:
-            "radial-gradient(circle, rgba(255,255,255,.08) 0%, rgba(120,119,255,.06) 40%, rgba(255,255,255,0) 70%)",
-          filter: "blur(60px)",
+            "radial-gradient(circle, rgba(255,255,255,0.06) 0%, rgba(120,119,255,0.04) 35%, rgba(255,255,255,0) 70%)",
           willChange: "transform, opacity",
         }}
       />
@@ -84,8 +81,7 @@ export function WaterWaveBackground() {
         }}
         style={{
           background:
-            "radial-gradient(circle, rgba(255,0,110,.35) 0%, transparent 70%)",
-          filter: "blur(40px)",
+            "radial-gradient(circle, rgba(255,0,110,0.22) 0%, rgba(255,0,110,0.05) 45%, transparent 70%)",
         }}
       />
 

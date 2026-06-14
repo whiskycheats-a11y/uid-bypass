@@ -449,7 +449,7 @@ export default function Login({ onLogin }: LoginProps) {
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -40, filter: "blur(10px)" }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full max-w-[440px] perspective-1000 mt-20 sm:mt-32 pb-20 mx-auto"
+              className="w-full max-w-[440px] perspective-1000 mt-20 sm:mt-32 pb-20 mx-auto px-4 sm:px-0"
             >
               <div onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} className="relative">
                 {/* Subtle outer glow for the card */}

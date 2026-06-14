@@ -38,7 +38,7 @@ export function WelcomeSplash({ username, visible, onDone }: WelcomeSplashProps)
 
     const burst = () => {
       const cx = W / 2, cy = H / 2;
-      for (let i = 0; i < 120; i++) {
+      for (let i = 0; i < 40; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = 1.5 + Math.random() * 5;
         particles.push({
@@ -79,8 +79,6 @@ export function WelcomeSplash({ username, visible, onDone }: WelcomeSplashProps)
         ctx.save();
         ctx.globalAlpha = p.alpha;
         ctx.fillStyle = p.color;
-        ctx.shadowColor = p.color;
-        ctx.shadowBlur = 8;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();

@@ -597,12 +597,16 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
   }
 
   useEffect(() => {
+    let lastTime = 0;
     const onMove = (e: MouseEvent) => {
+      const now = performance.now();
+      if (now - lastTime < 24) return;
+      lastTime = now;
       cancelAnimationFrame(rafRef.current);
       rafRef.current = requestAnimationFrame(() => {
         if (spotlightRef.current) {
           spotlightRef.current.style.background =
-            `radial-gradient(500px circle at ${e.clientX}px ${e.clientY}px, rgba(255,255,255,0.1), transparent 70%)`;
+            `radial-gradient(500px circle at ${e.clientX}px ${e.clientY}px, rgba(255,255,255,0.08), transparent 70%)`;
         }
       });
     };
@@ -1341,7 +1345,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     return (
       <div className="panel rounded-3xl overflow-hidden bg-white/[0.02] backdrop-blur-xl shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, transparent)" }} />
-        <div className="px-5 py-4 flex items-center justify-between border-b border-white/[0.04]">
+        <div className="px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between border-b border-white/[0.04]">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.1)" }}>
               <Users className="w-4 h-4 text-white/90" />
@@ -3412,7 +3416,7 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-20 opacity-60">
+      <div className="max-w-4xl mx-auto flex flex-col h-[75vh] items-center justify-center argus-glass rounded-[2rem] border border-white/5 opacity-60">
         <Loader2 className="w-12 h-12 text-white/90 animate-spin mb-4" />
         <p className="text-xs font-black uppercase tracking-widest text-slate-400">Loading Secure Channel...</p>
       </div>
@@ -3566,10 +3570,10 @@ function OverviewStatCard({
 
       <div className="flex flex-col items-end justify-between h-full relative z-10 gap-3">
         <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/5 transition-colors shadow-[0_10px_40px_rgba(0,0,0,0.5)] group-hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
-          <Icon className="w-4 h-4 text-white/70/80 group-hover:text-rose-400 transition-colors" />
+          <Icon className="w-4 h-4 text-white/70 group-hover:text-rose-400 transition-colors" />
         </div>
         <div className="w-24 sm:w-28 h-10 mt-2">
-          <svg viewBox="0 0 100 30" className="w-full h-full text-white/90/80 group-hover:text-white/70 transition-colors filter drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+          <svg viewBox="0 0 100 30" className="w-full h-full text-white/80 group-hover:text-white/70 transition-colors filter drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
             <motion.path
               d={pathD}
               fill="none"
@@ -3605,7 +3609,7 @@ function getDaysLeft(addedAtStr: string, days: number): string {
 /* ─── Tilt Wrapper ─── */
 function TiltWrapper({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const raf = useRef<number | null>(null);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = ref.current;
@@ -3613,10 +3617,23 @@ function TiltWrapper({ children, className = "" }: { children: React.ReactNode; 
     const rect = el.getBoundingClientRect();
     const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
     const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
-    setTilt({ x: dy * -6, y: dx * 6 });
+    const tiltX = dy * -6;
+    const tiltY = dx * 6;
+
+    if (raf.current) cancelAnimationFrame(raf.current);
+    raf.current = requestAnimationFrame(() => {
+      if (ref.current) {
+        ref.current.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+      }
+    });
   };
 
-  const handleMouseLeave = () => setTilt({ x: 0, y: 0 });
+  const handleMouseLeave = () => {
+    if (raf.current) cancelAnimationFrame(raf.current);
+    if (ref.current) {
+      ref.current.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+    }
+  };
 
   return (
     <div
@@ -3625,9 +3642,9 @@ function TiltWrapper({ children, className = "" }: { children: React.ReactNode; 
       onMouseLeave={handleMouseLeave}
       className={className}
       style={{
-        transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
         transformStyle: "preserve-3d",
         transition: "transform 0.25s ease-out",
+        willChange: "transform"
       }}
     >
       {children}
