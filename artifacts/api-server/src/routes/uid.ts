@@ -222,9 +222,12 @@ router.post("/add", async (req, res) => {
       ? { account_id: uid, for_days: effectiveDays }
       : { uid, days: effectiveDays, name: name || username || "MyUID" };
 
+    const headers = authHeaders(key, isPhpApi);
+    headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
     const response = await fetch(url, {
       method: "POST",
-      headers: authHeaders(key, isPhpApi),
+      headers: headers,
       body: JSON.stringify(body),
     });
     
@@ -324,9 +327,12 @@ router.post("/remove", async (req, res) => {
     const url = isPhpApi ? `${base}?action=delete` : `${base}/api/v1/uids/remove`;
     const body = isPhpApi ? { account_id: uid } : { uid };
 
+    const headers = authHeaders(key, isPhpApi);
+    headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
     const response = await fetch(url, {
       method: "POST",
-      headers: authHeaders(key, isPhpApi),
+      headers: headers,
       body: JSON.stringify(body),
     });
     
