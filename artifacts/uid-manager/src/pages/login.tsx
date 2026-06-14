@@ -453,75 +453,75 @@ export default function Login({ onLogin }: LoginProps) {
               className="w-full"
             >
               {/* ═══════ HERO ═══════ */}
-              <section ref={heroRef} className="relative w-full max-w-7xl mx-auto px-6 sm:px-10 py-24 sm:py-32 flex flex-col items-center justify-center min-h-[85vh] text-center">
-                <motion.div style={{ y: heroTextY, opacity: heroOpacity }} className="w-full max-w-4xl space-y-8 z-20 flex flex-col items-center">
+              <section ref={heroRef} className="relative w-full max-w-7xl mx-auto px-6 sm:px-10 py-24 sm:py-32 flex flex-col items-center justify-center min-h-[90vh] text-center">
+                {/* 3D Orb & Rings */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none opacity-50 sm:opacity-100 hidden sm:block -z-10">
+                  <div className="ring-container scale-[0.8] sm:scale-100">
+                    <div className="orbit-ring orbit-ring-1" />
+                    <div className="orbit-ring orbit-ring-2" />
+                    <div className="orbit-ring orbit-ring-3" />
+                  </div>
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-cyan-500/20 rounded-full blur-[80px]" />
+                </div>
+
+                <motion.div style={{ y: heroTextY, opacity: heroOpacity }} className="w-full max-w-4xl space-y-8 z-20 flex flex-col items-center relative">
                   
                   <div className="flex justify-center">
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
+                      initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
                       animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                      transition={{ duration: 0.7, delay: 0.2 }}
-                      className="inline-flex items-center gap-2.5 rounded-full border border-violet-500/30 bg-violet-500/10 px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-violet-300 shadow-[0_0_30px_rgba(124,58,237,0.15)] backdrop-blur-md"
+                      transition={{ duration: 0.8, delay: 0.1, type: "spring", stiffness: 200 }}
+                      className="inline-flex items-center gap-3 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-6 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-300 shadow-[0_0_30px_rgba(0,212,255,0.2)] backdrop-blur-md relative overflow-hidden"
                     >
-                      <Sparkles className="h-3.5 w-3.5 text-cyan-400 animate-pulse" />
-                      UID BYPASS V5-STABLE
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-[200%] animate-[shimmer-pass_3s_infinite]" />
+                      <Sparkles className="h-4 w-4 text-cyan-400" />
+                      NEXT-GEN AUTHORIZATION
                     </motion.div>
                   </div>
 
-                  <h1 className="text-4xl sm:text-[4.5rem] font-black tracking-tight text-white leading-[1.1] drop-shadow-2xl text-center">
-                    <span className="bg-gradient-to-r from-cyan-300 to-cyan-50 bg-clip-text text-transparent block mb-2 drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]">
-                      <WordReveal text="UID BYPASS" delay={0.3} />
-                    </span>
-                    <WordReveal text="100% SAFE ALL SERVER" delay={0.65} />
-                  </h1>
+                  <div className="relative">
+                    <div className="absolute -inset-x-10 -inset-y-10 bg-violet-600/20 blur-[80px] rounded-full pointer-events-none -z-10" />
+                    <h1 className="text-5xl sm:text-[6rem] font-black tracking-tighter text-white leading-[1] drop-shadow-2xl text-center">
+                      <span className="bg-gradient-to-br from-white via-cyan-100 to-cyan-500 bg-clip-text text-transparent block mb-4 filter drop-shadow-[0_0_20px_rgba(34,211,238,0.3)]">
+                        <WordReveal text="UID BYPASS" delay={0.2} />
+                      </span>
+                      <span className="bg-gradient-to-br from-white via-slate-200 to-slate-400 bg-clip-text text-transparent text-4xl sm:text-[4.5rem]">
+                        <WordReveal text="HARDWARE LEVEL" delay={0.5} />
+                      </span>
+                    </h1>
+                  </div>
 
                   <motion.p
-                    initial={{ opacity: 0, y: 25, filter: "blur(6px)" }}
+                    initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
                     animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    transition={{ duration: 0.8, delay: 1.1 }}
-                    className="text-slate-300/80 text-base sm:text-lg max-w-2xl leading-relaxed font-medium mx-auto text-center"
+                    transition={{ duration: 0.8, delay: 0.9, type: "spring" }}
+                    className="text-slate-300/80 text-lg sm:text-xl max-w-2xl leading-relaxed font-medium mx-auto text-center relative z-10"
                   >
-                    Deploy unbreakable hardware-level authorization, manage global request routing, and issue reseller tokens from a unified command center.
+                    Unbreakable kernel-level bridging with zero-lag edge synchronization. The ultimate unified command center for resellers.
                   </motion.p>
 
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 1.35 }}
-                    className="flex flex-wrap items-center justify-center gap-4 pt-4"
+                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 1.1, type: "spring" }}
+                    className="flex flex-wrap items-center justify-center gap-5 pt-8 relative z-20"
                   >
                     <motion.button
-                      whileHover={{ scale: 1.05 }}
+                      whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(0, 212, 255, 0.4)" }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => { setError(""); setTrialToken(""); setPlayerUid(""); setClaimSuccess(false); setUsername(""); setPassword(""); setShowLogin(true); }}
-                      className="argus-btn flex items-center gap-2 rounded-2xl text-white font-black text-[11px] tracking-[0.2em] uppercase px-8 py-4.5 cursor-pointer"
+                      className="argus-btn flex items-center gap-3 rounded-2xl text-white font-black text-xs tracking-[0.25em] uppercase px-10 py-5 cursor-pointer shadow-[0_15px_30px_rgba(0,0,0,0.4)] relative"
                     >
-                      Access Portal <ArrowRight className="h-4 w-4" />
+                      <Lock className="h-4 w-4 relative z-10" /> <span className="relative z-10">Access Terminal</span>
                     </motion.button>
                     <motion.button
-                      whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.2)" }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)", borderColor: "rgba(255,255,255,0.3)" }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
-                      className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] text-white font-black text-[11px] tracking-[0.2em] uppercase px-8 py-4.5 cursor-pointer backdrop-blur-md transition-all shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
+                      className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] text-white font-black text-xs tracking-[0.2em] uppercase px-10 py-5 cursor-pointer backdrop-blur-xl transition-all shadow-[0_15px_30px_rgba(0,0,0,0.3)] relative"
                     >
-                      View Protocols
+                      <Terminal className="h-4 w-4 relative z-10" /> <span className="relative z-10">View Protocols</span>
                     </motion.button>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 2.2, duration: 1 }}
-                    className="pt-12 flex items-center justify-center gap-3"
-                  >
-                    <div className="w-5 h-8 rounded-full border border-violet-500/30 bg-violet-500/5 relative overflow-hidden shadow-[0_0_15px_rgba(124,58,237,0.1)]">
-                      <motion.div
-                        animate={{ y: [0, 12, 0] }}
-                        transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
-                        className="w-1.5 h-2.5 bg-cyan-400 rounded-full absolute left-1/2 -translate-x-1/2 top-1.5 shadow-[0_0_10px_#00d4ff]"
-                      />
-                    </div>
-                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500/80">Scroll Sequence</span>
                   </motion.div>
                 </motion.div>
               </section>
