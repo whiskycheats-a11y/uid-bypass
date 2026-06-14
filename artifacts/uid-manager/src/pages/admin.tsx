@@ -1302,7 +1302,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
 }
 
 /* ─── Clients panel ─── */
-  function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset, onApiAccessToggle }: {
+  function ClientsPanel({ users, loading, deleting, copied, onAdd, onDelete, onCopy, onResellToggle, onAddCreditsClick, onHwidLockToggle, onHwidReset, onApiAccessToggle, onUidLimitClick, onApiResetClick }: {
     users: ClientUser[]; loading: boolean; deleting: string | null;
     copied: string | null; onAdd: () => void;
     onDelete: (u: string) => void; onCopy: (u: string, p?: string) => void;
