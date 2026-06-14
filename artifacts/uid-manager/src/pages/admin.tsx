@@ -6,7 +6,7 @@ import {
   Lock, User as UserIcon, Gift, RefreshCw, Shield, Timer, Settings,
   Coins, Wallet, CreditCard, Check, XCircle, Clock, LayoutDashboard,
   BarChart2, MessageSquare, UserCircle, Camera, Edit2, Trophy, Medal,
-  Send, Menu, CalendarDays, KeyRound, Terminal, ShieldAlert
+  Send, Menu, CalendarDays, KeyRound, Terminal, ShieldAlert, Unlock, Laptop2
 } from "lucide-react";
 import { AmbientScene } from "@/components/ambient-scene";
 import {
@@ -1736,118 +1736,100 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0 flex-wrap w-full sm:w-auto justify-start sm:justify-end pl-[44px] sm:pl-0">
-          <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold user-row-badge"
+        <div className="flex flex-wrap items-center gap-2 shrink-0 w-full sm:w-auto justify-start sm:justify-end pl-[44px] sm:pl-0">
+          <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[9px] font-black tracking-widest uppercase user-row-badge"
             style={{ background: isTrial ? "rgba(245,158,11,0.1)" : "rgba(16,185,129,0.1)", color: isTrial ? "#fbbf24" : "#34d399", border: `1px solid ${isTrial ? "rgba(245,158,11,0.2)" : "rgba(16,185,129,0.2)"}` }}
           >
             {isTrial ? "TRIAL" : "ACTIVE"}
           </span>
-          {/* HWID Lock Toggle */}
-          {onHwidLockToggle && (
-            <button
-              onClick={() => onHwidLockToggle(!user.hwidLockEnabled)}
-              title={user.hwidLockEnabled ? "HWID Lock Enabled (Click to Disable)" : "HWID Lock Disabled (Click to Enable)"}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
-              style={{
-                background: user.hwidLockEnabled ? "rgba(239,68,68,0.12)" : "rgba(255,255,255,0.03)",
-                color: user.hwidLockEnabled ? "#f87171" : "#6b7280",
-                border: user.hwidLockEnabled ? "1px solid rgba(239,68,68,0.25)" : "1px solid rgba(255,255,255,0.06)",
-              }}
-            >
-              <Lock className="w-3.5 h-3.5" />
-              {user.hwidLockEnabled ? "LOCKED" : "UNLOCKED"}
+
+          {/* Quick Stats Group */}
+          <div className="flex items-center gap-1.5 bg-black/40 border border-white/5 p-1 rounded-lg">
+            {/* UID Limit edit button */}
+            {onUidLimitClick && (
+              <button
+                onClick={onUidLimitClick}
+                title="Set UID Limit"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold transition-all hover:bg-white/5"
+                style={{ color: "#60a5fa" }}
+              >
+                <ShieldAlert className="w-3.5 h-3.5 opacity-70" />
+                {user.uidLimit === -1 || user.uidLimit === undefined ? "NO LIMIT" : `LIMIT ${user.uidLimit}`}
+              </button>
+            )}
+            {/* Add credits button */}
+            {!isTrial && onAddCreditsClick && (
+              <button onClick={onAddCreditsClick} title="Add tokens"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold transition-all hover:bg-white/5 border-l border-white/5"
+                style={{ color: "#10b981" }}
+              >
+                <Wallet className="w-3.5 h-3.5 opacity-70" />
+                +TOKENS
+              </button>
+            )}
+          </div>
+
+          {/* Action Toggles Group */}
+          <div className="flex items-center gap-1 bg-black/40 border border-white/5 p-1 rounded-lg">
+            {/* Resell toggle */}
+            {!isTrial && onResellToggle && (
+              <button onClick={() => onResellToggle(!user.canResell)} title={user.canResell ? "Revoke reseller" : "Allow reseller"}
+                className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${user.canResell ? 'bg-amber-500/20 text-amber-400' : 'hover:bg-white/5 text-slate-500'}`}
+              >
+                <Gift className="w-3.5 h-3.5" />
+              </button>
+            )}
+            {/* HWID Lock Toggle */}
+            {onHwidLockToggle && (
+              <button
+                onClick={() => onHwidLockToggle(!user.hwidLockEnabled)}
+                title={user.hwidLockEnabled ? "HWID Lock Enabled (Click to Disable)" : "HWID Lock Disabled (Click to Enable)"}
+                className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${user.hwidLockEnabled ? 'bg-red-500/20 text-red-400' : 'hover:bg-white/5 text-slate-500'}`}
+              >
+                {user.hwidLockEnabled ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+              </button>
+            )}
+            {/* API Access Toggle */}
+            {onApiAccessToggle && (
+              <button
+                onClick={() => onApiAccessToggle(!user.apiAccessEnabled)}
+                title={user.apiAccessEnabled ? "API Access Enabled (Click to Revoke)" : "API Access Revoked (Click to Grant)"}
+                className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${user.apiAccessEnabled ? 'bg-emerald-500/20 text-emerald-400' : 'hover:bg-white/5 text-slate-500'}`}
+              >
+                <Terminal className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Destructive / Reset Group */}
+          <div className="flex items-center gap-1 bg-black/40 border border-white/5 p-1 rounded-lg">
+            {/* Reset HWID */}
+            {user.hwidLockEnabled && onHwidReset && (
+              <button
+                onClick={onHwidReset}
+                title="Reset client HWID fingerprint"
+                className="w-7 h-7 flex items-center justify-center rounded-md transition-all hover:bg-amber-500/20 text-amber-400/70 hover:text-amber-400"
+              >
+                <Laptop2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+            {/* API Key Reset button */}
+            {user.apiAccessEnabled && onApiResetClick && (
+              <button
+                onClick={onApiResetClick}
+                title="Reset API Key"
+                className="w-7 h-7 flex items-center justify-center rounded-md transition-all hover:bg-red-500/20 text-red-400/70 hover:text-red-400"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <button onClick={onCopy} className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${copied ? 'bg-cyan-500/20 text-cyan-400' : 'hover:bg-white/5 text-slate-400'}`} title="Copy credentials">
+              {copied ? <CheckCheck className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
-          )}
-          {/* API Access Toggle */}
-          {onApiAccessToggle && (
-            <button
-              onClick={() => onApiAccessToggle(!user.apiAccessEnabled)}
-              title={user.apiAccessEnabled ? "API Access Enabled (Click to Revoke)" : "API Access Revoked (Click to Grant)"}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
-              style={{
-                background: user.apiAccessEnabled ? "rgba(16,185,129,0.12)" : "rgba(255,255,255,0.03)",
-                color: user.apiAccessEnabled ? "#34d399" : "#6b7280",
-                border: user.apiAccessEnabled ? "1px solid rgba(16,185,129,0.25)" : "1px solid rgba(255,255,255,0.06)",
-              }}
-            >
-              <Terminal className="w-3.5 h-3.5" />
-              {user.apiAccessEnabled ? "API: ON" : "API: OFF"}
+            <button onClick={onDelete} disabled={deleting} className="w-7 h-7 flex items-center justify-center rounded-md transition-all hover:bg-red-500/20 text-slate-400 hover:text-red-400 disabled:opacity-40">
+              {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
             </button>
-          )}
-          {/* Reset HWID */}
-          {user.hwidLockEnabled && onHwidReset && (
-            <button
-              onClick={onHwidReset}
-              title="Reset client HWID fingerprint"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
-              style={{
-                background: "rgba(245,158,11,0.12)",
-                color: "#fbbf24",
-                border: "1px solid rgba(245,158,11,0.25)",
-              }}
-            >
-              <RefreshCw className="w-3 h-3" />
-              HWID
-            </button>
-          )}
-          {/* UID Limit edit button */}
-          {onUidLimitClick && (
-            <button
-              onClick={onUidLimitClick}
-              title="Set UID Limit"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
-              style={{
-                background: "rgba(59,130,246,0.12)",
-                color: "#60a5fa",
-                border: "1px solid rgba(59,130,246,0.25)",
-              }}
-            >
-              <ShieldAlert className="w-3 h-3" />
-              {user.uidLimit === -1 || user.uidLimit === undefined ? "NO LIMIT" : `LIMIT: ${user.uidLimit}`}
-            </button>
-          )}
-          {/* API Key Reset button */}
-          {user.apiAccessEnabled && onApiResetClick && (
-            <button
-              onClick={onApiResetClick}
-              title="Reset API Key"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
-              style={{
-                background: "rgba(239,68,68,0.12)",
-                color: "#f87171",
-                border: "1px solid rgba(239,68,68,0.25)",
-              }}
-            >
-              <RefreshCw className="w-3 h-3" />
-              API
-            </button>
-          )}
-          {/* Resell toggle */}
-          {!isTrial && onResellToggle && (
-            <button onClick={() => onResellToggle(!user.canResell)} title={user.canResell ? "Revoke reseller" : "Allow reseller"}
-              className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all"
-              style={{ background: user.canResell ? "rgba(245,158,11,0.15)" : "rgba(255,255,255,0.04)", color: user.canResell ? "#f59e0b" : "#6b7280", border: user.canResell ? "1px solid rgba(245,158,11,0.3)" : "1px solid rgba(255,255,255,0.08)" }}
-            >
-              <Gift className="w-3 h-3" />
-              {user.canResell ? "RESELLER" : "NO RESELL"}
-            </button>
-          )}
-          {/* Add credits button */}
-          {!isTrial && onAddCreditsClick && (
-            <button onClick={onAddCreditsClick} title="Add tokens"
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
-              style={{ background: "rgba(16,185,129,0.08)", color: "#10b981", border: "1px solid rgba(16,185,129,0.2)" }}
-            >
-              <Wallet className="w-3 h-3" />
-              +Tokens
-            </button>
-          )}
-          <button onClick={onCopy} className="icon-btn p-2 rounded-lg transition-all" style={{ color: copied ? "#06b6d4" : undefined }} title="Copy credentials">
-            {copied ? <CheckCheck className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-          </button>
-          <button onClick={onDelete} disabled={deleting} className="icon-btn p-2 rounded-lg transition-all text-muted-foreground hover:text-red-400 hover:bg-red-500/10 disabled:opacity-40">
-            {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-          </button>
+          </div>
         </div>
       </div>
     </motion.div>
