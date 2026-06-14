@@ -454,14 +454,8 @@ export default function Login({ onLogin }: LoginProps) {
             >
               {/* ═══════ HERO ═══════ */}
               <section ref={heroRef} className="relative w-full max-w-7xl mx-auto px-6 sm:px-10 py-24 sm:py-32 flex flex-col items-center justify-center min-h-[90vh] text-center">
-                {/* 3D Orb & Rings */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none opacity-50 sm:opacity-100 hidden sm:block -z-10">
-                  <div className="ring-container scale-[0.8] sm:scale-100">
-                    <div className="orbit-ring orbit-ring-1" />
-                    <div className="orbit-ring orbit-ring-2" />
-                    <div className="orbit-ring orbit-ring-3" />
-                  </div>
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-cyan-500/20 rounded-full blur-[80px]" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full pointer-events-none opacity-50 sm:opacity-100 hidden sm:block -z-10">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/20 rounded-full blur-[100px]" />
                 </div>
 
                 <motion.div style={{ y: heroTextY, opacity: heroOpacity }} className="w-full max-w-4xl space-y-8 z-20 flex flex-col items-center relative">
@@ -481,12 +475,9 @@ export default function Login({ onLogin }: LoginProps) {
 
                   <div className="relative">
                     <div className="absolute -inset-x-10 -inset-y-10 bg-violet-600/20 blur-[80px] rounded-full pointer-events-none -z-10" />
-                    <h1 className="text-5xl sm:text-[6rem] font-black tracking-tighter text-white leading-[1] drop-shadow-2xl text-center">
-                      <span className="bg-gradient-to-br from-white via-cyan-100 to-cyan-500 bg-clip-text text-transparent block mb-4 filter drop-shadow-[0_0_20px_rgba(34,211,238,0.3)]">
+                    <h1 className="text-5xl sm:text-[7rem] font-black tracking-tighter text-white leading-[1] drop-shadow-2xl text-center">
+                      <span className="bg-gradient-to-br from-white via-cyan-100 to-cyan-500 bg-clip-text text-transparent block filter drop-shadow-[0_0_20px_rgba(34,211,238,0.3)]">
                         <WordReveal text="UID BYPASS" delay={0.2} />
-                      </span>
-                      <span className="bg-gradient-to-br from-white via-slate-200 to-slate-400 bg-clip-text text-transparent text-4xl sm:text-[4.5rem]">
-                        <WordReveal text="HARDWARE LEVEL" delay={0.5} />
                       </span>
                     </h1>
                   </div>
