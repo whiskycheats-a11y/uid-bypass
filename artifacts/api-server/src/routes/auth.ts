@@ -92,11 +92,6 @@ router.post("/login", async (req, res) => {
     logger.warn({ ip: clientIp, username }, "Login blocked: missing request timestamp");
     return res.status(403).json({ success: false, error: "Invalid request. Please use the login page." });
   }
-  const drift = Math.abs(Date.now() - requestTimestamp);
-  if (drift > 2 * 60 * 1000) {
-    logger.warn({ ip: clientIp, username, drift }, "Login blocked: timestamp drift too large");
-    return res.status(403).json({ success: false, error: "Request expired. Please refresh the page." });
-  }
 
   // ─── 3. Login-specific rate limiter ───
   if (!checkLoginRate(clientIp)) {

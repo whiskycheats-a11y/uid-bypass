@@ -1,188 +1,86 @@
-import { Canvas, useFrame } from "@react-three/fiber";
-import {
-  Environment,
-  MeshTransmissionMaterial,
-  Float,
-} from "@react-three/drei";
-import { useRef } from "react";
-import * as THREE from "three";
-
-function GlassOrb() {
-  const orbRef = useRef<THREE.Mesh>(null);
-
-  useFrame((state) => {
-    if (!orbRef.current) return;
-
-    orbRef.current.rotation.y =
-      state.clock.elapsedTime * 0.15;
-
-    orbRef.current.rotation.x =
-      Math.sin(state.clock.elapsedTime * 0.3) * 0.15;
-  });
-
-  return (
-    <Float
-      speed={1.5}
-      rotationIntensity={1}
-      floatIntensity={2}
-    >
-      <mesh ref={orbRef}>
-        <sphereGeometry args={[2.2, 64, 64]} />
-
-        <MeshTransmissionMaterial
-          thickness={1.5}
-          roughness={0}
-          transmission={1}
-          ior={1.5}
-          chromaticAberration={0.08}
-          backside
-          samples={3}
-          resolution={128}
-        />
-      </mesh>
-    </Float>
-  );
-}
-
-function AuroraGlow() {
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  useFrame((state) => {
-    if (!meshRef.current) return;
-
-    meshRef.current.rotation.z =
-      state.clock.elapsedTime * 0.03;
-  });
-
-  return (
-    <mesh
-      ref={meshRef}
-      position={[0, 0, -6]}
-    >
-      <planeGeometry args={[35, 20]} />
-
-      <shaderMaterial
-        transparent
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-        uniforms={{
-          time: { value: 0 },
-        }}
-        vertexShader={`
-          varying vec2 vUv;
-
-          void main() {
-            vUv = uv;
-
-            gl_Position =
-              projectionMatrix *
-              modelViewMatrix *
-              vec4(position,1.0);
-          }
-        `}
-        fragmentShader={`
-          varying vec2 vUv;
-
-          void main(){
-
-            vec2 uv = vUv - 0.5;
-
-            float r =
-              length(uv);
-
-            vec3 c1 =
-              vec3(0.0,0.85,1.0);
-
-            vec3 c2 =
-              vec3(0.55,0.2,1.0);
-
-            vec3 c3 =
-              vec3(1.0,0.0,0.6);
-
-            vec3 color =
-              mix(c1,c2,uv.y+0.5);
-
-            color =
-              mix(color,c3,uv.x+0.5);
-
-            float alpha =
-              smoothstep(0.7,0.0,r);
-
-            gl_FragColor =
-              vec4(color,alpha*0.55);
-          }
-        `}
-      />
-    </mesh>
-  );
-}
-
-function FloatingLights() {
-  return (
-    <>
-      <pointLight
-        position={[5, 2, 3]}
-        intensity={25}
-        color="#00d4ff"
-      />
-
-      <pointLight
-        position={[-5, 2, 2]}
-        intensity={20}
-        color="#8b5cf6"
-      />
-
-      <pointLight
-        position={[0, -2, 4]}
-        intensity={15}
-        color="#ff006e"
-      />
-    </>
-  );
-}
+import { motion } from "framer-motion";
 
 export function WaterWaveBackground() {
   return (
     <div
-      className="fixed inset-0 pointer-events-none"
+      className="fixed inset-0 pointer-events-none overflow-hidden"
       style={{
         zIndex: -50,
+        backgroundColor: "#02030d",
       }}
     >
-      <Canvas
-        camera={{
-          position: [0, 0, 8],
-          fov: 45,
-        }}
-        dpr={[1, 1]}
-        gl={{ antialias: false, powerPreference: "high-performance" }}
-      >
-        <color
-          attach="background"
-          args={["#02030d"]}
-        />
-
-        <fog
-          attach="fog"
-          args={["#02030d", 10, 30]}
-        />
-
-        <ambientLight intensity={0.4} />
-
-        <FloatingLights />
-
-        <AuroraGlow />
-
-        <GlassOrb />
-
-        <Environment preset="city" />
-      </Canvas>
-
+      {/* Deep Space Radial Gradient Background */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(circle at center, transparent 0%, rgba(2,3,13,.35) 60%, rgba(2,3,13,.95) 100%)",
+            "radial-gradient(circle at center, transparent 0%, rgba(2,3,13,.5) 50%, rgba(2,3,13,1) 100%)",
+        }}
+      />
+
+      {/* Aurora Ambient Glow (Top Right) */}
+      <motion.div
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.5, 0.3],
+        }}
+        transition={{
+          duration: 12,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="absolute -top-[20%] -right-[10%] w-[60%] h-[60%] rounded-full mix-blend-screen filter blur-[120px]"
+        style={{
+          background: "radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, rgba(0, 212, 255, 0) 70%)",
+        }}
+      />
+
+      {/* Aurora Ambient Glow (Bottom Left) */}
+      <motion.div
+        animate={{
+          scale: [1, 1.3, 1],
+          opacity: [0.2, 0.4, 0.2],
+        }}
+        transition={{
+          duration: 15,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 2,
+        }}
+        className="absolute -bottom-[20%] -left-[10%] w-[70%] h-[70%] rounded-full mix-blend-screen filter blur-[140px]"
+        style={{
+          background: "radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0) 70%)",
+        }}
+      />
+
+      {/* Center Focus Glow (Replaces GlassOrb) */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        {/* Core highlight */}
+        <motion.div
+          animate={{
+            scale: [1, 1.05, 1],
+            opacity: [0.5, 0.8, 0.5],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="w-[500px] h-[500px] rounded-full mix-blend-screen filter blur-[100px]"
+          style={{
+            background: "radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 60%)",
+          }}
+        />
+      </div>
+
+      {/* Vignette Overlay for Depth */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,#02030d_100%)] opacity-80" />
+      
+      {/* Subtle Noise Texture */}
+      <div 
+        className="absolute inset-0 opacity-[0.03] mix-blend-overlay"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
         }}
       />
     </div>
