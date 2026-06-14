@@ -1,83 +1,115 @@
-import { useMemo, useRef, useEffect, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
+import {
+  Environment,
+  MeshTransmissionMaterial,
+  Float,
+} from "@react-three/drei";
+import { useRef } from "react";
 import * as THREE from "three";
 
-// Ultra-attractive, smooth Liquid Silk Wave (0 particles, just fluid geometry)
-function LiquidSilkWave() {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const uniforms = useMemo(() => ({
-    uTime: { value: 0 },
-    uColor1: { value: new THREE.Color("#00d4ff") }, // Vibrant Cyan
-    uColor2: { value: new THREE.Color("#7c3aed") }, // Deep Violet
-    uColor3: { value: new THREE.Color("#ff006e") }  // Neon Pink
-  }), []);
+function GlassOrb() {
+  const orbRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
-    if (meshRef.current) {
-      uniforms.uTime.value = state.clock.elapsedTime * 0.4;
-    }
+    if (!orbRef.current) return;
+
+    orbRef.current.rotation.y =
+      state.clock.elapsedTime * 0.15;
+
+    orbRef.current.rotation.x =
+      Math.sin(state.clock.elapsedTime * 0.3) * 0.15;
   });
 
   return (
-    <mesh ref={meshRef} rotation={[-Math.PI / 3, 0, 0]} position={[0, -2, -8]}>
-      {/* 
-        A single high-res plane is incredibly cheap to render on modern GPUs.
-        It avoids the "dots" look entirely, looking like a solid sheet of glowing fluid.
-      */}
-      <planeGeometry args={[25, 25, 128, 128]} />
+    <Float
+      speed={1.5}
+      rotationIntensity={1}
+      floatIntensity={2}
+    >
+      <mesh ref={orbRef}>
+        <sphereGeometry args={[2.2, 128, 128]} />
+
+        <MeshTransmissionMaterial
+          thickness={1.5}
+          roughness={0}
+          transmission={1}
+          ior={1.5}
+          chromaticAberration={0.08}
+          backside
+          samples={8}
+          resolution={512}
+        />
+      </mesh>
+    </Float>
+  );
+}
+
+function AuroraGlow() {
+  const meshRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (!meshRef.current) return;
+
+    meshRef.current.rotation.z =
+      state.clock.elapsedTime * 0.03;
+  });
+
+  return (
+    <mesh
+      ref={meshRef}
+      position={[0, 0, -6]}
+    >
+      <planeGeometry args={[35, 20]} />
+
       <shaderMaterial
-        wireframe={false} // Solid fluid
-        transparent={true}
+        transparent
+        depthWrite={false}
         blending={THREE.AdditiveBlending}
-        uniforms={uniforms}
+        uniforms={{
+          time: { value: 0 },
+        }}
         vertexShader={`
-          uniform float uTime;
-          varying vec3 vPos;
           varying vec2 vUv;
-          
+
           void main() {
             vUv = uv;
-            vec3 pos = position;
-            
-            // Ultra-smooth liquid distortion combining diagonal sine waves
-            float wave1 = sin(pos.x * 0.5 + uTime) * 1.5;
-            float wave2 = sin(pos.y * 0.4 - uTime * 0.8) * 1.5;
-            float wave3 = sin((pos.x + pos.y) * 0.3 + uTime * 1.2) * 1.0;
-            
-            // Create a flowing peak in the center
-            float dist = length(pos.xy);
-            float centerBulge = exp(-dist * 0.05) * 4.0;
-            
-            pos.z += (wave1 + wave2 + wave3) * exp(-dist * 0.1) + centerBulge;
-            vPos = pos;
-            
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+
+            gl_Position =
+              projectionMatrix *
+              modelViewMatrix *
+              vec4(position,1.0);
           }
         `}
         fragmentShader={`
-          uniform vec3 uColor1;
-          uniform vec3 uColor2;
-          uniform vec3 uColor3;
-          varying vec3 vPos;
           varying vec2 vUv;
-          
-          void main() {
-            // Iridescent coloring based on height and UV coordinates
-            float h = (vPos.z + 2.0) / 6.0; 
-            
-            // Mix colors to create a beautiful gradient
-            vec3 color = mix(uColor2, uColor1, smoothstep(0.0, 0.5, h));
-            color = mix(color, uColor3, smoothstep(0.5, 1.0, h));
-            
-            // Create a soft glowing grid pattern overlaid on the fluid
-            float grid = sin(vUv.x * 100.0) * sin(vUv.y * 100.0);
-            grid = smoothstep(0.8, 1.0, grid) * 0.15;
-            
-            // Fade out edges smoothly so it blends into the deep background
-            float dist = length(vPos.xy);
-            float alpha = 1.0 - smoothstep(5.0, 15.0, dist);
-            
-            gl_FragColor = vec4(color + vec3(grid), alpha * 0.6);
+
+          void main(){
+
+            vec2 uv = vUv - 0.5;
+
+            float r =
+              length(uv);
+
+            vec3 c1 =
+              vec3(0.0,0.85,1.0);
+
+            vec3 c2 =
+              vec3(0.55,0.2,1.0);
+
+            vec3 c3 =
+              vec3(1.0,0.0,0.6);
+
+            vec3 color =
+              mix(c1,c2,uv.y+0.5);
+
+            color =
+              mix(color,c3,uv.x+0.5);
+
+            float alpha =
+              smoothstep(0.7,0.0,r);
+
+            gl_FragColor =
+              vec4(color,alpha*0.55);
           }
         `}
       />
@@ -85,33 +117,73 @@ function LiquidSilkWave() {
   );
 }
 
-export function WaterWaveBackground() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    requestAnimationFrame(() => setVisible(true));
-  }, []);
-
+function FloatingLights() {
   return (
-    <div 
-      className="fixed inset-0 pointer-events-none transition-opacity duration-1000"
-      style={{ 
-        opacity: visible ? 1 : 0, 
+    <>
+      <pointLight
+        position={[5, 2, 3]}
+        intensity={25}
+        color="#00d4ff"
+      />
+
+      <pointLight
+        position={[-5, 2, 2]}
+        intensity={20}
+        color="#8b5cf6"
+      />
+
+      <pointLight
+        position={[0, -2, 4]}
+        intensity={15}
+        color="#ff006e"
+      />
+    </>
+  );
+}
+
+export function WaterWaveBackground() {
+  return (
+    <div
+      className="fixed inset-0 pointer-events-none"
+      style={{
         zIndex: -50,
-        backgroundColor: "#030014"
       }}
     >
-      <Canvas 
-        camera={{ position: [0, 0, 10], fov: 60 }}
-        // STRICTLY limit pixel ratio to 1. This prevents lag on ANY machine.
-        dpr={[1, 1]} 
-        gl={{ antialias: false, powerPreference: "high-performance", alpha: false, depth: false }}
+      <Canvas
+        camera={{
+          position: [0, 0, 8],
+          fov: 45,
+        }}
+        dpr={[1, 1.5]}
       >
-        <fog attach="fog" args={["#030014", 5, 20]} />
-        <LiquidSilkWave />
+        <color
+          attach="background"
+          args={["#02030d"]}
+        />
+
+        <fog
+          attach="fog"
+          args={["#02030d", 10, 30]}
+        />
+
+        <ambientLight intensity={0.4} />
+
+        <FloatingLights />
+
+        <AuroraGlow />
+
+        <GlassOrb />
+
+        <Environment preset="city" />
       </Canvas>
-      {/* Elegant vignette overlay to deepen the colors and focus the center */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#030014_100%)] opacity-90" />
+
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(circle at center, transparent 0%, rgba(2,3,13,.35) 60%, rgba(2,3,13,.95) 100%)",
+        }}
+      />
     </div>
   );
 }

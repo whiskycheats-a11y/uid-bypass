@@ -1,34 +1,12 @@
-import { useRef, useState, useEffect } from "react";
-import { AnimatePresence, motion, useScroll, useTransform, useInView, useMotionValue, useSpring } from "framer-motion";
+import { useRef, useState } from "react";
+import { AnimatePresence, motion, useMotionValue, useSpring } from "framer-motion";
 import {
   ArrowRight,
-  Cpu,
-  Eye,
-  EyeOff,
-  Fingerprint,
-  Gauge,
-  KeyRound,
-  Loader2,
   Lock,
-  Shield,
-  ShieldCheck,
-  Sparkles,
   User,
-  Globe,
-  Terminal,
-  Coins,
-  ArrowUpRight,
-  HelpCircle,
-  Check,
-  X,
-  Zap,
-  Gift,
-  Copy,
-  RefreshCw,
-  Timer,
+  Fingerprint,
+  Loader2
 } from "lucide-react";
-import heroShield from "@assets/hero_3d_shield.png";
-import { CustomCursor } from "@/components/CustomCursor";
 import { WaterWaveBackground } from "@/components/WaterWaveBackground";
 import { Turnstile } from "@marsidev/react-turnstile";
 
@@ -38,104 +16,12 @@ interface LoginProps {
 
 const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
-/* ─── Staggered Word Reveal Component ─── */
-function WordReveal({
-  text,
-  className = "",
-  delay = 0,
-  once = true,
-}: {
-  text: string;
-  className?: string;
-  delay?: number;
-  once?: boolean;
-}) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once, margin: "-80px" });
-  const words = text.split(" ");
-
-  return (
-    <span ref={ref} className={className}>
-      {words.map((word, i) => (
-        <motion.span
-          key={i}
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{
-            duration: 0.6,
-            delay: delay + i * 0.08,
-            ease: [0.25, 0.4, 0.25, 1],
-          }}
-          className="inline-block mr-[0.3em]"
-        >
-          {word}
-        </motion.span>
-      ))}
-    </span>
-  );
-}
-
-/* ─── Animated Counter Component ─── */
-function AnimatedCounter({
-  target,
-  suffix = "",
-  prefix = "",
-  duration = 2,
-}: {
-  target: number;
-  suffix?: string;
-  prefix?: string;
-  duration?: number;
-}) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (!isInView) return;
-    let startTime: number;
-    const step = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(eased * target));
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [isInView, target, duration]);
-
-  return (
-    <span ref={ref}>
-      {prefix}{count.toLocaleString()}{suffix}
-    </span>
-  );
-}
-
-/* ─── Scroll-Reveal Wrapper ─── */
-function ScrollReveal({
-  children,
-  delay = 0,
-  y = 60,
-  className = "",
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  y?: number;
-  className?: string;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
+function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) {
   return (
     <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y, filter: "blur(6px)" }}
-      animate={isInView ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
-      transition={{
-        duration: 0.8,
-        delay,
-        ease: [0.25, 0.4, 0.25, 1],
-      }}
+      initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
       {children}
@@ -143,117 +29,21 @@ function ScrollReveal({
   );
 }
 
-const statusCards = [
-  { icon: ShieldCheck, label: "Core Integrity", target: 99, suffix: ".98%", desc: "Cryptographic validation" },
-  { icon: Gauge, label: "Sync Latency", target: 8, suffix: " ms", desc: "Global edge replication" },
-  { icon: Cpu, label: "Active Nodes", target: 2840, suffix: "", desc: "Distributed proxy mesh" },
-];
-
-const features = [
-  {
-    icon: Shield,
-    title: "Cryptographic Authorization",
-    description: "Every whitelist entry is hashed via high-entropy key pairs, completely preventing database bypass vectors.",
-    badge: "Active",
-  },
-  {
-    icon: Globe,
-    title: "Ultra-Low Latency Sync",
-    description: "Changes push to all edge nodes globally in under 10ms, maintaining constant zero-lag protection.",
-    badge: "10ms",
-  },
-  {
-    icon: Terminal,
-    title: "Developer API Console",
-    description: "Integrate deep security hooks into your project with high-capacity WebSocket and REST interfaces.",
-    badge: "API",
-  },
-  {
-    icon: Coins,
-    title: "Token-Gated Automation",
-    description: "Create and manage license tokens with customized active days, reseller margins, and trial bounds.",
-    badge: "Smart",
-  },
-];
-
-const faqItems = [
-  {
-    question: "How does real-time sync safeguard connections?",
-    answer: "Our system performs an automated 8ms edge audit on every connection. Updates push globally in real-time, locking out unauthorized UIDs in milliseconds.",
-  },
-  {
-    question: "Is there dual-session sharing protection?",
-    answer: "Our engine performs constant concurrency audits. If a token is detected concurrently on separate endpoints, it triggers an instant block.",
-  },
-  {
-    question: "How do reseller trial periods function?",
-    answer: "Resellers configure trial limits, assign token balances, customize active durations, and monitor earnings directly from their modular dashboard.",
-  },
-];
-
 export default function Login({ onLogin }: LoginProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [shake, setShake] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-  const [showTrial, setShowTrial] = useState(false);
-  const [trialToken, setTrialToken] = useState("");
-  const [playerUid, setPlayerUid] = useState("");
-  const [bluestack, setBluestack] = useState(true);
-  const [claimSuccess, setClaimSuccess] = useState(false);
-  const [claimDays, setClaimDays] = useState(0);
+  const [turnstileToken, setTurnstileToken] = useState("");
+
   const tiltX = useMotionValue(0);
   const tiltY = useMotionValue(0);
-  const rotateX = useSpring(tiltX, { stiffness: 300, damping: 20 });
-  const rotateY = useSpring(tiltY, { stiffness: 300, damping: 20 });
-  const [isYearly, setIsYearly] = useState(true);
-  const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
-  const [headerBlur, setHeaderBlur] = useState(false);
-  const [turnstileToken, setTurnstileToken] = useState("");
+  const rotateX = useSpring(tiltX, { stiffness: 400, damping: 30 });
+  const rotateY = useSpring(tiltY, { stiffness: 400, damping: 30 });
   
   const cardRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLElement>(null);
-  const mainRef = useRef<HTMLDivElement>(null);
-
-  // Scroll-driven parallax
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const shieldY = useTransform(scrollYProgress, [0, 1], [0, 150]);
-  const shieldScale = useTransform(scrollYProgress, [0, 1], [1, 0.8]);
-  const heroTextY = useTransform(scrollYProgress, [0, 1], [0, -60]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-
-  // Header blur
-  useEffect(() => {
-    const handler = () => setHeaderBlur(window.scrollY > 60);
-    window.addEventListener("scroll", handler, { passive: true });
-    return () => window.removeEventListener("scroll", handler);
-  }, []);
-
-  // Terminal feed
-  useEffect(() => {
-    if (showLogin) return;
-    setTerminalLogs([
-      "SYSTEM // Initializing secure kernel sync...",
-      "SECURITY // Dynamic handshakes initialized.",
-      "CLUSTERS // Listening for auth packets...",
-      "DATABASE // Cryptographic store loaded.",
-    ]);
-    const interval = setInterval(() => {
-      const uids = ["104829", "992810", "304829", "884021", "229104"];
-      const locs = ["NODE_US_EAST", "NODE_EU_WEST", "NODE_AP_SOUTH"];
-      const uid = uids[Math.floor(Math.random() * uids.length)];
-      const loc = locs[Math.floor(Math.random() * locs.length)];
-      const time = new Date().toLocaleTimeString();
-      setTerminalLogs((prev) => [...prev.slice(-5), `[${time}] ${loc} // UID #${uid} validated (8ms)`]);
-    }, 4500);
-    return () => clearInterval(interval);
-  }, [showLogin]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = cardRef.current;
@@ -261,8 +51,8 @@ export default function Login({ onLogin }: LoginProps) {
     const rect = el.getBoundingClientRect();
     const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
     const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
-    tiltX.set(dy * -8);
-    tiltY.set(dx * 8);
+    tiltX.set(dy * -4); 
+    tiltY.set(dx * 4);
   };
   const handleMouseLeave = () => {
     tiltX.set(0);
@@ -272,621 +62,181 @@ export default function Login({ onLogin }: LoginProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    // Block if Turnstile not completed
     if (!turnstileToken) {
-      setError("Please complete the Cloudflare security check first.");
+      setError("Verification required.");
       setShake(true);
       setTimeout(() => setShake(false), 600);
       return;
     }
-
     setLoading(true);
     try {
       const res = await fetch(`${BASE}/api/auth/login`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, turnstileToken, t: Date.now() }),
+        body: JSON.stringify({ username, password, turnstileToken }),
       });
       const raw = await res.text();
-
-      let data: any = null;
-      try {
-        data = raw ? JSON.parse(raw) : null;
-      } catch {
-        throw new Error("Invalid server response.");
-      }
-      if (!res.ok) throw new Error(data?.message ?? data?.error ?? "Login failed.");
+      const data = raw ? JSON.parse(raw) : null;
+      if (!res.ok) throw new Error(data?.message || "Authentication failed");
       if (data.success) {
-        // ── ANTI-MITM: Verify that the server ACTUALLY created a session ──
-        // A MITM proxy can fake the login JSON response, but it CANNOT
-        // set a valid HttpOnly auth_token cookie in the browser's cookie jar.
-        // This verify call goes to the real server (or MITM), but without a
-        // real auth_token cookie, the server will reject it with 401.
-        const verifyRes = await fetch(`${BASE}/api/auth/verify-session`, {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: data.username, role: data.role }),
-        });
-        
-        if (!verifyRes.ok) {
-          throw new Error("Connection integrity check failed. Tampered or intercepted network detected. Login rejected.");
-        }
-        
-        const verifyData = await verifyRes.json();
-        if (!verifyData.success) {
-          throw new Error("Session verification failed. Your connection may be compromised. Login rejected.");
-        }
-
-        // ── Session verified by real server — safe to proceed ──
-        if (data.displayName) {
-          localStorage.setItem(`display_name_${data.username}`, data.displayName);
-        }
-        if (data.avatar) {
-          localStorage.setItem(`avatar_${data.username}`, data.avatar);
-        }
-        sessionStorage.setItem(
-          "uid_auth",
-          JSON.stringify({
-            role: data.role,
-            username: data.username,
-            defaultDays: data.defaultDays ?? 30,
-            isTrial: data.isTrial ?? false,
-            canResell: data.canResell ?? false,
-          })
-        );
+        sessionStorage.setItem("uid_auth", JSON.stringify({ role: data.role, username: data.username, defaultDays: data.defaultDays ?? 30 }));
         onLogin(data.role, data.username);
       } else {
-        throw new Error(data.message ?? data.error ?? "Invalid credentials.");
+        throw new Error("Invalid credentials");
       }
     } catch (err: any) {
       setLoading(false);
-      setError(err.message || "Authorization failed.");
+      setError(err.message || "Connection refused.");
       setShake(true);
       setTimeout(() => setShake(false), 600);
-    }
-  };
-
-  const handleClaimTrial = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!trialToken.trim()) {
-      setError("Please enter a Trial Token.");
-      return;
-    }
-    if (!playerUid.trim()) {
-      setError("Please enter your Player UID.");
-      return;
-    }
-    setError("");
-    setLoading(true);
-    try {
-      const res = await fetch(`${BASE}/api/uid/free-whitelist`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: trialToken.trim(), uid: playerUid.trim(), bluestack, turnstileToken }),
-      });
-      const raw = await res.text();
-      let data: any = null;
-      try {
-        data = raw ? JSON.parse(raw) : null;
-      } catch {
-        throw new Error("Invalid server response.");
-      }
-      if (data.success) {
-        setClaimSuccess(true);
-        setClaimDays(data.days || 1);
-      } else {
-        if (data.message === "TRIAL_IP_LIMIT_REACHED") {
-          throw new Error("IP Limit Reached! Your device/IP has already whitelisted a free trial. Only 1 free trial is allowed per IP.");
-        } else if (data.message === "TOKEN_ALREADY_USED") {
-          throw new Error("This trial token was already consumed.");
-        } else if (data.message === "TOKEN_EXPIRED") {
-          throw new Error("This trial token has expired.");
-        } else if (data.message === "UID_ALREADY_WHITELISTED") {
-          throw new Error("This UID is already active in the system.");
-        } else if (data.message === "INVALID_TOKEN") {
-          throw new Error("The trial token you entered is invalid.");
-        } else {
-          throw new Error(data.message || "Activation failed. Please contact your reseller.");
-        }
-      }
-    } catch (err: any) {
-      setError(err.message || "Failed to claim free trial.");
-      setShake(true);
-      setTimeout(() => setShake(false), 600);
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
-    <div ref={mainRef} className="min-h-screen relative flex flex-col font-sans overflow-x-hidden selection:bg-violet-500/30 selection:text-white bg-transparent">
+    <div className="min-h-screen relative flex flex-col font-sans overflow-x-hidden selection:bg-white/20 selection:text-white bg-[#02030d] text-white">
       <WaterWaveBackground />
 
-      {/* ── Fixed Navigation ── */}
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          headerBlur ? "border-b border-white/[0.05] bg-black/20 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.5)]" : "border-transparent bg-transparent"
-        }`}
-      >
-        <div className="mx-auto flex h-24 w-full max-w-7xl items-center justify-between px-6 sm:px-10">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7 }}
-            className="flex items-center gap-3 cursor-pointer group"
-          >
-            <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 via-indigo-500 to-purple-600 shadow-[0_0_30px_rgba(124,58,237,0.3)] group-hover:shadow-[0_0_40px_rgba(0,212,255,0.4)] transition-all">
-              <Shield className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <p className="text-base font-black tracking-wider text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">UID BYPASS</p>
-              <p className="text-[9px] font-black uppercase tracking-[0.25em] text-cyan-400/80">ACCESS PROTOCOL</p>
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7 }}
-            className="flex items-center gap-6"
-          >
-            <div className="hidden items-center gap-2.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.15)] backdrop-blur-md sm:flex transition-all hover:bg-emerald-500/20 hover:border-emerald-500/50 cursor-default">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_10px_#10b981]"></span>
-              </span>
-              Network Live
-            </div>
-            <button
-              onClick={() => { setError(""); setTrialToken(""); setPlayerUid(""); setClaimSuccess(false); setUsername(""); setPassword(""); setShowLogin(!showLogin); }}
-              className="relative overflow-hidden group flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-8 py-2.5 text-[10px] font-black uppercase tracking-[0.25em] text-white hover:bg-white/[0.1] hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(0,212,255,0.4)] hover:text-cyan-100 active:scale-95 transition-all duration-300 cursor-pointer backdrop-blur-xl"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700 ease-in-out" />
-              <span className="relative z-10">{showLogin ? "← Return" : "Portal"}</span>
-            </button>
-          </motion.div>
-        </div>
+      <header className="fixed top-0 left-0 right-0 z-50 py-8 px-8 sm:px-16 flex items-center justify-between pointer-events-none">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="flex items-center gap-4">
+          <div className="h-8 w-8 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-md">
+            <div className="h-2 w-2 rounded-full bg-white" />
+          </div>
+          <span className="text-xs font-semibold tracking-widest uppercase">Nexus</span>
+        </motion.div>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="pointer-events-auto">
+          <button onClick={() => setShowLogin(!showLogin)} className="text-[11px] font-semibold tracking-widest uppercase hover:text-white/70 transition-colors">
+            {showLogin ? "Back to overview" : "Sign In"}
+          </button>
+        </motion.div>
       </header>
 
-      {/* ── Main ── */}
-      <main className="flex-grow pt-24 z-10 relative">
+      <main className="flex-grow flex items-center justify-center relative z-10 px-6">
         <AnimatePresence mode="wait">
           {!showLogin ? (
             <motion.div
               key="landing"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0, filter: "blur(10px)", scale: 0.95 }}
-              transition={{ duration: 0.5 }}
-              className="w-full"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="text-center max-w-4xl mx-auto mt-20"
             >
-              {/* ═══════ HERO ═══════ */}
-              <section ref={heroRef} className="relative w-full max-w-7xl mx-auto px-6 sm:px-10 py-24 sm:py-32 flex flex-col items-center justify-center min-h-[90vh] text-center">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full pointer-events-none opacity-50 sm:opacity-100 hidden sm:block -z-10">
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/20 rounded-full blur-[100px]" />
+              <FadeIn delay={0.1}>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-2xl mb-8">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                  </span>
+                  <span className="text-[10px] uppercase tracking-widest font-medium text-white/70">System Operational</span>
                 </div>
+              </FadeIn>
+              
+              <FadeIn delay={0.2}>
+                <h1 className="text-5xl sm:text-7xl lg:text-[7rem] font-medium tracking-tight leading-[1.05] mb-8">
+                  Unified <span className="text-white/40">Access.</span><br />
+                  Infinite <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-violet-400">Scale.</span>
+                </h1>
+              </FadeIn>
 
-                <motion.div style={{ y: heroTextY, opacity: heroOpacity }} className="w-full max-w-4xl space-y-8 z-20 flex flex-col items-center relative">
-                  
-                  <div className="flex justify-center">
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
-                      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                      transition={{ duration: 0.8, delay: 0.1, type: "spring", stiffness: 200 }}
-                      className="inline-flex items-center gap-3 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-6 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-300 shadow-[0_0_30px_rgba(0,212,255,0.2)] backdrop-blur-md relative overflow-hidden"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-[200%] animate-[shimmer-pass_3s_infinite]" />
-                      <Sparkles className="h-4 w-4 text-cyan-400" />
-                      NEXT-GEN AUTHORIZATION
-                    </motion.div>
+              <FadeIn delay={0.3}>
+                <p className="text-lg text-white/50 max-w-2xl mx-auto font-light leading-relaxed mb-12">
+                  Experience the next generation of cryptographic authorization. Instantly distribute secure sessions across a global edge network with zero latency.
+                </p>
+              </FadeIn>
+
+              <FadeIn delay={0.4}>
+                <button
+                  onClick={() => setShowLogin(true)}
+                  className="group relative inline-flex items-center gap-4 bg-white text-black px-8 py-4 rounded-full text-xs font-semibold uppercase tracking-widest hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.2)] cursor-pointer"
+                >
+                  Enter Portal
+                  <div className="h-8 w-8 rounded-full bg-black/10 flex items-center justify-center group-hover:bg-black/20 transition-colors">
+                    <ArrowRight className="h-4 w-4" />
                   </div>
-
-                  <div className="relative">
-                    <div className="absolute -inset-x-10 -inset-y-10 bg-violet-600/20 blur-[80px] rounded-full pointer-events-none -z-10" />
-                    <h1 className="text-5xl sm:text-[7rem] font-black tracking-tighter text-white leading-[1] drop-shadow-2xl text-center">
-                      <span className="bg-gradient-to-br from-white via-cyan-100 to-cyan-500 bg-clip-text text-transparent block filter drop-shadow-[0_0_20px_rgba(34,211,238,0.3)]">
-                        <WordReveal text="UID BYPASS" delay={0.2} />
-                      </span>
-                    </h1>
-                  </div>
-
-                  <motion.p
-                    initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    transition={{ duration: 0.8, delay: 0.9, type: "spring" }}
-                    className="text-slate-300/80 text-lg sm:text-xl max-w-2xl leading-relaxed font-medium mx-auto text-center relative z-10"
-                  >
-                    Unbreakable kernel-level bridging with zero-lag edge synchronization. The ultimate unified command center for resellers.
-                  </motion.p>
-
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 1.1, type: "spring" }}
-                    className="flex flex-wrap items-center justify-center gap-5 pt-8 relative z-20"
-                  >
-                    <motion.button
-                      whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(0, 212, 255, 0.4)" }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => { setError(""); setTrialToken(""); setPlayerUid(""); setClaimSuccess(false); setUsername(""); setPassword(""); setShowLogin(true); }}
-                      className="argus-btn flex items-center gap-3 rounded-2xl text-white font-black text-xs tracking-[0.25em] uppercase px-10 py-5 cursor-pointer shadow-[0_15px_30px_rgba(0,0,0,0.4)] relative"
-                    >
-                      <Lock className="h-4 w-4 relative z-10" /> <span className="relative z-10">Access Terminal</span>
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)", borderColor: "rgba(255,255,255,0.3)" }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
-                      className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] text-white font-black text-xs tracking-[0.2em] uppercase px-10 py-5 cursor-pointer backdrop-blur-xl transition-all shadow-[0_15px_30px_rgba(0,0,0,0.3)] relative"
-                    >
-                      <Terminal className="h-4 w-4 relative z-10" /> <span className="relative z-10">View Protocols</span>
-                    </motion.button>
-                  </motion.div>
-                </motion.div>
-              </section>
-
-              {/* ═══════ LIVE STATS ═══════ */}
-              <section className="w-full border-y border-white/[0.05] py-16 bg-white/[0.02] backdrop-blur-md relative">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-900/10 to-transparent pointer-events-none" />
-                <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 grid sm:grid-cols-3 gap-6">
-                  {statusCards.map((card, idx) => (
-                    <ScrollReveal key={card.label} delay={idx * 0.12} y={40}>
-                      <motion.div
-                        whileHover={{ y: -8, scale: 1.02 }}
-                        transition={{ duration: 0.4 }}
-                        className="argus-glass p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] flex flex-col justify-between min-h-[140px] relative overflow-hidden group cursor-default"
-                      >
-                        {/* Scanline Effect */}
-                        <div className="scanline" />
-                        
-                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-400/[0.05] rounded-full blur-[30px] group-hover:bg-cyan-400/[0.1] transition-all duration-700" />
-                        
-                        <div className="flex items-center gap-4 relative z-10">
-                          <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 text-cyan-400 shadow-[0_0_15px_rgba(0,212,255,0.1)] group-hover:shadow-[0_0_25px_rgba(0,212,255,0.25)] group-hover:border-cyan-500/30 transition-all">
-                            <card.icon className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <p className="text-[9px] font-black text-slate-400/80 uppercase tracking-[0.25em]">{card.label}</p>
-                            <p className="text-[11px] font-bold text-slate-500">{card.desc}</p>
-                          </div>
-                        </div>
-                        <div className="mt-6 flex items-baseline justify-between relative z-10">
-                          <span className="text-4xl font-black text-white tracking-tighter drop-shadow-[0_2px_10px_rgba(255,255,255,0.2)]">
-                            <AnimatedCounter target={card.target} suffix={card.suffix} />
-                          </span>
-                          <span className="text-[9px] font-black tracking-[0.2em] text-emerald-400 flex items-center gap-1.5 uppercase bg-emerald-950/30 px-2.5 py-1 rounded-full border border-emerald-500/20">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
-                            Operational
-                          </span>
-                        </div>
-                      </motion.div>
-                    </ScrollReveal>
-                  ))}
-                </div>
-              </section>
-
-              {/* ═══════ FEATURES ═══════ */}
-              <section className="w-full max-w-7xl mx-auto px-6 sm:px-10 py-28 sm:py-36 space-y-20 relative">
-                <div className="text-center max-w-2xl mx-auto space-y-6">
-                  <ScrollReveal y={30}>
-                    <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-violet-400 drop-shadow-[0_0_10px_rgba(124,58,237,0.5)]">Advanced Protocol</h2>
-                  </ScrollReveal>
-                  <ScrollReveal y={30} delay={0.1}>
-                    <p className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-[1.1]">
-                      <WordReveal text="Military-grade encryption for global distribution." />
-                    </p>
-                  </ScrollReveal>
-                  <ScrollReveal y={20} delay={0.2}>
-                    <div className="h-[2px] w-16 bg-gradient-to-r from-cyan-400 to-violet-500 mx-auto rounded-full shadow-[0_0_10px_rgba(124,58,237,0.5)]" />
-                  </ScrollReveal>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-8">
-                  {features.map((feature, idx) => (
-                    <ScrollReveal key={feature.title} delay={idx * 0.1} y={50}>
-                      <motion.div
-                        className="w-full sm:w-[420px] mx-auto perspective-1000 argus-glass p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] flex flex-col justify-between group h-full cursor-default"
-                      >
-                        <div className="space-y-6">
-                          <div className="flex items-center justify-between">
-                            <div className="relative">
-                              <div className="absolute inset-0 bg-cyan-400/20 blur-[20px] rounded-full group-hover:bg-cyan-400/40 transition-all duration-500" />
-                              <motion.div
-                                whileHover={{ scale: 1.1, rotate: 5 }}
-                                className="relative p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 text-cyan-400 shadow-[0_8px_32px_rgba(0,212,255,0.1)] group-hover:border-cyan-500/30 transition-all"
-                              >
-                                <feature.icon className="h-6 w-6" />
-                              </motion.div>
-                            </div>
-                            <span className="text-[9px] font-black tracking-[0.2em] text-slate-400/90 uppercase px-3 py-1 rounded-full border border-white/5 bg-white/[0.02]">
-                              {feature.badge}
-                            </span>
-                          </div>
-                          <h3 className="text-xl font-black text-white tracking-tight">{feature.title}</h3>
-                          <p className="text-sm leading-relaxed text-slate-400 font-medium">{feature.description}</p>
-                        </div>
-                        <div className="pt-8 flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.1em] text-violet-400 group-hover:text-cyan-400 transition-colors">
-                          Technical Docs <ArrowUpRight className="h-4 w-4" />
-                        </div>
-                      </motion.div>
-                    </ScrollReveal>
-                  ))}
-                </div>
-              </section>
-
-              {/* ═══════ LIVE CONSOLE ═══════ */}
-              <section className="w-full max-w-5xl mx-auto px-6 sm:px-10 py-10 relative">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-[800px] bg-violet-600/10 blur-[120px] rounded-full pointer-events-none" />
-                <ScrollReveal y={40}>
-                  <div className="argus-glass-panel rounded-3xl p-8 shadow-[0_30px_80px_rgba(0,0,0,0.8)] border border-violet-500/20 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-violet-500/50 to-transparent opacity-50" />
-                    <div className="absolute top-0 right-0 p-5 flex gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-white/10" />
-                      <span className="w-2.5 h-2.5 rounded-full bg-white/10" />
-                      <span className="w-2.5 h-2.5 rounded-full bg-white/10" />
-                    </div>
-                    <div className="flex items-center gap-3 text-[10px] font-black text-cyan-400 tracking-[0.3em] uppercase mb-6">
-                      <Terminal className="h-4 w-4" /> Root Access Stream
-                    </div>
-                    <div className="font-mono text-[13px] text-slate-400 space-y-2.5 max-h-[180px] overflow-y-auto pr-4 scrollbar-none leading-relaxed">
-                      {terminalLogs.map((log, i) => (
-                         <motion.div
-                         key={i}
-                         initial={{ opacity: 0, x: -10 }}
-                         animate={{ opacity: 1, x: 0 }}
-                         transition={{ duration: 0.3 }}
-                         className={log.includes("validated") ? "text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]" : log.includes("SECURITY") ? "text-violet-400" : "text-slate-500"}
-                       >
-                         {log}
-                       </motion.div>
-                     ))}
-                   </div>
-                 </div>
-               </ScrollReveal>
-             </section>
-
-             {/* ═══════ PRICING ═══════ */}
-             <section id="pricing" className="w-full max-w-7xl mx-auto px-6 sm:px-10 py-28 sm:py-36 space-y-20 relative">
-               <div className="text-center max-w-2xl mx-auto space-y-8 relative z-10">
-                 <ScrollReveal y={25}>
-                   <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-violet-400">Licensing Model</h2>
-                 </ScrollReveal>
-                 <ScrollReveal y={25} delay={0.1}>
-                   <p className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-[1.1]">
-                     <WordReveal text="Procure global network access" />
-                   </p>
-                 </ScrollReveal>
-                 <ScrollReveal y={20} delay={0.2}>
-                   <div className="inline-flex items-center gap-2 argus-glass p-1.5 rounded-2xl relative shadow-2xl">
-                     <button
-                       onClick={() => setIsYearly(false)}
-                       className={`px-6 py-2.5 text-[11px] font-black rounded-xl uppercase tracking-[0.2em] transition-all duration-300 cursor-pointer ${!isYearly ? "bg-white/10 text-white shadow-[0_4px_15px_rgba(0,0,0,0.3)] border border-white/10" : "text-slate-400 hover:text-white bg-transparent border border-transparent"}`}
-                     >
-                       Monthly
-                     </button>
-                     <button
-                       onClick={() => setIsYearly(true)}
-                       className={`px-6 py-2.5 text-[11px] font-black rounded-xl uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-2 cursor-pointer ${isYearly ? "bg-white/10 text-white shadow-[0_4px_15px_rgba(0,0,0,0.3)] border border-white/10" : "text-slate-400 hover:text-white bg-transparent border border-transparent"}`}
-                     >
-                       Yearly <span className="bg-emerald-500/20 text-[9px] text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-black shadow-[0_0_10px_rgba(16,185,129,0.2)]">-20%</span>
-                     </button>
-                   </div>
-                 </ScrollReveal>
-               </div>
-
-               <div className="grid md:grid-cols-3 gap-8 items-stretch relative z-10">
-                 {[
-                   { name: "Starter Node", desc: "Single app development.", price: [15, 12], features: ["max 250 active UIDs", "standard sync (~150ms)", "basic Webhooks"], excluded: ["reseller panels"], btn: "Provision Basic", featured: false },
-                   { name: "Professional", desc: "High-traffic distributions.", price: [39, 31], features: ["unlimited UIDs", "edge sync (<10ms)", "full Reseller Panel", "WebSocket hooks", "24/7 priority SLAs"], excluded: [], btn: "Provision Pro", featured: true },
-                   { name: "Enterprise", desc: "Custom DB pipelines.", price: [99, 79], features: ["dedicated nodes", "white-label panels", "secure DB links", "100% latency SLA"], excluded: [], btn: "Request Build", featured: false },
-                 ].map((plan, idx) => (
-                   <ScrollReveal key={plan.name} delay={idx * 0.12} y={50}>
-                     <motion.div
-                       whileHover={{ y: -10 }}
-                       transition={{ duration: 0.4 }}
-                       className={`p-6 sm:p-10 rounded-3xl sm:rounded-[2.5rem] flex flex-col justify-between h-full transition-all duration-300 relative overflow-hidden ${
-                         plan.featured
-                           ? "argus-glass border border-violet-500/40 shadow-[0_30px_60px_rgba(124,58,237,0.15)] bg-gradient-to-b from-violet-900/20 to-transparent"
-                           : "argus-glass hover:border-white/20"
-                       }`}
-                     >
-                       {plan.featured && (
-                         <>
-                           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500" />
-                           <div className="absolute top-6 right-6 bg-violet-500/10 border border-violet-500/30 text-[9px] font-black text-violet-300 uppercase tracking-[0.25em] px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(124,58,237,0.2)] animate-pulse">
-                             RECOMMENDED
-                           </div>
-                         </>
-                       )}
-                       <div className={`space-y-8 ${plan.featured ? "mt-4" : ""}`}>
-                         <div className="space-y-3 text-left">
-                           <h3 className="text-[13px] font-black text-white uppercase tracking-[0.25em]">{plan.name}</h3>
-                           <p className="text-xs text-slate-400 font-semibold">{plan.desc}</p>
-                         </div>
-                         <div className="flex items-baseline gap-1.5">
-                           <motion.span
-                             key={isYearly ? "y" : "m"}
-                             initial={{ opacity: 0, y: -10, filter: "blur(5px)" }}
-                             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                             transition={{ duration: 0.3 }}
-                             className="text-5xl font-black text-white tracking-tighter"
-                           >
-                             ${isYearly ? plan.price[1] : plan.price[0]}
-                           </motion.span>
-                           <span className="text-[10px] text-slate-500 uppercase font-black tracking-[0.1em]">/ mo</span>
-                         </div>
-                         <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent w-full" />
-                         <ul className="space-y-4 text-xs text-slate-300 font-bold text-left">
-                           {plan.features.map((f) => (
-                             <li key={f} className="flex items-center gap-3">
-                               <Check className={`h-4 w-4 flex-shrink-0 ${plan.featured ? "text-violet-400 drop-shadow-[0_0_5px_rgba(124,58,237,0.5)]" : "text-cyan-400"}`} /> {f}
-                             </li>
-                           ))}
-                           {plan.excluded.map((f) => (
-                             <li key={f} className="flex items-center gap-3 text-slate-600">
-                               <X className="h-4 w-4 text-slate-700 flex-shrink-0" /> {f}
-                             </li>
-                           ))}
-                         </ul>
-                       </div>
-                       <motion.button
-                         whileHover={{ scale: 1.02 }}
-                         whileTap={{ scale: 0.98 }}
-                         onClick={() => setShowLogin(true)}
-                         className={`w-full py-4 text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl mt-10 cursor-pointer transition-all ${
-                           plan.featured
-                             ? "argus-btn"
-                             : "border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] text-white"
-                         }`}
-                       >
-                         {plan.btn}
-                       </motion.button>
-                     </motion.div>
-                   </ScrollReveal>
-                 ))}
-               </div>
-             </section>
-
-             {/* ═══════ FAQ ═══════ */}
-             <section className="w-full bg-black/40 backdrop-blur-xl border-t border-white/[0.05] py-28 sm:py-36 relative">
-               <div className="absolute inset-0 bg-gradient-to-t from-transparent via-cyan-900/10 to-transparent pointer-events-none" />
-               <div className="w-full max-w-4xl mx-auto px-6 sm:px-10 space-y-16 relative z-10">
-                 <div className="text-center space-y-6">
-                   <ScrollReveal y={20}>
-                     <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-cyan-400 drop-shadow-[0_0_10px_rgba(0,212,255,0.4)]">Support Database</h2>
-                   </ScrollReveal>
-                   <ScrollReveal y={20} delay={0.08}>
-                     <p className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-                       <WordReveal text="Frequently queried protocols" />
-                     </p>
-                   </ScrollReveal>
-                   <ScrollReveal y={15} delay={0.15}>
-                     <div className="h-[2px] w-12 bg-cyan-400 mx-auto rounded-full shadow-[0_0_10px_rgba(0,212,255,0.5)]" />
-                   </ScrollReveal>
-                 </div>
-                 <div className="space-y-6">
-                   {faqItems.map((item, i) => (
-                     <ScrollReveal key={i} delay={i * 0.1} y={30}>
-                       <div className="argus-glass p-5 sm:p-8 rounded-2xl sm:rounded-3xl text-left hover:border-cyan-500/30 transition-colors duration-300">
-                         <h3 className="text-base font-bold text-white flex items-center gap-3">
-                           <HelpCircle className="h-5 w-5 text-cyan-400 flex-shrink-0 drop-shadow-[0_0_8px_rgba(0,212,255,0.4)]" />
-                           {item.question}
-                         </h3>
-                         <p className="text-sm leading-relaxed text-slate-400 font-medium pl-8 mt-3">{item.answer}</p>
-                       </div>
-                     </ScrollReveal>
-                   ))}
-                 </div>
-               </div>
-             </section>
+                </button>
+              </FadeIn>
             </motion.div>
           ) : (
-            /* ═══════ LOGIN PORTAL ═══════ */
             <motion.div
               key="login"
-              initial={{ opacity: 0, y: 30, scale: 0.95, filter: "blur(10px)" }}
-              animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, scale: 0.95, filter: "blur(10px)" }}
-              transition={{ duration: 0.6, type: "spring", stiffness: 100, damping: 20 }}
-              className="w-full max-w-[480px] mx-auto px-6 py-20 sm:py-32 relative z-20"
-              style={{ perspective: "1200px" }}
+              initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -40, filter: "blur(10px)" }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full max-w-[440px] perspective-1000 mt-10"
             >
-             <div onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} className="w-full">
-               <motion.div
-                 ref={cardRef}
-                 animate={shake ? { x: [-12, 12, -8, 8, -4, 4, 0] } : {}}
-                 style={{ rotateX, rotateY, transformStyle: "preserve-3d", transition: shake ? undefined : "transform 0.3s ease-out" }}
-                 transition={{ duration: 0.45 }}
-                 className="argus-glass shadow-[0_40px_100px_rgba(0,0,0,0.8)] rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-10 relative overflow-hidden"
-               >
-                 <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-cyan-500/5 opacity-60 pointer-events-none" />
-                 
-                 <div className="flex items-center gap-5 relative z-10 mb-10">
-                   <div className="h-16 w-16 flex items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-indigo-500 to-purple-600 text-white shadow-[0_15px_30px_rgba(124,58,237,0.3)]">
-                     <Fingerprint className="h-7 w-7" />
-                   </div>
-                   <div>
-                     <p className="text-[9px] font-black uppercase tracking-[0.3em] text-cyan-400 drop-shadow-[0_0_8px_rgba(0,212,255,0.4)] mb-1">Secure Node</p>
-                     <h2 className="text-3xl font-black text-white tracking-tight">Access Portal</h2>
-                   </div>
-                 </div>
+              <div onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+                <motion.div
+                  ref={cardRef}
+                  animate={shake ? { x: [-10, 10, -8, 8, -5, 5, 0] } : {}}
+                  style={{ rotateX, rotateY, transformStyle: "preserve-3d", transition: shake ? undefined : "transform 0.2s ease-out" }}
+                  className="bg-white/[0.02] border border-white/5 backdrop-blur-[40px] p-10 rounded-[2.5rem] shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
+                >
+                  <div className="flex flex-col items-center text-center mb-10">
+                    <div className="h-16 w-16 rounded-3xl border border-white/10 bg-white/5 flex items-center justify-center mb-6 shadow-2xl">
+                      <Fingerprint className="h-7 w-7 text-white/80" strokeWidth={1.5} />
+                    </div>
+                    <h2 className="text-2xl font-medium tracking-tight mb-2">Authentication</h2>
+                    <p className="text-xs text-white/40 tracking-widest uppercase">Verify your identity</p>
+                  </div>
 
-                 <form onSubmit={handleSubmit} className="space-y-6 relative z-10 text-left">
-                   <div className="space-y-2.5">
-                     <label className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400/80 ml-1">Username</label>
-                     <div className="flex items-center gap-3 border border-white/10 bg-black/40 backdrop-blur-md rounded-2xl px-5 py-4 focus-within:border-violet-500/50 focus-within:shadow-[0_0_20px_rgba(124,58,237,0.2)] transition-all">
-                       <User className="h-4.5 w-4.5 text-slate-500" />
-                       <input type="text" value={username} onChange={(e) => { setUsername(e.target.value); if (error) setError(""); }} placeholder="Enter operator ID" className="bg-transparent border-0 outline-0 text-white placeholder-slate-600 text-sm w-full font-bold" autoComplete="username" />
-                     </div>
-                   </div>
-                   <div className="space-y-2.5">
-                     <label className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400/80 ml-1">Password</label>
-                     <div className="flex items-center gap-3 border border-white/10 bg-black/40 backdrop-blur-md rounded-2xl px-5 py-4 focus-within:border-cyan-500/50 focus-within:shadow-[0_0_20px_rgba(0,212,255,0.2)] transition-all">
-                       <Lock className="h-4.5 w-4.5 text-slate-500" />
-                       <input type={showPass ? "text" : "password"} value={password} onChange={(e) => { setPassword(e.target.value); if (error) setError(""); }} placeholder="Enter secure key" className="bg-transparent border-0 outline-0 text-white placeholder-slate-600 text-sm w-full font-bold" autoComplete="current-password" />
-                       <button type="button" onClick={() => setShowPass(!showPass)} className="text-slate-500 hover:text-white cursor-pointer transition-colors p-1">
-                         {showPass ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
-                       </button>
-                     </div>
-                   </div>
-                   
-                   <AnimatePresence>
-                     {error && (
-                       <motion.div initial={{ opacity: 0, y: -10, height: 0 }} animate={{ opacity: 1, y: 0, height: "auto" }} exit={{ opacity: 0, y: -10, height: 0 }} className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-xs font-bold text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.15)] backdrop-blur-md">
-                         {error}
-                       </motion.div>
-                     )}
-                   </AnimatePresence>
+                  <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
+                    <div>
+                      <div className="relative flex items-center">
+                        <User className="absolute left-4 h-4 w-4 text-white/30" />
+                        <input
+                          type="text"
+                          value={username}
+                          onChange={(e) => { setUsername(e.target.value); setError(""); }}
+                          placeholder="Operator ID"
+                          className="w-full bg-black/20 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/20 focus:bg-white/5 transition-all"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="relative flex items-center">
+                        <Lock className="absolute left-4 h-4 w-4 text-white/30" />
+                        <input
+                          type="password"
+                          value={password}
+                          onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                          placeholder="Passphrase"
+                          className="w-full bg-black/20 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/20 focus:bg-white/5 transition-all"
+                        />
+                      </div>
+                    </div>
 
-                   <div className="flex justify-center py-2">
-                     <Turnstile
-                       siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
-                       onSuccess={setTurnstileToken}
-                       options={{ theme: "dark" }}
-                     />
-                   </div>
-                   
-                   <motion.button type="submit" disabled={loading || !username || !password || !turnstileToken} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} className="argus-btn w-full h-14 rounded-2xl text-[11px] font-black uppercase tracking-[0.25em] mt-6 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3">
-                     <AnimatePresence mode="wait">
-                       {loading ? (
-                         <motion.span key="l" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> Verifying Hash...</motion.span>
-                       ) : (
-                         <motion.span key="i" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2"><KeyRound className="h-5 w-5" /> Establish Connection <ArrowRight className="h-4 w-4" /></motion.span>
-                       )}
-                     </AnimatePresence>
-                   </motion.button>
-                 </form>
-                 
-                 <div className="mt-10 flex items-center justify-between border-t border-white/10 pt-6 text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 relative z-10">
-                   <span className="flex items-center gap-2"><Zap className="h-4 w-4 text-cyan-400 drop-shadow-[0_0_5px_#00d4ff]" /> AES-256 Link</span>
-                   <button type="button" onClick={() => { setError(""); setShowLogin(false); }} className="text-violet-400 hover:text-violet-300 cursor-pointer transition-colors px-2 py-1">Abort</button>
-                 </div>
-               </motion.div>
-             </div>
-           </motion.div>
-         )}
-       </AnimatePresence>
-     </main>
+                    <AnimatePresence>
+                      {error && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-center text-red-400 text-xs font-medium tracking-wide pt-2">
+                          {error}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
-     {/* ── Footer ── */}
-     <footer className="w-full bg-black/20 backdrop-blur-xl border-t border-white/5 py-12 mt-auto z-10 relative">
-       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
-       <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-         <div className="flex items-center gap-3">
-           <div className="h-8 w-8 flex items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-violet-600 shadow-[0_0_15px_rgba(124,58,237,0.3)]">
-             <div className="h-4 w-4 bg-white rounded-full" />
-           </div>
-           <span className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400/80">UID BYPASS ZERO-TRUST &copy; 2026</span>
-         </div>
-         <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[9px] font-black text-slate-500 uppercase tracking-[0.25em]">
-           <a href="#" className="hover:text-cyan-400 transition-colors">Privacy Protocol</a>
-           <a href="#" className="hover:text-cyan-400 transition-colors">Terms of Use</a>
-           <a href="#" className="hover:text-cyan-400 transition-colors">Developer Docs</a>
-         </div>
-       </div>
-     </footer>
-   </div>
- );
+                    <div className="flex justify-center py-2 opacity-80 mix-blend-screen">
+                      <Turnstile
+                        siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+                        onSuccess={setTurnstileToken}
+                        options={{ theme: "dark", size: "flexible" }}
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading || !username || !password || !turnstileToken}
+                      className="cursor-pointer w-full bg-white text-black py-4 rounded-2xl text-xs font-semibold tracking-widest uppercase hover:bg-white/90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing</> : "Authenticate"}
+                    </button>
+                  </form>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
+    </div>
+  );
 }
