@@ -18,24 +18,38 @@ export function CustomCursor() {
   const ringY = useSpring(cursorY, springConfigRing);
 
   useEffect(() => {
+    // 🚀 PERFORMANCE BOOST: RAF throttle ensures we don't update state more than 60 times a second
+    let tickingPos = false;
     const updateMousePosition = (e: MouseEvent) => {
-      cursorX.set(e.clientX);
-      cursorY.set(e.clientY);
+      if (!tickingPos) {
+        requestAnimationFrame(() => {
+          cursorX.set(e.clientX);
+          cursorY.set(e.clientY);
+          tickingPos = false;
+        });
+        tickingPos = true;
+      }
     };
 
+    let tickingHover = false;
     const handleMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        target.tagName.toLowerCase() === "button" ||
-        target.tagName.toLowerCase() === "a" ||
-        target.tagName.toLowerCase() === "input" ||
-        target.closest("button") ||
-        target.closest("a") ||
-        target.closest(".cursor-pointer")
-      ) {
-        setIsHovering(true);
-      } else {
-        setIsHovering(false);
+      if (!tickingHover) {
+        requestAnimationFrame(() => {
+          const target = e.target as HTMLElement;
+          // 🚀 PERFORMANCE BOOST: Simplified closest check to reduce DOM traversal lag
+          if (
+            target.tagName === "BUTTON" ||
+            target.tagName === "A" ||
+            target.tagName === "INPUT" ||
+            target.closest("button, a, .cursor-pointer")
+          ) {
+            setIsHovering(true);
+          } else {
+            setIsHovering(false);
+          }
+          tickingHover = false;
+        });
+        tickingHover = true;
       }
     };
 
@@ -56,7 +70,8 @@ export function CustomCursor() {
           x: dotX,
           y: dotY,
           translateX: "-50%",
-          translateY: "-50%"
+          translateY: "-50%",
+          willChange: "transform" // 🚀 PERFORMANCE BOOST: GPU Acceleration
         }}
         animate={{
           scale: isHovering ? 0 : 1,
@@ -69,7 +84,8 @@ export function CustomCursor() {
           x: ringX,
           y: ringY,
           translateX: "-50%",
-          translateY: "-50%"
+          translateY: "-50%",
+          willChange: "transform" // 🚀 PERFORMANCE BOOST: GPU Acceleration
         }}
         animate={{
           scale: isHovering ? 1.5 : 1,

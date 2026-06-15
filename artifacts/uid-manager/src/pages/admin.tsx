@@ -976,7 +976,13 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                 return (
                   <button
                     key={nav.id}
-                    onClick={() => { setActiveSidebarTab(nav.id); setMobileSidebarOpen(false); }}
+                    onClick={() => { 
+                      // 🚀 PERFORMANCE BOOST: Non-blocking tab switch
+                      import("react").then(({ startTransition }) => {
+                        startTransition(() => setActiveSidebarTab(nav.id));
+                      });
+                      setMobileSidebarOpen(false); 
+                    }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
                       ${active 
                         ? "bg-white/[0.05] border border-white/10 text-white shadow-lg relative" 
@@ -1039,7 +1045,11 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             return (
               <button
                 key={nav.id}
-                onClick={() => setActiveSidebarTab(nav.id)}
+                onClick={() => {
+                  import("react").then(({ startTransition }) => {
+                    startTransition(() => setActiveSidebarTab(nav.id));
+                  });
+                }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
                   ${active 
                     ? "bg-white/[0.05] border border-white/10 text-white shadow-lg relative" 
@@ -1300,7 +1310,11 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           return (
             <button
               key={nav.id}
-              onClick={() => setActiveSidebarTab(nav.id)}
+              onClick={() => {
+                import("react").then(({ startTransition }) => {
+                  startTransition(() => setActiveSidebarTab(nav.id));
+                });
+              }}
               className={`flex flex-col items-center gap-1 py-1 px-3.5 rounded-xl transition-all shrink-0 cursor-pointer ${
                 active 
                   ? "text-white/90 bg-white/[0.05]" 

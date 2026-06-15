@@ -139,15 +139,33 @@ export default function Login({ onLogin }: LoginProps) {
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handler = () => setHeaderBlur(window.scrollY > 60);
+    // 🚀 PERFORMANCE BOOST: Throttle scroll event to 60fps to prevent main thread blocking
+    let ticking = false;
+    const handler = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          setHeaderBlur(window.scrollY > 60);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
+  // 🚀 PERFORMANCE BOOST: Cache bounding rect to eliminate Layout Thrashing (forces reflow) on every mouse pixel movement
+  const rectCache = useRef<DOMRect | null>(null);
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = cardRef.current;
     if (!el) return;
-    const rect = el.getBoundingClientRect();
+    
+    if (!rectCache.current) {
+      rectCache.current = el.getBoundingClientRect();
+    }
+    const rect = rectCache.current;
+    
     const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
     const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
     tiltX.set(dy * -4); 
@@ -156,6 +174,7 @@ export default function Login({ onLogin }: LoginProps) {
   const handleMouseLeave = () => {
     tiltX.set(0);
     tiltY.set(0);
+    rectCache.current = null; // Reset cache on leave
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

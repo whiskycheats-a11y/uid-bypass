@@ -51,7 +51,7 @@ import {
   Terminal,
   Code2
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, startTransition } from "react";
 
 const DURATION_OPTIONS = [
   { label: "24 Hours", days: 1, price: "$0.50", tokens: 10 },
@@ -347,11 +347,19 @@ function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete:
 function TiltWrapper({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const raf = useRef<number | null>(null);
+  
+  // 🚀 PERFORMANCE BOOST: Cache bounding rect to eliminate Layout Thrashing on hover
+  const rectCache = useRef<DOMRect | null>(null);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = ref.current;
     if (!el) return;
-    const rect = el.getBoundingClientRect();
+    
+    if (!rectCache.current) {
+      rectCache.current = el.getBoundingClientRect();
+    }
+    const rect = rectCache.current;
+    
     const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
     const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
     const tiltX = dy * -6;
@@ -370,6 +378,7 @@ function TiltWrapper({ children, className = "" }: { children: React.ReactNode; 
     if (ref.current) {
       ref.current.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
     }
+    rectCache.current = null;
   };
 
   return (
@@ -1676,7 +1685,13 @@ function SidebarContent({ activeSidebarTab, setActiveSidebarTab, canResell, apiA
           return (
             <button
               key={nav.id}
-              onClick={() => { setActiveSidebarTab(nav.id); onCloseMobile?.(); }}
+              onClick={() => { 
+                // 🚀 PERFORMANCE BOOST: startTransition tells React this is a non-blocking UI update, fixing the tab switch freeze
+                import("react").then(({ startTransition }) => {
+                  startTransition(() => setActiveSidebarTab(nav.id));
+                });
+                onCloseMobile?.(); 
+              }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
                 ${active 
                   ? "bg-white/[0.05] border border-white/10 text-white shadow-[0_10px_40px_rgba(0,0,0,0.5)] relative" 
