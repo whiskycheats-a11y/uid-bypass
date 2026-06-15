@@ -695,6 +695,7 @@ export const userStore = {
     if (!isString(username) || !isString(password)) {
       return { ok: false, error: "Invalid username or password format" };
     }
+    username = username.trim().toLowerCase();
     await ensureConnection();
     const hashedPw = hashPassword(password);
     if (!connected) {
@@ -818,8 +819,8 @@ export const userStore = {
       }
       return u;
     }
-    // Can't query by hashed password, so find by username first
-    const doc = await UserModel.findOne({ username });
+    // Can't query by hashed password, so find by username first (case-insensitive to support legacy non-normalized users)
+    const doc = await UserModel.findOne({ username: { $regex: new RegExp(`^${username.trim()}$`, "i") } });
     if (!doc) return null;
     if (!verifyPassword(password, doc.password)) return null;
     // Block disabled accounts — same null return as wrong password (no info leak)
