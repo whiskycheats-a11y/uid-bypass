@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, memo } from "react";
 import { AnimatePresence, motion, useScroll, useTransform, useInView, useMotionValue, useSpring } from "framer-motion";
 import {
   ArrowRight,
@@ -25,6 +25,20 @@ import { Turnstile } from "@marsidev/react-turnstile";
 interface LoginProps {
   onLogin: (role: "admin" | "user", username: string) => void;
 }
+
+// 🚀 PERFORMANCE BOOST: Extract options so it doesn't create a new object reference on every keystroke
+const TURNSTILE_OPTIONS = { theme: "dark" as const, size: "flexible" as const };
+
+// 🚀 PERFORMANCE BOOST: Memoize Turnstile to prevent the heavy Cloudflare iframe from re-rendering/freezing when typing
+const MemoizedTurnstile = memo(({ onSuccess }: { onSuccess: (token: string) => void }) => {
+  return (
+    <Turnstile
+      siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+      onSuccess={onSuccess}
+      options={TURNSTILE_OPTIONS}
+    />
+  );
+});
 
 const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
@@ -523,11 +537,7 @@ export default function Login({ onLogin }: LoginProps) {
                     </AnimatePresence>
 
                     <div className="flex justify-center py-2 opacity-80 mix-blend-screen">
-                      <Turnstile
-                        siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
-                        onSuccess={setTurnstileToken}
-                        options={{ theme: "dark", size: "flexible" }}
-                      />
+                      <MemoizedTurnstile onSuccess={setTurnstileToken} />
                     </div>
 
                     <button
