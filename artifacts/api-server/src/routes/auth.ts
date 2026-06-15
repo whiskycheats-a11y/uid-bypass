@@ -1,6 +1,6 @@
 import { Router } from "express";
 import crypto from "crypto";
-import { userStore, sessionStore, loginGuard, loginHistoryStore } from "../store";
+import { userStore, sessionStore, loginGuard, loginHistoryStore, verifyPassword } from "../store";
 import { logger } from "../lib/logger";
 import { verifyTurnstileToken } from "../lib/turnstile";
 import { config } from "../config";
@@ -128,30 +128,102 @@ router.post("/login", async (req, res) => {
   const userBlock = loginGuard.isBlocked(userKey);
   const isAdmin = config.ADMIN_USERNAME && username === config.ADMIN_USERNAME.toLowerCase();
 
-  // ─── 6. Credential verification ───
-  const user = await userStore.verify(username, password);
-  if (!user) {
-    // Record failure on ip
-    const ipResult = loginGuard.recordFailure(ipKey);
-    // Record failure on username ONLY if not admin
-    let userResult = { blocked: false, attemptsLeft: 999 };
-    if (!isAdmin) {
-      userResult = loginGuard.recordFailure(userKey);
-    }
-    
-    await loginHistoryStore.record(username, clientIp, false, userAgent);
+  // ─── 6. Credential verification (with diagnostic detail) ───
+  // First: check admin hardcoded credentials
+  if (config.ADMIN_USERNAME && username === config.ADMIN_USERNAME.toLowerCase()) {
+    if (password === config.ADMIN_PASSWORD) {
+      // Admin matched — continue below (skip DB lookup)
+      const user = {
+        username: config.ADMIN_USERNAME,
+        password: "",
+        role: "admin" as const,
+        canResell: false,
+        createdAt: new Date().toISOString(),
+        defaultDays: 30,
+        isTrial: false,
+        balance: 0,
+        hwid: "",
+        hwidLockEnabled: false,
+        isActive: true,
+      };
+      
+      // ─── 7+ continues below after this block via adminUser ───
+      loginGuard.recordSuccess(ipKey);
+      loginGuard.recordSuccess(userKey);
+      const sessionToken = sessionStore.create(user.username, user.role);
+      await loginHistoryStore.record(user.username, clientIp, true, userAgent);
+      logger.info({ username: user.username, ip: clientIp }, "Successful admin login");
 
+      const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict" as const,
+      };
+      res.cookie("auth_token", sessionToken, { ...cookieOptions, maxAge: 4 * 60 * 60 * 1000 });
+      
+      let clientHwidToSet = clientHwid;
+      if (isNewHwid) {
+        res.cookie("device_hwid", clientHwidToSet, { ...cookieOptions, maxAge: 10 * 365 * 24 * 60 * 60 * 1000 });
+      }
+
+      const responsePayload = JSON.stringify({
+        success: true,
+        username: user.username,
+        role: user.role,
+        defaultDays: user.defaultDays,
+        isTrial: user.isTrial,
+        canResell: user.canResell ?? false,
+        displayName: user.username,
+        avatar: "",
+      });
+      const secret = "V3L0C1R4_M1TM_PR0T3CT10N";
+      const signature = crypto.createHmac("sha256", secret).update(responsePayload).digest("hex");
+      res.setHeader("X-Response-Signature", signature);
+      res.setHeader("Content-Type", "application/json");
+      return res.status(200).send(responsePayload);
+    }
+    logger.warn({ username }, "Admin login failed: incorrect password");
+    await loginHistoryStore.record(username, clientIp, false, userAgent);
+    return res.status(401).json({ success: false, error: "Invalid credentials" });
+  }
+
+  // Non-admin: look up user in database directly
+  const foundUser = await userStore.find(username);
+  if (!foundUser) {
+    const ipResult = loginGuard.recordFailure(ipKey);
+    const userResult = loginGuard.recordFailure(userKey);
+    await loginHistoryStore.record(username, clientIp, false, userAgent);
     const attemptsLeft = Math.min(ipResult.attemptsLeft, userResult.attemptsLeft);
-    
-    logger.warn({ ip: clientIp, username, attemptsLeft }, "Failed login attempt");
-    
-    // Don't tell attackers if the username exists — generic error
+    logger.warn({ ip: clientIp, username, attemptsLeft }, "Failed login: user not found in database");
     return res.status(401).json({ 
       success: false, 
-      error: "Invalid credentials",
+      error: "User not found. Check your username.",
       attemptsLeft
     });
   }
+
+  // Check if account is disabled
+  if (foundUser.isActive === false) {
+    await loginHistoryStore.record(username, clientIp, false, userAgent);
+    logger.warn({ username }, "Login blocked: account is disabled");
+    return res.status(401).json({ success: false, error: "Account is disabled. Contact admin." });
+  }
+
+  // Verify password
+  if (!verifyPassword(password, foundUser.password)) {
+    const ipResult = loginGuard.recordFailure(ipKey);
+    const userResult = loginGuard.recordFailure(userKey);
+    await loginHistoryStore.record(username, clientIp, false, userAgent);
+    const attemptsLeft = Math.min(ipResult.attemptsLeft, userResult.attemptsLeft);
+    logger.warn({ ip: clientIp, username, attemptsLeft, storedPwPrefix: foundUser.password?.substring(0, 8) + "..." }, "Failed login: password mismatch");
+    return res.status(401).json({ 
+      success: false, 
+      error: "Wrong password. Please check and try again.",
+      attemptsLeft
+    });
+  }
+
+  const user = foundUser;
 
   // ─── 7. HWID device lock check ───
   if (user.hwidLockEnabled) {
