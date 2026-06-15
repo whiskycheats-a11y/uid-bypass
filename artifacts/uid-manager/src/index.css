@@ -371,40 +371,23 @@
   border-left-color: rgba(255, 0, 85, 0.4);
 }
 .btn-shimmer {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.24) 46%, transparent 68%);
-  transform: translateX(-100%);
-  animation: shimmer-pass 2.8s ease-in-out infinite;
+  display: none;
 }
 .text-gradient-viral {
-  background: linear-gradient(to right, #ef4444, #f43f5e, #ec4899);
-  background-size: 200% auto;
-  color: #000;
-  background-clip: text;
-  text-fill-color: transparent;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradient-shift 4s linear infinite;
+  color: #3b82f6;
 }
 .btn-viral-3d {
-  background: linear-gradient(45deg, #ef4444, #ec4899);
-  background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
+  background: #3b82f6;
   border: none;
   position: relative;
   transform-style: preserve-3d;
   transition: all 0.2s ease;
-  box-shadow: 0 10px 20px rgba(168, 85, 247, 0.4),
-    inset 0 2px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
 }
 .btn-viral-3d:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 15px 30px rgba(168, 85, 247, 0.6),
-    0 0 30px rgba(236, 72, 153, 0.4),
-    inset 0 2px 0 rgba(255, 255, 255, 0.5),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.23);
+  background: #2563eb;
 }
 
 /* ── Mobile Optimizations ── */
