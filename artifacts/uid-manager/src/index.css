@@ -42,7 +42,7 @@
 }
 
 :root {
-  --background: 260 80% 4%; /* Deep space #030014 */
+  --background: 240 5% 4%; /* zinc-950 */ /* Deep space #030014 */
   --foreground: 210 40% 98%;
   --card: 260 60% 6%;
   --card-foreground: 210 40% 98%;
@@ -127,9 +127,9 @@
 
 /* ── Ultra-Realistic Glassmorphism ── */
 .neo-glass, .argus-glass {
-  background: #060608;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: #18181b; /* zinc-900 */
+  border: 1px solid #27272a; /* zinc-800 */
+  border-top: 1px solid #27272a;
   box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.5);
   transition: all 0.2s ease-out;
 }

@@ -244,19 +244,19 @@ export default function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen relative flex flex-col font-sans overflow-x-hidden selection:bg-white/20 selection:text-white bg-[#02030d] text-white">
+    <div className="min-h-screen relative flex flex-col font-sans overflow-x-hidden selection:bg-white/20 selection:text-white bg-zinc-950 text-white">
       <WaterWaveBackground />
 
       {/* ── Fixed Navigation ── */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 py-6 px-6 sm:px-10 flex items-center justify-between ${headerBlur ? "bg-black/20  border-b border-white/5" : "bg-transparent border-b border-transparent"}`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 py-6 px-6 sm:px-10 flex items-center justify-between ${headerBlur ? "bg-black/20  border-b border-zinc-800" : "bg-transparent border-b border-transparent"}`}>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="flex items-center gap-4 cursor-pointer" onClick={() => setAuthState("landing")}>
-          <div className="h-8 w-8 rounded-full border border-white/5 flex items-center justify-center bg-white/5 ">
+          <div className="h-8 w-8 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-800 ">
             <div className="h-2 w-2 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
           </div>
           <span className="text-xs font-bold tracking-widest uppercase text-white/90">UID BYPASS</span>
         </motion.div>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="pointer-events-auto">
-          <button onClick={() => setAuthState(authState !== "landing" ? "landing" : "verifying")} className="text-[10px] font-semibold tracking-widest uppercase hover:text-white transition-colors text-white/60 bg-white/5 px-6 py-2.5 rounded-full border border-white/5 hover:bg-white/10 cursor-pointer">
+          <button onClick={() => setAuthState(authState !== "landing" ? "landing" : "verifying")} className="text-[10px] font-semibold tracking-widest uppercase hover:text-white transition-colors text-white/60 bg-zinc-800 px-6 py-2.5 rounded-full border border-zinc-800 hover:bg-zinc-700 cursor-pointer">
             {authState !== "landing" ? "Return Home" : "Sign In"}
           </button>
         </motion.div>
@@ -278,7 +278,7 @@ export default function Login({ onLogin }: LoginProps) {
                 <div className="w-full max-w-4xl space-y-8 z-20 flex flex-col items-center relative">
                   
                   <FadeIn delay={0.1}>
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-500/20 bg-rose-500/10  mb-4">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-500/20 bg-blue-500/10  mb-4">
                       <span className="relative flex h-2 w-2">
                         
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
@@ -292,12 +292,12 @@ export default function Login({ onLogin }: LoginProps) {
                       <span className="text-white">UID Bypass</span>
                     </FadeIn>
                     <FadeIn delay={0.3}>
-                      <span className="text-white/40">All Server Safe</span>
+                      <span className="text-zinc-400">All Server Safe</span>
                     </FadeIn>
                   </h1>
 
                   <FadeIn delay={0.4}>
-                    <p className="text-lg text-white/50 max-w-2xl mx-auto font-light leading-relaxed mb-12">
+                    <p className="text-lg text-zinc-400 max-w-2xl mx-auto font-light leading-relaxed mb-12">
                       Experience the next generation of cryptographic authorization. Instantly distribute secure sessions across a global edge network with zero latency.
                     </p>
                   </FadeIn>
@@ -317,18 +317,18 @@ export default function Login({ onLogin }: LoginProps) {
               </section>
 
               {/* ═══════ LIVE STATS ═══════ */}
-              <section className="w-full border-y border-white/5 py-16 bg-white/[0.01]  relative">
+              <section className="w-full border-y border-zinc-800 py-16 bg-zinc-900/50  relative">
                 <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 grid sm:grid-cols-3 gap-6">
                   {statusCards.map((card, idx) => (
                     <ScrollReveal key={card.label} delay={idx * 0.1} y={30}>
-                      <div className="bg-white/[0.01] border border-white/5 p-6 sm:p-8 rounded-[2rem] flex flex-col justify-between min-h-[140px] hover:bg-white/[0.04] transition-colors duration-500">
+                      <div className="bg-zinc-900/50 border border-zinc-800 p-6 sm:p-8 rounded-[2rem] flex flex-col justify-between min-h-[140px] hover:bg-zinc-800 transition-colors duration-500">
                         <div className="flex items-center gap-4">
-                          <div className="p-3 rounded-2xl bg-white/5 text-white/80">
+                          <div className="p-3 rounded-2xl bg-zinc-800 text-white/80">
                             <card.icon className="h-5 w-5" />
                           </div>
                           <div>
-                            <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest">{card.label}</p>
-                            <p className="text-[11px] font-medium text-white/40 mt-1">{card.desc}</p>
+                            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{card.label}</p>
+                            <p className="text-[11px] font-medium text-zinc-400 mt-1">{card.desc}</p>
                           </div>
                         </div>
                         <div className="mt-8 flex items-baseline justify-between">
@@ -346,7 +346,7 @@ export default function Login({ onLogin }: LoginProps) {
               <section className="w-full max-w-7xl mx-auto px-6 sm:px-10 py-32 space-y-20 relative">
                 <div className="text-center max-w-2xl mx-auto space-y-6">
                   <ScrollReveal y={20}>
-                    <h2 className="text-[10px] font-bold uppercase tracking-widest text-white/40">Advanced Protocol</h2>
+                    <h2 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Advanced Protocol</h2>
                   </ScrollReveal>
                   <ScrollReveal y={20} delay={0.1}>
                     <p className="text-3xl sm:text-5xl font-medium text-white tracking-tight leading-[1.1]">
@@ -358,14 +358,14 @@ export default function Login({ onLogin }: LoginProps) {
                 <div className="grid md:grid-cols-2 gap-6">
                   {features.map((feature, idx) => (
                     <ScrollReveal key={feature.title} delay={idx * 0.1} y={40}>
-                      <div className="w-full mx-auto bg-white/[0.01] border border-white/5 p-8 sm:p-10 rounded-[2.5rem] flex flex-col h-full hover:bg-white/[0.04] transition-all duration-500 group">
+                      <div className="w-full mx-auto bg-zinc-900/50 border border-zinc-800 p-8 sm:p-10 rounded-[2.5rem] flex flex-col h-full hover:bg-zinc-800 transition-all duration-500 group">
                         <div className="flex items-center justify-between mb-8">
-                          <div className="p-4 rounded-2xl bg-white/5 text-white group-hover:scale-110 transition-transform duration-500">
+                          <div className="p-4 rounded-2xl bg-zinc-800 text-white group-hover:scale-110 transition-transform duration-500">
                             <feature.icon className="h-6 w-6" />
                           </div>
                         </div>
                         <h3 className="text-xl font-medium text-white tracking-tight mb-3">{feature.title}</h3>
-                        <p className="text-sm leading-relaxed text-white/50 font-light">{feature.description}</p>
+                        <p className="text-sm leading-relaxed text-zinc-400 font-light">{feature.description}</p>
                       </div>
                     </ScrollReveal>
                   ))}
@@ -373,10 +373,10 @@ export default function Login({ onLogin }: LoginProps) {
               </section>
 
               {/* ═══════ PRICING ═══════ */}
-              <section id="pricing" className="w-full max-w-7xl mx-auto px-6 sm:px-10 py-32 space-y-20 relative border-t border-white/5">
+              <section id="pricing" className="w-full max-w-7xl mx-auto px-6 sm:px-10 py-32 space-y-20 relative border-t border-zinc-800">
                 <div className="text-center max-w-2xl mx-auto space-y-8">
                   <ScrollReveal y={20}>
-                    <h2 className="text-[10px] font-bold uppercase tracking-widest text-white/40">Licensing Model</h2>
+                    <h2 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Licensing Model</h2>
                   </ScrollReveal>
                   <ScrollReveal y={20} delay={0.1}>
                     <p className="text-4xl sm:text-5xl font-medium text-white tracking-tight">
@@ -384,18 +384,18 @@ export default function Login({ onLogin }: LoginProps) {
                     </p>
                   </ScrollReveal>
                   <ScrollReveal y={20} delay={0.2}>
-                    <div className="inline-flex items-center gap-2 bg-white/[0.01] border border-white/5 p-1.5 rounded-2xl">
+                    <div className="inline-flex items-center gap-2 bg-zinc-900/50 border border-zinc-800 p-1.5 rounded-2xl">
                       <button
                         onClick={() => setIsYearly(false)}
-                        className={`px-6 py-2.5 text-[10px] font-bold rounded-xl uppercase tracking-widest transition-all duration-300 cursor-pointer ${!isYearly ? "bg-white text-black" : "text-white/50 hover:text-white"}`}
+                        className={`px-6 py-2.5 text-[10px] font-bold rounded-xl uppercase tracking-widest transition-all duration-300 cursor-pointer ${!isYearly ? "bg-white text-black" : "text-zinc-400 hover:text-white"}`}
                       >
                         Monthly
                       </button>
                       <button
                         onClick={() => setIsYearly(true)}
-                        className={`px-6 py-2.5 text-[10px] font-bold rounded-xl uppercase tracking-widest transition-all duration-300 flex items-center gap-2 cursor-pointer ${isYearly ? "bg-white text-black" : "text-white/50 hover:text-white"}`}
+                        className={`px-6 py-2.5 text-[10px] font-bold rounded-xl uppercase tracking-widest transition-all duration-300 flex items-center gap-2 cursor-pointer ${isYearly ? "bg-white text-black" : "text-zinc-400 hover:text-white"}`}
                       >
-                        Yearly <span className={`${isYearly ? "text-black/50" : "text-rose-400"}`}>-20%</span>
+                        Yearly <span className={`${isYearly ? "text-black/50" : "text-blue-400"}`}>-20%</span>
                       </button>
                     </div>
                   </ScrollReveal>
@@ -408,33 +408,33 @@ export default function Login({ onLogin }: LoginProps) {
                     { name: "Enterprise", desc: "Custom DB pipelines.", price: [99, 79], features: ["Dedicated nodes", "White-label panels", "Secure DB links", "100% latency SLA"], excluded: [], btn: "Request Build", featured: false },
                   ].map((plan, idx) => (
                     <ScrollReveal key={plan.name} delay={idx * 0.1} y={40}>
-                      <div className={`p-8 sm:p-10 rounded-[2.5rem] flex flex-col justify-between h-full transition-all duration-500 ${plan.featured ? "bg-white/[0.03] border border-white/20" : "bg-white/[0.01] border border-white/5 hover:bg-white/[0.04]"}`}>
+                      <div className={`p-8 sm:p-10 rounded-[2.5rem] flex flex-col justify-between h-full transition-all duration-500 ${plan.featured ? "bg-zinc-900 border border-white/20" : "bg-zinc-900/50 border border-zinc-800 hover:bg-zinc-800"}`}>
                         <div className="space-y-8">
                           <div className="space-y-3 text-left">
                             <h3 className="text-[11px] font-bold text-white/80 uppercase tracking-widest">{plan.name}</h3>
-                            <p className="text-xs text-white/40 font-light">{plan.desc}</p>
+                            <p className="text-xs text-zinc-400 font-light">{plan.desc}</p>
                           </div>
                           <div className="flex items-baseline gap-1.5">
                             <span className="text-5xl font-medium text-white tracking-tighter">
                               ${isYearly ? plan.price[1] : plan.price[0]}
                             </span>
-                            <span className="text-[10px] text-white/40 uppercase font-bold tracking-widest">/ mo</span>
+                            <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-widest">/ mo</span>
                           </div>
-                          <div className="h-px bg-white/5 w-full" />
-                          <ul className="space-y-4 text-xs text-white/70 font-medium text-left">
+                          <div className="h-px bg-zinc-800 w-full" />
+                          <ul className="space-y-4 text-xs text-zinc-300 font-medium text-left">
                             {plan.features.map((f) => (
                               <li key={f} className="flex items-center gap-3">
-                                <Check className={`h-4 w-4 flex-shrink-0 ${plan.featured ? "text-white" : "text-white/50"}`} /> {f}
+                                <Check className={`h-4 w-4 flex-shrink-0 ${plan.featured ? "text-white" : "text-zinc-400"}`} /> {f}
                               </li>
                             ))}
                             {plan.excluded.map((f) => (
-                              <li key={f} className="flex items-center gap-3 text-white/30">
+                              <li key={f} className="flex items-center gap-3 text-zinc-500">
                                 <X className="h-4 w-4 flex-shrink-0" /> {f}
                               </li>
                             ))}
                           </ul>
                         </div>
-                        <button onClick={() => setAuthState("verifying")} className={`w-full py-4 text-[10px] font-bold uppercase tracking-widest rounded-2xl mt-10 cursor-pointer transition-all ${plan.featured ? "bg-white text-black hover:bg-white/90" : "bg-white/5 text-white hover:bg-white/10"}`}>
+                        <button onClick={() => setAuthState("verifying")} className={`w-full py-4 text-[10px] font-bold uppercase tracking-widest rounded-2xl mt-10 cursor-pointer transition-all ${plan.featured ? "bg-white text-black hover:bg-white/90" : "bg-zinc-800 text-white hover:bg-zinc-700"}`}>
                           {plan.btn}
                         </button>
                       </div>
@@ -444,11 +444,11 @@ export default function Login({ onLogin }: LoginProps) {
               </section>
 
               {/* ═══════ FAQ ═══════ */}
-              <section className="w-full py-32 border-t border-white/5 relative bg-white/[0.01]">
+              <section className="w-full py-32 border-t border-zinc-800 relative bg-zinc-900/50">
                 <div className="w-full max-w-4xl mx-auto px-6 sm:px-10 space-y-16">
                   <div className="text-center space-y-6">
                     <ScrollReveal y={20}>
-                      <h2 className="text-[10px] font-bold uppercase tracking-widest text-white/40">Support</h2>
+                      <h2 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Support</h2>
                     </ScrollReveal>
                     <ScrollReveal y={20} delay={0.1}>
                       <p className="text-3xl sm:text-5xl font-medium text-white tracking-tight">
@@ -459,9 +459,9 @@ export default function Login({ onLogin }: LoginProps) {
                   <div className="space-y-4">
                     {faqItems.map((item, i) => (
                       <ScrollReveal key={i} delay={i * 0.1} y={30}>
-                        <div className="bg-white/[0.01] border border-white/5 p-6 sm:p-8 rounded-[2rem] text-left">
+                        <div className="bg-zinc-900/50 border border-zinc-800 p-6 sm:p-8 rounded-[2rem] text-left">
                           <h3 className="text-base font-medium text-white/90 mb-3">{item.question}</h3>
-                          <p className="text-sm leading-relaxed text-white/50 font-light">{item.answer}</p>
+                          <p className="text-sm leading-relaxed text-zinc-400 font-light">{item.answer}</p>
                         </div>
                       </ScrollReveal>
                     ))}
@@ -470,8 +470,8 @@ export default function Login({ onLogin }: LoginProps) {
               </section>
 
               {/* ── Footer ── */}
-              <footer className="w-full border-t border-white/5 py-12 bg-transparent text-center">
-                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/30">UID BYPASS ZERO-TRUST &copy; 2026</p>
+              <footer className="w-full border-t border-zinc-800 py-12 bg-transparent text-center">
+                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-zinc-500">UID BYPASS ZERO-TRUST &copy; 2026</p>
               </footer>
             </motion.div>
           )}
@@ -486,22 +486,22 @@ export default function Login({ onLogin }: LoginProps) {
               className="w-full max-w-[440px] perspective-1000 mt-32 mx-auto px-4 sm:px-0 flex flex-col items-center"
             >
               <div className="relative w-full">
-                <div className="absolute -inset-0.5 bg-gradient-to-br from-rose-500/20 to-transparent rounded-[2.5rem] blur opacity-50" />
-                <div className="relative bg-[#0a0a0c]/80 border border-white/5  p-8 sm:p-10 rounded-[2.5rem] shadow-[0_20px_40px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.1)] flex flex-col items-center text-center">
+                <div className="absolute -inset-0.5 bg-gradient-to-br from-blue-500/20 to-transparent rounded-[2.5rem] blur opacity-50" />
+                <div className="relative bg-zinc-900 border border-zinc-800  p-8 sm:p-10 rounded-[2.5rem] shadow-[0_20px_40px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.1)] flex flex-col items-center text-center">
                   
                   <div className="relative mb-8">
                     <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl animate-pulse" />
-                    <div className="relative h-20 w-20 rounded-full border border-rose-500/30 bg-rose-500/10 flex items-center justify-center">
-                      <ShieldCheck className="h-8 w-8 text-rose-400" />
+                    <div className="relative h-20 w-20 rounded-full border border-blue-500/30 bg-blue-500/10 flex items-center justify-center">
+                      <ShieldCheck className="h-8 w-8 text-blue-400" />
                     </div>
                   </div>
 
                   <h2 className="text-xl font-semibold tracking-tight text-white mb-3">Client Integrity Check</h2>
-                  <p className="text-xs text-white/50 leading-relaxed mb-8">
+                  <p className="text-xs text-zinc-400 leading-relaxed mb-8">
                     Establishing a secure end-to-end encrypted channel. Please complete the security challenge below to proceed.
                   </p>
 
-                  <div className="w-full flex justify-center py-4 bg-black/40 rounded-2xl border border-white/5 shadow-inner">
+                  <div className="w-full flex justify-center py-4 bg-black/40 rounded-2xl border border-zinc-800 shadow-inner">
                     <MemoizedTurnstile onSuccess={(token) => {
                       setTurnstileToken(token);
                       setTimeout(() => setAuthState("login"), 800);
@@ -530,45 +530,45 @@ export default function Login({ onLogin }: LoginProps) {
                   ref={cardRef}
                   animate={shake ? { x: [-10, 10, -8, 8, -5, 5, 0] } : {}}
                   style={{ rotateX, rotateY, transformStyle: "preserve-3d", transition: shake ? undefined : "transform 0.2s ease-out" }}
-                  className="relative bg-[#0a0a0c]/80 border border-white/5  p-8 sm:p-10 rounded-[2.5rem] shadow-[0_20px_40px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.1)]"
+                  className="relative bg-zinc-900 border border-zinc-800  p-8 sm:p-10 rounded-[2.5rem] shadow-[0_20px_40px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.1)]"
                 >
                   <div className="flex flex-col items-center text-center mb-10">
-                    <div className="h-16 w-16 rounded-[1.25rem] border border-white/5 bg-gradient-to-b from-white/10 to-transparent flex items-center justify-center mb-6 shadow-[0_10px_20px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.2)]">
+                    <div className="h-16 w-16 rounded-[1.25rem] border border-zinc-800 bg-gradient-to-b from-white/10 to-transparent flex items-center justify-center mb-6 shadow-[0_10px_20px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.2)]">
                       <Fingerprint className="h-7 w-7 text-white" strokeWidth={1.5} />
                     </div>
                     <h2 className="text-2xl font-semibold tracking-tight text-white mb-2">Authentication</h2>
-                    <p className="text-[10px] text-white/50 tracking-[0.2em] uppercase font-bold">Verify your identity</p>
+                    <p className="text-[10px] text-zinc-400 tracking-[0.2em] uppercase font-bold">Verify your identity</p>
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
                     <div>
                       <div className="relative flex items-center group">
-                        <User className="absolute left-4 h-4.5 w-4.5 text-white/40 group-focus-within:text-white transition-colors" />
+                        <User className="absolute left-4 h-4.5 w-4.5 text-zinc-400 group-focus-within:text-white transition-colors" />
                         <input
                           type="text"
                           value={username}
                           onChange={(e) => { setUsername(e.target.value); setError(""); }}
                           placeholder="Operator ID"
-                          className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 focus:bg-white/5 focus:shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all"
+                          className="w-full bg-black/40 border border-zinc-800 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 focus:bg-zinc-800 focus:shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all"
                         />
                       </div>
                     </div>
                     <div>
                       <div className="relative flex items-center group">
-                        <Lock className="absolute left-4 h-4.5 w-4.5 text-white/40 group-focus-within:text-white transition-colors" />
+                        <Lock className="absolute left-4 h-4.5 w-4.5 text-zinc-400 group-focus-within:text-white transition-colors" />
                         <input
                           type="password"
                           value={password}
                           onChange={(e) => { setPassword(e.target.value); setError(""); }}
                           placeholder="Passphrase"
-                          className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 focus:bg-white/5 focus:shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all"
+                          className="w-full bg-black/40 border border-zinc-800 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 focus:bg-zinc-800 focus:shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all"
                         />
                       </div>
                     </div>
 
                     <AnimatePresence>
                       {error && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-center text-rose-400 text-xs font-medium tracking-wide pt-2">
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-center text-blue-400 text-xs font-medium tracking-wide pt-2">
                           {error}
                         </motion.div>
                       )}

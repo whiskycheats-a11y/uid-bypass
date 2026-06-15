@@ -115,7 +115,7 @@ function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete:
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="absolute inset-0 z-[100] flex items-center justify-center bg-white/[0.01]  rounded-[2rem]"
+          className="absolute inset-0 z-[100] flex items-center justify-center bg-zinc-900/50  rounded-[2rem]"
         >
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}
@@ -129,7 +129,7 @@ function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete:
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: "spring" }}
-                className="absolute inset-0 bg-white/5 rounded-full blur-xl"
+                className="absolute inset-0 bg-zinc-800 rounded-full blur-xl"
               />
               <motion.div
                 initial={{ scale: 0 }}
@@ -142,7 +142,7 @@ function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete:
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-[-10px] border-2 border-white/5 border-t-red-400 rounded-full z-0"
+                className="absolute inset-[-10px] border-2 border-zinc-800 border-t-red-400 rounded-full z-0"
               />
             </div>
             <motion.h3
@@ -157,7 +157,7 @@ function SuccessAnimation({ active, onComplete }: { active: boolean; onComplete:
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="text-white/70 font-bold uppercase tracking-[0.2em] text-[10px] mt-2 text-center"
+              className="text-zinc-300 font-bold uppercase tracking-[0.2em] text-[10px] mt-2 text-center"
             >
               UID Successfully Whitelisted
             </motion.p>
@@ -419,37 +419,37 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-[#060608]  border border-white/5 shadow-xl rounded-[2rem] overflow-hidden relative shadow-2xl p-6 sm:p-8 border border-white/5 flex flex-col justify-between h-full bg-white/[0.01] "
+        className="bg-zinc-900  border border-zinc-800 shadow-xl rounded-[2rem] overflow-hidden relative shadow-2xl p-6 sm:p-8 border border-zinc-800 flex flex-col justify-between h-full bg-zinc-900/50 "
       >
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-[80px] pointer-events-none" />
-        <div className="absolute -right-16 -bottom-16 w-36 h-36 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-zinc-800 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute -right-16 -bottom-16 w-36 h-36 bg-zinc-800 rounded-full blur-3xl pointer-events-none" />
         
         <div>
           {/* Header */}
-          <div className="flex items-center gap-3 pb-4 border-b border-white/[0.05] mb-5">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/5 border border-white/5">
+          <div className="flex items-center gap-3 pb-4 border-b border-zinc-800 mb-5">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-800 border border-zinc-800">
               <Medal className="w-4.5 h-4.5 text-white/90" />
             </div>
             <div>
               <h3 className="font-black text-sm text-white tracking-wide">Notice Broadcast</h3>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Announcement Board</p>
+              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">Announcement Board</p>
             </div>
           </div>
 
           {/* Active Notice Info Banner */}
           {activeNotice ? (
-            <div className="bg-white/5 border border-white/5 rounded-2xl p-4 mb-5 text-left text-xs">
+            <div className="bg-zinc-800 border border-zinc-800 rounded-2xl p-4 mb-5 text-left text-xs">
               <span className="text-[9px] font-black text-white/90 uppercase tracking-wider block mb-1">CURRENTLY BROADCASTING</span>
               <p className="text-slate-200 font-medium leading-relaxed font-sans">{activeNotice}</p>
-              <div className="flex items-center gap-1.5 mt-2.5 text-[10px] text-slate-500 font-bold">
-                <Clock className="w-3.5 h-3.5 text-slate-500" />
+              <div className="flex items-center gap-1.5 mt-2.5 text-[10px] text-zinc-400 font-bold">
+                <Clock className="w-3.5 h-3.5 text-zinc-400" />
                 <span>
                   Expires: {activeNoticeExpiry === "indefinite" ? "Never (Indefinite)" : new Date(activeNoticeExpiry).toLocaleString()}
                 </span>
               </div>
             </div>
           ) : (
-            <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-4 mb-5 text-center text-xs text-slate-500 font-bold py-6">
+            <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-4 mb-5 text-center text-xs text-zinc-400 font-bold py-6">
               No active announcements.
             </div>
           )}
@@ -457,23 +457,23 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           {/* Form */}
           <form onSubmit={handleBroadcastNotice} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Notice Text</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Notice Text</label>
               <textarea
                 value={noticeText}
                 onChange={(e) => setNoticeText(e.target.value)}
                 placeholder="Enter announcement text to show on reseller and client dashboards..."
-                className="w-full h-28 p-4 rounded-xl bg-white/[0.01] border border-white/5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-white/5 transition-all resize-none font-medium leading-relaxed shadow-inner"
+                className="w-full h-28 p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-zinc-800 transition-all resize-none font-medium leading-relaxed shadow-inner"
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Duration</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Duration</label>
                 <select
                   value={noticeExpiry}
                   onChange={(e) => setNoticeExpiry(e.target.value)}
-                  className="w-full h-12 px-4 rounded-xl bg-white/[0.01] border border-white/5 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-white/5 transition-all font-bold shadow-inner cursor-pointer"
+                  className="w-full h-12 px-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-zinc-800 transition-all font-bold shadow-inner cursor-pointer"
                 >
                   <option value="indefinite">Indefinite (No expiry)</option>
                   <option value="1h">1 Hour</option>
@@ -488,7 +488,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     type="button"
                     onClick={handleClearNotice}
                     disabled={savingNotice}
-                    className="h-10 px-3 rounded-xl border border-white/5 bg-white/5 text-xs text-white/70 hover:bg-white/5 hover:text-white transition-all cursor-pointer font-bold flex-1"
+                    className="h-10 px-3 rounded-xl border border-zinc-800 bg-zinc-800 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer font-bold flex-1"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -736,16 +736,16 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`bg-[#060608]  border border-white/5 shadow-xl rounded-[2.5rem] overflow-hidden relative shadow-2xl bg-white/[0.01]  ${showFull ? 'h-full' : ''}`}
+        className={`bg-zinc-900  border border-zinc-800 shadow-xl rounded-[2.5rem] overflow-hidden relative shadow-2xl bg-zinc-900/50  ${showFull ? 'h-full' : ''}`}
       >
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-white/[0.01] gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 sm:px-8 py-6 border-b border-zinc-800 bg-zinc-900/50 gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border border-white/5" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.1))" }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border border-zinc-800" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.1))" }}>
               <Activity className="w-5 h-5 text-white/90" />
             </div>
             <div>
               <h2 className="font-black text-lg text-white tracking-wide">{showFull ? "Global Endpoints" : "Recent UIDs"}</h2>
-              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">{showFull ? "All active connections globally" : "History of recently registered UIDs"}</div>
+              <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">{showFull ? "All active connections globally" : "History of recently registered UIDs"}</div>
             </div>
           </div>
           <div className="w-full sm:w-64 relative">
@@ -753,7 +753,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
               placeholder="Search UID or Name..." 
               value={uidSearchQuery}
               onChange={(e) => setUidSearchQuery(e.target.value)}
-              className="pl-4 pr-4 h-10 rounded-xl bg-white/[0.01] border-white/5 text-white font-bold transition-all focus-visible:ring-red-500/30 focus-visible:border-white/5 w-full"
+              className="pl-4 pr-4 h-10 rounded-xl bg-zinc-900/50 border-zinc-800 text-white font-bold transition-all focus-visible:ring-red-500/30 focus-visible:border-zinc-800 w-full"
             />
           </div>
         </div>
@@ -761,15 +761,15 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
         {isUidsLoading ? (
           <div className="flex flex-col items-center justify-center p-20 opacity-50">
             <Loader2 className="w-12 h-12 text-white/90 animate-spin mb-4" />
-            <p className="text-xs font-black uppercase tracking-widest text-slate-400">Syncing with Auth Mesh...</p>
+            <p className="text-xs font-black uppercase tracking-widest text-zinc-300">Syncing with Auth Mesh...</p>
           </div>
         ) : uids.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-20 text-center opacity-60">
-            <div className="w-20 h-20 rounded-full bg-white/5 border border-white/5 flex items-center justify-center mb-6">
-              <Activity className="w-10 h-10 text-slate-500" />
+            <div className="w-20 h-20 rounded-full bg-zinc-800 border border-zinc-800 flex items-center justify-center mb-6">
+              <Activity className="w-10 h-10 text-zinc-400" />
             </div>
             <p className="text-slate-300 font-bold mb-2">No Active UIDs</p>
-            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Resellers will register endpoints here</p>
+            <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Resellers will register endpoints here</p>
           </div>
         ) : (
           <div className={`p-4 sm:p-6 overflow-y-auto custom-scrollbar ${showFull ? 'max-h-[70vh]' : 'max-h-[800px]'}`}>
@@ -783,16 +783,16 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     exit={{ opacity: 0, x: -10 }}
                     onHoverStart={() => setHoveredRow(uidObj.uid)}
                     onHoverEnd={() => setHoveredRow(null)}
-                    className={`group flex items-center justify-between p-3.5 sm:p-4 bg-white/[0.01] border ${highlightDelete ? 'border-white/5 shadow-lg' : 'border-white/5'} rounded-2xl hover:bg-white/[0.04] hover:border-white/5 transition-all`}
+                    className={`group flex items-center justify-between p-3.5 sm:p-4 bg-zinc-900/50 border ${highlightDelete ? 'border-zinc-800 shadow-lg' : 'border-zinc-800'} rounded-2xl hover:bg-zinc-800 hover:border-zinc-800 transition-all`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm relative overflow-hidden ${uidObj.bluestack ? 'bg-white/5 text-white/90 border-white/5' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
-                        <div className="absolute inset-0 bg-white/5 animate-pulse" />
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm relative overflow-hidden ${uidObj.bluestack ? 'bg-zinc-800 text-white/90 border-zinc-800' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'}`}>
+                        <div className="absolute inset-0 bg-zinc-800 animate-pulse" />
                         {uidObj.bluestack ? <Activity className="w-5 h-5 animate-pulse" /> : <Shield className="w-5 h-5" />}
                       </div>
                       <div>
                         <div className="text-base sm:text-lg font-bold text-white tracking-widest font-mono drop-shadow-sm">{uidObj.uid}</div>
-                        <div className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5 truncate max-w-[150px] sm:max-w-[200px]">
+                        <div className="text-[10px] sm:text-xs text-zinc-400 font-bold uppercase tracking-widest mt-0.5 truncate max-w-[150px] sm:max-w-[200px]">
                           {uidObj.name || `NODE_${uidObj.uid.slice(0, 8)}`}
                         </div>
                       </div>
@@ -800,24 +800,24 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     
                     <div className="flex items-center gap-4 sm:gap-6">
                       <div className="hidden sm:block text-right">
-                        <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">OPERATOR</div>
+                        <div className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1">OPERATOR</div>
                         <div className="text-xs font-bold text-slate-300 uppercase truncate max-w-[120px]">{uidObj.addedBy || "ADMIN"}</div>
                       </div>
                       
                       <div className="text-right">
-                        <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">STATUS</div>
-                        <div className={`text-xs font-black uppercase tracking-wider ${getDaysLeft(uidObj.addedAt, uidObj.days) === "Expired" ? 'text-white/70' : 'text-rose-400'}`}>
+                        <div className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1">STATUS</div>
+                        <div className={`text-xs font-black uppercase tracking-wider ${getDaysLeft(uidObj.addedAt, uidObj.days) === "Expired" ? 'text-zinc-300' : 'text-blue-400'}`}>
                           {getDaysLeft(uidObj.addedAt, uidObj.days)}
                         </div>
                       </div>
 
-                      <div className="pl-2 border-l border-white/5 flex items-center">
+                      <div className="pl-2 border-l border-zinc-800 flex items-center">
                         <button
                           onClick={(e) => { e.stopPropagation(); onRemove(uidObj.uid); }}
                           disabled={removingUid === uidObj.uid}
                           className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
                             hoveredRow === uidObj.uid || highlightDelete 
-                              ? 'bg-white/5 text-white/70 border border-white/5 hover:bg-red-500 hover:text-white' 
+                              ? 'bg-zinc-800 text-zinc-300 border border-zinc-800 hover:bg-red-500 hover:text-white' 
                               : 'bg-transparent text-slate-600 border border-transparent'
                           }`}
                         >
@@ -841,71 +841,71 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       animate={{ opacity: 1, scale: 1 }}
       className="max-w-xl mx-auto"
     >
-      <div className="bg-[#060608]  border border-white/5 shadow-xl rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl glow-border bg-white/[0.01] ">
+      <div className="bg-zinc-900  border border-zinc-800 shadow-xl rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl glow-border bg-zinc-900/50 ">
         <SuccessAnimation active={showSuccessBlast} onComplete={() => setShowSuccessBlast(false)} />
         <div className="flex items-center gap-3 mb-2 relative z-10">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border border-white/5" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.1))" }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border border-zinc-800" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.1))" }}>
             <Plus className="w-5 h-5 text-white/90" />
           </div>
           <h2 className="font-black text-lg text-white tracking-wide">Register UID</h2>
         </div>
-        <p className="text-xs font-semibold text-slate-400 mb-8 relative z-10">Admin Access: Add an endpoint directly.</p>
+        <p className="text-xs font-semibold text-zinc-300 mb-8 relative z-10">Admin Access: Add an endpoint directly.</p>
 
         <form onSubmit={form.handleSubmit(onSubmitUid)} className="space-y-6 relative z-10">
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Friendly Name</label>
+            <label className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.2em] ml-1">Friendly Name</label>
             <div className="relative group">
-              <Edit2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-white/90 transition-colors pointer-events-none" />
+              <Edit2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400 group-focus-within:text-white/90 transition-colors pointer-events-none" />
               <Input
                 placeholder="Enter your name"
-                className="pl-12 h-14 rounded-2xl bg-white/[0.01] border-white/5 focus-visible:ring-red-500/30 focus-visible:border-white/5 text-white font-bold transition-all shadow-inner"
+                className="pl-12 h-14 rounded-2xl bg-zinc-900/50 border-zinc-800 focus-visible:ring-red-500/30 focus-visible:border-zinc-800 text-white font-bold transition-all shadow-inner"
                 {...form.register("name")}
               />
             </div>
             {form.formState.errors.name && (
-              <p className="text-[10px] font-bold text-white/70 px-2 mt-1">{form.formState.errors.name.message}</p>
+              <p className="text-[10px] font-bold text-zinc-300 px-2 mt-1">{form.formState.errors.name.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Player UID</label>
+            <label className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.2em] ml-1">Player UID</label>
             <div className="relative group">
-              <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-white/90 transition-colors pointer-events-none" />
+              <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400 group-focus-within:text-white/90 transition-colors pointer-events-none" />
               <Input
                 placeholder="Enter UID number..."
-                className="pl-12 h-14 rounded-2xl bg-white/[0.01] border-white/5 focus-visible:ring-red-500/30 focus-visible:border-white/5 text-white font-bold transition-all shadow-inner"
+                className="pl-12 h-14 rounded-2xl bg-zinc-900/50 border-zinc-800 focus-visible:ring-red-500/30 focus-visible:border-zinc-800 text-white font-bold transition-all shadow-inner"
                 {...form.register("uid")}
               />
             </div>
             {form.formState.errors.uid && (
-              <p className="text-[10px] font-bold text-white/70 px-2 mt-1">{form.formState.errors.uid.message}</p>
+              <p className="text-[10px] font-bold text-zinc-300 px-2 mt-1">{form.formState.errors.uid.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Duration (Days)</label>
+            <label className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.2em] ml-1">Duration (Days)</label>
             <div className="relative group">
-              <Timer className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500 group-focus-within:text-white/90 transition-colors pointer-events-none" />
+              <Timer className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400 group-focus-within:text-white/90 transition-colors pointer-events-none" />
               <Input
                 type="number"
                 min="1"
                 placeholder="Number of days..."
-                className="pl-12 h-14 rounded-2xl bg-white/[0.01] border-white/5 focus-visible:ring-red-500/30 focus-visible:border-white/5 text-white font-bold transition-all shadow-inner"
+                className="pl-12 h-14 rounded-2xl bg-zinc-900/50 border-zinc-800 focus-visible:ring-red-500/30 focus-visible:border-zinc-800 text-white font-bold transition-all shadow-inner"
                 {...form.register("days", { valueAsNumber: true })}
               />
             </div>
             {form.formState.errors.days && (
-              <p className="text-[10px] font-bold text-white/70 px-2 mt-1">{form.formState.errors.days.message}</p>
+              <p className="text-[10px] font-bold text-zinc-300 px-2 mt-1">{form.formState.errors.days.message}</p>
             )}
           </div>
 
-          <div className="flex items-center justify-between p-5 rounded-2xl bg-white/[0.01] border border-white/5 group hover:border-white/5 hover:bg-white/[0.01] transition-all shadow-inner">
+          <div className="flex items-center justify-between p-5 rounded-2xl bg-zinc-900/50 border border-zinc-800 group hover:border-zinc-800 hover:bg-zinc-900/50 transition-all shadow-inner">
             <div>
               <div className="flex items-center gap-2 text-sm font-black text-white">
                 <Activity className="w-4 h-4 text-white/90 drop-shadow-lg" />
                 BlueStack Protocol
               </div>
-              <div className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Emulator Routing</div>
+              <div className="text-[10px] font-bold text-zinc-400 mt-1 uppercase tracking-widest">Emulator Routing</div>
             </div>
             <Switch
               checked={form.watch("bluestack")}
@@ -953,9 +953,9 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             animate={{ x: 0 }}
             exit={{ x: -280 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed left-0 top-0 bottom-0 w-72 bg-white/[0.01]  border-r border-white/5 flex flex-col z-[70] shadow-[10px_0_30px_rgba(0,0,0,0.8)] lg:hidden"
+            className="fixed left-0 top-0 bottom-0 w-72 bg-zinc-900/50  border-r border-zinc-800 flex flex-col z-[70] shadow-[10px_0_30px_rgba(0,0,0,0.8)] lg:hidden"
           >
-            <div className="h-20 flex items-center justify-between px-6 border-b border-white/5">
+            <div className="h-20 flex items-center justify-between px-6 border-b border-zinc-800">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
                   <Crown className="w-5 h-5 text-white" />
@@ -965,7 +965,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                   <div className="text-[9px] font-bold text-amber-500 uppercase tracking-widest mt-0.5">SUPER ADMIN</div>
                 </div>
               </div>
-              <button onClick={() => setMobileSidebarOpen(false)} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-white">
+              <button onClick={() => setMobileSidebarOpen(false)} className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-800 text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -985,21 +985,21 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                     }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
                       ${active 
-                        ? "bg-white/[0.03] border border-white/5 text-white shadow-lg relative" 
-                        : "text-slate-400 hover:text-white hover:bg-white/[0.01] border border-transparent"}
+                        ? "bg-zinc-900 border border-zinc-800 text-white shadow-lg relative" 
+                        : "text-zinc-300 hover:text-white hover:bg-zinc-900/50 border border-transparent"}
                     `}
                   >
-                    <Icon className={`w-4.5 h-4.5 ${active ? "text-white/90" : "text-slate-500"}`} />
+                    <Icon className={`w-4.5 h-4.5 ${active ? "text-white/90" : "text-zinc-400"}`} />
                     <span>{nav.label}</span>
                     {active && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]" />}
                   </button>
                 );
               })}
             </div>
-            <div className="p-4 border-t border-white/5">
+            <div className="p-4 border-t border-zinc-800">
               <button
                 onClick={onLogout}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white/70 hover:bg-white/5 transition-all font-semibold text-sm"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-300 hover:text-zinc-300 hover:bg-zinc-800 transition-all font-semibold text-sm"
               >
                 <LogOut className="w-4.5 h-4.5" />
                 <span>Logout</span>
@@ -1018,15 +1018,15 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setMobileSidebarOpen(false)}
-            className="fixed inset-0 bg-white/[0.01]  z-[60] lg:hidden"
+            className="fixed inset-0 bg-zinc-900/50  z-[60] lg:hidden"
           />
         )}
       </AnimatePresence>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 bg-white/[0.01]  border-r border-white/[0.06] flex-col z-50 shrink-0 shadow-xl">
+      <aside className="hidden lg:flex w-64 bg-zinc-900/50  border-r border-zinc-800 flex-col z-50 shrink-0 shadow-xl">
         {/* Sidebar Logo Area */}
-        <div className="h-20 flex items-center gap-3 px-6 border-b border-white/5">
+        <div className="h-20 flex items-center gap-3 px-6 border-b border-zinc-800">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
             <Crown className="w-5 h-5 text-white" />
           </div>
@@ -1052,11 +1052,11 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-sm font-semibold
                   ${active 
-                    ? "bg-white/[0.03] border border-white/5 text-white shadow-lg relative" 
-                    : "text-slate-400 hover:text-white hover:bg-white/[0.01] border border-transparent"}
+                    ? "bg-zinc-900 border border-zinc-800 text-white shadow-lg relative" 
+                    : "text-zinc-300 hover:text-white hover:bg-zinc-900/50 border border-transparent"}
                 `}
               >
-                <Icon className={`w-4.5 h-4.5 ${active ? "text-white/90" : "text-slate-500"}`} />
+                <Icon className={`w-4.5 h-4.5 ${active ? "text-white/90" : "text-zinc-400"}`} />
                 <span>{nav.label}</span>
                 {active && <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]" />}
               </button>
@@ -1065,10 +1065,10 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
         </div>
 
         {/* Logout */}
-        <div className="p-4 border-t border-white/5">
+        <div className="p-4 border-t border-zinc-800">
           <button
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white/70 hover:bg-white/5 transition-all font-semibold text-sm"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-300 hover:text-zinc-300 hover:bg-zinc-800 transition-all font-semibold text-sm"
           >
             <LogOut className="w-4.5 h-4.5" />
             <span>Logout</span>
@@ -1080,17 +1080,17 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       <main className="flex-1 relative flex flex-col overflow-hidden h-full">
 
         {/* Main Content Header */}
-        <header className="h-16 lg:h-20 shrink-0 border-b border-white/[0.06] px-4 lg:px-8 flex items-center justify-between relative z-20 bg-white/[0.01]  rounded-b-3xl mx-2 lg:mx-4 mt-2 mb-4 shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
+        <header className="h-16 lg:h-20 shrink-0 border-b border-zinc-800 px-4 lg:px-8 flex items-center justify-between relative z-20 bg-zinc-900/50  rounded-b-3xl mx-2 lg:mx-4 mt-2 mb-4 shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
           <div className="flex items-center gap-3">
             {/* Hamburger button — only on mobile */}
             <button
               onClick={() => setMobileSidebarOpen(true)}
-              className="lg:hidden p-2.5 rounded-xl border border-white/5 bg-white/[0.03] hover:bg-white/[0.07] text-slate-400 hover:text-white transition-all shadow-md active:scale-95"
+              className="lg:hidden p-2.5 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-white/[0.07] text-zinc-300 hover:text-white transition-all shadow-md active:scale-95"
             >
               <Menu className="w-5 h-5" />
             </button>
             
-            <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 hidden sm:flex">
+            <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-zinc-300 hidden sm:flex">
               <span>ADMIN TERMINAL</span>
               <span className="text-slate-600">/</span>
               <span className="text-white drop-shadow-lg uppercase">
@@ -1104,7 +1104,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/5 bg-white/[0.03] text-xs text-slate-300 font-bold shadow-inner">
+            <div className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-zinc-800 bg-zinc-900 text-xs text-slate-300 font-bold shadow-inner">
               {profileData.avatarBase64 ? (
                 <img src={profileData.avatarBase64} alt="Avatar" className="w-5 h-5 rounded-full object-cover shadow-lg" />
               ) : (
@@ -1117,7 +1117,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full glass">
               <span className="live-dot w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span className="text-[11px] font-bold text-rose-400 tracking-widest">LIVE</span>
+              <span className="text-[11px] font-bold text-blue-400 tracking-widest">LIVE</span>
             </div>
           </div>
         </header>
@@ -1133,9 +1133,9 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                   <div className="text-left">
                     <div className="flex items-center gap-3">
                       <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-lg">System Overview</h1>
-                      <span className="px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">GLOBAL CONTROL</span>
+                      <span className="px-2.5 py-1 rounded-md bg-zinc-700 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">GLOBAL CONTROL</span>
                     </div>
-                    <p className="text-slate-400 font-semibold text-sm mt-2">Real-time global routing status of all registered endpoints</p>
+                    <p className="text-zinc-300 font-semibold text-sm mt-2">Real-time global routing status of all registered endpoints</p>
                   </div>
 
                   {/* Stats */}
@@ -1198,7 +1198,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                   {/* Title */}
                   <div className="text-left">
                     <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-md">Client Operations</h1>
-                    <p className="text-slate-400 font-semibold text-sm mt-1">Manage resellers and allocate credit balances.</p>
+                    <p className="text-zinc-300 font-semibold text-sm mt-1">Manage resellers and allocate credit balances.</p>
                   </div>
                   
                   <ClientsPanel
@@ -1227,9 +1227,9 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
                   <div className="text-left">
                     <div className="flex items-center gap-3">
                       <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-lg">Free Trials</h1>
-                      <span className="px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">PROMO ENGINES</span>
+                      <span className="px-2.5 py-1 rounded-md bg-zinc-700 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">PROMO ENGINES</span>
                     </div>
-                    <p className="text-slate-400 font-semibold text-sm mt-2">Generate free trial keys and manage active trial accounts.</p>
+                    <p className="text-zinc-300 font-semibold text-sm mt-2">Generate free trial keys and manage active trial accounts.</p>
                   </div>
                   <FreeTrialPanel
                     trials={trials}
@@ -1303,7 +1303,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
         )}
       </AnimatePresence>
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="fixed bottom-4 left-4 right-4 z-50 hidden argus-glass rounded-2xl flex items-center justify-around py-3 px-2 shadow-lg border border-white/5 overflow-x-auto scrollbar-none gap-2">
+      <nav className="fixed bottom-4 left-4 right-4 z-50 hidden argus-glass rounded-2xl flex items-center justify-around py-3 px-2 shadow-lg border border-zinc-800 overflow-x-auto scrollbar-none gap-2">
         {SIDEBAR_NAV.map((nav) => {
           const Icon = nav.icon;
           const active = activeSidebarTab === nav.id;
@@ -1317,8 +1317,8 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
               }}
               className={`flex flex-col items-center gap-1 py-1 px-3.5 rounded-xl transition-all shrink-0 cursor-pointer ${
                 active 
-                  ? "text-white/90 bg-white/[0.03]" 
-                  : "text-slate-400 hover:text-white"
+                  ? "text-white/90 bg-zinc-900" 
+                  : "text-zinc-300 hover:text-white"
               }`}
             >
               <Icon className="w-5 h-5" />
@@ -1331,7 +1331,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
       {/* Floating Team Chat Button */}
       <button
         onClick={() => setActiveSidebarTab("chat")}
-        className="fixed bottom-6 right-6 z-[100] group flex items-center justify-center w-14 h-14 rounded-full bg-white/[0.01] border border-white/5 shadow-lg  hover:bg-white/5 hover:scale-110 hover:border-white/5 hover:shadow-lg active:scale-95 transition-all duration-300"
+        className="fixed bottom-6 right-6 z-[100] group flex items-center justify-center w-14 h-14 rounded-full bg-zinc-900/50 border border-zinc-800 shadow-lg  hover:bg-zinc-800 hover:scale-110 hover:border-zinc-800 hover:shadow-lg active:scale-95 transition-all duration-300"
       >
         <MessageSquare className="w-6 h-6 text-white/90 group-hover:text-white/90 transition-colors" />
         <span className="absolute top-0 right-0 flex h-3.5 w-3.5">
@@ -1357,7 +1357,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
     onApiResetClick: (username: string) => void;
   }) {
     return (
-      <div className="panel rounded-3xl overflow-hidden bg-white/[0.01]  shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="panel rounded-3xl overflow-hidden bg-zinc-900/50  shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, transparent)" }} />
         <div className="px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between border-b border-white/[0.04]">
           <div className="flex items-center gap-3">
@@ -1370,7 +1370,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={onClearUids} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white/5 text-white/70 hover:bg-white/5 border border-white/5 shadow-lg whitespace-nowrap">
+            <button onClick={onClearUids} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-zinc-800 text-zinc-300 hover:bg-zinc-800 border border-zinc-800 shadow-lg whitespace-nowrap">
               <Trash2 className="w-3.5 h-3.5" />
               Wipe UIDs
             </button>
@@ -1515,7 +1515,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
   return (
     <div className="space-y-4">
       {/* Generator card */}
-      <div className="panel rounded-3xl overflow-hidden bg-white/[0.01]  shadow-2xl" style={{ border: "1px solid rgba(245,158,11,0.15)" }}>
+      <div className="panel rounded-3xl overflow-hidden bg-zinc-900/50  shadow-2xl" style={{ border: "1px solid rgba(245,158,11,0.15)" }}>
         <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #f59e0b, #ef4444, transparent)" }} />
         <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.25)" }}>
@@ -1532,12 +1532,12 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
             {linkData ? (
               <motion.div key="creds" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-4">
                 {/* Success header */}
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/5 border border-rose-500/20">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/5 border border-blue-500/20">
                   <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 1.5, repeat: Infinity }} className="w-8 h-8 rounded-xl flex items-center justify-center bg-emerald-500/20">
-                    <CheckCheck className="w-4 h-4 text-rose-400" />
+                    <CheckCheck className="w-4 h-4 text-blue-400" />
                   </motion.div>
                   <div>
-                    <p className="text-sm font-bold text-rose-400">Trial Link Created!</p>
+                    <p className="text-sm font-bold text-blue-400">Trial Link Created!</p>
                     <p className="text-[11px] text-muted-foreground">Valid for 24h to activate — share the link below</p>
                   </div>
                 </div>
@@ -1588,7 +1588,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
 
                 <button
                   onClick={refresh}
-                  className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-xs font-bold uppercase tracking-widest text-muted-foreground border border-white/[0.07] hover:bg-white/[0.04] hover:text-foreground transition-all"
+                  className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-xs font-bold uppercase tracking-widest text-muted-foreground border border-white/[0.07] hover:bg-zinc-800 hover:text-foreground transition-all"
                 >
                   <RefreshCw className="w-4 h-4" />
                   Generate Another
@@ -1598,7 +1598,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
               <motion.form key="form" onSubmit={handleGenerate} className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Server Name (Prefix)</label>
-                  <div className="flex items-center gap-3 border border-white/5 bg-white/[0.01]  rounded-xl px-4 py-3 focus-within:border-amber-500/50 transition-all">
+                  <div className="flex items-center gap-3 border border-zinc-800 bg-zinc-900/50  rounded-xl px-4 py-3 focus-within:border-amber-500/50 transition-all">
                     <input
                       type="text"
                       value={serverName}
@@ -1613,7 +1613,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
                 <DurationPicker value={days} onChange={setDays} presets={PRESETS} min={1} max={30} theme="amber" />
 
                 {error && (
-                  <div className="flex items-center gap-2 text-white/70 text-xs px-3 py-2 rounded-xl bg-white/5 border border-white/5">
+                  <div className="flex items-center gap-2 text-zinc-300 text-xs px-3 py-2 rounded-xl bg-zinc-800 border border-zinc-800">
                     <X className="w-3.5 h-3.5 shrink-0" />{error}
                   </div>
                 )}
@@ -1635,10 +1635,10 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
       </div>
 
       {/* Generated Tokens List */}
-      <div className="panel rounded-3xl overflow-hidden bg-white/[0.01]  shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
-        <div className="px-5 py-4 border-b border-white/[0.04] bg-white/[0.01] flex items-center justify-between">
+      <div className="panel rounded-3xl overflow-hidden bg-zinc-900/50  shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
+        <div className="px-5 py-4 border-b border-white/[0.04] bg-zinc-900/50 flex items-center justify-between">
           <h2 className="font-bold text-sm text-foreground">Generated Trial Links</h2>
-          <span className="text-[10px] bg-white/10 px-2 py-1 rounded-lg text-slate-300">{tokens.length} Links</span>
+          <span className="text-[10px] bg-zinc-700 px-2 py-1 rounded-lg text-slate-300">{tokens.length} Links</span>
         </div>
         <div className="p-4 sm:p-5">
           {loadingTokens ? (
@@ -1648,14 +1648,14 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
           ) : (
             <div className="space-y-2">
               {tokens.map((t) => (
-                <div key={t.token} className="p-3 rounded-xl bg-white/[0.01] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div key={t.token} className="p-3 rounded-xl bg-zinc-900/50 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-mono font-bold text-xs text-amber-400 truncate">{t.token}</span>
                       {t.used ? (
-                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-white/5 text-white/70 border border-white/5 uppercase tracking-widest">Used</span>
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-zinc-800 text-zinc-300 border border-zinc-800 uppercase tracking-widest">Used</span>
                       ) : (
-                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-emerald-500/20 text-rose-400 border border-rose-500/20 uppercase tracking-widest">Active</span>
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-emerald-500/20 text-blue-400 border border-blue-500/20 uppercase tracking-widest">Active</span>
                       )}
                     </div>
                     <div className="flex items-center gap-2 text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
@@ -1675,10 +1675,10 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
                         const url = `${window.location.origin}/free-portal?token=${t.token}`;
                         navigator.clipboard.writeText(url);
                         toast({ title: "Link Copied", description: "Trial activation link copied to clipboard." });
-                      }} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 transition-colors" title="Copy Link">
+                      }} className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-800 text-slate-300 transition-colors" title="Copy Link">
                       <Copy className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => handleDeleteToken(t.token)} className="p-2 rounded-lg bg-white/5 hover:bg-white/5 border border-white/5 text-white/70 transition-colors" title="Revoke & Delete">
+                    <button onClick={() => handleDeleteToken(t.token)} className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 transition-colors" title="Revoke & Delete">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -1691,7 +1691,7 @@ function FreeTrialPanel({ trials, deleting, copied, onDelete, onCopy, onCreated,
 
       {/* Active trials list */}
       {trials.length > 0 && (
-        <div className="panel rounded-3xl overflow-hidden bg-white/[0.01]  shadow-2xl" style={{ border: "1px solid rgba(245,158,11,0.1)" }}>
+        <div className="panel rounded-3xl overflow-hidden bg-zinc-900/50  shadow-2xl" style={{ border: "1px solid rgba(245,158,11,0.1)" }}>
           <div className="px-5 py-3 border-b border-white/[0.04] flex items-center gap-2">
             <Timer className="w-4 h-4 text-amber-400" />
             <span className="text-sm font-bold text-foreground">Active Trials</span>
@@ -1777,7 +1777,7 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
                 </span>
               )}
               {user.hwidLockEnabled && user.hwid && (
-                <span className="text-[10px] font-mono opacity-65 bg-red-950/20 text-rose-400 border border-rose-500/20 px-1.5 py-0.2 rounded">
+                <span className="text-[10px] font-mono opacity-65 bg-red-950/20 text-blue-400 border border-blue-500/20 px-1.5 py-0.2 rounded">
                   HWID: {user.hwid.slice(0, 8)}...
                 </span>
               )}
@@ -1792,13 +1792,13 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
           </span>
 
           {/* Quick Stats Group */}
-          <div className="flex items-center gap-1.5 bg-white/5 border border-white/5 p-1 rounded-lg">
+          <div className="flex items-center gap-1.5 bg-zinc-800 border border-zinc-800 p-1 rounded-lg">
             {/* UID Limit edit button */}
             {onUidLimitClick && (
               <button
                 onClick={onUidLimitClick}
                 title="Set UID Limit"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-bold transition-all text-white hover:bg-white/10 whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-bold transition-all text-white hover:bg-zinc-700 whitespace-nowrap"
               >
                 <ShieldAlert className="w-3.5 h-3.5 opacity-70" />
                 {user.uidLimit === -1 || user.uidLimit === undefined ? "NO LIMIT" : `LIMIT ${user.uidLimit}`}
@@ -1807,7 +1807,7 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
             {/* Add credits button */}
             {!isTrial && onAddCreditsClick && (
               <button onClick={onAddCreditsClick} title="Add tokens"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-bold transition-all text-white hover:bg-white/10 border-l border-white/5 whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-bold transition-all text-white hover:bg-zinc-700 border-l border-zinc-800 whitespace-nowrap"
               >
                 <Wallet className="w-3.5 h-3.5 opacity-70" />
                 +TOKENS
@@ -1818,40 +1818,40 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
           {/* Actions Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg transition-all hover:bg-white/10 text-slate-400 focus:outline-none focus:ring-2 focus:ring-white/30">
+              <button className="w-8 h-8 flex items-center justify-center rounded-lg transition-all hover:bg-zinc-700 text-zinc-300 focus:outline-none focus:ring-2 focus:ring-white/30">
                 <MoreHorizontal className="w-4 h-4" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-white/[0.01]  border border-white/5 text-slate-300 rounded-xl shadow-2xl p-2 font-mono z-50">
-              <DropdownMenuLabel className="text-[10px] text-slate-500 font-bold uppercase tracking-widest px-2 pt-1 pb-2">Client Actions</DropdownMenuLabel>
+            <DropdownMenuContent align="end" className="w-56 bg-zinc-900/50  border border-zinc-800 text-slate-300 rounded-xl shadow-2xl p-2 font-mono z-50">
+              <DropdownMenuLabel className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest px-2 pt-1 pb-2">Client Actions</DropdownMenuLabel>
               
-              <DropdownMenuItem onClick={onCopy} className="gap-3 cursor-pointer focus:bg-white/10 focus:text-white rounded-lg py-2">
+              <DropdownMenuItem onClick={onCopy} className="gap-3 cursor-pointer focus:bg-zinc-700 focus:text-white rounded-lg py-2">
                 {copied ? <CheckCheck className="w-4 h-4 text-white/90" /> : <Copy className="w-4 h-4 opacity-70" />}
                 <span className="text-sm">Copy Credentials</span>
               </DropdownMenuItem>
 
               {!isTrial && onResellToggle && (
-                <DropdownMenuItem onClick={() => onResellToggle(!user.canResell)} className={`gap-3 cursor-pointer focus:bg-white/10 focus:text-white rounded-lg py-2 ${user.canResell ? 'text-amber-400' : ''}`}>
+                <DropdownMenuItem onClick={() => onResellToggle(!user.canResell)} className={`gap-3 cursor-pointer focus:bg-zinc-700 focus:text-white rounded-lg py-2 ${user.canResell ? 'text-amber-400' : ''}`}>
                   <Gift className={`w-4 h-4 ${user.canResell ? '' : 'opacity-70'}`} />
                   <span className="text-sm">{user.canResell ? "Revoke Reseller" : "Grant Reseller"}</span>
                 </DropdownMenuItem>
               )}
 
               {onHwidLockToggle && (
-                <DropdownMenuItem onClick={() => onHwidLockToggle(!user.hwidLockEnabled)} className={`gap-3 cursor-pointer focus:bg-white/10 focus:text-white rounded-lg py-2 ${user.hwidLockEnabled ? 'text-white/70' : ''}`}>
+                <DropdownMenuItem onClick={() => onHwidLockToggle(!user.hwidLockEnabled)} className={`gap-3 cursor-pointer focus:bg-zinc-700 focus:text-white rounded-lg py-2 ${user.hwidLockEnabled ? 'text-zinc-300' : ''}`}>
                   {user.hwidLockEnabled ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4 opacity-70" />}
                   <span className="text-sm">{user.hwidLockEnabled ? "Disable HWID Lock" : "Enable HWID Lock"}</span>
                 </DropdownMenuItem>
               )}
 
               {onApiAccessToggle && (
-                <DropdownMenuItem onClick={() => onApiAccessToggle(!user.apiAccessEnabled)} className={`gap-3 cursor-pointer focus:bg-white/10 focus:text-white rounded-lg py-2 ${user.apiAccessEnabled ? 'text-rose-400' : ''}`}>
+                <DropdownMenuItem onClick={() => onApiAccessToggle(!user.apiAccessEnabled)} className={`gap-3 cursor-pointer focus:bg-zinc-700 focus:text-white rounded-lg py-2 ${user.apiAccessEnabled ? 'text-blue-400' : ''}`}>
                   <Terminal className={`w-4 h-4 ${user.apiAccessEnabled ? '' : 'opacity-70'}`} />
                   <span className="text-sm">{user.apiAccessEnabled ? "Revoke API Access" : "Grant API Access"}</span>
                 </DropdownMenuItem>
               )}
 
-              <DropdownMenuSeparator className="bg-white/10 my-2" />
+              <DropdownMenuSeparator className="bg-zinc-700 my-2" />
 
               {user.hwidLockEnabled && onHwidReset && (
                 <DropdownMenuItem onClick={onHwidReset} className="gap-3 cursor-pointer focus:bg-amber-500/20 focus:text-amber-400 text-amber-400/80 rounded-lg py-2 transition-colors">
@@ -1861,13 +1861,13 @@ const UserRow = memo(function UserRow({ user, index, deleting, copied, onDelete,
               )}
 
               {user.apiAccessEnabled && onApiResetClick && (
-                <DropdownMenuItem onClick={onApiResetClick} className="gap-3 cursor-pointer focus:bg-white/5 focus:text-white/70 text-white/70/80 rounded-lg py-2 transition-colors">
+                <DropdownMenuItem onClick={onApiResetClick} className="gap-3 cursor-pointer focus:bg-zinc-800 focus:text-zinc-300 text-zinc-300/80 rounded-lg py-2 transition-colors">
                   <KeyRound className="w-4 h-4" />
                   <span className="text-sm">Reset API Key</span>
                 </DropdownMenuItem>
               )}
 
-              <DropdownMenuItem onClick={onDelete} disabled={deleting} className="gap-3 cursor-pointer focus:bg-white/5 focus:text-white/70 text-white/70/60 rounded-lg py-2 transition-colors mt-1">
+              <DropdownMenuItem onClick={onDelete} disabled={deleting} className="gap-3 cursor-pointer focus:bg-zinc-800 focus:text-zinc-300 text-zinc-300/60 rounded-lg py-2 transition-colors mt-1">
                 {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                 <span className="text-sm">Delete Client</span>
               </DropdownMenuItem>
@@ -1940,7 +1940,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ type: "spring", stiffness: 240, damping: 26 }}
-        className="w-full max-w-lg relative rounded-[2.5rem] p-6 sm:p-8 overflow-hidden bg-white/[0.01] "
+        className="w-full max-w-lg relative rounded-[2.5rem] p-6 sm:p-8 overflow-hidden bg-zinc-900/50 "
         style={{
           border: `1px solid ${
             creditMode === "add"
@@ -1972,7 +1972,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
         />
 
         {/* Ambient background glows */}
-        <div className="absolute -left-20 -top-20 w-40 h-40 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -left-20 -top-20 w-40 h-40 bg-zinc-800 rounded-full blur-3xl pointer-events-none" />
         <div
           className="absolute -right-20 -bottom-20 w-40 h-40 rounded-full blur-3xl pointer-events-none transition-all duration-500"
           style={{
@@ -1986,7 +1986,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
         />
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-5 border-b border-white/[0.05] mb-6">
+        <div className="flex items-center justify-between pb-5 border-b border-zinc-800 mb-6">
           <div className="flex items-center gap-3.5">
             <div
               className="w-11 h-11 rounded-2xl flex items-center justify-center border transition-all duration-300"
@@ -2008,38 +2008,38 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
               <Wallet
                 className={`w-5 h-5 transition-colors duration-300 ${
                   creditMode === "add"
-                    ? "text-rose-400"
+                    ? "text-blue-400"
                     : creditMode === "deduct"
-                    ? "text-white/70"
+                    ? "text-zinc-300"
                     : "text-white/90"
                 }`}
               />
             </div>
             <div>
               <h3 className="font-black text-base text-white tracking-wide">Manage Balance</h3>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-0.5">
+              <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">
                 Client: <span className="text-white/90 font-mono">@{user.username}</span>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/5 border border-white/5 text-slate-400 hover:text-white transition-all hover:bg-white/10"
+            className="w-8 h-8 rounded-xl flex items-center justify-center bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-all hover:bg-zinc-700"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Transaction Preview Block */}
-        <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-6 mb-6 text-center relative overflow-hidden flex flex-col items-center justify-center">
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 mb-6 text-center relative overflow-hidden flex flex-col items-center justify-center">
           <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
-          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">
+          <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-4">
             Transaction Preview
           </div>
 
           <div className="flex items-center justify-center gap-6 w-full">
             <div className="text-center flex-1">
-              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
+              <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">
                 Current
               </div>
               <div className="text-2xl font-black text-slate-300 font-mono tracking-tighter">
@@ -2055,9 +2055,9 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                 transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
                 className={`text-lg font-black ${
                   creditMode === "add"
-                    ? "text-rose-400"
+                    ? "text-blue-400"
                     : creditMode === "deduct"
-                    ? "text-white/70"
+                    ? "text-zinc-300"
                     : "text-white/90"
                 }`}
               >
@@ -2066,7 +2066,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
             </div>
 
             <div className="text-center flex-1">
-              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
+              <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">
                 Prospective
               </div>
               <motion.div
@@ -2076,9 +2076,9 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className={`text-3xl font-black font-mono tracking-tighter transition-colors duration-300 ${
                   creditMode === "add"
-                    ? "text-rose-400 drop-shadow-lg"
+                    ? "text-blue-400 drop-shadow-lg"
                     : creditMode === "deduct"
-                    ? "text-white/70 drop-shadow-lg"
+                    ? "text-zinc-300 drop-shadow-lg"
                     : "text-white/90 drop-shadow-lg"
                 }`}
               >
@@ -2091,10 +2091,10 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
         <form onSubmit={handleApply} className="space-y-6">
           {/* Segmented Mode Picker */}
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-300 ml-1">
               Operation Mode
             </label>
-            <div className="grid grid-cols-3 gap-2 p-1 rounded-2xl bg-white/[0.01] border border-white/5">
+            <div className="grid grid-cols-3 gap-2 p-1 rounded-2xl bg-zinc-900/50 border border-zinc-800">
               {(["add", "deduct", "set"] as const).map((m) => (
                 <button
                   key={m}
@@ -2106,11 +2106,11 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                   className={`py-3 rounded-xl text-xs font-black uppercase tracking-[0.1em] transition-all cursor-pointer ${
                     creditMode === m
                       ? m === "add"
-                        ? "bg-emerald-500/20 text-rose-400 border border-rose-500/20 shadow-lg"
+                        ? "bg-emerald-500/20 text-blue-400 border border-blue-500/20 shadow-lg"
                         : m === "deduct"
-                        ? "bg-white/5 text-white/70 border border-white/5 shadow-lg"
-                        : "bg-white/5 text-white/90 border border-white/5 shadow-lg"
-                      : "text-slate-500 hover:text-slate-300 bg-transparent border border-transparent"
+                        ? "bg-zinc-800 text-zinc-300 border border-zinc-800 shadow-lg"
+                        : "bg-zinc-800 text-white/90 border border-zinc-800 shadow-lg"
+                      : "text-zinc-400 hover:text-slate-300 bg-transparent border border-transparent"
                   }`}
                 >
                   {m === "add" ? "Add (+)" : m === "deduct" ? "Deduct (-)" : "Set (=)"}
@@ -2121,7 +2121,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
 
           {/* Dynamic Preset Chips */}
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-300 ml-1">
               Preset Amounts
             </label>
             <div className="flex gap-2.5">
@@ -2170,7 +2170,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
 
           {/* Input field */}
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-300 ml-1">
               {creditMode === "add"
                 ? "Tokens to Add"
                 : creditMode === "deduct"
@@ -2178,7 +2178,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                 : "Exact Balance to Set"}
             </label>
             <div className="relative group">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-mono text-xs">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs">
                 #
               </span>
               <input
@@ -2192,7 +2192,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
                     ? "Enter amount to deduct..."
                     : "Enter new token balance..."
                 }
-                className="w-full h-12 pl-10 pr-4 rounded-xl bg-white/[0.01] border text-sm text-white placeholder-slate-600 font-mono focus:outline-none transition-all"
+                className="w-full h-12 pl-10 pr-4 rounded-xl bg-zinc-900/50 border text-sm text-white placeholder-slate-600 font-mono focus:outline-none transition-all"
                 style={{
                   borderColor:
                     creditMode === "add"
@@ -2210,7 +2210,7 @@ function ManageCreditsModal({ user, onClose, onAddCredits }: ManageCreditsModalP
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 h-12 rounded-xl border border-white/[0.08] text-xs font-bold text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all"
+              className="flex-1 h-12 rounded-xl border border-white/[0.08] text-xs font-bold text-zinc-300 hover:text-white hover:bg-zinc-800 transition-all"
             >
               Cancel
             </button>
@@ -2292,12 +2292,12 @@ function CreateUserModal({ onClose, onCreate }: {
     >
       <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md relative rounded-[2.5rem] p-7 shadow-2xl overflow-hidden bg-white/[0.01] "
+        className="w-full max-w-md relative rounded-[2.5rem] p-7 shadow-2xl overflow-hidden bg-zinc-900/50 "
         style={{ backdropFilter: "blur(24px)" }}
       >
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-violet-500/60 to-transparent" />
-        <div className="absolute -top-32 -left-32 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-32 -left-32 w-64 h-64 bg-zinc-800 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-zinc-800 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
@@ -2309,7 +2309,7 @@ function CreateUserModal({ onClose, onCreate }: {
               <p className="text-[11px] text-muted-foreground">Full access to UID manager</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 border border-white/5 text-muted-foreground hover:text-white hover:bg-white/10 transition-all shadow-sm">
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center bg-zinc-800 border border-zinc-800 text-muted-foreground hover:text-white hover:bg-zinc-700 transition-all shadow-sm">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -2318,9 +2318,9 @@ function CreateUserModal({ onClose, onCreate }: {
           {success ? (
             <motion.div key="ok" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="py-8 flex flex-col items-center gap-3">
               <motion.div animate={{ scale: [0.5, 1.15, 1] }} transition={{ duration: 0.5 }} className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)" }}>
-                <CheckCheck className="w-8 h-8 text-rose-400" />
+                <CheckCheck className="w-8 h-8 text-blue-400" />
               </motion.div>
-              <p className="font-bold text-rose-400 text-sm">Account Created!</p>
+              <p className="font-bold text-blue-400 text-sm">Account Created!</p>
             </motion.div>
           ) : (
             <motion.form key="form" onSubmit={handleCreate} className="space-y-4">
@@ -2331,7 +2331,7 @@ function CreateUserModal({ onClose, onCreate }: {
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{f.label}</label>
                   <div className="relative group shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] rounded-xl">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-white/90 transition-colors">{f.icon}</span>
-                    <input type={f.type} value={f.value} onChange={(e) => f.onChange(e.target.value)} placeholder={f.placeholder} className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.01] border border-white/5 text-sm text-white font-medium placeholder:text-muted-foreground/40 focus:outline-none focus:border-white/5 focus:bg-white/[0.01] focus:ring-1 focus:ring-violet-500/40 transition-all" />
+                    <input type={f.type} value={f.value} onChange={(e) => f.onChange(e.target.value)} placeholder={f.placeholder} className="w-full h-12 pl-12 pr-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-sm text-white font-medium placeholder:text-muted-foreground/40 focus:outline-none focus:border-zinc-800 focus:bg-zinc-900/50 focus:ring-1 focus:ring-violet-500/40 transition-all" />
                   </div>
                 </div>
               ))}
@@ -2341,7 +2341,7 @@ function CreateUserModal({ onClose, onCreate }: {
                 <div className="relative group shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] rounded-xl">
                   <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-white/90 transition-colors" />
                   <input type="text" readOnly value={password}
-                    className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.01] border border-white/5 text-sm text-slate-300 font-mono cursor-not-allowed focus:outline-none focus:border-white/5 focus:ring-1 focus:ring-violet-500/40 transition-all" />
+                    className="w-full h-12 pl-12 pr-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-sm text-slate-300 font-mono cursor-not-allowed focus:outline-none focus:border-zinc-800 focus:ring-1 focus:ring-violet-500/40 transition-all" />
                 </div>
               </div>
 
@@ -2350,9 +2350,9 @@ function CreateUserModal({ onClose, onCreate }: {
               <div className="space-y-2 pt-2">
                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Device / UID Limit</label>
                 
-                <div className="flex gap-2 p-1 rounded-xl bg-white/[0.01] border border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]">
-                   <button type="button" onClick={() => setIsInfinity(true)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${isInfinity ? 'bg-white/5 text-white/90 shadow-lg border border-white/5' : 'text-slate-500 hover:text-slate-300'}`}>Unlimited</button>
-                   <button type="button" onClick={() => setIsInfinity(false)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${!isInfinity ? 'bg-white/5 text-white/90 shadow-lg border border-white/5' : 'text-slate-500 hover:text-slate-300'}`}>Custom Limit</button>
+                <div className="flex gap-2 p-1 rounded-xl bg-zinc-900/50 border border-zinc-800 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]">
+                   <button type="button" onClick={() => setIsInfinity(true)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${isInfinity ? 'bg-zinc-800 text-white/90 shadow-lg border border-zinc-800' : 'text-zinc-400 hover:text-slate-300'}`}>Unlimited</button>
+                   <button type="button" onClick={() => setIsInfinity(false)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${!isInfinity ? 'bg-zinc-800 text-white/90 shadow-lg border border-zinc-800' : 'text-zinc-400 hover:text-slate-300'}`}>Custom Limit</button>
                 </div>
 
                 <AnimatePresence>
@@ -2365,19 +2365,19 @@ function CreateUserModal({ onClose, onCreate }: {
                       value={uidLimit} 
                       onChange={(e) => setUidLimit(parseInt(e.target.value) || 1)} 
                       placeholder="Enter max allowed devices" 
-                      className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.01] border border-white/5 text-sm text-white font-medium placeholder:text-muted-foreground/40 focus:outline-none focus:border-white/5 focus:bg-white/[0.01] focus:ring-1 focus:ring-cyan-500/40 transition-all" 
+                      className="w-full h-12 pl-12 pr-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-sm text-white font-medium placeholder:text-muted-foreground/40 focus:outline-none focus:border-zinc-800 focus:bg-zinc-900/50 focus:ring-1 focus:ring-cyan-500/40 transition-all" 
                     />
                   </motion.div>
                 )}
                 </AnimatePresence>
               </div>
 
-              {error && <div className="flex items-center gap-2 text-white/70 text-xs px-3 py-2.5 rounded-xl bg-white/5 border border-white/5"><X className="w-3.5 h-3.5 shrink-0" />{error}</div>}
+              {error && <div className="flex items-center gap-2 text-zinc-300 text-xs px-3 py-2.5 rounded-xl bg-zinc-800 border border-zinc-800"><X className="w-3.5 h-3.5 shrink-0" />{error}</div>}
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={onClose} className="flex-1 h-12 rounded-xl bg-white/5 border border-white/5 text-sm text-slate-300 hover:text-white hover:bg-white/10 transition-all font-semibold shadow-sm">Cancel</button>
+                <button type="button" onClick={onClose} className="flex-1 h-12 rounded-xl bg-zinc-800 border border-zinc-800 text-sm text-slate-300 hover:text-white hover:bg-zinc-700 transition-all font-semibold shadow-sm">Cancel</button>
                 <motion.button type="submit" disabled={loading || !username || !password} whileHover={{ scale: 1.02, y: -1 }} whileTap={{ scale: 0.98, y: 1 }}
-                  className="flex-1 h-12 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 relative overflow-hidden transition-all shadow-[0_8px_20px_-6px_rgba(255,255,255,0.1)] border border-white/5"
+                  className="flex-1 h-12 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 relative overflow-hidden transition-all shadow-[0_8px_20px_-6px_rgba(255,255,255,0.1)] border border-zinc-800"
                   style={{ background: "linear-gradient(135deg, #7c3aed, #0891b2)" }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 btn-shimmer" />
@@ -2415,7 +2415,7 @@ function DurationPicker({ value, onChange, presets, min = 1, max = 90, theme = "
             max={max} 
             value={value}
             onChange={(e) => onChange(Math.min(max, Math.max(min, parseInt(e.target.value) || min)))}
-            className="w-full h-9 px-3 rounded-lg bg-white/[0.01] border border-white/5 text-sm text-center font-bold font-mono focus:outline-none focus:border-white/5 focus:ring-1 focus:ring-violet-500/40 transition-all text-white" 
+            className="w-full h-9 px-3 rounded-lg bg-zinc-900/50 border border-zinc-800 text-sm text-center font-bold font-mono focus:outline-none focus:border-zinc-800 focus:ring-1 focus:ring-violet-500/40 transition-all text-white" 
             style={{ color: hex1 }}
           />
         </div>
@@ -2499,7 +2499,7 @@ function SettingsPanel() {
   return (
     <div className="space-y-4">
       {/* API Config card */}
-      <div className="rounded-3xl overflow-hidden bg-white/[0.01]  shadow-2xl" style={{ border: "1px solid rgba(6,182,212,0.15)" }}>
+      <div className="rounded-3xl overflow-hidden bg-zinc-900/50  shadow-2xl" style={{ border: "1px solid rgba(6,182,212,0.15)" }}>
         <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #06b6d4, #10b981, transparent)" }} />
         <div className="px-5 py-4 flex items-center gap-3 border-b border-white/[0.04]">
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(6,182,212,0.15)", border: "1px solid rgba(6,182,212,0.25)" }}>
@@ -2525,7 +2525,7 @@ function SettingsPanel() {
                 <input
                   type="url" value={apiUrl} onChange={(e) => setApiUrl(e.target.value)}
                   placeholder="https://your-api.example.com/api/endpoint.php"
-                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-white/[0.04] border border-white/5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-white/5 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all font-mono text-[12px]"
+                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-800 border border-zinc-800 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-zinc-800 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all font-mono text-[12px]"
                 />
               </div>
             </div>
@@ -2535,7 +2535,7 @@ function SettingsPanel() {
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">API Key</label>
                 {hasCustomKey && (
-                  <span className="flex items-center gap-1 text-[10px] font-bold text-rose-400">
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-blue-400">
                     <CheckCheck className="w-3 h-3" /> Custom key active
                   </span>
                 )}
@@ -2546,7 +2546,7 @@ function SettingsPanel() {
                   type={showKey ? "text" : "password"} value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   placeholder={hasCustomKey ? "Enter new key to replace current…" : "Paste your API key here"}
-                  className="w-full h-11 pl-10 pr-12 rounded-xl bg-white/[0.04] border border-white/5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-white/5 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all font-mono text-[12px]"
+                  className="w-full h-11 pl-10 pr-12 rounded-xl bg-zinc-800 border border-zinc-800 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-zinc-800 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all font-mono text-[12px]"
                 />
                 <button type="button" onClick={() => setShowKey(!showKey)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1">
                   {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -2556,7 +2556,7 @@ function SettingsPanel() {
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 text-white/70 text-xs px-3 py-2.5 rounded-xl bg-white/5 border border-white/5">
+              <div className="flex items-center gap-2 text-zinc-300 text-xs px-3 py-2.5 rounded-xl bg-zinc-800 border border-zinc-800">
                 <X className="w-3.5 h-3.5 shrink-0" />{error}
               </div>
             )}
@@ -2573,7 +2573,7 @@ function SettingsPanel() {
       </div>
 
       {/* Duration info card */}
-      <div className="rounded-3xl overflow-hidden bg-white/[0.01]  shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-3xl overflow-hidden bg-zinc-900/50  shadow-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="px-5 py-4 border-b border-white/[0.04]">
           <h3 className="font-bold text-sm text-foreground">Allowed Duration Values</h3>
           <p className="text-[11px] text-muted-foreground mt-0.5">The external API accepts these exact hour values</p>
@@ -2595,7 +2595,7 @@ function SettingsPanel() {
             <span className="text-muted-foreground/40">&action=create&uid=</span>
             <span className="text-white/90/70">{"{uid}"}</span>
             <span className="text-muted-foreground/40">&duration=</span>
-            <span className="text-rose-400/70">{"{hours}"}</span>
+            <span className="text-blue-400/70">{"{hours}"}</span>
           </div>
         </div>
       </div>
@@ -2647,7 +2647,7 @@ function PaymentsPanel({
               <p className="text-[11px] text-muted-foreground">{pending.length} pending approval</p>
             </div>
           </div>
-          <button onClick={onRefresh} disabled={loading} className="p-2 rounded-lg hover:bg-white/[0.04] text-muted-foreground hover:text-foreground transition-all">
+          <button onClick={onRefresh} disabled={loading} className="p-2 rounded-lg hover:bg-zinc-800 text-muted-foreground hover:text-foreground transition-all">
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
         </div>
@@ -2700,7 +2700,7 @@ function PaymentsPanel({
                     </button>
                   </div>
                 ) : (
-                  <span className={`shrink-0 flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold ${p.status === "approved" ? "text-rose-400" : "text-white/70"}`} style={{ background: p.status === "approved" ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.1)", border: `1px solid ${p.status === "approved" ? "rgba(16,185,129,0.25)" : "rgba(255,255,255,0.1)"}` }}>
+                  <span className={`shrink-0 flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold ${p.status === "approved" ? "text-blue-400" : "text-zinc-300"}`} style={{ background: p.status === "approved" ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.1)", border: `1px solid ${p.status === "approved" ? "rgba(16,185,129,0.25)" : "rgba(255,255,255,0.1)"}` }}>
                     {p.status === "approved" ? <Check className="w-2.5 h-2.5" /> : <XCircle className="w-2.5 h-2.5" />}
                     {p.status === "approved" ? "Approved" : "Rejected"}
                   </span>
@@ -2860,33 +2860,33 @@ function UserProfilePanel({
           <UserCircle className="w-8 h-8 text-white drop-shadow-lg" />
           <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-md">Account Profile</h1>
         </div>
-        <p className="text-slate-400 font-semibold text-sm mt-2">Personalize your identity for the team chat and dashboard.</p>
+        <p className="text-zinc-300 font-semibold text-sm mt-2">Personalize your identity for the team chat and dashboard.</p>
       </div>
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }} 
         animate={{ opacity: 1, y: 0 }} 
-        className="argus-glass rounded-[2rem] p-8 sm:p-10 relative overflow-hidden shadow-2xl border border-white/5 text-left"
+        className="argus-glass rounded-[2rem] p-8 sm:p-10 relative overflow-hidden shadow-2xl border border-zinc-800 text-left"
       >
         <div className="flex items-center gap-3.5 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center">
-            <UserCircle className="w-5 h-5 text-slate-400" />
+          <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-800 flex items-center justify-center">
+            <UserCircle className="w-5 h-5 text-zinc-300" />
           </div>
           <div>
             <h2 className="font-black text-base text-white tracking-wide">Identity Settings</h2>
-            <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.15em] mt-0.5">HOW OTHERS SEE YOU IN CHAT</p>
+            <p className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.15em] mt-0.5">HOW OTHERS SEE YOU IN CHAT</p>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
           <div className="relative shrink-0 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-            <div className="w-28 h-28 rounded-full bg-white/[0.01] border-2 border-white/5 shadow-lg overflow-hidden flex items-center justify-center relative hover:border-white/5 group/preview transition-all">
+            <div className="w-28 h-28 rounded-full bg-zinc-900/50 border-2 border-zinc-800 shadow-lg overflow-hidden flex items-center justify-center relative hover:border-zinc-800 group/preview transition-all">
               {tempAvatar ? (
                 <img src={tempAvatar} alt="DP Preview" className="w-full h-full object-cover" />
               ) : (
                 <UserCircle className="w-16 h-16 text-slate-600" />
               )}
-              <div className="absolute inset-0 bg-white/[0.01] opacity-0 group-hover/preview:opacity-100 flex items-center justify-center transition-opacity">
+              <div className="absolute inset-0 bg-zinc-900/50 opacity-0 group-hover/preview:opacity-100 flex items-center justify-center transition-opacity">
                 <Camera className="w-6 h-6 text-white" />
               </div>
             </div>
@@ -2895,35 +2895,35 @@ function UserProfilePanel({
 
           <div className="flex-grow w-full space-y-5 text-left">
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">DISPLAY NAME</label>
+              <label className="text-[10px] font-black uppercase tracking-[0.15em] text-zinc-300 ml-1">DISPLAY NAME</label>
               <input 
                 type="text" 
                 value={tempName} 
                 onChange={(e) => setTempName(e.target.value)}
-                className="w-full h-12 px-4 rounded-xl bg-white/[0.01] border border-white/5 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/5 focus:shadow-lg transition-all text-sm"
+                className="w-full h-12 px-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-zinc-800 focus:shadow-lg transition-all text-sm"
                 placeholder="Enter display name..."
               />
             </div>
             
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">AVATAR URL</label>
+              <label className="text-[10px] font-black uppercase tracking-[0.15em] text-zinc-300 ml-1">AVATAR URL</label>
               <input 
                 type="text" 
                 value={tempAvatar} 
                 onChange={(e) => setTempAvatar(e.target.value)}
-                className="w-full h-12 px-4 rounded-xl bg-white/[0.01] border border-white/5 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/5 focus:shadow-lg transition-all text-sm"
+                className="w-full h-12 px-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-zinc-800 focus:shadow-lg transition-all text-sm"
                 placeholder="https://image-link.com/photo.jpg or Base64..."
               />
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1">Use a direct link to an image file.</p>
+              <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest ml-1">Use a direct link to an image file.</p>
             </div>
           </div>
         </div>
 
-        <div className="mt-8 pt-4 border-t border-white/5">
+        <div className="mt-8 pt-4 border-t border-zinc-800">
           <button 
             onClick={handleSaveIdentity}
             disabled={savingIdentity}
-            className="w-full h-12 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/20 text-white font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full h-12 rounded-xl bg-zinc-800 border border-zinc-800 hover:bg-zinc-700 hover:border-white/20 text-white font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             {savingIdentity ? (
               <>
@@ -2941,42 +2941,42 @@ function UserProfilePanel({
         initial={{ opacity: 0, y: 20 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ delay: 0.1 }}
-        className="argus-glass rounded-[2rem] p-8 sm:p-10 relative overflow-hidden shadow-2xl border border-white/5 text-left"
+        className="argus-glass rounded-[2rem] p-8 sm:p-10 relative overflow-hidden shadow-2xl border border-zinc-800 text-left"
       >
         <div className="flex items-center gap-3.5 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center">
-            <Lock className="w-5 h-5 text-slate-400" />
+          <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-800 flex items-center justify-center">
+            <Lock className="w-5 h-5 text-zinc-300" />
           </div>
           <div>
             <h2 className="font-black text-base text-white tracking-wide">Security Key</h2>
-            <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.15em] mt-0.5">UPDATE YOUR ACCESS CREDENTIALS</p>
+            <p className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.15em] mt-0.5">UPDATE YOUR ACCESS CREDENTIALS</p>
           </div>
         </div>
 
         <form onSubmit={handleUpdateKey} className="space-y-5 text-left">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">CURRENT PASSWORD</label>
+            <label className="text-[10px] font-black uppercase tracking-[0.15em] text-zinc-300 ml-1">CURRENT PASSWORD</label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
               <input 
                 type="password" 
                 value={currentPassword} 
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.01] border border-white/5 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/5 focus:shadow-lg transition-all text-sm"
+                className="w-full h-12 pl-12 pr-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-zinc-800 focus:shadow-lg transition-all text-sm"
                 placeholder="••••••••"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">NEW PASSWORD</label>
+            <label className="text-[10px] font-black uppercase tracking-[0.15em] text-zinc-300 ml-1">NEW PASSWORD</label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
               <input 
                 type="password" 
                 value={newPassword} 
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/[0.01] border border-white/5 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-white/5 focus:shadow-lg transition-all text-sm"
+                className="w-full h-12 pl-12 pr-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-white font-bold placeholder-slate-600 focus:outline-none focus:border-zinc-800 focus:shadow-lg transition-all text-sm"
                 placeholder="Enter new password"
               />
             </div>
@@ -2986,12 +2986,12 @@ function UserProfilePanel({
             <button 
               type="submit"
               disabled={updatingKey || !currentPassword || !newPassword}
-              className="w-full h-12 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/20 text-white font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full h-12 rounded-xl bg-zinc-800 border border-zinc-800 hover:bg-zinc-700 hover:border-white/20 text-white font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {updatingKey ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Crown className="w-4 h-4 text-slate-400" />
+                <Crown className="w-4 h-4 text-zinc-300" />
               )}
               Update Key
             </button>
@@ -3044,7 +3044,7 @@ function LeaderboardView() {
     return (
       <div className="flex flex-col items-center justify-center p-20 opacity-60">
         <Loader2 className="w-12 h-12 text-white/90 animate-spin mb-4" />
-        <p className="text-xs font-black uppercase tracking-widest text-slate-400">Loading Leaderboard...</p>
+        <p className="text-xs font-black uppercase tracking-widest text-zinc-300">Loading Leaderboard...</p>
       </div>
     );
   }
@@ -3060,15 +3060,15 @@ function LeaderboardView() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight drop-shadow-lg">Leaderboard</h1>
-            <span className="px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">REAL-TIME RANKINGS</span>
+            <span className="px-2.5 py-1 rounded-md bg-zinc-700 border border-white/20 text-[9px] font-black tracking-widest text-white mt-1">REAL-TIME RANKINGS</span>
           </div>
-          <p className="text-slate-400 font-semibold text-sm mt-2">Ranked by UIDs added on the global authorization mesh</p>
+          <p className="text-zinc-300 font-semibold text-sm mt-2">Ranked by UIDs added on the global authorization mesh</p>
         </div>
         
         <button 
           onClick={() => fetchLeaderboard(true)}
           disabled={refreshing}
-          className="h-12 w-12 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/20 flex items-center justify-center text-slate-300 hover:text-white transition-all disabled:opacity-50"
+          className="h-12 w-12 rounded-2xl bg-zinc-800 border border-zinc-800 hover:bg-zinc-700 hover:border-white/20 flex items-center justify-center text-slate-300 hover:text-white transition-all disabled:opacity-50"
         >
           <RefreshCw className={`w-5 h-5 ${refreshing ? "animate-spin text-white/90" : ""}`} />
         </button>
@@ -3084,14 +3084,14 @@ function LeaderboardView() {
               className="md:order-1"
             >
               <TiltWrapper>
-                <div className="argus-glass rounded-[2rem] p-6 text-center border border-white/5 relative overflow-hidden shadow-xl md:h-[280px] flex flex-col justify-between">
+                <div className="argus-glass rounded-[2rem] p-6 text-center border border-zinc-800 relative overflow-hidden shadow-xl md:h-[280px] flex flex-col justify-between">
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-400 to-slate-200" />
                   <div className="flex justify-center -mt-12 relative">
                     <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-slate-400 shadow-lg overflow-hidden flex items-center justify-center relative">
                       {top2.avatar ? (
                         <img src={top2.avatar} alt="Rank 2" className="w-full h-full object-cover" />
                       ) : (
-                        <UserCircle className="w-12 h-12 text-slate-400" />
+                        <UserCircle className="w-12 h-12 text-zinc-300" />
                       )}
                       <div className="absolute -bottom-2 right-1/2 translate-x-1/2 w-6 h-6 rounded-full bg-slate-400 text-black text-xs font-black flex items-center justify-center shadow-lg border-2 border-slate-800">
                         2
@@ -3101,14 +3101,14 @@ function LeaderboardView() {
                   
                   <div className="mt-4">
                     <h3 className="font-black text-white text-lg tracking-wide truncate max-w-full">{top2.displayName}</h3>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
-                      @{top2.username} <span className="opacity-40">·</span> <span className={top2.role === "admin" ? "text-white/70" : "text-white/90"}>{top2.role === "admin" ? "Admin" : "Reseller"}</span>
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">
+                      @{top2.username} <span className="opacity-40">·</span> <span className={top2.role === "admin" ? "text-zinc-300" : "text-white/90"}>{top2.role === "admin" ? "Admin" : "Reseller"}</span>
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-white/[0.01] border border-white/5 text-[10px] font-bold text-slate-400">
+                  <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-zinc-900/50 border border-zinc-800 text-[10px] font-bold text-zinc-300">
                     <div>
-                      <div className="text-rose-400 font-extrabold">{top2.today}</div>
+                      <div className="text-blue-400 font-extrabold">{top2.today}</div>
                       <div>TODAY</div>
                     </div>
                     <div>
@@ -3116,13 +3116,13 @@ function LeaderboardView() {
                       <div>ACTIVE</div>
                     </div>
                     <div>
-                      <div className="text-white/70 font-extrabold">{top2.expired}</div>
+                      <div className="text-zinc-300 font-extrabold">{top2.expired}</div>
                       <div>EXPIRED</div>
                     </div>
                   </div>
 
-                  <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">TOTAL UIDs</span>
+                  <div className="mt-4 flex items-center justify-between border-t border-zinc-800 pt-3">
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">TOTAL UIDs</span>
                     <span className="text-xl font-black text-slate-200 tracking-tight">{top2.total}</span>
                   </div>
                 </div>
@@ -3143,7 +3143,7 @@ function LeaderboardView() {
                   <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 shadow-lg" />
                   
                   <div className="flex justify-center -mt-16 relative">
-                    <div className="w-24 h-24 rounded-full bg-white/[0.01]/90 border-4 border-yellow-500 shadow-lg overflow-hidden flex items-center justify-center relative">
+                    <div className="w-24 h-24 rounded-full bg-zinc-900/50/90 border-4 border-yellow-500 shadow-lg overflow-hidden flex items-center justify-center relative">
                       {top1.avatar ? (
                         <img src={top1.avatar} alt="Rank 1" className="w-full h-full object-cover" />
                       ) : (
@@ -3161,14 +3161,14 @@ function LeaderboardView() {
                       <h3 className="font-black text-white text-xl tracking-wide truncate max-w-full">{top1.displayName}</h3>
                       <Trophy className="w-5 h-5 text-yellow-400 drop-shadow-lg shrink-0" />
                     </div>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
-                      @{top1.username} <span className="opacity-40">·</span> <span className={top1.role === "admin" ? "text-white/70 font-extrabold" : "text-white/90 font-extrabold"}>{top1.role === "admin" ? "Admin" : "Reseller"}</span>
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">
+                      @{top1.username} <span className="opacity-40">·</span> <span className={top1.role === "admin" ? "text-zinc-300 font-extrabold" : "text-white/90 font-extrabold"}>{top1.role === "admin" ? "Admin" : "Reseller"}</span>
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-white/[0.01] border border-white/5 text-[10px] font-bold text-slate-400">
+                  <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-zinc-900/50 border border-zinc-800 text-[10px] font-bold text-zinc-300">
                     <div>
-                      <div className="text-rose-400 font-extrabold">{top1.today}</div>
+                      <div className="text-blue-400 font-extrabold">{top1.today}</div>
                       <div>TODAY</div>
                     </div>
                     <div>
@@ -3176,13 +3176,13 @@ function LeaderboardView() {
                       <div>ACTIVE</div>
                     </div>
                     <div>
-                      <div className="text-white/70 font-extrabold">{top1.expired}</div>
+                      <div className="text-zinc-300 font-extrabold">{top1.expired}</div>
                       <div>EXPIRED</div>
                     </div>
                   </div>
 
-                  <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">TOTAL UIDs</span>
+                  <div className="mt-4 flex items-center justify-between border-t border-zinc-800 pt-3">
+                    <span className="text-[10px] font-black text-zinc-300 uppercase tracking-widest">TOTAL UIDs</span>
                     <span className="text-2xl font-black text-yellow-400 tracking-tight drop-shadow-lg">{top1.total}</span>
                   </div>
                 </div>
@@ -3198,7 +3198,7 @@ function LeaderboardView() {
               className="md:order-3"
             >
               <TiltWrapper>
-                <div className="argus-glass rounded-[2rem] p-6 text-center border border-white/5 relative overflow-hidden shadow-xl md:h-[280px] flex flex-col justify-between">
+                <div className="argus-glass rounded-[2rem] p-6 text-center border border-zinc-800 relative overflow-hidden shadow-xl md:h-[280px] flex flex-col justify-between">
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-600 to-amber-400" />
                   <div className="flex justify-center -mt-12 relative">
                     <div className="w-20 h-20 rounded-full bg-slate-800/80 border-4 border-amber-600 shadow-lg overflow-hidden flex items-center justify-center relative">
@@ -3215,14 +3215,14 @@ function LeaderboardView() {
 
                   <div className="mt-4">
                     <h3 className="font-black text-white text-lg tracking-wide truncate max-w-full">{top3.displayName}</h3>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
-                      @{top3.username} <span className="opacity-40">·</span> <span className={top3.role === "admin" ? "text-white/70" : "text-white/90"}>{top3.role === "admin" ? "Admin" : "Reseller"}</span>
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">
+                      @{top3.username} <span className="opacity-40">·</span> <span className={top3.role === "admin" ? "text-zinc-300" : "text-white/90"}>{top3.role === "admin" ? "Admin" : "Reseller"}</span>
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-white/[0.01] border border-white/5 text-[10px] font-bold text-slate-400">
+                  <div className="grid grid-cols-3 gap-2 mt-4 py-2.5 px-3 rounded-xl bg-zinc-900/50 border border-zinc-800 text-[10px] font-bold text-zinc-300">
                     <div>
-                      <div className="text-rose-400 font-extrabold">{top3.today}</div>
+                      <div className="text-blue-400 font-extrabold">{top3.today}</div>
                       <div>TODAY</div>
                     </div>
                     <div>
@@ -3230,13 +3230,13 @@ function LeaderboardView() {
                       <div>ACTIVE</div>
                     </div>
                     <div>
-                      <div className="text-white/70 font-extrabold">{top3.expired}</div>
+                      <div className="text-zinc-300 font-extrabold">{top3.expired}</div>
                       <div>EXPIRED</div>
                     </div>
                   </div>
 
-                  <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">TOTAL UIDs</span>
+                  <div className="mt-4 flex items-center justify-between border-t border-zinc-800 pt-3">
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">TOTAL UIDs</span>
                     <span className="text-xl font-black text-slate-200 tracking-tight">{top3.total}</span>
                   </div>
                 </div>
@@ -3251,34 +3251,34 @@ function LeaderboardView() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="argus-glass rounded-[2rem] overflow-hidden relative shadow-2xl border border-white/5 text-left"
+        className="argus-glass rounded-[2rem] overflow-hidden relative shadow-2xl border border-zinc-800 text-left"
       >
-        <div className="flex items-center gap-3 px-6 sm:px-8 py-6 border-b border-white/[0.05] bg-white/[0.01]">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border border-white/5" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.05))" }}>
+        <div className="flex items-center gap-3 px-6 sm:px-8 py-6 border-b border-zinc-800 bg-zinc-900/50">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border border-zinc-800" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.05))" }}>
             <Users className="w-5 h-5 text-white/90" />
           </div>
           <div>
             <h2 className="font-black text-lg text-white tracking-wide">Rankings</h2>
-            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Performance of all distributor nodes</div>
+            <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">Performance of all distributor nodes</div>
           </div>
         </div>
 
         {data.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-20 text-center opacity-60">
-            <div className="w-20 h-20 rounded-full bg-white/5 border border-white/5 flex items-center justify-center mb-6">
-              <Users className="w-10 h-10 text-slate-500" />
+            <div className="w-20 h-20 rounded-full bg-zinc-800 border border-zinc-800 flex items-center justify-center mb-6">
+              <Users className="w-10 h-10 text-zinc-400" />
             </div>
             <p className="text-slate-300 font-bold mb-2">No Leaderboard Data</p>
-            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Resellers will appear here as they register UIDs</p>
+            <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Resellers will appear here as they register UIDs</p>
           </div>
         ) : (
           <div className="p-4 sm:p-6 space-y-3 overflow-y-auto max-h-[600px] custom-scrollbar">
-            <div className="hidden sm:grid grid-cols-12 gap-4 px-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">
+            <div className="hidden sm:grid grid-cols-12 gap-4 px-5 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-2">
               <div className="col-span-1">Rank</div>
               <div className="col-span-4">Operator</div>
               <div className="col-span-2 text-center text-emerald-500">Today</div>
               <div className="col-span-2 text-center text-white/90">Active</div>
-              <div className="col-span-2 text-center text-white/70">Expired</div>
+              <div className="col-span-2 text-center text-zinc-300">Expired</div>
               <div className="col-span-1 text-right text-slate-300">Total</div>
             </div>
 
@@ -3288,52 +3288,52 @@ function LeaderboardView() {
                   key={user.username}
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="group relative bg-white/[0.01] border border-white/5 rounded-2xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-12 items-center gap-4 transition-all hover:bg-white/[0.03] hover:border-white/20 overflow-hidden"
+                  className="group relative bg-zinc-900/50 border border-zinc-800 rounded-2xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-12 items-center gap-4 transition-all hover:bg-zinc-900 hover:border-white/20 overflow-hidden"
                 >
                   <div className="col-span-1 flex items-center gap-2">
                     <span className={`w-8 h-8 rounded-xl font-black text-xs flex items-center justify-center border shadow-inner ${
                       idx === 0 ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" :
                       idx === 1 ? "bg-slate-400/20 text-slate-300 border-slate-400/30" :
                       idx === 2 ? "bg-amber-600/20 text-amber-500 border-amber-600/30" :
-                      "bg-white/[0.01] text-slate-400 border-white/5"
+                      "bg-zinc-900/50 text-zinc-300 border-zinc-800"
                     }`}>
                       #{idx + 1}
                     </span>
                   </div>
 
                   <div className="col-span-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/[0.01] border border-white/5 overflow-hidden flex items-center justify-center shadow-inner">
+                    <div className="w-10 h-10 rounded-xl bg-zinc-900/50 border border-zinc-800 overflow-hidden flex items-center justify-center shadow-inner">
                       {user.avatar ? (
                         <img src={user.avatar} alt={user.displayName} className="w-full h-full object-cover" />
                       ) : (
-                        <UserCircle className="w-6 h-6 text-slate-500" />
+                        <UserCircle className="w-6 h-6 text-zinc-400" />
                       )}
                     </div>
                     <div>
                       <div className="font-black text-sm text-white tracking-wide">{user.displayName}</div>
-                      <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                        @{user.username} <span className="opacity-40">·</span> <span className={user.role === "admin" ? "text-white/70 font-extrabold" : "text-white/90 font-extrabold"}>{user.role === "admin" ? "Admin" : "Reseller"}</span>
+                      <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                        @{user.username} <span className="opacity-40">·</span> <span className={user.role === "admin" ? "text-zinc-300 font-extrabold" : "text-white/90 font-extrabold"}>{user.role === "admin" ? "Admin" : "Reseller"}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="col-span-2 text-center flex sm:block justify-between items-center sm:border-0 border-b border-white/5 py-1 sm:py-0">
-                    <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Today</span>
-                    <span className="text-rose-400 font-extrabold text-sm sm:bg-rose-500/10 sm:border sm:border-rose-500/20 px-2.5 py-1 rounded-lg">{user.today}</span>
+                  <div className="col-span-2 text-center flex sm:block justify-between items-center sm:border-0 border-b border-zinc-800 py-1 sm:py-0">
+                    <span className="sm:hidden text-[9px] font-black uppercase text-zinc-400 tracking-wider">Today</span>
+                    <span className="text-blue-400 font-extrabold text-sm sm:bg-blue-500/10 sm:border sm:border-blue-500/20 px-2.5 py-1 rounded-lg">{user.today}</span>
                   </div>
 
-                  <div className="col-span-2 text-center flex sm:block justify-between items-center sm:border-0 border-b border-white/5 py-1 sm:py-0">
-                    <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Active</span>
-                    <span className="text-white/90 font-extrabold text-sm sm:bg-white/5 sm:border sm:border-white/5 px-2.5 py-1 rounded-lg">{user.active}</span>
+                  <div className="col-span-2 text-center flex sm:block justify-between items-center sm:border-0 border-b border-zinc-800 py-1 sm:py-0">
+                    <span className="sm:hidden text-[9px] font-black uppercase text-zinc-400 tracking-wider">Active</span>
+                    <span className="text-white/90 font-extrabold text-sm sm:bg-zinc-800 sm:border sm:border-zinc-800 px-2.5 py-1 rounded-lg">{user.active}</span>
                   </div>
 
-                  <div className="col-span-2 text-center flex sm:block justify-between items-center sm:border-0 border-b border-white/5 py-1 sm:py-0">
-                    <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Expired</span>
-                    <span className="text-white/70 font-extrabold text-sm sm:bg-white/5 sm:border sm:border-white/5 px-2.5 py-1 rounded-lg">{user.expired}</span>
+                  <div className="col-span-2 text-center flex sm:block justify-between items-center sm:border-0 border-b border-zinc-800 py-1 sm:py-0">
+                    <span className="sm:hidden text-[9px] font-black uppercase text-zinc-400 tracking-wider">Expired</span>
+                    <span className="text-zinc-300 font-extrabold text-sm sm:bg-zinc-800 sm:border sm:border-zinc-800 px-2.5 py-1 rounded-lg">{user.expired}</span>
                   </div>
 
                   <div className="col-span-1 text-right flex sm:block justify-between items-center py-1 sm:py-0">
-                    <span className="sm:hidden text-[9px] font-black uppercase text-slate-500 tracking-wider">Total</span>
+                    <span className="sm:hidden text-[9px] font-black uppercase text-zinc-400 tracking-wider">Total</span>
                     <span className="text-white font-black text-base tracking-tight">{user.total}</span>
                   </div>
 
@@ -3419,39 +3419,39 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto flex flex-col h-[75vh] items-center justify-center argus-glass rounded-[2rem] border border-white/5 opacity-60">
+      <div className="max-w-4xl mx-auto flex flex-col h-[75vh] items-center justify-center argus-glass rounded-[2rem] border border-zinc-800 opacity-60">
         <Loader2 className="w-12 h-12 text-white/90 animate-spin mb-4" />
-        <p className="text-xs font-black uppercase tracking-widest text-slate-400">Loading Secure Channel...</p>
+        <p className="text-xs font-black uppercase tracking-widest text-zinc-300">Loading Secure Channel...</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col h-[75vh] argus-glass rounded-[2rem] overflow-hidden border border-white/5 relative text-left">
-      <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.05] bg-white/[0.01]">
+    <div className="max-w-4xl mx-auto flex flex-col h-[75vh] argus-glass rounded-[2rem] overflow-hidden border border-zinc-800 relative text-left">
+      <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-800 bg-zinc-900/50">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center shadow-lg">
-            <MessageSquare className="w-5 h-5 text-white/70" />
+          <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-800 flex items-center justify-center shadow-lg">
+            <MessageSquare className="w-5 h-5 text-zinc-300" />
           </div>
           <div>
             <h2 className="font-black text-base text-white tracking-wide">Team Cryptochat</h2>
-            <div className="text-[9px] font-black text-rose-400 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
+            <div className="text-[9px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
               Secured aes-256 node
             </div>
           </div>
         </div>
-        <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-white/[0.01] border border-white/5 px-3 py-1 rounded-md">
+        <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest bg-zinc-900/50 border border-zinc-800 px-3 py-1 rounded-md">
           {messages.length} packets
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-white/[0.01]">
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-zinc-900/50">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
-            <MessageSquare className="w-12 h-12 text-slate-500 mb-4" />
+            <MessageSquare className="w-12 h-12 text-zinc-400 mb-4" />
             <p className="text-slate-300 font-bold text-sm">No transmissions yet</p>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Start chatting with the team below</p>
+            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Start chatting with the team below</p>
           </div>
         ) : (
           messages.map((msg, idx) => {
@@ -3465,31 +3465,31 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
                 animate={{ opacity: 1, y: 0 }}
                 className={`flex gap-3 max-w-[80%] ${isMe ? "ml-auto flex-row-reverse" : "mr-auto text-left"}`}
               >
-                <div className="w-9 h-9 rounded-full bg-white/[0.01] border border-white/5 overflow-hidden shrink-0 flex items-center justify-center shadow-inner">
+                <div className="w-9 h-9 rounded-full bg-zinc-900/50 border border-zinc-800 overflow-hidden shrink-0 flex items-center justify-center shadow-inner">
                   {msg.avatar ? (
                     <img src={msg.avatar} alt={msg.displayName} className="w-full h-full object-cover" />
                   ) : (
-                    <UserCircle className={`w-6 h-6 ${isAdminMsg ? "text-white/70" : "text-slate-500"}`} />
+                    <UserCircle className={`w-6 h-6 ${isAdminMsg ? "text-zinc-300" : "text-zinc-400"}`} />
                   )}
                 </div>
 
                 <div>
-                  <div className={`text-[10px] font-black tracking-wide uppercase mb-1 ${isMe ? "text-right text-white/90" : isAdminMsg ? "text-white/70" : "text-white/90"}`}>
+                  <div className={`text-[10px] font-black tracking-wide uppercase mb-1 ${isMe ? "text-right text-white/90" : isAdminMsg ? "text-zinc-300" : "text-white/90"}`}>
                     {msg.displayName}
-                    {isAdminMsg && <span className="ml-1 px-1.5 py-0.5 rounded bg-white/5 text-white/70 text-[8px] font-black border border-white/5 tracking-widest">ADMIN</span>}
+                    {isAdminMsg && <span className="ml-1 px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 text-[8px] font-black border border-zinc-800 tracking-widest">ADMIN</span>}
                   </div>
                   
                   <div className={`p-4 rounded-2xl text-sm font-semibold leading-relaxed shadow-lg border ${
                     isMe 
-                      ? "bg-white/5 border-white/5 text-white rounded-tr-none" 
+                      ? "bg-zinc-800 border-zinc-800 text-white rounded-tr-none" 
                       : isAdminMsg
-                        ? "bg-white/5 border-white/5 text-white rounded-tl-none"
-                        : "bg-white/[0.03] border-white/5 text-slate-200 rounded-tl-none"
+                        ? "bg-zinc-800 border-zinc-800 text-white rounded-tl-none"
+                        : "bg-zinc-900 border-zinc-800 text-slate-200 rounded-tl-none"
                   }`}>
                     {msg.message}
                   </div>
 
-                  <div className={`text-[9px] font-bold text-slate-500 mt-1 uppercase tracking-widest ${isMe ? "text-right" : ""}`}>
+                  <div className={`text-[9px] font-bold text-zinc-400 mt-1 uppercase tracking-widest ${isMe ? "text-right" : ""}`}>
                     {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
@@ -3500,13 +3500,13 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSend} className="p-4 border-t border-white/[0.05] bg-white/[0.01] flex items-center gap-3">
+      <form onSubmit={handleSend} className="p-4 border-t border-zinc-800 bg-zinc-900/50 flex items-center gap-3">
         <input
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Transmit encrypted message to team..."
-          className="flex-1 h-12 px-5 rounded-xl bg-white/[0.01] border border-white/5 text-white placeholder-slate-600 text-sm font-bold focus:outline-none focus:border-white/5 focus:shadow-lg transition-all"
+          className="flex-1 h-12 px-5 rounded-xl bg-zinc-900/50 border border-zinc-800 text-white placeholder-slate-600 text-sm font-bold focus:outline-none focus:border-zinc-800 focus:shadow-lg transition-all"
         />
         <button
           type="submit"
@@ -3552,7 +3552,7 @@ function OverviewStatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, type: "spring", stiffness: 200, damping: 22 }}
       whileHover={{ y: -4, scale: 1.02 }}
-      className="bg-[#060608]  border border-white/5 shadow-xl glow-border rounded-[2rem] p-6 sm:p-7 relative overflow-hidden cursor-default group flex items-center justify-between bg-white/[0.01] shadow-xl text-left"
+      className="bg-zinc-900  border border-zinc-800 shadow-xl glow-border rounded-[2rem] p-6 sm:p-7 relative overflow-hidden cursor-default group flex items-center justify-between bg-zinc-900/50 shadow-xl text-left"
     >
       <div className="scanline" />
       <div
@@ -3566,17 +3566,17 @@ function OverviewStatCard({
 
       <div className="flex flex-col justify-between h-full relative z-10">
         <div>
-          <div className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 group-hover:text-slate-400 transition-colors">{label}</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-400 group-hover:text-zinc-300 transition-colors">{label}</div>
           <div className="text-4xl sm:text-5xl font-black text-white tracking-tight mt-3.5 drop-shadow-md">{value}</div>
         </div>
       </div>
 
       <div className="flex flex-col items-end justify-between h-full relative z-10 gap-3">
-        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/5 transition-colors shadow-lg group-hover:shadow-lg">
-          <Icon className="w-4 h-4 text-white/70 group-hover:text-rose-400 transition-colors" />
+        <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center group-hover:bg-zinc-800 transition-colors shadow-lg group-hover:shadow-lg">
+          <Icon className="w-4 h-4 text-zinc-300 group-hover:text-blue-400 transition-colors" />
         </div>
         <div className="w-24 sm:w-28 h-10 mt-2">
-          <svg viewBox="0 0 100 30" className="w-full h-full text-white/80 group-hover:text-white/70 transition-colors filter drop-shadow-lg">
+          <svg viewBox="0 0 100 30" className="w-full h-full text-white/80 group-hover:text-zinc-300 transition-colors filter drop-shadow-lg">
             <motion.path
               d={pathD}
               fill="none"
@@ -3681,20 +3681,20 @@ function LoginHistoryPanel() {
   }, [viewMine]);
 
   return (
-    <div className="bg-[#060608]  border border-white/5 shadow-xl rounded-3xl overflow-hidden shadow-xl glow-border">
+    <div className="bg-zinc-900  border border-zinc-800 shadow-xl rounded-3xl overflow-hidden shadow-xl glow-border">
       <div className="px-6 py-6 border-b border-white/[0.04] flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/[0.03] border border-white/5 shadow-lg">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-900 border border-zinc-800 shadow-lg">
             <Clock className="w-6 h-6 text-white/90 drop-shadow-lg" />
           </div>
           <div>
             <h2 className="font-black text-lg tracking-wider text-white uppercase">Login History</h2>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Network Access Logs</p>
+            <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-[0.2em] mt-1">Network Access Logs</p>
           </div>
         </div>
-        <div className="flex items-center bg-white/[0.01] rounded-xl p-1 border border-white/5 shadow-inner ">
-          <button onClick={() => setViewMine(false)} className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${!viewMine ? "bg-white/5 text-white/90 border border-white/5 shadow-lg" : "text-slate-500 hover:text-white border border-transparent"}`}>Network</button>
-          <button onClick={() => setViewMine(true)} className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${viewMine ? "bg-white/5 text-white/90 border border-white/5 shadow-lg" : "text-slate-500 hover:text-white border border-transparent"}`}>My Logins</button>
+        <div className="flex items-center bg-zinc-900/50 rounded-xl p-1 border border-zinc-800 shadow-inner ">
+          <button onClick={() => setViewMine(false)} className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${!viewMine ? "bg-zinc-800 text-white/90 border border-zinc-800 shadow-lg" : "text-zinc-400 hover:text-white border border-transparent"}`}>Network</button>
+          <button onClick={() => setViewMine(true)} className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${viewMine ? "bg-zinc-800 text-white/90 border border-zinc-800 shadow-lg" : "text-zinc-400 hover:text-white border border-transparent"}`}>My Logins</button>
         </div>
       </div>
       <div className="p-0">
@@ -3703,7 +3703,7 @@ function LoginHistoryPanel() {
             <Loader2 className="w-8 h-8 animate-spin text-white/90" />
           </div>
         ) : history.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+          <div className="flex flex-col items-center justify-center py-20 text-zinc-400">
             <Clock className="w-12 h-12 mb-4 opacity-20" />
             <span className="text-sm font-bold uppercase tracking-widest">No Logs Found</span>
           </div>
@@ -3711,7 +3711,7 @@ function LoginHistoryPanel() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-white/5 bg-white/[0.01]">
+                <tr className="border-b border-zinc-800 bg-zinc-900/50">
                   <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-white/90 font-black">User</th>
                   <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-white/90 font-black">Status</th>
                   <th className="py-4 px-6 text-[10px] uppercase tracking-[0.2em] text-white/90 font-black">IP Address</th>
@@ -3721,11 +3721,11 @@ function LoginHistoryPanel() {
               </thead>
               <tbody>
                 {history.map((record, i) => (
-                  <tr key={i} className="border-b border-white/[0.03] hover:bg-white/[0.03] transition-all group">
+                  <tr key={i} className="border-b border-white/[0.03] hover:bg-zinc-900 transition-all group">
                     <td className="py-4 px-6 font-black text-sm text-white group-hover:text-white/90 transition-colors drop-shadow-lg">{record.username}</td>
                     <td className="py-4 px-6">
                       {record.success ? (
-                        <div className="inline-flex items-center gap-2 rounded-full border border-rose-500/20 bg-rose-500/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-300 shadow-lg">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-300 shadow-lg">
                           <span className="relative flex h-1.5 w-1.5">
                             
                             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
@@ -3733,7 +3733,7 @@ function LoginHistoryPanel() {
                           SUCCESS
                         </div>
                       ) : (
-                        <div className="inline-flex items-center gap-2 rounded-full border border-white/5 bg-white/5 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-rose-400 shadow-lg">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-800 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-blue-400 shadow-lg">
                           <span className="relative flex h-1.5 w-1.5">
                             
                             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
@@ -3743,8 +3743,8 @@ function LoginHistoryPanel() {
                       )}
                     </td>
                     <td className="py-4 px-6 font-mono text-xs text-slate-300 group-hover:text-white transition-colors">{record.ip}</td>
-                    <td className="py-4 px-6 text-xs font-medium text-slate-400 group-hover:text-slate-300">{new Date(record.timestamp).toLocaleString()}</td>
-                    <td className="py-4 px-6 text-[10px] text-slate-500 truncate max-w-[200px]" title={record.userAgent}>{record.userAgent || "Unknown"}</td>
+                    <td className="py-4 px-6 text-xs font-medium text-zinc-300 group-hover:text-slate-300">{new Date(record.timestamp).toLocaleString()}</td>
+                    <td className="py-4 px-6 text-[10px] text-zinc-400 truncate max-w-[200px]" title={record.userAgent}>{record.userAgent || "Unknown"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -3772,27 +3772,27 @@ function SetUidLimitModal({ user, onClose, onSave }: { user: ClientUser; onClose
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.8)", backdropFilter: "blur(24px)" }} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", stiffness: 240, damping: 26 }} className="w-full max-w-sm relative rounded-[2.5rem] p-6 sm:p-8 overflow-hidden bg-white/[0.01] " style={{ border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 40px rgba(59,130,246,0.05)" }}>
+      <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", stiffness: 240, damping: 26 }} className="w-full max-w-sm relative rounded-[2.5rem] p-6 sm:p-8 overflow-hidden bg-zinc-900/50 " style={{ border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 40px rgba(59,130,246,0.05)" }}>
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
         <div className="flex items-center gap-3.5 mb-6">
-          <div className="w-11 h-11 rounded-2xl flex items-center justify-center border bg-rose-500/10 border-rose-500/30 text-rose-400 shadow-lg">
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center border bg-blue-500/10 border-blue-500/30 text-blue-400 shadow-lg">
             <ShieldAlert className="w-5 h-5" />
           </div>
           <div>
             <h2 className="text-xl font-black text-white tracking-tight">Set UID Limit</h2>
-            <p className="text-xs text-rose-400/80 font-bold tracking-wider uppercase mt-0.5">{user.username}</p>
+            <p className="text-xs text-blue-400/80 font-bold tracking-wider uppercase mt-0.5">{user.username}</p>
           </div>
         </div>
         <form onSubmit={handleApply} className="space-y-5 relative z-10">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">Hardware ID Limit</label>
+            <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider pl-1">Hardware ID Limit</label>
             <div className="relative">
-              <input autoFocus type="number" value={limitInput} onChange={e => setLimitInput(e.target.value)} className="w-full bg-white/[0.01] border border-white/5 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-white/30 transition-all font-mono" placeholder="-1 for Unlimited" />
+              <input autoFocus type="number" value={limitInput} onChange={e => setLimitInput(e.target.value)} className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-white/30 transition-all font-mono" placeholder="-1 for Unlimited" />
             </div>
-            <p className="text-[10px] text-slate-500 font-medium pl-1 mt-1">-1 means the client can add unlimited UIDs.</p>
+            <p className="text-[10px] text-zinc-400 font-medium pl-1 mt-1">-1 means the client can add unlimited UIDs.</p>
           </div>
           <div className="flex items-center justify-end gap-3 pt-2">
-            <button type="button" onClick={onClose} disabled={saving} className="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">Cancel</button>
+            <button type="button" onClick={onClose} disabled={saving} className="px-5 py-2.5 rounded-xl font-bold text-sm text-zinc-300 hover:text-white hover:bg-zinc-800 transition-all">Cancel</button>
             <button type="submit" disabled={saving} className="px-6 py-2.5 rounded-xl font-bold text-sm bg-white text-black hover:bg-white/90 hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.1)] shadow-lg transition-all flex items-center gap-2 disabled:opacity-50">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
               Save Limit
