@@ -501,7 +501,7 @@ export default function Login({ onLogin }: LoginProps) {
                     Establishing a secure end-to-end encrypted channel. Please complete the security challenge below to proceed.
                   </p>
 
-                  <div className="w-full flex justify-center py-4 bg-black/40 rounded-2xl border border-zinc-800 shadow-inner">
+                  <div className="w-full flex justify-center py-4">
                     <MemoizedTurnstile onSuccess={(token) => {
                       setTurnstileToken(token);
                       setTimeout(() => setAuthState("login"), 800);
@@ -524,7 +524,7 @@ export default function Login({ onLogin }: LoginProps) {
             >
               <div onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} className="relative">
                 {/* Subtle outer glow for the card */}
-                <div className="absolute -inset-0.5 bg-gradient-to-br from-white/10 to-transparent rounded-[2.5rem] blur opacity-50" />
+                {/* Clean, minimalist container, removed ugly glow border */}
                 
                 <motion.div
                   ref={cardRef}
@@ -549,7 +549,7 @@ export default function Login({ onLogin }: LoginProps) {
                           value={username}
                           onChange={(e) => { setUsername(e.target.value); setError(""); }}
                           placeholder="Operator ID"
-                          className="w-full bg-black/40 border border-zinc-800 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 focus:bg-zinc-800 focus:shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all"
+                          className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 focus:bg-zinc-800 focus:shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all"
                         />
                       </div>
                     </div>
@@ -561,7 +561,7 @@ export default function Login({ onLogin }: LoginProps) {
                           value={password}
                           onChange={(e) => { setPassword(e.target.value); setError(""); }}
                           placeholder="Passphrase"
-                          className="w-full bg-black/40 border border-zinc-800 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 focus:bg-zinc-800 focus:shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all"
+                          className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 focus:bg-zinc-800 focus:shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all"
                         />
                       </div>
                     </div>
