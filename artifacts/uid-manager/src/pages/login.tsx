@@ -140,7 +140,7 @@ export default function Login({ onLogin }: LoginProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [shake, setShake] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
+  const [authState, setAuthState] = useState<"landing" | "verifying" | "login">("landing");
   const [turnstileToken, setTurnstileToken] = useState("");
   const [isYearly, setIsYearly] = useState(true);
   const [headerBlur, setHeaderBlur] = useState(false);
@@ -249,22 +249,22 @@ export default function Login({ onLogin }: LoginProps) {
 
       {/* ── Fixed Navigation ── */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 py-6 px-6 sm:px-10 flex items-center justify-between ${headerBlur ? "bg-black/20 backdrop-blur-2xl border-b border-white/5" : "bg-transparent border-b border-transparent"}`}>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="flex items-center gap-4 cursor-pointer" onClick={() => setShowLogin(false)}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="flex items-center gap-4 cursor-pointer" onClick={() => setAuthState("landing")}>
           <div className="h-8 w-8 rounded-full border border-white/10 flex items-center justify-center bg-white/5 backdrop-blur-md">
             <div className="h-2 w-2 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
           </div>
           <span className="text-xs font-bold tracking-widest uppercase text-white/90">UID BYPASS</span>
         </motion.div>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="pointer-events-auto">
-          <button onClick={() => setShowLogin(!showLogin)} className="text-[10px] font-semibold tracking-widest uppercase hover:text-white transition-colors text-white/60 bg-white/5 px-6 py-2.5 rounded-full border border-white/10 hover:bg-white/10">
-            {showLogin ? "Return Home" : "Sign In"}
+          <button onClick={() => setAuthState(authState !== "landing" ? "landing" : "verifying")} className="text-[10px] font-semibold tracking-widest uppercase hover:text-white transition-colors text-white/60 bg-white/5 px-6 py-2.5 rounded-full border border-white/10 hover:bg-white/10 cursor-pointer">
+            {authState !== "landing" ? "Return Home" : "Sign In"}
           </button>
         </motion.div>
       </header>
 
       <main className="flex-grow z-10 relative">
         <AnimatePresence mode="wait">
-          {!showLogin ? (
+          {authState === "landing" && (
             <motion.div
               key="landing"
               initial={{ opacity: 0 }}
@@ -304,7 +304,7 @@ export default function Login({ onLogin }: LoginProps) {
 
                   <FadeIn delay={0.5}>
                     <button
-                      onClick={() => setShowLogin(true)}
+                      onClick={() => setAuthState("verifying")}
                       className="group relative inline-flex items-center gap-4 bg-white text-black px-8 py-4 rounded-full text-xs font-semibold uppercase tracking-widest hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.2)] cursor-pointer"
                     >
                       Enter Portal
@@ -434,7 +434,7 @@ export default function Login({ onLogin }: LoginProps) {
                             ))}
                           </ul>
                         </div>
-                        <button onClick={() => setShowLogin(true)} className={`w-full py-4 text-[10px] font-bold uppercase tracking-widest rounded-2xl mt-10 cursor-pointer transition-all ${plan.featured ? "bg-white text-black hover:bg-white/90" : "bg-white/5 text-white hover:bg-white/10"}`}>
+                        <button onClick={() => setAuthState("verifying")} className={`w-full py-4 text-[10px] font-bold uppercase tracking-widest rounded-2xl mt-10 cursor-pointer transition-all ${plan.featured ? "bg-white text-black hover:bg-white/90" : "bg-white/5 text-white hover:bg-white/10"}`}>
                           {plan.btn}
                         </button>
                       </div>
@@ -474,7 +474,45 @@ export default function Login({ onLogin }: LoginProps) {
                 <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/30">UID BYPASS ZERO-TRUST &copy; 2026</p>
               </footer>
             </motion.div>
-          ) : (
+          )}
+
+          {authState === "verifying" && (
+            <motion.div
+              key="verifying"
+              initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full max-w-[440px] perspective-1000 mt-32 mx-auto px-4 sm:px-0 flex flex-col items-center"
+            >
+              <div className="relative w-full">
+                <div className="absolute -inset-0.5 bg-gradient-to-br from-blue-500/20 to-transparent rounded-[2.5rem] blur opacity-50" />
+                <div className="relative bg-[#0a0a0c]/80 border border-white/10 backdrop-blur-2xl p-8 sm:p-10 rounded-[2.5rem] shadow-[0_20px_40px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.1)] flex flex-col items-center text-center">
+                  
+                  <div className="relative mb-8">
+                    <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl animate-pulse" />
+                    <div className="relative h-20 w-20 rounded-full border border-blue-500/30 bg-blue-500/10 flex items-center justify-center">
+                      <ShieldCheck className="h-8 w-8 text-blue-400" />
+                    </div>
+                  </div>
+
+                  <h2 className="text-xl font-semibold tracking-tight text-white mb-3">Client Integrity Check</h2>
+                  <p className="text-xs text-white/50 leading-relaxed mb-8">
+                    Establishing a secure end-to-end encrypted channel. Please complete the security challenge below to proceed.
+                  </p>
+
+                  <div className="w-full flex justify-center py-4 bg-black/40 rounded-2xl border border-white/5 shadow-inner">
+                    <MemoizedTurnstile onSuccess={(token) => {
+                      setTurnstileToken(token);
+                      setTimeout(() => setAuthState("login"), 800);
+                    }} />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {authState === "login" && (
             /* ═══════ LOGIN PORTAL ═══════ */
             <motion.div
               key="login"
@@ -536,8 +574,9 @@ export default function Login({ onLogin }: LoginProps) {
                       )}
                     </AnimatePresence>
 
-                    <div className="flex justify-center py-2 opacity-80 mix-blend-screen">
-                      <MemoizedTurnstile onSuccess={setTurnstileToken} />
+                    {/* Turnstile is already verified at this point */}
+                    <div className="flex items-center justify-center gap-2 text-[10px] text-emerald-400/80 font-bold uppercase tracking-widest bg-emerald-500/10 py-2 rounded-xl border border-emerald-500/20">
+                      <ShieldCheck className="h-3 w-3" /> Integrity Verified
                     </div>
 
                     <button
