@@ -248,15 +248,15 @@ export default function Login({ onLogin }: LoginProps) {
       <WaterWaveBackground />
 
       {/* ── Fixed Navigation ── */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 py-6 px-6 sm:px-10 flex items-center justify-between ${headerBlur ? "bg-black/20 backdrop-blur-2xl border-b border-white/5" : "bg-transparent border-b border-transparent"}`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 py-6 px-6 sm:px-10 flex items-center justify-between ${headerBlur ? "bg-black/20  border-b border-white/5" : "bg-transparent border-b border-transparent"}`}>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="flex items-center gap-4 cursor-pointer" onClick={() => setAuthState("landing")}>
-          <div className="h-8 w-8 rounded-full border border-white/10 flex items-center justify-center bg-white/5 backdrop-blur-md">
+          <div className="h-8 w-8 rounded-full border border-white/5 flex items-center justify-center bg-white/5 ">
             <div className="h-2 w-2 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
           </div>
           <span className="text-xs font-bold tracking-widest uppercase text-white/90">UID BYPASS</span>
         </motion.div>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="pointer-events-auto">
-          <button onClick={() => setAuthState(authState !== "landing" ? "landing" : "verifying")} className="text-[10px] font-semibold tracking-widest uppercase hover:text-white transition-colors text-white/60 bg-white/5 px-6 py-2.5 rounded-full border border-white/10 hover:bg-white/10 cursor-pointer">
+          <button onClick={() => setAuthState(authState !== "landing" ? "landing" : "verifying")} className="text-[10px] font-semibold tracking-widest uppercase hover:text-white transition-colors text-white/60 bg-white/5 px-6 py-2.5 rounded-full border border-white/5 hover:bg-white/10 cursor-pointer">
             {authState !== "landing" ? "Return Home" : "Sign In"}
           </button>
         </motion.div>
@@ -278,7 +278,7 @@ export default function Login({ onLogin }: LoginProps) {
                 <div className="w-full max-w-4xl space-y-8 z-20 flex flex-col items-center relative">
                   
                   <FadeIn delay={0.1}>
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-500/20 bg-blue-500/10 backdrop-blur-md mb-4">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-500/20 bg-rose-500/10  mb-4">
                       <span className="relative flex h-2 w-2">
                         
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
@@ -317,11 +317,11 @@ export default function Login({ onLogin }: LoginProps) {
               </section>
 
               {/* ═══════ LIVE STATS ═══════ */}
-              <section className="w-full border-y border-white/5 py-16 bg-white/[0.01] backdrop-blur-3xl relative">
+              <section className="w-full border-y border-white/5 py-16 bg-white/[0.01]  relative">
                 <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 grid sm:grid-cols-3 gap-6">
                   {statusCards.map((card, idx) => (
                     <ScrollReveal key={card.label} delay={idx * 0.1} y={30}>
-                      <div className="bg-white/[0.02] border border-white/5 p-6 sm:p-8 rounded-[2rem] flex flex-col justify-between min-h-[140px] hover:bg-white/[0.04] transition-colors duration-500">
+                      <div className="bg-white/[0.01] border border-white/5 p-6 sm:p-8 rounded-[2rem] flex flex-col justify-between min-h-[140px] hover:bg-white/[0.04] transition-colors duration-500">
                         <div className="flex items-center gap-4">
                           <div className="p-3 rounded-2xl bg-white/5 text-white/80">
                             <card.icon className="h-5 w-5" />
@@ -358,7 +358,7 @@ export default function Login({ onLogin }: LoginProps) {
                 <div className="grid md:grid-cols-2 gap-6">
                   {features.map((feature, idx) => (
                     <ScrollReveal key={feature.title} delay={idx * 0.1} y={40}>
-                      <div className="w-full mx-auto bg-white/[0.02] border border-white/5 p-8 sm:p-10 rounded-[2.5rem] flex flex-col h-full hover:bg-white/[0.04] transition-all duration-500 group">
+                      <div className="w-full mx-auto bg-white/[0.01] border border-white/5 p-8 sm:p-10 rounded-[2.5rem] flex flex-col h-full hover:bg-white/[0.04] transition-all duration-500 group">
                         <div className="flex items-center justify-between mb-8">
                           <div className="p-4 rounded-2xl bg-white/5 text-white group-hover:scale-110 transition-transform duration-500">
                             <feature.icon className="h-6 w-6" />
@@ -384,7 +384,7 @@ export default function Login({ onLogin }: LoginProps) {
                     </p>
                   </ScrollReveal>
                   <ScrollReveal y={20} delay={0.2}>
-                    <div className="inline-flex items-center gap-2 bg-white/[0.02] border border-white/5 p-1.5 rounded-2xl">
+                    <div className="inline-flex items-center gap-2 bg-white/[0.01] border border-white/5 p-1.5 rounded-2xl">
                       <button
                         onClick={() => setIsYearly(false)}
                         className={`px-6 py-2.5 text-[10px] font-bold rounded-xl uppercase tracking-widest transition-all duration-300 cursor-pointer ${!isYearly ? "bg-white text-black" : "text-white/50 hover:text-white"}`}
@@ -395,7 +395,7 @@ export default function Login({ onLogin }: LoginProps) {
                         onClick={() => setIsYearly(true)}
                         className={`px-6 py-2.5 text-[10px] font-bold rounded-xl uppercase tracking-widest transition-all duration-300 flex items-center gap-2 cursor-pointer ${isYearly ? "bg-white text-black" : "text-white/50 hover:text-white"}`}
                       >
-                        Yearly <span className={`${isYearly ? "text-black/50" : "text-blue-400"}`}>-20%</span>
+                        Yearly <span className={`${isYearly ? "text-black/50" : "text-rose-400"}`}>-20%</span>
                       </button>
                     </div>
                   </ScrollReveal>
@@ -408,7 +408,7 @@ export default function Login({ onLogin }: LoginProps) {
                     { name: "Enterprise", desc: "Custom DB pipelines.", price: [99, 79], features: ["Dedicated nodes", "White-label panels", "Secure DB links", "100% latency SLA"], excluded: [], btn: "Request Build", featured: false },
                   ].map((plan, idx) => (
                     <ScrollReveal key={plan.name} delay={idx * 0.1} y={40}>
-                      <div className={`p-8 sm:p-10 rounded-[2.5rem] flex flex-col justify-between h-full transition-all duration-500 ${plan.featured ? "bg-white/[0.05] border border-white/20" : "bg-white/[0.02] border border-white/5 hover:bg-white/[0.04]"}`}>
+                      <div className={`p-8 sm:p-10 rounded-[2.5rem] flex flex-col justify-between h-full transition-all duration-500 ${plan.featured ? "bg-white/[0.03] border border-white/20" : "bg-white/[0.01] border border-white/5 hover:bg-white/[0.04]"}`}>
                         <div className="space-y-8">
                           <div className="space-y-3 text-left">
                             <h3 className="text-[11px] font-bold text-white/80 uppercase tracking-widest">{plan.name}</h3>
@@ -459,7 +459,7 @@ export default function Login({ onLogin }: LoginProps) {
                   <div className="space-y-4">
                     {faqItems.map((item, i) => (
                       <ScrollReveal key={i} delay={i * 0.1} y={30}>
-                        <div className="bg-white/[0.02] border border-white/5 p-6 sm:p-8 rounded-[2rem] text-left">
+                        <div className="bg-white/[0.01] border border-white/5 p-6 sm:p-8 rounded-[2rem] text-left">
                           <h3 className="text-base font-medium text-white/90 mb-3">{item.question}</h3>
                           <p className="text-sm leading-relaxed text-white/50 font-light">{item.answer}</p>
                         </div>
@@ -486,13 +486,13 @@ export default function Login({ onLogin }: LoginProps) {
               className="w-full max-w-[440px] perspective-1000 mt-32 mx-auto px-4 sm:px-0 flex flex-col items-center"
             >
               <div className="relative w-full">
-                <div className="absolute -inset-0.5 bg-gradient-to-br from-blue-500/20 to-transparent rounded-[2.5rem] blur opacity-50" />
-                <div className="relative bg-[#0a0a0c]/80 border border-white/10 backdrop-blur-2xl p-8 sm:p-10 rounded-[2.5rem] shadow-[0_20px_40px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.1)] flex flex-col items-center text-center">
+                <div className="absolute -inset-0.5 bg-gradient-to-br from-rose-500/20 to-transparent rounded-[2.5rem] blur opacity-50" />
+                <div className="relative bg-[#0a0a0c]/80 border border-white/5  p-8 sm:p-10 rounded-[2.5rem] shadow-[0_20px_40px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.1)] flex flex-col items-center text-center">
                   
                   <div className="relative mb-8">
                     <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl animate-pulse" />
-                    <div className="relative h-20 w-20 rounded-full border border-blue-500/30 bg-blue-500/10 flex items-center justify-center">
-                      <ShieldCheck className="h-8 w-8 text-blue-400" />
+                    <div className="relative h-20 w-20 rounded-full border border-rose-500/30 bg-rose-500/10 flex items-center justify-center">
+                      <ShieldCheck className="h-8 w-8 text-rose-400" />
                     </div>
                   </div>
 
@@ -530,10 +530,10 @@ export default function Login({ onLogin }: LoginProps) {
                   ref={cardRef}
                   animate={shake ? { x: [-10, 10, -8, 8, -5, 5, 0] } : {}}
                   style={{ rotateX, rotateY, transformStyle: "preserve-3d", transition: shake ? undefined : "transform 0.2s ease-out" }}
-                  className="relative bg-[#0a0a0c]/80 border border-white/10 backdrop-blur-2xl p-8 sm:p-10 rounded-[2.5rem] shadow-[0_20px_40px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.1)]"
+                  className="relative bg-[#0a0a0c]/80 border border-white/5  p-8 sm:p-10 rounded-[2.5rem] shadow-[0_20px_40px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.1)]"
                 >
                   <div className="flex flex-col items-center text-center mb-10">
-                    <div className="h-16 w-16 rounded-[1.25rem] border border-white/10 bg-gradient-to-b from-white/10 to-transparent flex items-center justify-center mb-6 shadow-[0_10px_20px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.2)]">
+                    <div className="h-16 w-16 rounded-[1.25rem] border border-white/5 bg-gradient-to-b from-white/10 to-transparent flex items-center justify-center mb-6 shadow-[0_10px_20px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.2)]">
                       <Fingerprint className="h-7 w-7 text-white" strokeWidth={1.5} />
                     </div>
                     <h2 className="text-2xl font-semibold tracking-tight text-white mb-2">Authentication</h2>
@@ -549,7 +549,7 @@ export default function Login({ onLogin }: LoginProps) {
                           value={username}
                           onChange={(e) => { setUsername(e.target.value); setError(""); }}
                           placeholder="Operator ID"
-                          className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 focus:bg-white/5 focus:shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all"
+                          className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 focus:bg-white/5 focus:shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all"
                         />
                       </div>
                     </div>
@@ -561,7 +561,7 @@ export default function Login({ onLogin }: LoginProps) {
                           value={password}
                           onChange={(e) => { setPassword(e.target.value); setError(""); }}
                           placeholder="Passphrase"
-                          className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 focus:bg-white/5 focus:shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all"
+                          className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 focus:bg-white/5 focus:shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all"
                         />
                       </div>
                     </div>
