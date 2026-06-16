@@ -81,23 +81,8 @@
     @apply border-border;
   }
 
-  body {
-    @apply font-sans antialiased text-foreground overflow-x-hidden;
-    background-color: hsl(var(--background));
-    background-attachment: fixed;
-    color-scheme: dark;
-  }
 }
 
-/* ── Custom Cursor Support ── */
-@media (hover: hover) and (pointer: fine) {
-  body {
-    cursor: none;
-  }
-  a, button, input, [role="button"], select, textarea, .cursor-pointer {
-    cursor: none !important;
-  }
-}
 
 /* ── Argus VPN Style Aurora Background ── */
 .argus-bg {
@@ -402,9 +387,6 @@
   .scanline { display: none; }
   
   /* Safe area padding for mobile bottom nav if implemented */
-  body {
-    padding-bottom: env(safe-area-inset-bottom, 20px);
-  }
 }
 
 /* Browser Autofill Dark Mode Override (Transparent) */
