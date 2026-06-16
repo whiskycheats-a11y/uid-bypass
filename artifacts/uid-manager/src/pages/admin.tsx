@@ -910,7 +910,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             <Switch
               checked={form.watch("bluestack")}
               onCheckedChange={(v) => form.setValue("bluestack", v)}
-              className="data-[state=checked]:bg-white data-[state=checked]:shadow-[0_0_15px_rgba(255,255,255,0.4)] data-[state=checked]:shadow-lg"
+              className="data-[state=checked]:bg-white data-[state=checked]:shadow-[0_10px_30px_rgba(0,0,0,0.5)] data-[state=checked]:shadow-lg"
             />
           </div>
 
@@ -919,7 +919,7 @@ export default function Admin({ adminUsername, onLogout }: AdminProps) {
             disabled={addMutation.isPending}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 mt-2 bg-white text-black hover:bg-white/90 hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.1)] shadow-lg transition-all"
+            className="w-full h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 mt-2 bg-white text-black hover:bg-white/90 hover:scale-[1.02] shadow-[0_10px_30px_rgba(0,0,0,0.5)] shadow-lg transition-all"
           >
             <AnimatePresence>
               {addMutation.isPending ? (
@@ -2734,7 +2734,7 @@ function PaymentsPanel({
 /* ─── Glow button ─── */
 function GlowButton({ onClick, icon, label }: { onClick: () => void; icon: React.ReactNode; label: string }) {
   return (
-    <button onClick={onClick} className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-black bg-white hover:bg-white/90 hover:scale-[1.02] transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] whitespace-nowrap">
+    <button onClick={onClick} className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-black bg-white hover:bg-white/90 hover:scale-[1.02] transition-all shadow-[0_10px_30px_rgba(0,0,0,0.5)] whitespace-nowrap">
       {icon}{label}
     </button>
   );
@@ -3511,7 +3511,7 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
         <button
           type="submit"
           disabled={!text.trim() || sending}
-          className="h-12 w-12 rounded-xl bg-white text-black hover:bg-white/90 hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          className="h-12 w-12 rounded-xl bg-white text-black hover:bg-white/90 hover:scale-[1.02] shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex items-center justify-center shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {sending ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -3793,7 +3793,7 @@ function SetUidLimitModal({ user, onClose, onSave }: { user: ClientUser; onClose
           </div>
           <div className="flex items-center justify-end gap-3 pt-2">
             <button type="button" onClick={onClose} disabled={saving} className="px-5 py-2.5 rounded-xl font-bold text-sm text-zinc-300 hover:text-white hover:bg-zinc-800 transition-all">Cancel</button>
-            <button type="submit" disabled={saving} className="px-6 py-2.5 rounded-xl font-bold text-sm bg-white text-black hover:bg-white/90 hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.1)] shadow-lg transition-all flex items-center gap-2 disabled:opacity-50">
+            <button type="submit" disabled={saving} className="px-6 py-2.5 rounded-xl font-bold text-sm bg-white text-black hover:bg-white/90 hover:scale-[1.02] shadow-[0_10px_30px_rgba(0,0,0,0.5)] shadow-lg transition-all flex items-center gap-2 disabled:opacity-50">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
               Save Limit
             </button>

@@ -8,7 +8,6 @@ import Admin from "@/pages/admin";
 import Login from "@/pages/login";
 import FreePortal from "@/pages/FreePortal";
 import { WelcomeSplash } from "@/components/welcome-splash";
-import { CustomCursor } from "@/components/CustomCursor";
 import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient({
@@ -155,7 +154,6 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <CustomCursor />
         <div className="relative z-10 min-h-screen">
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <Switch>

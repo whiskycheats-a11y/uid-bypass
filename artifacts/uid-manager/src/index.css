@@ -144,7 +144,7 @@
 .neo-glass-panel, .argus-glass-panel {
   background: linear-gradient(180deg, rgba(10, 10, 15, 0.7), rgba(0, 0, 5, 0.9));
   /* backdrop-filter removed for perf */
-  -webkit-/* backdrop-filter removed for perf */
+
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.8);
@@ -344,7 +344,7 @@
 .glass-3d, .glass {
   background: linear-gradient(145deg, rgba(15, 15, 20, 0.4), rgba(5, 5, 10, 0.7));
   /* backdrop-filter removed for perf */
-  -webkit-/* backdrop-filter removed for perf */
+
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-top: 1px solid rgba(255, 255, 255, 0.15);
   border-left: 1px solid rgba(255, 255, 255, 0.1);
@@ -354,7 +354,7 @@
 .glass-3d-strong {
   background: linear-gradient(145deg, rgba(255, 0, 85, 0.05), rgba(255, 75, 75, 0.05), rgba(0, 0, 0, 0.8));
   /* backdrop-filter removed for perf */
-  -webkit-/* backdrop-filter removed for perf */
+
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-top: 1px solid rgba(255, 75, 75, 0.3);
   border-left: 1px solid rgba(255, 0, 85, 0.2);
@@ -393,7 +393,7 @@
 /* ── Mobile Optimizations ── */
 @media (max-width: 768px) {
   html { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
-  .neo-glass, .argus-glass { backdrop-filter: blur(12px) saturate(120%); box-shadow: 0 4px 16px rgba(0,0,0,0.3); border-width: 1px; }
+  .neo-glass, .argus-glass { backdrop-filter: blur(4px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); border-width: 1px; }
   .neo-glass:hover, .argus-glass:hover { transform: none; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
   .neo-glass-panel, .argus-glass-panel { /* backdrop-filter removed for perf */ }
   .argus-btn { transform: none !important; }

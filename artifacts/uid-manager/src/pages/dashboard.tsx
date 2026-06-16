@@ -1647,7 +1647,7 @@ function TeamChatView({ currentUsername }: { currentUsername: string }) {
         <button
           type="submit"
           disabled={!text.trim() || sending}
-          className="h-12 w-12 rounded-xl bg-white text-black hover:bg-white/90 hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          className="h-12 w-12 rounded-xl bg-white text-black hover:bg-white/90 hover:scale-[1.02] shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {sending ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -2523,7 +2523,7 @@ export default function Dashboard({ username, defaultDays = 30, isTrial = false,
                       localStorage.setItem("dismissedNotice", activeNotice);
                       setShowAnnouncement(false);
                     }}
-                    className="h-12 px-8 rounded-xl bg-white text-black hover:bg-white/90 hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.1)] font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-[0_10px_40px_rgba(0,0,0,0.5)] flex items-center gap-2"
+                    className="h-12 px-8 rounded-xl bg-white text-black hover:bg-white/90 hover:scale-[1.02] shadow-[0_10px_30px_rgba(0,0,0,0.5)] font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-[0_10px_40px_rgba(0,0,0,0.5)] flex items-center gap-2"
                   >
                     <CheckCheck className="w-4 h-4" />
                     I Agree
