@@ -1,0 +1,48 @@
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
+import { FreePortalClient } from "./free-portal-client";
+
+
+export default async function FreePortalPage() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+
+  const userId = parseInt(session.user.id);
+
+  // Fetch the user's free portal limit and existing portals
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      portals: {
+        orderBy: { createdAt: "desc" },
+      }
+    }
+  });
+
+  if (!user) redirect("/login");
+
+  const freeUidLimitDisplay = user.role === "ADMIN" ? "Unlimited" : user.freeUidLimit;
+
+  // Assuming APP_URL from env or using a placeholder if not set
+  const baseUrl = process.env.NEXTAUTH_URL || "https://uidbypass.online";
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
+          Free Portals
+        </h1>
+        <p className="text-slate-400">
+          Generate temporary links to give your clients free UID bypass access.
+        </p>
+      </div>
+
+      <FreePortalClient 
+        freeUidLimit={freeUidLimitDisplay} 
+        initialPortals={user.portals} 
+        baseUrl={baseUrl} 
+      />
+    </div>
+  );
+}
