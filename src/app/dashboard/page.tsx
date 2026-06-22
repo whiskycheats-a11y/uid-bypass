@@ -16,23 +16,34 @@ export default async function DashboardPage() {
   }
 
   const userId = session.user.id;
+
+  // If the user has a corrupted session from the previous bug, log them out to clear the cookie
+  if (userId === "super-admin-override" || !/^[0-9a-fA-F]{24}$/.test(userId)) {
+    redirect("/api/auth/signout");
+  }
   
   // Fetch real-time user data
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      uidLimit: true,
-      freeUidLimit: true,
-      role: true,
-      _count: {
-        select: {
-          uids: { where: { status: "ACTIVE" } },
-          createdUsers: true,
-          portals: true,
+  let user;
+  try {
+    user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        uidLimit: true,
+        freeUidLimit: true,
+        role: true,
+        _count: {
+          select: {
+            uids: { where: { status: "ACTIVE" } },
+            createdUsers: true,
+            portals: true,
+          }
         }
       }
-    }
-  });
+    });
+  } catch (error) {
+    // If any Prisma error occurs (e.g. malformed ID), force logout
+    redirect("/api/auth/signout");
+  }
 
   if (!user) redirect("/login");
 
