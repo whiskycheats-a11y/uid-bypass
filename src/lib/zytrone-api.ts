@@ -1,5 +1,7 @@
 "use server";
 
+import { getSystemSetting } from "./system-settings";
+
 interface zytroneResponse {
   success: boolean;
   status: number;
@@ -10,23 +12,40 @@ interface zytroneResponse {
   copyright: string;
 }
 
-
-async function callzytrone(
-  endpoint: string,
-  params: Record<string, string>
+/**
+ * Core function to call the GTC backend API.
+ * Uses POST with X-API-KEY header and JSON body, matching the gtccheats.xyz format.
+ */
+async function callGtcApi(
+  action: string,
+  body: Record<string, unknown>
 ): Promise<zytroneResponse> {
-  const zytrone_API_URL = process.env.ZYTRONE_API_URL || "https://api.zytrone.org";
-  const zytrone_MASTER_KEY = process.env.ZYTRONE_MASTER_KEY || "";
+  const apiUrl = await getSystemSetting("zytrone_API_URL");
+  const masterKey = await getSystemSetting("zytrone_MASTER_API_KEY");
 
-  const url = new URL(`/api/${endpoint}`, zytrone_API_URL);
-  url.searchParams.set("key", zytrone_MASTER_KEY);
-  for (const [k, v] of Object.entries(params)) {
-    url.searchParams.set(k, v);
+  if (!masterKey) {
+    return {
+      success: false,
+      status: 500,
+      action,
+      uid: (body.account_id as string) || (body.old_uid as string) || "",
+      message: "Master API Key is not configured. Go to System Config and set it.",
+      data: null,
+      copyright: "UID Bypass",
+    };
   }
 
+  // Build the URL: base + ?action=add / ?action=change_uid etc.
+  const url = `${apiUrl}?action=${action}`;
+
   try {
-    const res = await fetch(url.toString(), {
-      method: "GET",
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-KEY": masterKey,
+      },
+      body: JSON.stringify(body),
       cache: "no-store",
       signal: AbortSignal.timeout(15000),
     });
@@ -34,25 +53,38 @@ async function callzytrone(
     const contentType = res.headers.get("content-type") || "";
     if (!contentType.includes("application/json")) {
       const text = await res.text();
+      console.error("Non-JSON response from backend:", text.substring(0, 500));
       return {
         success: false,
         status: res.status,
-        action: endpoint,
-        uid: params.uid || params.old_uid || "",
-        message: `API returned non-JSON response (Status ${res.status}). Please check ZYTRONE_API_URL and ZYTRONE_MASTER_KEY in Vercel Environment Variables.`,
+        action,
+        uid: (body.account_id as string) || (body.old_uid as string) || "",
+        message: `API returned non-JSON response (Status ${res.status}). Check API URL and Master Key in System Config.`,
         data: null,
         copyright: "UID Bypass",
       };
     }
 
     const data = await res.json();
-    return data as zytroneResponse;
+
+    // The gtccheats API returns { success: true/false, message: "..." }
+    // Normalize to our internal format
+    return {
+      success: data.success === true,
+      status: res.status,
+      action,
+      uid: (body.account_id as string) || (body.old_uid as string) || "",
+      message: data.message || (data.success ? "Success" : "Failed"),
+      data: data,
+      copyright: "UID Bypass",
+    };
   } catch (error) {
+    console.error("Backend API call failed:", error);
     return {
       success: false,
       status: 500,
-      action: endpoint,
-      uid: params.uid || params.old_uid || "",
+      action,
+      uid: (body.account_id as string) || (body.old_uid as string) || "",
       message: error instanceof Error ? error.message : "API request failed",
       data: null,
       copyright: "UID Bypass",
@@ -60,22 +92,56 @@ async function callzytrone(
   }
 }
 
+/**
+ * Add a UID to the whitelist.
+ * Maps to: POST ?action=add  body: { account_id, for_days }
+ */
 export async function addUid(uid: string, days: number): Promise<zytroneResponse> {
-  return callzytrone("add", { uid, days: days.toString() });
+  return callGtcApi("add", {
+    account_id: uid,
+    for_days: days,
+  });
 }
 
+/**
+ * Extend a UID's expiry.
+ * Maps to: POST ?action=add  body: { account_id, for_days }
+ * (Re-adding extends the duration on the backend)
+ */
 export async function extendUid(uid: string, days: number): Promise<zytroneResponse> {
-  return callzytrone("extend", { uid, days: days.toString() });
+  return callGtcApi("add", {
+    account_id: uid,
+    for_days: days,
+  });
 }
 
+/**
+ * Replace/Change a UID.
+ * Maps to: POST ?action=change_uid  body: { old_uid, new_uid }
+ */
 export async function replaceUid(oldUid: string, newUid: string): Promise<zytroneResponse> {
-  return callzytrone("replace", { old_uid: oldUid, new_uid: newUid });
+  return callGtcApi("change_uid", {
+    old_uid: oldUid,
+    new_uid: newUid,
+  });
 }
 
+/**
+ * Remove a UID from the whitelist.
+ * Maps to: POST ?action=remove  body: { account_id }
+ */
 export async function removeUid(uid: string): Promise<zytroneResponse> {
-  return callzytrone("remove", { uid });
+  return callGtcApi("remove", {
+    account_id: uid,
+  });
 }
 
+/**
+ * Get info about a UID.
+ * Maps to: POST ?action=info  body: { account_id }
+ */
 export async function getUidInfo(uid: string): Promise<zytroneResponse> {
-  return callzytrone("info", { uid });
+  return callGtcApi("info", {
+    account_id: uid,
+  });
 }

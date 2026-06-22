@@ -6,7 +6,7 @@ export const DEFAULT_SETTINGS = {
   WEBHOOK_LIMIT_MANAGEMENT: "",
   WEBHOOK_FREE_PORTALS: "",
   WEBHOOK_API_KEY_CHANGES: "",
-  zytrone_API_URL: "https://api.zytrone.org",
+  zytrone_API_URL: "https://gtccheats.xyz/Api/uidbypassapi/api_user.php",
   zytrone_MASTER_API_KEY: "",
   TRIAL_PAID_UID_ENABLED: "false", // "true" or "false"
 };

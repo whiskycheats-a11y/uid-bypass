@@ -39,7 +39,7 @@ export async function GET(req: Request) {
 
     if (userRole === "RESELLER") return NextResponse.json({ message: "Forbidden" }, { status: 403 });
 
-    const whereClause = userRole === "ADMIN" ? {} : { createdBy: userId };
+    const whereClause = (userRole === "ADMIN" || userRole === "SUPER_ADMIN") ? {} : { createdBy: userId };
 
     const users = await prisma.user.findMany({
       where: whereClause,

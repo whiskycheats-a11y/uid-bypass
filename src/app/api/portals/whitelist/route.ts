@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     const creator = portal.user;
 
     // Check if the creator still has free limit (Admins bypass)
-    if (creator.role !== "ADMIN" && creator.freeUidLimit < 1) {
+    if (creator.role !== "ADMIN" && creator.role !== "SUPER_ADMIN" && creator.freeUidLimit < 1) {
       return NextResponse.json({ message: "The reseller's free limit has been exhausted." }, { status: 403 });
     }
 
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       });
 
       // Deduct from creator's free limit (unless Admin)
-      if (creator.role !== "ADMIN") {
+      if (creator.role !== "ADMIN" && creator.role !== "SUPER_ADMIN") {
         await prisma.user.update({
           where: { id: creator.id },
           data: { freeUidLimit: { decrement: 1 } },

@@ -62,7 +62,7 @@ export const addUserSchema = z.object({
   username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/),
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  role: z.enum(["RESELLER", "MANAGER", "ADMIN"]),
+  role: z.enum(["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"]),
   uidLimit: z.number().int().min(0, "UID limit must be non-negative"),
   profilePicture: z.string().url("Invalid image URL").optional().or(z.literal("")),
 });
@@ -70,7 +70,7 @@ export const addUserSchema = z.object({
 export const editUserSchema = z.object({
   userId: z.number().int(),
   email: z.string().email("Invalid email address"),
-  role: z.enum(["RESELLER", "MANAGER", "ADMIN"]),
+  role: z.enum(["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"]),
   profilePicture: z.string().url("Invalid image URL").optional().or(z.literal("")),
 });
 

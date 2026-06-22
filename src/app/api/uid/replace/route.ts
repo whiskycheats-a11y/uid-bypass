@@ -47,7 +47,7 @@ async function handleReplaceUid(req: Request, isGet: boolean) {
     let existingUid = await prisma.uid.findFirst({ where: { uidValue: oldUid, userId: user.id } });
     
     if (!existingUid) {
-      if (user.role === "ADMIN") {
+      if (user.role === "ADMIN" || user.role === "SUPER_ADMIN") {
         existingUid = await prisma.uid.findFirst({ where: { uidValue: oldUid } });
         if (existingUid) {
           targetUserId = existingUid.userId;

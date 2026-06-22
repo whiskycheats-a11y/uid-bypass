@@ -72,85 +72,85 @@ export function Sidebar() {
       title: "Overview",
       href: "/dashboard",
       icon: LayoutDashboard,
-      roles: ["RESELLER", "MANAGER", "ADMIN"],
+      roles: ["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "UID Management",
       href: "/dashboard/uid-management",
       icon: KeyRound,
-      roles: ["RESELLER", "MANAGER", "ADMIN"],
+      roles: ["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "Free Portals",
       href: "/dashboard/free-portal",
       icon: Globe,
-      roles: ["RESELLER", "MANAGER", "ADMIN"],
+      roles: ["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "Team Chat",
       href: "/dashboard/team-chat",
       icon: MessageSquare,
-      roles: ["RESELLER", "MANAGER", "ADMIN"],
+      roles: ["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "API Access",
       href: "/dashboard/api-access",
       icon: Settings,
-      roles: ["RESELLER", "MANAGER", "ADMIN"],
+      roles: ["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "Documentation",
       href: "/dashboard/documentation",
       icon: FileText,
-      roles: ["RESELLER", "MANAGER", "ADMIN"],
+      roles: ["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "Downloads & Tools",
       href: "/dashboard/downloads",
       icon: Download,
-      roles: ["RESELLER", "MANAGER", "ADMIN"],
+      roles: ["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "Profile",
       href: "/dashboard/profile",
       icon: UserCircle,
-      roles: ["RESELLER", "MANAGER", "ADMIN"],
+      roles: ["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "User Management",
       href: "/dashboard/users",
       icon: Users,
-      roles: ["MANAGER", "ADMIN"],
+      roles: ["MANAGER", "ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "Limit Management",
       href: "/dashboard/limit-management",
       icon: Settings,
-      roles: ["MANAGER", "ADMIN"],
+      roles: ["MANAGER", "ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "UID Database",
       href: "/dashboard/uid-database",
       icon: Database,
-      roles: ["MANAGER", "ADMIN"],
+      roles: ["MANAGER", "ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "Manage Portals",
       href: "/dashboard/manage-portals",
       icon: Globe,
-      roles: ["ADMIN"],
+      roles: ["ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "System Alerts",
       href: "/dashboard/alerts",
       icon: BellRing,
-      roles: ["ADMIN"],
+      roles: ["ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "System Config",
       href: "/dashboard/system-config",
       icon: Settings,
-      roles: ["ADMIN"],
+      roles: ["ADMIN", "SUPER_ADMIN"],
     },
   ];
 
@@ -207,20 +207,20 @@ export function Sidebar() {
                 {username}
               </span>
               <div className="flex items-center mt-0.5">
-                <Badge
-                  variant={userRole === "ADMIN" ? "destructive" : userRole === "MANAGER" ? "default" : "outline"}
-                  className={cn(
-                    "text-[9px] px-1.5 py-0.5 h-[16px] font-bold uppercase tracking-wider flex items-center gap-1",
-                    userRole === "ADMIN" ? "bg-red-500/20 text-red-400 border-red-500/30" :
-                      userRole === "MANAGER" ? "bg-blue-500/20 text-blue-400 border-blue-500/30" :
-                        "bg-white/5 text-slate-400 border-white/10"
-                  )}
-                >
-                  {userRole === "ADMIN" && <Crown className="w-2.5 h-2.5" />}
-                  {userRole === "MANAGER" && <Star className="w-2.5 h-2.5" />}
-                  {userRole === "RESELLER" && <UserIcon className="w-2.5 h-2.5" />}
-                  {userRole}
-                </Badge>
+                  <Badge
+                    variant={(userRole === "ADMIN" || userRole === "SUPER_ADMIN") ? "destructive" : userRole === "MANAGER" ? "default" : "outline"}
+                    className={cn(
+                      "text-[9px] px-1.5 py-0.5 h-[16px] font-bold uppercase tracking-wider flex items-center gap-1",
+                      (userRole === "ADMIN" || userRole === "SUPER_ADMIN") ? "bg-red-500/20 text-red-400 border-red-500/30" :
+                        userRole === "MANAGER" ? "bg-blue-500/20 text-blue-400 border-blue-500/30" :
+                          "bg-white/5 text-slate-400 border-white/10"
+                    )}
+                  >
+                    {(userRole === "ADMIN" || userRole === "SUPER_ADMIN") && <Crown className="w-2.5 h-2.5" />}
+                    {userRole === "MANAGER" && <Star className="w-2.5 h-2.5" />}
+                    {userRole === "RESELLER" && <UserIcon className="w-2.5 h-2.5" />}
+                    {userRole.replace("_", " ")}
+                  </Badge>
               </div>
             </div>
           </div>
