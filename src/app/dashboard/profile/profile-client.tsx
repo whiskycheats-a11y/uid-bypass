@@ -24,6 +24,22 @@ export function ProfileClient({ user }: { user: any }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image must be less than 2MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData({ ...formData, profilePicture: reader.result as string });
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSave = async () => {
     setIsLoading(true);
     try {
@@ -90,9 +106,10 @@ export function ProfileClient({ user }: { user: any }) {
                 ) : (
                   <UserCircle className="w-16 h-16 text-slate-500" />
                 )}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                   <Camera className="w-8 h-8 text-white" />
-                </div>
+                  <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                </label>
               </motion.div>
               <h3 className="text-xl font-bold text-white">{formData.username}</h3>
               <p className="text-sm text-cyan-400 font-medium">{user.role}</p>
@@ -125,13 +142,13 @@ export function ProfileClient({ user }: { user: any }) {
                   <Input 
                     id="profilePicture"
                     name="profilePicture"
-                    placeholder="https://i.imgur.com/... or Discord image link"
-                    value={formData.profilePicture}
+                    placeholder="https://i.imgur.com/... or upload directly"
+                    value={formData.profilePicture.startsWith("data:image") ? "Base64 Encoded Image" : formData.profilePicture}
                     onChange={handleChange}
                     className="bg-black/50 border-white/10 text-white placeholder:text-slate-500 focus-visible:ring-cyan-500/50" 
                     icon={<LinkIcon className="w-5 h-5" />}
                   />
-                  <p className="text-xs text-slate-500 mt-1">Paste a direct image link (ending in .png, .jpg, etc) to update your avatar.</p>
+                  <p className="text-xs text-slate-500 mt-1">Paste a direct image link or click the camera icon above to upload.</p>
                 </div>
               </CardContent>
             </Card>

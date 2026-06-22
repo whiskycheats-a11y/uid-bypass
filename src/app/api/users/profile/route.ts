@@ -8,7 +8,7 @@ const profileSchema = z.object({
   username: z.string().min(3).max(30).optional(),
   currentPassword: z.string().optional(),
   newPassword: z.string().min(6).optional(),
-  profilePicture: z.string().url().optional().or(z.literal("")),
+  profilePicture: z.string().optional().or(z.literal("")),
 });
 
 export async function PUT(req: Request) {
