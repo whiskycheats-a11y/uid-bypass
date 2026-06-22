@@ -23,14 +23,21 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      let deviceToken = localStorage.getItem("deviceToken");
+      if (!deviceToken) {
+        deviceToken = crypto.randomUUID();
+        localStorage.setItem("deviceToken", deviceToken);
+      }
+
       const res = await signIn("credentials", {
         identifier,
         password,
+        deviceToken,
         redirect: false,
       });
 
       if (res?.error) {
-        setError("Invalid username/email or password.");
+        setError(res.error || "Invalid username/email or password.");
       } else {
         router.push("/dashboard");
       }

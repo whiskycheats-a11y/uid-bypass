@@ -18,6 +18,8 @@ type User = {
   profilePicture: string | null;
   createdAt: string;
   createdBy: string | null;
+  isLocked?: boolean;
+  hwidLockEnabled?: boolean;
 };
 
 export default function UsersClient({
@@ -56,6 +58,8 @@ export default function UsersClient({
   const [eUidLimit, setEUidLimit] = useState(0);
   const [eFreeUidLimit, setEFreeUidLimit] = useState(50);
   const [eProfilePicture, setEProfilePicture] = useState("");
+  const [eIsLocked, setEIsLocked] = useState(false);
+  const [eHwidLockEnabled, setEHwidLockEnabled] = useState(true);
 
   const fetchUsers = async () => {
     try {
@@ -111,6 +115,8 @@ export default function UsersClient({
     setEUidLimit(user.uidLimit);
     setEFreeUidLimit(user.freeUidLimit);
     setEProfilePicture(user.profilePicture || "");
+    setEIsLocked(user.isLocked || false);
+    setEHwidLockEnabled(user.hwidLockEnabled ?? true);
     setIsEditOpen(true);
   };
 
@@ -128,6 +134,8 @@ export default function UsersClient({
       uidLimit: eUidLimit,
       freeUidLimit: eFreeUidLimit,
       profilePicture: eProfilePicture,
+      isLocked: eIsLocked,
+      hwidLockEnabled: eHwidLockEnabled,
     };
     if (ePassword) payload.password = ePassword;
 
@@ -208,8 +216,9 @@ export default function UsersClient({
                   <div className="relative">
                     <select value={cRole} onChange={(e) => setCRole(e.target.value)} className="flex h-10 w-full appearance-none items-center justify-between rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                       <option value="RESELLER" className="bg-[#0a0a1a] text-white">Reseller</option>
-                      {currentUserRole === "ADMIN" && <option value="MANAGER" className="bg-[#0a0a1a] text-white">Manager</option>}
-                      {currentUserRole === "ADMIN" && <option value="ADMIN" className="bg-[#0a0a1a] text-white">Admin</option>}
+                      {(currentUserRole === "ADMIN" || currentUserRole === "SUPER_ADMIN") && <option value="MANAGER" className="bg-[#0a0a1a] text-white">Manager</option>}
+                      {(currentUserRole === "ADMIN" || currentUserRole === "SUPER_ADMIN") && <option value="ADMIN" className="bg-[#0a0a1a] text-white">Admin</option>}
+                      {currentUserRole === "SUPER_ADMIN" && <option value="SUPER_ADMIN" className="bg-[#0a0a1a] text-white">Super Admin</option>}
                     </select>
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                       <ChevronDown className="h-4 w-4 text-slate-500" />
@@ -254,6 +263,7 @@ export default function UsersClient({
             <option value="RESELLER" className="bg-[#0a0a1a]">Reseller</option>
             <option value="MANAGER" className="bg-[#0a0a1a]">Manager</option>
             <option value="ADMIN" className="bg-[#0a0a1a]">Admin</option>
+            {currentUserRole === "SUPER_ADMIN" && <option value="SUPER_ADMIN" className="bg-[#0a0a1a]">Super Admin</option>}
           </select>
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
             <ChevronDown className="h-4 w-4 text-slate-500" />
@@ -296,18 +306,29 @@ export default function UsersClient({
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant="outline" className={user.role === "ADMIN" ? "border-amber-500/50 text-amber-400" : user.role === "MANAGER" ? "border-blue-500/50 text-blue-400" : "border-slate-500/50 text-slate-400"}>
-                      {user.role}
-                    </Badge>
+                    <div className="flex flex-col gap-2">
+                      <Badge variant="outline" className={
+                        user.role === "SUPER_ADMIN" ? "border-fuchsia-500/50 text-fuchsia-400" :
+                        user.role === "ADMIN" ? "border-amber-500/50 text-amber-400" : 
+                        user.role === "MANAGER" ? "border-blue-500/50 text-blue-400" : 
+                        "border-slate-500/50 text-slate-400"}>
+                        {user.role}
+                      </Badge>
+                      {user.isLocked && (
+                        <Badge variant="destructive" className="bg-red-500/20 text-red-400 border-red-500/30 text-[10px]">
+                          LOCKED (HWID)
+                        </Badge>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 font-mono text-emerald-400">{user.uidLimit}</td>
                   <td className="px-6 py-4 font-mono text-blue-400">{user.freeUidLimit}</td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(user)} disabled={currentUserRole !== "ADMIN" && user.role === "ADMIN"} className="h-8 w-8 text-slate-400 hover:text-white hover:bg-white/10">
+                      <Button variant="ghost" size="icon" onClick={() => openEdit(user)} disabled={(currentUserRole !== "ADMIN" && currentUserRole !== "SUPER_ADMIN") || (user.role === "SUPER_ADMIN" && currentUserRole !== "SUPER_ADMIN")} className="h-8 w-8 text-slate-400 hover:text-white hover:bg-white/10">
                         <Pencil className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)} disabled={user.id === currentUserId || (currentUserRole !== "ADMIN" && user.role === "ADMIN")} className="h-8 w-8 text-slate-400 hover:text-red-400 hover:bg-red-400/10">
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)} disabled={user.id === currentUserId || (currentUserRole !== "ADMIN" && currentUserRole !== "SUPER_ADMIN") || (user.role === "SUPER_ADMIN")} className="h-8 w-8 text-slate-400 hover:text-red-400 hover:bg-red-400/10">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -347,10 +368,11 @@ export default function UsersClient({
               <div className="space-y-2">
                 <label className="text-sm text-slate-400">Role</label>
                 <div className="relative">
-                  <select value={eRole} onChange={(e) => setERole(e.target.value)} disabled={currentUserRole !== "ADMIN"} className="flex h-10 w-full appearance-none items-center justify-between rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <select value={eRole} onChange={(e) => setERole(e.target.value)} disabled={currentUserRole !== "ADMIN" && currentUserRole !== "SUPER_ADMIN"} className="flex h-10 w-full appearance-none items-center justify-between rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
                     <option value="RESELLER" className="bg-[#0a0a1a] text-white">Reseller</option>
-                    {currentUserRole === "ADMIN" && <option value="MANAGER" className="bg-[#0a0a1a] text-white">Manager</option>}
-                    {currentUserRole === "ADMIN" && <option value="ADMIN" className="bg-[#0a0a1a] text-white">Admin</option>}
+                    {(currentUserRole === "ADMIN" || currentUserRole === "SUPER_ADMIN") && <option value="MANAGER" className="bg-[#0a0a1a] text-white">Manager</option>}
+                    {(currentUserRole === "ADMIN" || currentUserRole === "SUPER_ADMIN") && <option value="ADMIN" className="bg-[#0a0a1a] text-white">Admin</option>}
+                    {currentUserRole === "SUPER_ADMIN" && <option value="SUPER_ADMIN" className="bg-[#0a0a1a] text-white">Super Admin</option>}
                   </select>
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                     <ChevronDown className="h-4 w-4 text-slate-500" />
@@ -365,6 +387,20 @@ export default function UsersClient({
                 <div className="space-y-2">
                   <label className="text-sm text-slate-400">Free UID Limit</label>
                   <Input type="number" value={eFreeUidLimit} onChange={(e) => setEFreeUidLimit(parseInt(e.target.value) || 0)} min={0} required className="bg-black/40 border-white/10 text-white" icon={<Zap className="w-4 h-4 text-emerald-400" />} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2 flex flex-col justify-center">
+                  <label className="text-sm text-slate-400 flex items-center gap-2">
+                    <input type="checkbox" checked={eHwidLockEnabled} onChange={(e) => setEHwidLockEnabled(e.target.checked)} className="rounded border-white/10 bg-black/40" />
+                    HWID Lock Enabled
+                  </label>
+                </div>
+                <div className="space-y-2 flex flex-col justify-center">
+                  <label className="text-sm text-slate-400 flex items-center gap-2">
+                    <input type="checkbox" checked={eIsLocked} onChange={(e) => setEIsLocked(e.target.checked)} className="rounded border-white/10 bg-black/40 text-red-500" />
+                    Account is Locked
+                  </label>
                 </div>
               </div>
               <Button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-4">

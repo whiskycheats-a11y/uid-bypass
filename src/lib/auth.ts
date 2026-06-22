@@ -10,6 +10,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         identifier: { label: "Email or Username", type: "text" },
         password: { label: "Password", type: "password" },
+        deviceToken: { label: "Device Token", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.identifier || !credentials?.password) return null;
@@ -27,12 +28,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!user) return null;
 
+        if (user.isLocked) {
+          throw new Error("Account is Locked. Contact Admin.");
+        }
+
         const isValid = await bcrypt.compare(
           credentials.password as string,
           user.password
         );
 
         if (!isValid) return null;
+
+        if (user.hwidLockEnabled && credentials.deviceToken) {
+          const incomingToken = credentials.deviceToken as string;
+          if (!user.deviceToken) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { deviceToken: incomingToken }
+            });
+          } else if (user.deviceToken !== incomingToken) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { isLocked: true }
+            });
+            throw new Error("Device changed! Account Locked.");
+          }
+        }
 
         return {
           id: user.id.toString(),

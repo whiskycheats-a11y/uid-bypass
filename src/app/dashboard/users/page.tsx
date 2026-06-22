@@ -15,7 +15,7 @@ export default async function UsersPage() {
     redirect("/dashboard");
   }
 
-  const whereClause = userRole === "ADMIN" ? {} : { createdBy: userId };
+  const whereClause = (userRole === "ADMIN" || userRole === "SUPER_ADMIN") ? {} : { createdBy: userId };
   
   const initialUsers = await prisma.user.findMany({
     where: whereClause,
@@ -27,6 +27,8 @@ export default async function UsersPage() {
       uidLimit: true,
       freeUidLimit: true,
       profilePicture: true,
+      isLocked: true,
+      hwidLockEnabled: true,
       createdAt: true,
       createdBy: true,
     },

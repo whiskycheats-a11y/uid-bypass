@@ -10,7 +10,7 @@ const createUserSchema = z.object({
   username: z.string().min(3).max(30),
   email: z.string().email(),
   password: z.string().min(6),
-  role: z.enum(["RESELLER", "MANAGER", "ADMIN"]),
+  role: z.enum(["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"]),
   uidLimit: z.number().int().min(0),
   freeUidLimit: z.number().int().min(0),
   profilePicture: z.string().url().optional().or(z.literal("")),
@@ -21,10 +21,12 @@ const editUserSchema = z.object({
   username: z.string().min(3).max(30).optional(),
   email: z.string().email().optional(),
   password: z.string().min(6).optional(),
-  role: z.enum(["RESELLER", "MANAGER", "ADMIN"]).optional(),
+  role: z.enum(["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"]).optional(),
   uidLimit: z.number().int().min(0).optional(),
   freeUidLimit: z.number().int().min(0).optional(),
   profilePicture: z.string().url().optional().or(z.literal("")),
+  isLocked: z.boolean().optional(),
+  hwidLockEnabled: z.boolean().optional(),
 });
 
 export async function GET(req: Request) {
@@ -49,6 +51,8 @@ export async function GET(req: Request) {
         uidLimit: true,
         freeUidLimit: true,
         profilePicture: true,
+        isLocked: true,
+        hwidLockEnabled: true,
         createdAt: true,
         createdBy: true,
       },
@@ -75,8 +79,16 @@ export async function POST(req: Request) {
     const body = await req.json();
     const data = createUserSchema.parse(body);
 
-    if (creatorRole === "MANAGER" && data.role === "ADMIN") {
-      return NextResponse.json({ message: "Managers cannot create ADMIN users" }, { status: 403 });
+    if (creatorRole === "MANAGER" && (data.role === "ADMIN" || data.role === "SUPER_ADMIN")) {
+      return NextResponse.json({ message: "Managers cannot create ADMIN or SUPER_ADMIN users" }, { status: 403 });
+    }
+
+    if (creatorRole === "ADMIN" && data.role === "SUPER_ADMIN") {
+      return NextResponse.json({ message: "Only SUPER_ADMIN can create SUPER_ADMIN users" }, { status: 403 });
+    }
+    
+    if (creatorRole === "ADMIN" && data.role === "ADMIN") {
+        return NextResponse.json({ message: "Only SUPER_ADMIN can create ADMIN users" }, { status: 403 });
     }
 
     const existingUser = await prisma.user.findFirst({
@@ -137,13 +149,26 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ message: "Forbidden. You can only edit users you created." }, { status: 403 });
     }
 
-    if (adminRole === "MANAGER" && data.role === "ADMIN") {
-      return NextResponse.json({ message: "Managers cannot promote users to ADMIN" }, { status: 403 });
+    if (adminRole === "MANAGER" && (data.role === "ADMIN" || data.role === "SUPER_ADMIN")) {
+      return NextResponse.json({ message: "Managers cannot promote users to ADMIN or SUPER_ADMIN" }, { status: 403 });
+    }
+
+    if (adminRole === "ADMIN" && (data.role === "ADMIN" || data.role === "SUPER_ADMIN")) {
+      return NextResponse.json({ message: "Only SUPER_ADMIN can promote users to ADMIN or SUPER_ADMIN" }, { status: 403 });
+    }
+    
+    if (adminRole !== "SUPER_ADMIN" && targetUser.role === "SUPER_ADMIN") {
+        return NextResponse.json({ message: "Forbidden. You cannot edit a SUPER_ADMIN." }, { status: 403 });
     }
 
     // Explicitly define update object to avoid typescript/prisma warnings
     const updateData: Record<string, unknown> = { ...data };
     delete updateData.id;
+
+    // If we are unlocking, clear the deviceToken as well
+    if (data.isLocked === false) {
+      updateData.deviceToken = null;
+    }
 
     if (data.password) {
       updateData.password = await bcrypt.hash(data.password, 10);
@@ -214,6 +239,10 @@ export async function DELETE(req: Request) {
 
     if (adminRole === "MANAGER" && targetUser.createdBy !== adminId) {
       return NextResponse.json({ message: "Forbidden. You can only delete users you created." }, { status: 403 });
+    }
+
+    if (adminRole !== "SUPER_ADMIN" && targetUser.role === "SUPER_ADMIN") {
+      return NextResponse.json({ message: "Forbidden. You cannot delete a SUPER_ADMIN." }, { status: 403 });
     }
 
     await prisma.user.delete({ where: { id: targetId } });
