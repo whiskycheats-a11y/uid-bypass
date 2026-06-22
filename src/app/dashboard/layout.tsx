@@ -2,6 +2,8 @@ import { Sidebar } from "@/components/sidebar";
 import { GlobalAlerts } from "@/components/global-alerts";
 import { CommandPalette } from "@/components/command-palette";
 
+export const dynamic = 'force-dynamic';
+
 export default function DashboardLayout({
   children,
 }: {
