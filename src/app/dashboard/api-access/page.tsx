@@ -16,7 +16,7 @@ export default async function ApiAccessPage() {
   if (!user) redirect("/login");
 
   // Base URL for API
-  const baseUrl = process.env.NEXTAUTH_URL || "https://uidbypass.online";
+  const baseUrl = process.env.NEXTAUTH_URL || "https://uid-bypass-beryl.vercel.app";
 
   return (
     <div className="space-y-8">

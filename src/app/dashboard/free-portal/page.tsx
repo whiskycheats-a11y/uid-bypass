@@ -25,7 +25,7 @@ export default async function FreePortalPage() {
   const freeUidLimitDisplay = user.role === "ADMIN" ? "Unlimited" : user.freeUidLimit;
 
   // Assuming APP_URL from env or using a placeholder if not set
-  const baseUrl = process.env.NEXTAUTH_URL || "https://uidbypass.online";
+  const baseUrl = process.env.NEXTAUTH_URL || "https://uid-bypass-beryl.vercel.app";
 
   return (
     <div className="space-y-8">

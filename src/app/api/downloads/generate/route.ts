@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     // Security Check: If user has < 25 UID Limit, strictly force global names regardless of request body
     if (user.uidLimit < 25) {
       finalBrand = "UID BYPASS GLOBAL";
-      finalDev = "uidbypass.online";
+      finalDev = "uid-bypass-beryl.vercel.app";
     }
 
     const payloadBuffer = encryptPayload(finalBrand, finalDev);

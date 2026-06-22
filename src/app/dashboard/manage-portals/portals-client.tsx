@@ -198,7 +198,7 @@ export function ManagePortalsClient() {
                 </tr>
               ) : filteredPortals.map((record) => {
                 const protocol = typeof window !== "undefined" ? window.location.protocol : "https:";
-                const host = typeof window !== "undefined" ? window.location.host : "uidbypass.online";
+                const host = typeof window !== "undefined" ? window.location.host : "uid-bypass-beryl.vercel.app";
                 const portalLink = `${protocol}//${host}/portal/${record.token}`;
                 
                 return (

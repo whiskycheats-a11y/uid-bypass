@@ -53,7 +53,7 @@ export function DownloadsClient({ uidLimit }: { uidLimit: number }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           brandName: isGlobal ? "UID BYPASS GLOBAL" : brandName,
-          devName: isGlobal ? "uidbypass.online" : devName,
+          devName: isGlobal ? "uid-bypass-beryl.vercel.app" : devName,
           method
         }),
       });
@@ -273,7 +273,7 @@ export function DownloadsClient({ uidLimit }: { uidLimit: number }) {
                     <pre className="text-slate-300"><code><span className="text-blue-400">class</span> <span className="text-amber-300">UIDBypassClient</span> {"{"}
                       <span className="text-blue-400">constructor</span>(apiKey) {"{"}
                       <span className="text-blue-400">this</span>.apiKey = apiKey;
-                      <span className="text-blue-400">this</span>.baseUrl = <span className="text-orange-300">'https://uidbypass.online/api'</span>;
+                      <span className="text-blue-400">this</span>.baseUrl = <span className="text-orange-300">'https://uid-bypass-beryl.vercel.app/api'</span>;
                       {"}"}
 
                       <span className="text-blue-400">async</span> <span className="text-emerald-300">checkUID</span>(uid) {"{"}
@@ -286,10 +286,10 @@ export function DownloadsClient({ uidLimit }: { uidLimit: number }) {
                   )}
                   {lang === "curl" && (
                     <pre className="text-slate-300"><code><span className="text-slate-500"># Check UID Status</span>
-                      <span className="text-emerald-400">curl</span> <span className="text-orange-300">"https://uidbypass.online/api/uid/info?key=YOUR_KEY&uid=123"</span>
+                      <span className="text-emerald-400">curl</span> <span className="text-orange-300">"https://uid-bypass-beryl.vercel.app/api/uid/info?key=YOUR_KEY&uid=123"</span>
 
                       <span className="text-slate-500"># Add UID for 30 days</span>
-                      <span className="text-emerald-400">curl</span> <span className="text-orange-300">"https://uidbypass.online/api/uid/add?key=YOUR_KEY&uid=123&days=30"</span></code></pre>
+                      <span className="text-emerald-400">curl</span> <span className="text-orange-300">"https://uid-bypass-beryl.vercel.app/api/uid/add?key=YOUR_KEY&uid=123&days=30"</span></code></pre>
                   )}
                 </div>
               )}
@@ -348,7 +348,7 @@ export function DownloadsClient({ uidLimit }: { uidLimit: number }) {
         isOpen={isGlobalModalOpen}
         onClose={() => !isGenerating && setIsGlobalModalOpen(false)}
         title="Download Global Bypass"
-        description="Choose your generation vector. The default names UID BYPASS GLOBAL and uidbypass.online will be embedded."
+        description="Choose your generation vector. The default names UID BYPASS GLOBAL and uid-bypass-beryl.vercel.app will be embedded."
       >
         {isGenerating ? (
           <div className="py-10 px-4 flex flex-col items-center justify-center space-y-6 relative">

@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Info, Code2, AlertTriangle, CheckCircle2 } from "lucide-react";
 
 export default function DocumentationPage() {
-  const baseUrl = process.env.NEXTAUTH_URL || "https://uidbypass.online";
+  const baseUrl = process.env.NEXTAUTH_URL || "https://uid-bypass-beryl.vercel.app";
 
   return (
     <div className="space-y-12">
