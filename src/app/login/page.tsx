@@ -37,7 +37,17 @@ export default function LoginPage() {
       });
 
       if (res?.error) {
-        setError(res.error || "Invalid username/email or password.");
+        // NextAuth v5 returns error codes, map them to friendly messages
+        const errorMsg = res.error;
+        if (errorMsg.includes("Account is Locked")) {
+          setError("Account is Locked. Contact Admin.");
+        } else if (errorMsg.includes("Device changed")) {
+          setError("Device changed! Account has been locked. Contact Admin.");
+        } else if (errorMsg === "CredentialsSignin" || errorMsg === "Configuration") {
+          setError("Invalid username/email or password.");
+        } else {
+          setError(errorMsg || "Invalid username/email or password.");
+        }
       } else {
         router.push("/dashboard");
       }
