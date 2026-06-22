@@ -1,6 +1,6 @@
 "use server";
 
-import { getSystemSetting } from "./system-settings";
+
 
 interface zytroneResponse {
   success: boolean;
@@ -20,8 +20,8 @@ async function callGtcApi(
   action: string,
   body: Record<string, unknown>
 ): Promise<zytroneResponse> {
-  const apiUrl = await getSystemSetting("zytrone_API_URL");
-  const masterKey = await getSystemSetting("zytrone_MASTER_API_KEY");
+  const apiUrl = process.env.ZYTRONE_API_URL;
+  const masterKey = process.env.ZYTRONE_MASTER_API_KEY;
 
   if (!masterKey) {
     return {
@@ -29,7 +29,7 @@ async function callGtcApi(
       status: 500,
       action,
       uid: (body.account_id as string) || (body.old_uid as string) || "",
-      message: "Master API Key is not configured. Go to System Config and set it.",
+      message: "Master API Key is not configured. Add ZYTRONE_MASTER_API_KEY to your Vercel Environment Variables.",
       data: null,
       copyright: "UID Bypass",
     };
@@ -59,7 +59,7 @@ async function callGtcApi(
         status: res.status,
         action,
         uid: (body.account_id as string) || (body.old_uid as string) || "",
-        message: `API returned non-JSON response (Status ${res.status}). Check API URL and Master Key in System Config.`,
+        message: `API returned non-JSON response (Status ${res.status}). Check API URL and Master Key in Vercel Environment Variables.`,
         data: null,
         copyright: "UID Bypass",
       };

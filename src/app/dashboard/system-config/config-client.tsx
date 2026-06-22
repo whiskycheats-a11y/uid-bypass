@@ -102,46 +102,7 @@ export function ConfigClient() {
         </CardContent>
       </Card>
 
-      {/* Backend API Configuration */}
-      <Card className="glass-card">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Globe className="w-5 h-5 text-cyan-400" /> Backend API (UID Whitelist)
-          </CardTitle>
-          <CardDescription className="text-slate-400">
-            Configure your backend UID bypass API connection. This is the API that actually whitelists the UIDs.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-slate-300 flex items-center gap-2">
-              <Globe className="w-3.5 h-3.5" /> API URL
-            </Label>
-            <Input 
-              value={settings["zytrone_API_URL"] || ""}
-              onChange={(e) => handleChange("zytrone_API_URL", e.target.value)}
-              placeholder="https://gtccheats.xyz/Api/uidbypassapi/api_user.php"
-              className="bg-black/40 border-white/10"
-              icon={<Globe className="w-4 h-4" />}
-            />
-            <p className="text-xs text-slate-500">Full URL to the backend API endpoint (without ?action=).</p>
-          </div>
-          <div className="space-y-2">
-            <Label className="text-slate-300 flex items-center gap-2">
-              <KeyRound className="w-3.5 h-3.5" /> Master API Key
-            </Label>
-            <Input 
-              type="password"
-              value={settings["zytrone_MASTER_API_KEY"] || ""}
-              onChange={(e) => handleChange("zytrone_MASTER_API_KEY", e.target.value)}
-              placeholder="GTCAPI-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-              className="bg-black/40 border-white/10"
-              icon={<KeyRound className="w-4 h-4" />}
-            />
-            <p className="text-xs text-slate-500">Your X-API-KEY for the backend. This key is used server-side only and never exposed to users.</p>
-          </div>
-        </CardContent>
-      </Card>
+
 
       {/* Discord Webhooks */}
       <Card className="glass-card">
