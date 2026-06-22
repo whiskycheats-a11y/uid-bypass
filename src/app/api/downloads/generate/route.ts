@@ -12,7 +12,7 @@ const generateSchema = z.object({
   method: z.enum(["ALPHA", "OMEGA"]),
 });
 
-const PROTECT_SIGN = "RAPIDFIRE_SECRET_2026";
+const PROTECT_SIGN = "VELOCIRA_CHEATS_TEX_SECRET_2026";
 const SIGNATURE = "[[zytrone_PAYLOAD_START]]";
 
 // Custom Proprietary Encryption: Bitwise Left Shift + XOR

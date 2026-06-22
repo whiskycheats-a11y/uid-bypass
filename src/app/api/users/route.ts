@@ -13,7 +13,7 @@ const createUserSchema = z.object({
   role: z.enum(["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"]),
   uidLimit: z.number().int().min(0),
   freeUidLimit: z.number().int().min(0),
-  profilePicture: z.string().url().optional().or(z.literal("")),
+  profilePicture: z.string().optional().or(z.literal("")),
 });
 
 const editUserSchema = z.object({
@@ -24,7 +24,7 @@ const editUserSchema = z.object({
   role: z.enum(["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"]).optional(),
   uidLimit: z.number().int().min(0).optional(),
   freeUidLimit: z.number().int().min(0).optional(),
-  profilePicture: z.string().url().optional().or(z.literal("")),
+  profilePicture: z.string().optional().or(z.literal("")),
   isLocked: z.boolean().optional(),
   hwidLockEnabled: z.boolean().optional(),
 });
@@ -165,8 +165,8 @@ export async function PATCH(req: Request) {
     const updateData: Record<string, unknown> = { ...data };
     delete updateData.id;
 
-    // If we are unlocking, clear the deviceToken as well
-    if (data.isLocked === false) {
+    // If we are unlocking or disabling HWID, clear the deviceToken as well
+    if (data.isLocked === false || data.hwidLockEnabled === false) {
       updateData.deviceToken = null;
     }
 

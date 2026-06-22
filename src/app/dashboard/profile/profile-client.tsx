@@ -28,8 +28,8 @@ export function ProfileClient({ user }: { user: any }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      alert("Image must be less than 2MB.");
+    if (file.size > 500 * 1024) {
+      alert("Image must be less than 500KB. Please compress it or use an external URL.");
       return;
     }
 
@@ -102,7 +102,20 @@ export function ProfileClient({ user }: { user: any }) {
                 className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/10 mb-4 bg-slate-800 flex items-center justify-center relative group"
               >
                 {formData.profilePicture ? (
-                  <img src={formData.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                  <img 
+                    src={formData.profilePicture} 
+                    alt="Profile" 
+                    className="w-full h-full object-cover" 
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                      const parent = (e.target as HTMLImageElement).parentElement;
+                      if (parent) {
+                        const icon = document.createElement('div');
+                        icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-circle w-16 h-16 text-slate-500"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>';
+                        parent.appendChild(icon.firstChild as Node);
+                      }
+                    }}
+                  />
                 ) : (
                   <UserCircle className="w-16 h-16 text-slate-500" />
                 )}

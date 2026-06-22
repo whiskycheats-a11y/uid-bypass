@@ -195,9 +195,20 @@ export function Sidebar() {
           <div className="flex items-center gap-3 p-2 rounded-xl bg-gradient-to-br from-white/[0.02] to-white/[0.05] border border-white/[0.05] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] transition-colors hover:bg-white/[0.06]">
             <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-white/10 shrink-0 shadow-sm">
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(session?.user as any)?.profilePicture ? (
+                {(session?.user as any)?.profilePicture ? (
                 /* eslint-disable-next-line @next/next/no-img-element, @typescript-eslint/no-explicit-any */
-                <img src={(session?.user as any)?.profilePicture as string} alt={username} className="w-full h-full object-cover" />
+                <img 
+                  src={(session?.user as any)?.profilePicture as string} 
+                  alt={username} 
+                  className="w-full h-full object-cover" 
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                    const parent = (e.target as HTMLImageElement).parentElement;
+                    if (parent) {
+                       parent.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-circle w-6 h-6 text-slate-400"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>';
+                    }
+                  }}
+                />
               ) : (
                 <UserCircle className="w-6 h-6 text-slate-400" />
               )}
