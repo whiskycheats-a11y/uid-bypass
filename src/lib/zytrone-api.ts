@@ -42,7 +42,7 @@ async function callzytrone(
       uid: params.uid || params.old_uid || "",
       message: error instanceof Error ? error.message : "API request failed",
       data: null,
-      copyright: "zytrone On Top (Rapidfire Corp)",
+      copyright: "UID Bypass",
     };
   }
 }

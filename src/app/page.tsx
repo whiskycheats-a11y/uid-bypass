@@ -172,7 +172,7 @@ export default function LandingPage() {
           <div className="flex gap-6 text-sm text-slate-500">
             <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-            <a href="https://discord.gg/rapidfire" target="_blank" rel="noreferrer" className="hover:text-violet-400 transition-colors">Discord</a>
+            <a href="https://discord.gg/QTwupjcKre" target="_blank" rel="noreferrer" className="hover:text-violet-400 transition-colors">Discord</a>
           </div>
         </div>
       </footer>

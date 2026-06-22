@@ -311,7 +311,7 @@ export function DownloadsClient({ uidLimit }: { uidLimit: number }) {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
-          <Card className="glass-card bg-gradient-to-br from-[#5865F2]/10 to-transparent border-[#5865F2]/20 hover:-translate-y-2 hover:shadow-[0_10px_40px_rgba(88,101,242,0.15)] transition-all duration-300 cursor-pointer" onClick={() => window.open('https://discord.gg/rapidfire', '_blank')}>
+          <Card className="glass-card bg-gradient-to-br from-[#5865F2]/10 to-transparent border-[#5865F2]/20 hover:-translate-y-2 hover:shadow-[0_10px_40px_rgba(88,101,242,0.15)] transition-all duration-300 cursor-pointer" onClick={() => window.open('https://discord.gg/QTwupjcKre', '_blank')}>
             <CardContent className="p-6 text-center space-y-4">
               <div className="mx-auto w-14 h-14 bg-[#5865F2]/20 rounded-full flex items-center justify-center border border-[#5865F2]/30 shadow-inner">
                 <SiDiscord className="w-7 h-7 text-[#5865F2]" />

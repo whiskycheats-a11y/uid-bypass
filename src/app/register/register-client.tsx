@@ -199,7 +199,7 @@ export function RegisterClient({ trialEnabled }: { trialEnabled: boolean }) {
             </p>
             <p className="text-sm text-slate-400">
               Need help?{" "}
-              <a href="https://discord.gg/rapidfire" target="_blank" rel="noreferrer" className="text-blue-400 font-medium hover:text-blue-300 transition-colors inline-flex items-center">
+              <a href="https://discord.gg/QTwupjcKre" target="_blank" rel="noreferrer" className="text-blue-400 font-medium hover:text-blue-300 transition-colors inline-flex items-center">
                 <MessageSquare className="w-4 h-4 mr-1" /> Join our Discord
               </a>
             </p>
