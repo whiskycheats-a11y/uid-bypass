@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     const creator = portal.user;
 
     // Check if the creator still has free limit (Admins bypass)
-    if (creator.role !== "ADMIN" && creator.role !== "SUPER_ADMIN" && creator.freeUidLimit < 1) {
+    if ((creator.role as string) !== "ADMIN" && (creator.role as string) !== "SUPER_ADMIN" && creator.freeUidLimit < 1) {
       return NextResponse.json({ message: "The reseller's free limit has been exhausted." }, { status: 403 });
     }
 
