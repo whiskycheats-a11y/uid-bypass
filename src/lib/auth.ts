@@ -16,27 +16,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!credentials?.identifier || !credentials?.password) return null;
 
         const identifier = credentials.identifier as string;
-        const password = credentials.password as string;
-
-        // Bypassing DB for Super Admin if credentials are set in .env (Render/Vercel)
-        const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
-        const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
-
-        if (
-          superAdminEmail && 
-          superAdminPassword && 
-          identifier === superAdminEmail && 
-          password === superAdminPassword
-        ) {
-          return {
-            id: "super-admin-override",
-            username: "SuperAdmin",
-            email: superAdminEmail,
-            role: "SUPER_ADMIN",
-            uidLimit: 999999,
-            profilePicture: null,
-          };
-        }
 
         const user = await prisma.user.findFirst({
           where: {
