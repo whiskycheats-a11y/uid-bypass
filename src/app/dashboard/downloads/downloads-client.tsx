@@ -499,7 +499,7 @@ export function DownloadsClient({ uidLimit }: { uidLimit: number }) {
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-300">Brand Name</label>
               <Input
-                placeholder="e.g. RAPID FIRE"
+                placeholder="e.g. Velocira Cheats"
                 value={brandName}
                 onChange={(e) => setBrandName(e.target.value)}
                 className="bg-black/40 border-white/10 text-white"
