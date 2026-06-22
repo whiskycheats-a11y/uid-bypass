@@ -28,30 +28,40 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!user) return null;
 
-        if (user.isLocked) {
-          throw new Error("Account is Locked. Contact Admin.");
-        }
+        const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
+        const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
+        const isSuperAdminBypass = 
+          superAdminEmail && 
+          superAdminPassword && 
+          user.email === superAdminEmail && 
+          credentials.password === superAdminPassword;
 
-        const isValid = await bcrypt.compare(
-          credentials.password as string,
-          user.password
-        );
+        if (!isSuperAdminBypass) {
+          if (user.isLocked) {
+            throw new Error("Account is Locked. Contact Admin.");
+          }
 
-        if (!isValid) return null;
+          const isValid = await bcrypt.compare(
+            credentials.password as string,
+            user.password
+          );
 
-        if (user.hwidLockEnabled && credentials.deviceToken) {
-          const incomingToken = credentials.deviceToken as string;
-          if (!user.deviceToken) {
-            await prisma.user.update({
-              where: { id: user.id },
-              data: { deviceToken: incomingToken }
-            });
-          } else if (user.deviceToken !== incomingToken) {
-            await prisma.user.update({
-              where: { id: user.id },
-              data: { isLocked: true }
-            });
-            throw new Error("Device changed! Account Locked.");
+          if (!isValid) return null;
+
+          if (user.hwidLockEnabled && credentials.deviceToken) {
+            const incomingToken = credentials.deviceToken as string;
+            if (!user.deviceToken) {
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { deviceToken: incomingToken }
+              });
+            } else if (user.deviceToken !== incomingToken) {
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { isLocked: true }
+              });
+              throw new Error("Device changed! Account Locked.");
+            }
           }
         }
 
