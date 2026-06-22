@@ -17,7 +17,7 @@ const createUserSchema = z.object({
 });
 
 const editUserSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   username: z.string().min(3).max(30).optional(),
   email: z.string().email().optional(),
   password: z.string().min(6).optional(),
@@ -32,7 +32,7 @@ export async function GET(req: Request) {
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-    const userId = parseInt(session.user.id);
+    const userId = session.user.id;
     const userRole = session.user.role;
 
     if (userRole === "RESELLER") return NextResponse.json({ message: "Forbidden" }, { status: 403 });
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-    const creatorId = parseInt(session.user.id);
+    const creatorId = session.user.id;
     const creatorRole = session.user.role;
 
     if (creatorRole === "RESELLER") return NextResponse.json({ message: "Forbidden" }, { status: 403 });
@@ -122,7 +122,7 @@ export async function PATCH(req: Request) {
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-    const adminId = parseInt(session.user.id);
+    const adminId = session.user.id;
     const adminRole = session.user.role;
 
     if (adminRole === "RESELLER") return NextResponse.json({ message: "Forbidden" }, { status: 403 });
@@ -199,13 +199,13 @@ export async function DELETE(req: Request) {
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-    const adminId = parseInt(session.user.id);
+    const adminId = session.user.id;
     const adminRole = session.user.role;
 
     if (adminRole === "RESELLER") return NextResponse.json({ message: "Forbidden" }, { status: 403 });
 
     const url = new URL(req.url);
-    const targetId = parseInt(url.searchParams.get("id") || "0");
+    const targetId = (url.searchParams.get("id") || "");
 
     if (!targetId) return NextResponse.json({ message: "User ID required" }, { status: 400 });
 

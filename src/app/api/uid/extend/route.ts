@@ -9,7 +9,7 @@ import { sendUidActionWebhook } from "@/lib/discord-webhook";
 async function authenticateRequest(req: Request) {
   const session = await auth();
   if (session?.user?.id) {
-    return await prisma.user.findUnique({ where: { id: parseInt(session.user.id) } });
+    return await prisma.user.findUnique({ where: { id: session.user.id } });
   }
 
   const url = new URL(req.url);

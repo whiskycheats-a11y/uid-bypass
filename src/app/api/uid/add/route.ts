@@ -10,7 +10,7 @@ async function authenticateRequest(req: Request) {
   // 1. Try Session Auth (Web Dashboard)
   const session = await auth();
   if (session?.user?.id) {
-    const user = await prisma.user.findUnique({ where: { id: parseInt(session.user.id) } });
+    const user = await prisma.user.findUnique({ where: { id: session.user.id } });
     return user;
   }
 

@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { PageWrapper } from "@/components/page-wrapper";
 
 interface UidRecord {
-  id: number;
+  id: string;
   uidValue: string;
   duration: number;
   status: "ACTIVE" | "EXPIRED" | "DELETED";
@@ -29,7 +29,7 @@ export function DatabaseClient({ currentUserRole }: { currentUserRole: string })
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
-  const [removingId, setRemovingId] = useState<number | null>(null);
+  const [removingId, setRemovingId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   const fetchUids = useCallback(async () => {
@@ -62,7 +62,7 @@ export function DatabaseClient({ currentUserRole }: { currentUserRole: string })
     return matchesSearch && matchesStatus;
   });
 
-  const handleRemove = async (id: number, uidValue: string) => {
+  const handleRemove = async (id: string, uidValue: string) => {
     if (!confirm(`Are you sure you want to remove UID ${uidValue}?`)) return;
     
     setRemovingId(id);

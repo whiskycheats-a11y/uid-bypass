@@ -29,7 +29,7 @@ export function CopyButton({ text }: { text: string }) {
 }
 
 interface PortalType {
-  id: number;
+  id: string;
   brandName: string;
   durationHours: number;
   maxUids: number;
@@ -52,7 +52,7 @@ export function FreePortalClient({ freeUidLimit, initialPortals, baseUrl }: Free
   
   // Modals state
   const [editPortal, setEditPortal] = useState<PortalType | null>(null);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,7 +128,7 @@ export function FreePortalClient({ freeUidLimit, initialPortals, baseUrl }: Free
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this portal? This action cannot be undone.")) return;
     
     setDeletingId(id);

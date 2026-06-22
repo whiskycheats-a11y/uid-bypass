@@ -11,14 +11,14 @@ export async function POST() {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({ where: { id: parseInt(session.user.id) } });
+    const user = await prisma.user.findUnique({ where: { id: session.user.id } });
     if (!user) return NextResponse.json({ message: "User not found" }, { status: 404 });
 
     const randomStr = crypto.randomUUID().replace(/-/g, "").toUpperCase();
     const newKey = `uidbypass_${randomStr}_${user.username}.online`;
 
     const updatedUser = await prisma.user.update({
-      where: { id: parseInt(session.user.id) },
+      where: { id: session.user.id },
       data: { apiKey: newKey },
     });
 

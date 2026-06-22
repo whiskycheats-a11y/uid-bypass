@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id           Int           @id @default(autoincrement())
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
   email        String        @unique
   username     String        @unique @default(uuid())
   password     String
@@ -17,8 +17,8 @@ model User {
   freeUidLimit Int           @default(50) @map("free_uid_limit")
   apiKey       String        @unique @default(uuid()) @map("api_key")
   profilePicture String?     @map("profile_picture")
-  createdBy    Int?          @map("created_by")
-  creator      User?         @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
+  createdBy    String?       @map("created_by") @db.ObjectId
+  creator      User?         @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdUsers User[]        @relation("CreatedBy")
   uids         Uid[]
   logs         ActivityLog[]
@@ -37,9 +37,9 @@ enum Role {
 }
 
 model Uid {
-  id        Int       @id @default(autoincrement())
-  userId    Int       @map("user_id")
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String    @map("user_id") @db.ObjectId
+  user      User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   uidValue  String    @map("uid_value")
   duration  Int
   status    UidStatus @default(ACTIVE)
@@ -58,11 +58,11 @@ enum UidStatus {
 }
 
 model ActivityLog {
-  id          Int      @id @default(autoincrement())
-  userId      Int      @map("user_id")
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @map("user_id") @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   action      String
-  description String   @db.Text
+  description String
   metadata    Json?
   createdAt   DateTime @default(now()) @map("created_at")
 
@@ -71,48 +71,47 @@ model ActivityLog {
 }
 
 model SystemSetting {
-  id           Int      @id @default(autoincrement())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   settingKey   String   @unique @map("setting_key")
-  settingValue String   @db.Text @map("setting_value")
+  settingValue String
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@map("system_settings")
 }
 
 model FreePortal {
-  id            Int      @id @default(autoincrement())
-  userId        Int      @map("user_id")
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  brandName     String   @map("brand_name")
-  durationHours Int      @map("duration_hours")
-  maxUids       Int      @map("max_uids")
-  usedUids      Int      @default(0) @map("used_uids")
-  token         String   @unique @default(uuid())
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String    @map("user_id") @db.ObjectId
+  user          User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  brandName     String    @map("brand_name")
+  durationHours Int       @map("duration_hours")
+  maxUids       Int       @map("max_uids")
+  usedUids      Int       @default(0) @map("used_uids")
+  token         String    @unique @default(uuid())
   expiresAt     DateTime? @map("expires_at")
-  createdAt     DateTime @default(now()) @map("created_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
 
   @@map("free_portals")
 }
 
 model SystemAlert {
-  id        Int      @id @default(autoincrement())
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
   type      String
-  message   String   @db.Text
-  active    Boolean  @default(true)
-  startsAt  DateTime @default(now()) @map("starts_at")
+  message   String
+  active    Boolean   @default(true)
+  startsAt  DateTime  @default(now()) @map("starts_at")
   endsAt    DateTime? @map("ends_at")
-  createdAt DateTime @default(now()) @map("created_at")
+  createdAt DateTime  @default(now()) @map("created_at")
 
   @@map("system_alerts")
 }
 
 model ChatMessage {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @map("user_id")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  content   String   @db.Text
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @map("user_id") @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  content   String
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("chat_messages")
 }
-

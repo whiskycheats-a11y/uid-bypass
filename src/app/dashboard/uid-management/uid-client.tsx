@@ -15,7 +15,7 @@ import { format } from "date-fns";
 import { PageWrapper } from "@/components/page-wrapper";
 
 interface UidRecord {
-  id: number;
+  id: string;
   uidValue: string;
   duration: number;
   createdAt: string | Date;

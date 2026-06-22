@@ -11,7 +11,7 @@ export default async function UidManagementPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const userId = parseInt(session.user.id);
+  const userId = session.user.id;
 
   // Fetch the user's UIDs to display in the interactive table
   const uids = await prisma.uid.findMany({

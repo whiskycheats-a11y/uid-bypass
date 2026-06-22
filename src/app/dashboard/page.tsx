@@ -15,7 +15,7 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const userId = parseInt(session.user.id);
+  const userId = session.user.id;
   
   // Fetch real-time user data
   const user = await prisma.user.findUnique({

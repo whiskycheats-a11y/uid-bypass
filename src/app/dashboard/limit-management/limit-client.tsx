@@ -8,7 +8,7 @@ import { Loader2, Coins, ArrowUpRight, ArrowDownRight, Settings2, Search, User a
 import { Session } from "next-auth";
 
 interface User {
-  id: number;
+  id: string;
   username: string;
   email: string;
   role: string;

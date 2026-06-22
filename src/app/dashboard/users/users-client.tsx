@@ -9,7 +9,7 @@ import { UserPlus, Pencil, Trash2, Mail, User, Lock, Zap, Search, ChevronDown, L
 import { PageWrapper } from "@/components/page-wrapper";
 
 type User = {
-  id: number;
+  id: string;
   username: string;
   email: string;
   role: string;
@@ -17,7 +17,7 @@ type User = {
   freeUidLimit: number;
   profilePicture: string | null;
   createdAt: string;
-  createdBy: number | null;
+  createdBy: string | null;
 };
 
 export default function UsersClient({
@@ -27,7 +27,7 @@ export default function UsersClient({
 }: {
   initialUsers: User[];
   currentUserRole: string;
-  currentUserId: number;
+  currentUserId: string;
 }) {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -150,7 +150,7 @@ export default function UsersClient({
     setLoading(false);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this user? This cannot be undone.")) return;
     try {
       const res = await fetch(`/api/users?id=${id}`, { method: "DELETE" });

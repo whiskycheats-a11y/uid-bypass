@@ -30,8 +30,8 @@ export async function GET() {
       uids = await prisma.uid.findMany({
         where: {
           OR: [
-            { userId: parseInt(session.user.id) },
-            { user: { createdBy: parseInt(session.user.id) } }
+            { userId: session.user.id },
+            { user: { createdBy: session.user.id } }
           ]
         },
         include: {

@@ -7,7 +7,7 @@ export default async function UsersPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const userId = parseInt(session.user.id);
+  const userId = session.user.id;
   const userRole = session.user.role;
 
   // Only Admin and Manager can access

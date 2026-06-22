@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = session.user.id;
     const { content } = await req.json();
 
     if (!content || content.trim() === "") {

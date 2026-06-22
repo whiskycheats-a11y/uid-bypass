@@ -10,7 +10,7 @@ export default async function ApiAccessPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const userId = parseInt(session.user.id);
+  const userId = session.user.id;
   const user = await prisma.user.findUnique({ where: { id: userId } });
 
   if (!user) redirect("/login");

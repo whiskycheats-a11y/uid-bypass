@@ -38,7 +38,7 @@ export async function DELETE(req: Request) {
     }
 
     await prisma.freePortal.delete({
-      where: { id: parseInt(id) },
+      where: { id: id },
     });
 
     return NextResponse.json({ success: true, message: "Portal deleted successfully" }, { status: 200 });

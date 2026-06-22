@@ -10,7 +10,7 @@ import { format } from "date-fns";
 import { PageWrapper } from "@/components/page-wrapper";
 
 interface PortalRecord {
-  id: number;
+  id: string;
   brandName: string;
   durationHours: number;
   maxUids: number;
@@ -28,7 +28,7 @@ export function ManagePortalsClient() {
   const [portals, setPortals] = useState<PortalRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   
   const [editPortal, setEditPortal] = useState<PortalRecord | null>(null);
   const [editLoading, setEditLoading] = useState(false);
@@ -56,7 +56,7 @@ export function ManagePortalsClient() {
     p.user.username.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleDelete = async (id: number, brandName: string) => {
+  const handleDelete = async (id: string, brandName: string) => {
     if (!confirm(`Are you sure you want to completely delete the portal "${brandName}"?`)) return;
     
     setDeletingId(id);

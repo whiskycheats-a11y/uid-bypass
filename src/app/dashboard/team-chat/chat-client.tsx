@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ChatMessage {
-  id: number;
+  id: string;
   content: string;
   createdAt: string;
   user: {

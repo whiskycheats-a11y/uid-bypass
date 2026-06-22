@@ -109,7 +109,7 @@ export function AlertsClient() {
   );
 }
 
-export function DeleteAlertButton({ id }: { id: number }) {
+export function DeleteAlertButton({ id }: { id: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 

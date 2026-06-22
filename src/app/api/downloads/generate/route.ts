@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     const { brandName, devName, method } = generateSchema.parse(body);
 
     const user = await prisma.user.findUnique({
-      where: { id: parseInt(session.user.id) },
+      where: { id: session.user.id },
       select: { uidLimit: true }
     });
 

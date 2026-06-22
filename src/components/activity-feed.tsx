@@ -4,7 +4,7 @@ import { Activity, ShieldCheck, KeyRound, User, Info, ArrowRightLeft, Settings, 
 import { cn } from "@/lib/utils";
 
 interface ActivityFeedProps {
-  userId: number;
+  userId: string;
   limit?: number;
 }
 

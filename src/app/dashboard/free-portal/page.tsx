@@ -8,7 +8,7 @@ export default async function FreePortalPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const userId = parseInt(session.user.id);
+  const userId = session.user.id;
 
   // Fetch the user's free portal limit and existing portals
   const user = await prisma.user.findUnique({

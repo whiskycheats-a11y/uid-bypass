@@ -12,10 +12,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
 
     const { id } = await params;
-    const portalId = parseInt(id, 10);
-    if (isNaN(portalId)) return NextResponse.json({ message: "Invalid portal ID" }, { status: 400 });
+    const portalId = id;
+    if (!portalId) return NextResponse.json({ message: "Invalid portal ID" }, { status: 400 });
 
-    const userId = parseInt(session.user.id);
+    const userId = session.user.id;
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) return NextResponse.json({ message: "User not found" }, { status: 404 });
 
@@ -75,10 +75,10 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     }
 
     const { id } = await params;
-    const portalId = parseInt(id, 10);
-    if (isNaN(portalId)) return NextResponse.json({ message: "Invalid portal ID" }, { status: 400 });
+    const portalId = id;
+    if (!portalId) return NextResponse.json({ message: "Invalid portal ID" }, { status: 400 });
 
-    const userId = parseInt(session.user.id);
+    const userId = session.user.id;
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) return NextResponse.json({ message: "User not found" }, { status: 404 });
 

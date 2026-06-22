@@ -11,7 +11,7 @@ export default async function DownloadsPage() {
   }
 
   const user = await prisma.user.findUnique({
-    where: { id: parseInt(session.user.id) },
+    where: { id: session.user.id },
     select: { uidLimit: true }
   });
 
