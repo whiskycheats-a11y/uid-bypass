@@ -31,6 +31,8 @@ export function DatabaseClient({ currentUserRole }: { currentUserRole: string })
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 50;
 
   const fetchUids = useCallback(async () => {
     try {
@@ -61,6 +63,13 @@ export function DatabaseClient({ currentUserRole }: { currentUserRole: string })
     const matchesStatus = statusFilter === "ALL" || u.effectiveStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const totalPages = Math.ceil(filteredUids.length / pageSize);
+  const paginatedUids = filteredUids.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter]);
 
   const handleRemove = async (id: string, uidValue: string) => {
     if (!confirm(`Are you sure you want to remove UID ${uidValue}?`)) return;
@@ -157,7 +166,7 @@ export function DatabaseClient({ currentUserRole }: { currentUserRole: string })
                     No UIDs found.
                   </td>
                 </tr>
-              ) : filteredUids.map((record) => (
+              ) : paginatedUids.map((record) => (
                 <tr key={record.id} className="hover:bg-white/[0.02] transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
@@ -256,6 +265,36 @@ export function DatabaseClient({ currentUserRole }: { currentUserRole: string })
             </tbody>
           </table>
         </CardContent>
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between p-4 border-t border-white/10 bg-black/20">
+            <div className="text-sm text-slate-400">
+              Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, filteredUids.length)} of {filteredUids.length} UIDs
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="h-8 border-white/10 bg-black/40 hover:bg-white/10"
+              >
+                Previous
+              </Button>
+              <div className="text-sm font-medium text-slate-300 px-2">
+                Page {currentPage} of {totalPages}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="h-8 border-white/10 bg-black/40 hover:bg-white/10"
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
     </PageWrapper>
   );

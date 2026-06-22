@@ -54,9 +54,8 @@ async function handleRemoveUid(req: Request, isGet: boolean) {
     
     if (response.success) {
       if (existingUid) {
-        await prisma.uid.update({
+        await prisma.uid.delete({
           where: { id: existingUid.id },
-          data: { status: "DELETED" },
         });
       }
 
