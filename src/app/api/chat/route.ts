@@ -9,6 +9,13 @@ export async function GET() {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    // Auto-delete messages older than 6 days
+    const sixDaysAgo = new Date();
+    sixDaysAgo.setDate(sixDaysAgo.getDate() - 6);
+    await prisma.chatMessage.deleteMany({
+      where: { createdAt: { lt: sixDaysAgo } },
+    });
+
     const messages = await prisma.chatMessage.findMany({
       take: 50,
       orderBy: { createdAt: "asc" },
@@ -22,6 +29,7 @@ export async function GET() {
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }
+
 
 export async function POST(req: Request) {
   try {
