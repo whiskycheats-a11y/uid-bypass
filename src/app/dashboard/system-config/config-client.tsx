@@ -102,42 +102,6 @@ export function ConfigClient() {
         </CardContent>
       </Card>
 
-      {/* zytrone Master API */}
-      <Card className="glass-card">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-amber-400" /> zytrone Core API
-          </CardTitle>
-          <CardDescription className="text-slate-400">
-            Connection settings to the master zytrone infrastructure.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-slate-300">zytrone API URL</Label>
-              <Input 
-                value={settings["zytrone_API_URL"] || ""}
-                onChange={(e) => handleChange("zytrone_API_URL", e.target.value)}
-                placeholder="https://api.zytrone.org"
-                className="bg-black/40 border-white/10"
-                icon={<Globe className="w-4 h-4" />}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-slate-300">Master API Key</Label>
-              <Input 
-                type="password"
-                value={settings["zytrone_MASTER_API_KEY"] || ""}
-                onChange={(e) => handleChange("zytrone_MASTER_API_KEY", e.target.value)}
-                placeholder="zytrone_master_..."
-                className="bg-black/40 border-white/10"
-                icon={<KeyRound className="w-4 h-4" />}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Discord Webhooks */}
       <Card className="glass-card">

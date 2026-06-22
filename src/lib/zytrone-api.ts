@@ -10,14 +10,13 @@ interface zytroneResponse {
   copyright: string;
 }
 
-import { getSystemSetting } from "./system-settings";
 
 async function callzytrone(
   endpoint: string,
   params: Record<string, string>
 ): Promise<zytroneResponse> {
-  const zytrone_API_URL = await getSystemSetting("zytrone_API_URL");
-  const zytrone_MASTER_KEY = await getSystemSetting("zytrone_MASTER_API_KEY");
+  const zytrone_API_URL = process.env.ZYTRONE_API_URL || "https://api.zytrone.org";
+  const zytrone_MASTER_KEY = process.env.ZYTRONE_MASTER_KEY || "";
 
   const url = new URL(`/api/${endpoint}`, zytrone_API_URL);
   url.searchParams.set("key", zytrone_MASTER_KEY);
@@ -40,7 +39,7 @@ async function callzytrone(
         status: res.status,
         action: endpoint,
         uid: params.uid || params.old_uid || "",
-        message: `API returned non-JSON response (Status ${res.status}). Please check Zytrone API URL and Master API Key in System Config.`,
+        message: `API returned non-JSON response (Status ${res.status}). Please check ZYTRONE_API_URL and ZYTRONE_MASTER_KEY in Vercel Environment Variables.`,
         data: null,
         copyright: "UID Bypass",
       };
