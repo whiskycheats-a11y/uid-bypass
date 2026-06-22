@@ -32,6 +32,20 @@ async function callzytrone(
       signal: AbortSignal.timeout(15000),
     });
 
+    const contentType = res.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      const text = await res.text();
+      return {
+        success: false,
+        status: res.status,
+        action: endpoint,
+        uid: params.uid || params.old_uid || "",
+        message: `API returned non-JSON response (Status ${res.status}). Please check Zytrone API URL and Master API Key in System Config.`,
+        data: null,
+        copyright: "UID Bypass",
+      };
+    }
+
     const data = await res.json();
     return data as zytroneResponse;
   } catch (error) {
