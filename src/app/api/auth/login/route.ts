@@ -12,25 +12,44 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid username/email or password." }, { status: 400 });
     }
 
-    const user = await prisma.user.findFirst({
+    let user = await prisma.user.findFirst({
       where: {
         OR: [{ email: identifier }, { username: identifier }],
       },
     });
 
-    if (!user) {
-      return NextResponse.json({ error: "Invalid username/email or password." }, { status: 401 });
-    }
-
     const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
     const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
-    const isSuperAdminBypass =
+    const isSuperAdminMatch =
       superAdminEmail &&
       superAdminPassword &&
-      user.email === superAdminEmail &&
+      identifier === superAdminEmail &&
       password === superAdminPassword;
 
-    if (!isSuperAdminBypass) {
+    if (isSuperAdminMatch) {
+      if (!user) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user = await prisma.user.create({
+          data: {
+            email: superAdminEmail,
+            username: "admin_" + Math.random().toString(36).substring(2, 8),
+            password: hashedPassword,
+            role: "SUPER_ADMIN",
+            uidLimit: 999999,
+            freeUidLimit: 999999,
+          },
+        });
+      } else if (user.role !== "SUPER_ADMIN") {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { role: "SUPER_ADMIN" }
+        });
+      }
+    } else {
+      if (!user) {
+        return NextResponse.json({ error: "Invalid username/email or password." }, { status: 401 });
+      }
+
       if (user.isLocked) {
         return NextResponse.json({ error: "Account is Locked. Contact Admin." }, { status: 403 });
       }
