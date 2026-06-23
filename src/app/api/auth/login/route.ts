@@ -12,6 +12,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid username/email or password." }, { status: 400 });
     }
 
+    // 👇 Test DB connection first – if it fails, user will see a clear message
+    try {
+      await prisma.$connect();
+    } catch (dbError: any) {
+      console.error("[LOGIN] Database connection failed:", dbError?.message || dbError);
+      return NextResponse.json(
+        { error: "Database connection error. Please contact support." },
+        { status: 503 }
+      );
+    }
+
     let user = await prisma.user.findFirst({
       where: {
         OR: [{ email: identifier }, { username: identifier }],
@@ -98,9 +109,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error("Login Error:", error);
+    console.error("[LOGIN] Unhandled error:", error?.message || error, error?.stack || "");
     return NextResponse.json(
-      { error: `Internal Server Error: ${error.message || error.toString()}` },
+      { error: `Internal Server Error. Please try again later.` },
       { status: 500 }
     );
   }

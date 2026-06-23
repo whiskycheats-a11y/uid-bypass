@@ -1,11 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    optimizeCss: true,
-    parallelServerCompiles: true,
-    parallelServerBuildTraces: true,
-  },
+  // Only keep production-stable config
   compiler: {
     removeConsole: false,
   },
@@ -13,6 +9,8 @@ const nextConfig: NextConfig = {
   images: {
     minimumCacheTTL: 86400,
   },
+  // ⚠️ Server External Packages: ensure Prisma + bcryptjs are available
+  serverExternalPackages: ["@prisma/client", "bcryptjs"],
 };
 
 export default nextConfig;
