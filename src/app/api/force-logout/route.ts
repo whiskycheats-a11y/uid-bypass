@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
 export async function GET() {
-  const cookieStore = await cookies();
-  
   // Delete ALL possible session cookies including custom auth_token
   const cookieNames = [
     "auth_token",
@@ -22,15 +19,12 @@ export async function GET() {
     "__Secure-next-auth.csrf-token",
   ];
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  const response = NextResponse.redirect(new URL("/login", baseUrl));
+
   for (const name of cookieNames) {
-    try {
-      cookieStore.delete(name);
-    } catch {
-      // ignore if cookie doesn't exist
-    }
+    response.cookies.delete(name);
   }
 
-  // Redirect to login page
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-  return NextResponse.redirect(new URL("/login", baseUrl));
+  return response;
 }

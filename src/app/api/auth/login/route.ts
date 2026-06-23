@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { signToken } from "@/lib/auth";
-import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
   try {
@@ -98,8 +97,9 @@ export async function POST(req: Request) {
 
     const token = await signToken(payload);
 
-    const cookieStore = await cookies();
-    cookieStore.set("auth_token", token, {
+    // ✅ Use NextResponse to set cookies (avoids ERR_HTTP2_PROTOCOL_ERROR)
+    const response = NextResponse.json({ success: true });
+    response.cookies.set("auth_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -107,7 +107,7 @@ export async function POST(req: Request) {
       path: "/",
     });
 
-    return NextResponse.json({ success: true });
+    return response;
   } catch (error: any) {
     console.error("[LOGIN] Unhandled error:", error?.message || error, error?.stack || "");
     return NextResponse.json(
