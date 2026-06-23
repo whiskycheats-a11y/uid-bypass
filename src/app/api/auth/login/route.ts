@@ -76,14 +76,13 @@ export async function POST(req: Request) {
       }
     }
 
-    // Create session payload
+    // Create session payload (omit large fields like profilePicture)
     const payload = {
       id: user.id.toString(),
       username: user.username,
       email: user.email,
       role: user.role,
       uidLimit: user.uidLimit,
-      profilePicture: user.profilePicture,
     };
 
     const token = await signToken(payload);
