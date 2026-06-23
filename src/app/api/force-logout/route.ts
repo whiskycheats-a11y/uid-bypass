@@ -4,8 +4,9 @@ import { cookies } from "next/headers";
 export async function GET() {
   const cookieStore = await cookies();
   
-  // Delete ALL possible NextAuth session cookies
+  // Delete ALL possible session cookies including custom auth_token
   const cookieNames = [
+    "auth_token",
     "authjs.session-token",
     "__Secure-authjs.session-token",
     "authjs.callback-url",
@@ -30,5 +31,6 @@ export async function GET() {
   }
 
   // Redirect to login page
-  return NextResponse.redirect(new URL("/login", process.env.NEXTAUTH_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"));
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  return NextResponse.redirect(new URL("/login", baseUrl));
 }

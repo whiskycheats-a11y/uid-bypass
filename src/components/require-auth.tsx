@@ -1,19 +1,30 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 
 export function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { status } = useSession();
+  const [status, setStatus] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
   const router = useRouter();
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    }
-  }, [status, router]);
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.user) {
+          setStatus("authenticated");
+        } else {
+          setStatus("unauthenticated");
+          router.push("/login");
+        }
+      })
+      .catch(() => {
+        setStatus("unauthenticated");
+        router.push("/login");
+      });
+  }, [router]);
 
   if (status === "loading" || status === "unauthenticated") {
     return (

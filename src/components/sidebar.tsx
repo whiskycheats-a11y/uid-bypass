@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -31,7 +30,13 @@ import { Badge } from "./ui/badge";
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const router = useRouter();
+  // We need to fetch the session from an API or pass it as a prop since we removed next-auth
+  const [session, setSession] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/session").then(res => res.json()).then(data => setSession(data)).catch(() => {});
+  }, []);
   const [isOpen, setIsOpen] = useState(false);
   const [hasUnreadMentions, setHasUnreadMentions] = useState(false);
 
@@ -283,7 +288,10 @@ export function Sidebar() {
           <Button
             variant="outline"
             className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-500/10 border-red-500/20"
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={async () => {
+              await fetch("/api/auth/logout");
+              router.push("/login");
+            }}
           >
             <LogOut className="h-4 w-4 mr-2" />
             Logout

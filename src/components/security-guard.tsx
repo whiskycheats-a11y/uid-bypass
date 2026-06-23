@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Ban, ShieldAlert } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function SecurityGuard() {
   const [isBlocking, setIsBlocking] = useState(false);
@@ -11,8 +11,9 @@ export default function SecurityGuard() {
   const showSecurityPopup = () => {
     if (!isBlocking) {
       setIsBlocking(true);
-      setTimeout(() => {
-        signOut({ callbackUrl: "/" });
+      setTimeout(async () => {
+        await fetch("/api/auth/logout");
+        window.location.href = "/login";
       }, 3000);
     }
   };

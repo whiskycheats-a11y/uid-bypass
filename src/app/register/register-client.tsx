@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+// removed next-auth import
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -53,13 +53,13 @@ export function RegisterClient({ trialEnabled }: { trialEnabled: boolean }) {
       }
 
       // Auto login after registration
-      const signInRes = await signIn("credentials", {
-        identifier: formData.username, // Using username to login
-        password: formData.password,
-        redirect: false,
+      const signInRes = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier: formData.username, password: formData.password }),
       });
 
-      if (signInRes?.error) {
+      if (!signInRes.ok) {
         // If auto-login fails, redirect to login page
         router.push("/login");
       } else {

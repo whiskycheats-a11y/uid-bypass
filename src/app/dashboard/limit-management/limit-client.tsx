@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Loader2, Coins, ArrowUpRight, ArrowDownRight, Settings2, Search, User as UserIcon, ShieldAlert } from "lucide-react";
-import { Session } from "next-auth";
+
 
 interface User {
   id: string;
@@ -18,7 +18,7 @@ interface User {
   createdBy: number | null;
 }
 
-export function LimitClient({ session }: { session: Session }) {
+export function LimitClient({ session }: { session: any }) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
