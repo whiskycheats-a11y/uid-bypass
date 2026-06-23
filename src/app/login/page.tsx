@@ -51,8 +51,9 @@ export default function LoginPage() {
       } else {
         router.push("/dashboard");
       }
-    } catch (_err) {
-      setError("An unexpected error occurred.");
+    } catch (_err: any) {
+      console.error(_err);
+      setError(`API Error: ${_err.message || _err.toString()}`);
     } finally {
       setLoading(false);
     }
