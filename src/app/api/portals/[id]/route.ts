@@ -22,7 +22,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const portal = await prisma.freePortal.findUnique({ where: { id: portalId } });
     if (!portal) return NextResponse.json({ message: "Portal not found" }, { status: 404 });
 
-    if (portal.userId !== userId && user.role !== "ADMIN") {
+    if (portal.userId !== userId && user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
@@ -85,7 +85,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const portal = await prisma.freePortal.findUnique({ where: { id: portalId } });
     if (!portal) return NextResponse.json({ message: "Portal not found" }, { status: 404 });
 
-    if (portal.userId !== userId && user.role !== "ADMIN") {
+    if (portal.userId !== userId && user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 

@@ -5,7 +5,7 @@ import { ManagePortalsClient } from "./portals-client";
 export default async function ManagePortalsPage() {
   const session = await auth();
 
-  if (!session || session.user.role !== "ADMIN") {
+  if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
     redirect("/dashboard");
   }
 
