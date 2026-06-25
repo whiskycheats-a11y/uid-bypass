@@ -110,14 +110,17 @@ export function ProfileClient({ user }: { user: any }) {
                       (e.target as HTMLImageElement).style.display = 'none';
                       const parent = (e.target as HTMLImageElement).parentElement;
                       if (parent) {
-                        const icon = document.createElement('div');
-                        icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-circle w-16 h-16 text-slate-500"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>';
-                        parent.appendChild(icon.firstChild as Node);
+                        const el = document.createElement('div');
+                        el.className = 'w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/30 to-violet-500/30 text-lg font-bold text-blue-300';
+                        el.textContent = (formData.username || '?').replace(/[^a-zA-Z0-9]/g, '').slice(0, 2).toUpperCase() || '?';
+                        parent.appendChild(el);
                       }
                     }}
                   />
                 ) : (
-                  <UserCircle className="w-16 h-16 text-slate-500" />
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/30 to-violet-500/30 text-lg font-bold text-blue-300">
+                    {(formData.username || '?').replace(/[^a-zA-Z0-9]/g, '').slice(0, 2).toUpperCase() || '?'}
+                  </div>
                 )}
                 <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                   <Camera className="w-8 h-8 text-white" />
@@ -151,17 +154,35 @@ export function ProfileClient({ user }: { user: any }) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="profilePicture" className="text-slate-300">Profile Picture URL</Label>
-                  <Input 
-                    id="profilePicture"
-                    name="profilePicture"
-                    placeholder="https://i.imgur.com/... or upload directly"
-                    value={formData.profilePicture.startsWith("data:image") ? "Base64 Encoded Image" : formData.profilePicture}
-                    onChange={handleChange}
-                    className="bg-black/50 border-white/10 text-white placeholder:text-slate-500 focus-visible:ring-cyan-500/50" 
-                    icon={<LinkIcon className="w-5 h-5" />}
-                  />
-                  <p className="text-xs text-slate-500 mt-1">Paste a direct image link or click the camera icon above to upload.</p>
+                  <Label htmlFor="profilePicture" className="text-slate-300">Profile Picture</Label>
+                  <div className="flex gap-2">
+                    <Input 
+                      id="profilePicture"
+                      name="profilePicture"
+                      placeholder="https://i.imgur.com/... or upload directly"
+                      value={formData.profilePicture.startsWith("data:image") ? "(uploaded image)" : formData.profilePicture}
+                      onChange={handleChange}
+                      readOnly={formData.profilePicture.startsWith("data:image")}
+                      className="bg-black/50 border-white/10 text-white placeholder:text-slate-500 focus-visible:ring-cyan-500/50" 
+                      icon={<LinkIcon className="w-5 h-5" />}
+                    />
+                  </div>
+                  {formData.profilePicture.startsWith("data:image") ? (
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                        Custom image uploaded
+                      </span>
+                      <button 
+                        type="button"
+                        onClick={() => setFormData({...formData, profilePicture: ""})}
+                        className="text-[11px] text-red-400 hover:text-red-300 underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500 mt-1">Paste a direct image link or click the camera icon above to upload.</p>
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -210,12 +210,18 @@ export function Sidebar() {
                     (e.target as HTMLImageElement).style.display = 'none';
                     const parent = (e.target as HTMLImageElement).parentElement;
                     if (parent) {
-                       parent.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-circle w-6 h-6 text-slate-400"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>';
+                       const span = document.createElement('span');
+                       span.className = 'w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/40 to-violet-500/40 text-xs font-bold text-blue-300';
+                       const uname = username;
+                       span.textContent = (uname || '?').replace(/[^a-zA-Z0-9]/g, '').slice(0, 2).toUpperCase() || '?';
+                       parent.appendChild(span);
                     }
                   }}
                 />
               ) : (
-                <UserCircle className="w-6 h-6 text-slate-400" />
+                <span className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/40 to-violet-500/40 text-xs font-bold text-blue-300">
+                  {username.replace(/[^a-zA-Z0-9]/g, '').slice(0, 2).toUpperCase() || '?'}
+                </span>
               )}
             </div>
             <div className="flex flex-col flex-1 overflow-hidden">

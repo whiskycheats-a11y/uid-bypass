@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { UserPlus, Pencil, Trash2, Mail, User, Lock, Zap, Search, ChevronDown, Loader2, Save, ShieldAlert } from "lucide-react";
+import { UserPlus, Pencil, Trash2, Mail, User, Lock, Zap, Search, ChevronDown, Loader2, Save, ShieldAlert, ShieldCheck, ShieldOff } from "lucide-react";
 import { PageWrapper } from "@/components/page-wrapper";
 
 type User = {
@@ -279,6 +279,7 @@ export default function UsersClient({
               <tr>
                 <th className="px-6 py-4 font-medium">User</th>
                 <th className="px-6 py-4 font-medium">Role</th>
+                <th className="px-6 py-4 font-medium">HWID</th>
                 <th className="px-6 py-4 font-medium">UID Limit</th>
                 <th className="px-6 py-4 font-medium">Free Limit</th>
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
@@ -286,7 +287,7 @@ export default function UsersClient({
             </thead>
             <tbody className="divide-y divide-white/5">
               {filteredUsers.length === 0 ? (
-                <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-400">No users found.</td></tr>
+                <tr><td colSpan={6} className="px-6 py-8 text-center text-slate-400">No users found.</td></tr>
               ) : filteredUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-white/[0.02] transition-colors">
                   <td className="px-6 py-4">
@@ -295,8 +296,8 @@ export default function UsersClient({
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img src={user.profilePicture} alt={user.username} className="w-9 h-9 rounded-full object-cover border border-white/10" />
                       ) : (
-                        <div className="w-9 h-9 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
-                          <User className="w-4 h-4 text-blue-400" />
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500/30 to-violet-500/30 flex items-center justify-center border border-blue-500/30 text-xs font-bold text-blue-300">
+                          {user.username.replace(/[^a-zA-Z0-9]/g, '').slice(0, 2).toUpperCase() || '?'}
                         </div>
                       )}
                       <div>
@@ -306,7 +307,7 @@ export default function UsersClient({
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-1.5">
                       <Badge variant="outline" className={
                         user.role === "SUPER_ADMIN" ? "border-fuchsia-500/50 text-fuchsia-400" :
                         user.role === "ADMIN" ? "border-amber-500/50 text-amber-400" : 
@@ -316,7 +317,27 @@ export default function UsersClient({
                       </Badge>
                       {user.isLocked && (
                         <Badge variant="destructive" className="bg-red-500/20 text-red-400 border-red-500/30 text-[10px]">
-                          LOCKED (HWID)
+                          LOCKED
+                        </Badge>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col gap-1.5">
+                      {user.hwidLockEnabled ? (
+                        <Badge variant="outline" className="border-emerald-500/40 text-emerald-400 bg-emerald-500/10 text-[11px]">
+                          <ShieldCheck className="w-3 h-3 mr-1 inline" />
+                          HWID ON
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="border-slate-500/40 text-slate-500 bg-transparent text-[11px]">
+                          <ShieldOff className="w-3 h-3 mr-1 inline" />
+                          HWID OFF
+                        </Badge>
+                      )}
+                      {user.isLocked && (
+                        <Badge variant="destructive" className="bg-red-500/20 text-red-400 border-red-500/30 text-[10px]">
+                          DEVICE LOCKED
                         </Badge>
                       )}
                     </div>
@@ -389,18 +410,28 @@ export default function UsersClient({
                   <Input type="number" value={eFreeUidLimit} onChange={(e) => setEFreeUidLimit(parseInt(e.target.value) || 0)} min={0} required className="bg-black/40 border-white/10 text-white" icon={<Zap className="w-4 h-4 text-emerald-400" />} />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2 flex flex-col justify-center">
-                  <label className="text-sm text-slate-400 flex items-center gap-2">
-                    <input type="checkbox" checked={eHwidLockEnabled} onChange={(e) => setEHwidLockEnabled(e.target.checked)} className="rounded border-white/10 bg-black/40" />
-                    HWID Lock Enabled
-                  </label>
+              {/* HWID / Device Lock Section */}
+              <div className="border-t border-white/10 pt-4 mt-2">
+                <div className="flex items-center gap-2 mb-3">
+                  <ShieldCheck className="w-4 h-4 text-cyan-400" />
+                  <span className="text-sm font-medium text-white">Device Lock (HWID)</span>
                 </div>
-                <div className="space-y-2 flex flex-col justify-center">
-                  <label className="text-sm text-slate-400 flex items-center gap-2">
-                    <input type="checkbox" checked={eIsLocked} onChange={(e) => setEIsLocked(e.target.checked)} className="rounded border-white/10 bg-black/40 text-red-500" />
-                    Account is Locked
-                  </label>
+                <p className="text-xs text-slate-500 mb-3">
+                  When enabled, user can only login from their first device. Changing device will lock the account.
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2 flex flex-col justify-center">
+                    <label className="text-sm text-slate-300 flex items-center gap-2 cursor-pointer hover:text-white transition-colors">
+                      <input type="checkbox" checked={eHwidLockEnabled} onChange={(e) => setEHwidLockEnabled(e.target.checked)} className="rounded border-white/20 bg-black/60 accent-cyan-500" />
+                      HWID Lock Enabled
+                    </label>
+                  </div>
+                  <div className="space-y-2 flex flex-col justify-center">
+                    <label className="text-sm text-slate-300 flex items-center gap-2 cursor-pointer hover:text-white transition-colors">
+                      <input type="checkbox" checked={eIsLocked} onChange={(e) => setEIsLocked(e.target.checked)} className="rounded border-white/20 bg-black/60 accent-red-500" />
+                      Account Locked
+                    </label>
+                  </div>
                 </div>
               </div>
               <Button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-4">
