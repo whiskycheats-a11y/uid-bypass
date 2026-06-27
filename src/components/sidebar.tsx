@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 
-export function Sidebar({ initialSession }: { initialSession?: any }) {
+export function Sidebar({ initialSession, apiAccessEnabled = true }: { initialSession?: any, apiAccessEnabled?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   // We need to fetch the session from an API or pass it as a prop since we removed next-auth
@@ -101,12 +101,12 @@ export function Sidebar({ initialSession }: { initialSession?: any }) {
       icon: MessageSquare,
       roles: ["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"],
     },
-    {
+    ...(apiAccessEnabled ? [{
       title: "API Access",
       href: "/dashboard/api-access",
       icon: Settings,
       roles: ["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"],
-    },
+    }] : []),
     {
       title: "Documentation",
       href: "/dashboard/documentation",
