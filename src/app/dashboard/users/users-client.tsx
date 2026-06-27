@@ -359,6 +359,7 @@ export default function UsersClient({
                           <ShieldOff className="w-3 h-3 mr-1 inline" />
                           HWID OFF
                         </Badge>
+                      )}
                       {(user.apiAccessEnabled ?? true) ? (
                         <button onClick={() => handleApiToggle(user)} disabled={currentUserRole === "MANAGER" || (currentUserRole !== "SUPER_ADMIN" && user.role === "SUPER_ADMIN")} className="hover:opacity-80 transition-opacity">
                           <Badge variant="outline" className="border-blue-500/40 text-blue-400 bg-blue-500/10 text-[11px] cursor-pointer">

@@ -61,7 +61,8 @@ export async function GET(req: Request) {
           select: {
             uids: { where: { status: "ACTIVE" } }
           }
-        },
+        }
+      },
       orderBy: { id: "desc" }
     });
 

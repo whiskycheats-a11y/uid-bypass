@@ -176,7 +176,6 @@ export function ProfileClient({ user }: { user: any }) {
                         Remove
                       </button>
                     </div>
-                    </div>
                   ) : (
                     <div>
                       <p className="text-xs text-slate-500 mt-1">Paste a direct image link or click the camera icon above to upload.</p>
