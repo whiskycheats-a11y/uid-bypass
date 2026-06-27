@@ -21,6 +21,7 @@ model User {
   deviceToken    String?     @map("device_token")
   isLocked       Boolean     @default(false) @map("is_locked")
   hwidLockEnabled Boolean    @default(true) @map("hwid_lock_enabled")
+  apiAccessEnabled Boolean   @default(true) @map("api_access_enabled")
   createdBy    String?       @map("created_by") @db.ObjectId
   creator      User?         @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdUsers User[]        @relation("CreatedBy")

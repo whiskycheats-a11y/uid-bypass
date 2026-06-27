@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { UserPlus, Pencil, Trash2, Mail, User, Lock, Zap, Search, ChevronDown, Loader2, Save, ShieldAlert, ShieldCheck, ShieldOff } from "lucide-react";
+import { Plus, Search, Trash2, Pencil, ShieldCheck, ShieldOff, Zap, Lock, ShieldAlert, UserCog, Users, UserPlus, Mail, User, ChevronDown, Loader2, Save } from "lucide-react";
 import { PageWrapper } from "@/components/page-wrapper";
 
 type User = {
@@ -20,6 +20,7 @@ type User = {
   createdBy: string | null;
   isLocked?: boolean;
   hwidLockEnabled?: boolean;
+  apiAccessEnabled?: boolean;
   _count?: {
     uids: number;
   };
@@ -178,6 +179,22 @@ export default function UsersClient({
     return matchesSearch && matchesRole;
   });
 
+  const handleApiToggle = async (user: User) => {
+    const newVal = !(user.apiAccessEnabled ?? true);
+    try {
+      const res = await fetch("/api/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: user.id, apiAccessEnabled: newVal }),
+      });
+      if (res.ok) {
+        setUsers(users.map(u => u.id === user.id ? { ...u, apiAccessEnabled: newVal } : u));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <PageWrapper className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -282,7 +299,7 @@ export default function UsersClient({
               <tr>
                 <th className="px-6 py-4 font-medium">User</th>
                 <th className="px-6 py-4 font-medium">Role</th>
-                <th className="px-6 py-4 font-medium">HWID</th>
+                <th className="px-6 py-4 font-medium">Security / API</th>
                 <th className="px-6 py-4 font-medium">UID Limit</th>
                 <th className="px-6 py-4 font-medium">Free Limit</th>
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
@@ -311,13 +328,17 @@ export default function UsersClient({
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col gap-1.5">
-                      <div className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider w-fit ${
-                        user.role === "SUPER_ADMIN" ? "bg-fuchsia-500/20 text-fuchsia-300" :
-                        user.role === "ADMIN" ? "bg-amber-500/20 text-amber-300" : 
-                        user.role === "MANAGER" ? "bg-blue-500/20 text-blue-300" : 
-                        "bg-slate-500/20 text-slate-300"
+                      <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider w-fit border shadow-sm ${
+                        user.role === "SUPER_ADMIN" ? "bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30 shadow-fuchsia-500/20" :
+                        user.role === "ADMIN" ? "bg-amber-500/10 text-amber-400 border-amber-500/30 shadow-amber-500/20" : 
+                        user.role === "MANAGER" ? "bg-blue-500/10 text-blue-400 border-blue-500/30 shadow-blue-500/20" : 
+                        "bg-slate-500/10 text-slate-400 border-slate-500/30 shadow-slate-500/20"
                       }`}>
-                        {user.role}
+                        {user.role === "SUPER_ADMIN" && <ShieldAlert className="w-3 h-3" />}
+                        {user.role === "ADMIN" && <ShieldCheck className="w-3 h-3" />}
+                        {user.role === "MANAGER" && <UserCog className="w-3 h-3" />}
+                        {user.role === "RESELLER" && <Users className="w-3 h-3" />}
+                        {user.role.replace("_", " ")}
                       </div>
                       {user.isLocked && (
                         <Badge variant="destructive" className="bg-red-500/20 text-red-400 border-red-500/30 text-[10px]">
@@ -338,6 +359,20 @@ export default function UsersClient({
                           <ShieldOff className="w-3 h-3 mr-1 inline" />
                           HWID OFF
                         </Badge>
+                      {(user.apiAccessEnabled ?? true) ? (
+                        <button onClick={() => handleApiToggle(user)} disabled={currentUserRole === "MANAGER" || (currentUserRole !== "SUPER_ADMIN" && user.role === "SUPER_ADMIN")} className="hover:opacity-80 transition-opacity">
+                          <Badge variant="outline" className="border-blue-500/40 text-blue-400 bg-blue-500/10 text-[11px] cursor-pointer">
+                            <Zap className="w-3 h-3 mr-1 inline" />
+                            API ON
+                          </Badge>
+                        </button>
+                      ) : (
+                        <button onClick={() => handleApiToggle(user)} disabled={currentUserRole === "MANAGER" || (currentUserRole !== "SUPER_ADMIN" && user.role === "SUPER_ADMIN")} className="hover:opacity-80 transition-opacity">
+                          <Badge variant="outline" className="border-slate-500/40 text-slate-500 bg-transparent text-[11px] cursor-pointer">
+                            <Lock className="w-3 h-3 mr-1 inline" />
+                            API OFF
+                          </Badge>
+                        </button>
                       )}
                       {user.isLocked && (
                         <Badge variant="destructive" className="bg-red-500/20 text-red-400 border-red-500/30 text-[10px]">

@@ -27,6 +27,7 @@ const editUserSchema = z.object({
   profilePicture: z.string().optional().or(z.literal("")),
   isLocked: z.boolean().optional(),
   hwidLockEnabled: z.boolean().optional(),
+  apiAccessEnabled: z.boolean().optional(),
 });
 
 export async function GET(req: Request) {
@@ -53,6 +54,7 @@ export async function GET(req: Request) {
         profilePicture: true,
         isLocked: true,
         hwidLockEnabled: true,
+        apiAccessEnabled: true,
         createdAt: true,
         createdBy: true,
         _count: {

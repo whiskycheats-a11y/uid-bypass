@@ -18,7 +18,11 @@ async function authenticateRequest(req: Request) {
   const url = new URL(req.url);
   const key = url.searchParams.get("key");
   if (key) {
+    // @ts-ignore - Ignore type error if prisma generate hasn't run
     const user = await prisma.user.findUnique({ where: { apiKey: key } });
+    if (user && user.apiAccessEnabled === false) {
+      return null;
+    }
     return user;
   }
 

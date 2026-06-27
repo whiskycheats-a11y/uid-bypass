@@ -11,7 +11,12 @@ async function authenticateRequest(req: Request) {
   
   const url = new URL(req.url);
   const key = url.searchParams.get("key");
-  if (key) return await prisma.user.findUnique({ where: { apiKey: key } });
+  if (key) {
+    // @ts-ignore
+    const user = await prisma.user.findUnique({ where: { apiKey: key } });
+    if (user && user.apiAccessEnabled === false) return null;
+    return user;
+  }
   return null;
 }
 
