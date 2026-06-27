@@ -290,8 +290,8 @@ export function Sidebar({ initialSession }: { initialSession?: any }) {
             variant="outline"
             className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-500/10 border-red-500/20"
             onClick={async () => {
-              await fetch("/api/auth/logout");
-              router.push("/login");
+              await fetch("/api/auth/logout", { method: "POST" });
+              window.location.href = "/login";
             }}
           >
             <LogOut className="h-4 w-4 mr-2" />
