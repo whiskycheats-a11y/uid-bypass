@@ -22,43 +22,47 @@ export default async function DashboardPage() {
     redirect("/api/force-logout");
   }
   
-  // Fetch real-time user data
+  // Generate chart data for the last 7 days
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
+
+  // Fetch real-time user data and recent UIDs in parallel
   let user;
+  let recentUids: { createdAt: Date }[] = [];
   try {
-    user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        uidLimit: true,
-        freeUidLimit: true,
-        role: true,
-        _count: {
-          select: {
-            uids: { where: { status: "ACTIVE" } },
-            createdUsers: true,
-            portals: true,
+    const [fetchedUser, fetchedRecentUids] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          uidLimit: true,
+          freeUidLimit: true,
+          role: true,
+          _count: {
+            select: {
+              uids: { where: { status: "ACTIVE" } },
+              createdUsers: true,
+              portals: true,
+            }
           }
         }
-      }
-    });
+      }),
+      prisma.uid.findMany({
+        where: {
+          userId: (session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN") ? undefined : userId,
+          createdAt: { gte: sevenDaysAgo }
+        },
+        select: { createdAt: true }
+      })
+    ]);
+    user = fetchedUser;
+    recentUids = fetchedRecentUids;
   } catch (error) {
     // If any Prisma error occurs (e.g. malformed ID), force logout
     redirect("/api/force-logout");
   }
 
   if (!user) redirect("/login");
-
-  // Generate chart data for the last 7 days
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-  sevenDaysAgo.setHours(0, 0, 0, 0);
-
-  const recentUids = await prisma.uid.findMany({
-    where: {
-      userId: (session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN") ? undefined : userId,
-      createdAt: { gte: sevenDaysAgo }
-    },
-    select: { createdAt: true }
-  });
 
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const chartDataMap: Record<string, number> = {};

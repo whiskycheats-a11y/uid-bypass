@@ -28,15 +28,18 @@ import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 
-export function Sidebar() {
+export function Sidebar({ initialSession }: { initialSession?: any }) {
   const pathname = usePathname();
   const router = useRouter();
   // We need to fetch the session from an API or pass it as a prop since we removed next-auth
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<any>(initialSession);
 
+  // Still keep an effect to update session if it changes or initialSession wasn't provided for some reason
   useEffect(() => {
-    fetch("/api/auth/session").then(res => res.json()).then(data => setSession(data)).catch(() => {});
-  }, []);
+    if (!initialSession) {
+      fetch("/api/auth/session").then(res => res.json()).then(data => setSession(data)).catch(() => {});
+    }
+  }, [initialSession]);
   const [isOpen, setIsOpen] = useState(false);
   const [hasUnreadMentions, setHasUnreadMentions] = useState(false);
 
