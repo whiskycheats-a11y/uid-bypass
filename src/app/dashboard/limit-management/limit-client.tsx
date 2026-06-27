@@ -169,7 +169,7 @@ export function LimitClient({ session }: { session: any }) {
                         setAmount(0);
                         setError("");
                       }} 
-                      disabled={currentUserRole !== "ADMIN" && user.role === "ADMIN"} 
+                      disabled={(currentUserRole !== "ADMIN" && currentUserRole !== "SUPER_ADMIN") && user.role === "ADMIN"} 
                       className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 hover:text-amber-300 transition-all h-8"
                     >
                       <Settings2 className="w-4 h-4 mr-2" /> Manage Limits

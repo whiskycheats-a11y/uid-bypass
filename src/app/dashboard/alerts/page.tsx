@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 
 export default async function AlertsManagementPage() {
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
+  if (!session?.user?.id || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
     redirect("/dashboard");
   }
 

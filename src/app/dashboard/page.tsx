@@ -54,7 +54,7 @@ export default async function DashboardPage() {
 
   const recentUids = await prisma.uid.findMany({
     where: {
-      userId: session.user.role === "ADMIN" ? undefined : userId,
+      userId: (session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN") ? undefined : userId,
       createdAt: { gte: sevenDaysAgo }
     },
     select: { createdAt: true }
@@ -106,7 +106,7 @@ export default async function DashboardPage() {
         />
         <StatCard
           title="Free UID Limit"
-          value={user.role === "ADMIN" ? "Unlimited" : user.freeUidLimit}
+          value={(user.role === "ADMIN" || user.role === "SUPER_ADMIN") ? "Unlimited" : user.freeUidLimit}
           icon={<Globe className="w-5 h-5" />}
           color="amber"
           description="Resets every 2 weeks"
@@ -120,7 +120,7 @@ export default async function DashboardPage() {
           description="Currently active in the system"
           delay={0.3}
         />
-        {(user.role === "MANAGER" || user.role === "ADMIN") ? (
+        {(user.role === "MANAGER" || user.role === "ADMIN" || user.role === "SUPER_ADMIN") ? (
           <StatCard
             title="Total Users"
             value={user._count.createdUsers}

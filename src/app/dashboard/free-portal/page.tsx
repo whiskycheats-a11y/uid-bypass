@@ -22,7 +22,7 @@ export default async function FreePortalPage() {
 
   if (!user) redirect("/login");
 
-  const freeUidLimitDisplay = user.role === "ADMIN" ? "Unlimited" : user.freeUidLimit;
+  const freeUidLimitDisplay = (user.role === "ADMIN" || user.role === "SUPER_ADMIN") ? "Unlimited" : user.freeUidLimit;
 
   // Assuming APP_URL from env or using a placeholder if not set
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://uid-bypass-beryl.vercel.app");

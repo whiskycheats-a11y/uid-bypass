@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
     // Validate if the user has enough free UIDs to cover maxUids
     // (Admins bypass the free limit entirely)
-    if (user.role !== "ADMIN" && user.freeUidLimit < maxUids) {
+    if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN" && user.freeUidLimit < maxUids) {
       return NextResponse.json({ 
         message: `Insufficient free limit. You only have ${user.freeUidLimit} free UIDs remaining.` 
       }, { status: 400 });

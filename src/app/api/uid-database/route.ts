@@ -10,12 +10,12 @@ export async function GET() {
     }
 
     const adminRole = session.user.role;
-    if (adminRole !== "ADMIN" && adminRole !== "MANAGER") {
+    if (adminRole !== "ADMIN" && adminRole !== "SUPER_ADMIN" && adminRole !== "MANAGER") {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
     let uids;
-    if (adminRole === "ADMIN") {
+    if (adminRole === "ADMIN" || adminRole === "SUPER_ADMIN") {
       // Admin sees ALL UIDs
       uids = await prisma.uid.findMany({
         include: {

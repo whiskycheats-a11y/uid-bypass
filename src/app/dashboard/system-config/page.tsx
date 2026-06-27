@@ -5,7 +5,7 @@ import { ConfigClient } from "./config-client";
 export default async function SystemConfigPage() {
   const session = await auth();
 
-  if (!session || session.user.role !== "ADMIN") {
+  if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
     redirect("/dashboard");
   }
 

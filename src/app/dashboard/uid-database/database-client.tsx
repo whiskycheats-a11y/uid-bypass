@@ -244,9 +244,9 @@ export function DatabaseClient({ currentUserRole }: { currentUserRole: string })
                             variant="ghost" 
                             size="icon"
                             onClick={() => handleRemove(record.id, record.uidValue)} 
-                            disabled={removingId === record.id || currentUserRole !== "ADMIN"}
+                            disabled={removingId === record.id || (currentUserRole !== "ADMIN" && currentUserRole !== "SUPER_ADMIN")}
                             className="h-8 w-8 text-slate-400 hover:text-red-400 hover:bg-red-400/10"
-                            title={currentUserRole !== "ADMIN" ? "Only ADMIN can remove UIDs here" : "Remove UID"}
+                            title={(currentUserRole !== "ADMIN" && currentUserRole !== "SUPER_ADMIN") ? "Only ADMIN can remove UIDs here" : "Remove UID"}
                           >
                             {removingId === record.id ? (
                               <Loader2 className="w-4 h-4 animate-spin" />

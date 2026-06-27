@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     }
 
     if (content.includes("@everyone") || content.includes("@here")) {
-      if (session.user.role !== "ADMIN") {
+      if (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN") {
         return NextResponse.json({ message: "Only Admins can ping @everyone or @here" }, { status: 403 });
       }
     }
