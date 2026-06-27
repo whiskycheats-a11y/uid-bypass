@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { KeyRound, ShieldAlert, Code2 } from "lucide-react";
 import { CodeCopyButton } from "@/components/code-copy-button";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ApiAccessPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
