@@ -55,7 +55,11 @@ export async function GET(req: Request) {
         hwidLockEnabled: true,
         createdAt: true,
         createdBy: true,
-      },
+        _count: {
+          select: {
+            uids: { where: { status: "ACTIVE" } }
+          }
+        },
       orderBy: { id: "desc" }
     });
 

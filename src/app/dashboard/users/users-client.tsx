@@ -20,6 +20,9 @@ type User = {
   createdBy: string | null;
   isLocked?: boolean;
   hwidLockEnabled?: boolean;
+  _count?: {
+    uids: number;
+  };
 };
 
 export default function UsersClient({
@@ -308,13 +311,14 @@ export default function UsersClient({
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col gap-1.5">
-                      <Badge variant="outline" className={
-                        user.role === "SUPER_ADMIN" ? "border-fuchsia-500/50 text-fuchsia-400" :
-                        user.role === "ADMIN" ? "border-amber-500/50 text-amber-400" : 
-                        user.role === "MANAGER" ? "border-blue-500/50 text-blue-400" : 
-                        "border-slate-500/50 text-slate-400"}>
+                      <div className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider w-fit ${
+                        user.role === "SUPER_ADMIN" ? "bg-fuchsia-500/20 text-fuchsia-300" :
+                        user.role === "ADMIN" ? "bg-amber-500/20 text-amber-300" : 
+                        user.role === "MANAGER" ? "bg-blue-500/20 text-blue-300" : 
+                        "bg-slate-500/20 text-slate-300"
+                      }`}>
                         {user.role}
-                      </Badge>
+                      </div>
                       {user.isLocked && (
                         <Badge variant="destructive" className="bg-red-500/20 text-red-400 border-red-500/30 text-[10px]">
                           LOCKED
@@ -342,8 +346,12 @@ export default function UsersClient({
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 font-mono text-emerald-400">{user.uidLimit}</td>
-                  <td className="px-6 py-4 font-mono text-blue-400">{user.freeUidLimit}</td>
+                  <td className="px-6 py-4 font-mono text-emerald-400">
+                    <span className="text-white font-medium">{user._count?.uids || 0}</span> <span className="text-slate-500">/</span> {user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' ? '∞' : user.uidLimit}
+                  </td>
+                  <td className="px-6 py-4 font-mono text-blue-400">
+                    {user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' ? '∞' : user.freeUidLimit}
+                  </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
                       <Button variant="ghost" size="icon" onClick={() => openEdit(user)} disabled={(currentUserRole !== "ADMIN" && currentUserRole !== "SUPER_ADMIN") || (user.role === "SUPER_ADMIN" && currentUserRole !== "SUPER_ADMIN")} className="h-8 w-8 text-slate-400 hover:text-white hover:bg-white/10">
