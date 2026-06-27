@@ -42,6 +42,7 @@ export function Sidebar({ initialSession }: { initialSession?: any }) {
   }, [initialSession]);
   const [isOpen, setIsOpen] = useState(false);
   const [hasUnreadMentions, setHasUnreadMentions] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   // OPTIMIZED: Increased polling interval from 10s to 30s, added error handling
   const checkUnread = useCallback(async () => {
@@ -203,23 +204,14 @@ export function Sidebar({ initialSession }: { initialSession?: any }) {
           <div className="flex items-center gap-3 p-2 rounded-xl bg-gradient-to-br from-white/[0.02] to-white/[0.05] border border-white/[0.05] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] transition-colors hover:bg-white/[0.06]">
             <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-white/10 shrink-0 shadow-sm">
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                {(session?.user as any)?.profilePicture ? (
+                {(session?.user as any)?.profilePicture && !imageError ? (
                 /* eslint-disable-next-line @next/next/no-img-element, @typescript-eslint/no-explicit-any */
                 <img 
                   src={(session?.user as any)?.profilePicture as string} 
                   alt={username} 
                   className="w-full h-full object-cover" 
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                    const parent = (e.target as HTMLImageElement).parentElement;
-                    if (parent) {
-                       const span = document.createElement('span');
-                       span.className = 'w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/40 to-violet-500/40 text-xs font-bold text-blue-300';
-                       const uname = username;
-                       span.textContent = (uname || '?').replace(/[^a-zA-Z0-9]/g, '').slice(0, 2).toUpperCase() || '?';
-                       parent.appendChild(span);
-                    }
-                  }}
+                  onLoad={() => setImageError(false)}
+                  onError={() => setImageError(true)}
                 />
               ) : (
                 <span className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/40 to-violet-500/40 text-xs font-bold text-blue-300">

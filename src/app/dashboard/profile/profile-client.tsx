@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserCircle, Lock, Link as LinkIcon, Camera, Loader2, Save } from "lucide-react";
+import { UserCircle, Lock, Link as LinkIcon, Camera, Loader2, Save, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { PageWrapper } from "@/components/page-wrapper";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 export function ProfileClient({ user }: { user: any }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const [formData, setFormData] = useState({
     username: user.username,
     profilePicture: user.profilePicture || "",
@@ -101,21 +102,13 @@ export function ProfileClient({ user }: { user: any }) {
                 animate={{ scale: 1, opacity: 1 }}
                 className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/10 mb-4 bg-slate-800 flex items-center justify-center relative group"
               >
-                {formData.profilePicture ? (
+                {formData.profilePicture && !imageError ? (
                   <img 
                     src={formData.profilePicture} 
                     alt="Profile" 
                     className="w-full h-full object-cover" 
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                      const parent = (e.target as HTMLImageElement).parentElement;
-                      if (parent) {
-                        const el = document.createElement('div');
-                        el.className = 'w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/30 to-violet-500/30 text-lg font-bold text-blue-300';
-                        el.textContent = (formData.username || '?').replace(/[^a-zA-Z0-9]/g, '').slice(0, 2).toUpperCase() || '?';
-                        parent.appendChild(el);
-                      }
-                    }}
+                    onLoad={() => setImageError(false)}
+                    onError={() => setImageError(true)}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/30 to-violet-500/30 text-lg font-bold text-blue-300">
@@ -161,7 +154,10 @@ export function ProfileClient({ user }: { user: any }) {
                       name="profilePicture"
                       placeholder="https://i.imgur.com/... or upload directly"
                       value={formData.profilePicture.startsWith("data:image") ? "(uploaded image)" : formData.profilePicture}
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        setImageError(false);
+                        handleChange(e);
+                      }}
                       readOnly={formData.profilePicture.startsWith("data:image")}
                       className="bg-black/50 border-white/10 text-white placeholder:text-slate-500 focus-visible:ring-cyan-500/50" 
                       icon={<LinkIcon className="w-5 h-5" />}
@@ -180,8 +176,16 @@ export function ProfileClient({ user }: { user: any }) {
                         Remove
                       </button>
                     </div>
+                    </div>
                   ) : (
-                    <p className="text-xs text-slate-500 mt-1">Paste a direct image link or click the camera icon above to upload.</p>
+                    <div>
+                      <p className="text-xs text-slate-500 mt-1">Paste a direct image link or click the camera icon above to upload.</p>
+                      {imageError && formData.profilePicture && (
+                        <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3" /> Invalid image URL. You must paste a direct image link (e.g. ending in .png or .jpg).
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
               </CardContent>
