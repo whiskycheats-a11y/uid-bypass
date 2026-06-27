@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
   },
   // ⚠️ Server External Packages: ensure Prisma + bcryptjs are available
   serverExternalPackages: ["@prisma/client", "bcryptjs"],
+  outputFileTracingIncludes: {
+    '/api/**/*': ['./backend_data/**/*'],
+  },
 };
 
 export default nextConfig;
