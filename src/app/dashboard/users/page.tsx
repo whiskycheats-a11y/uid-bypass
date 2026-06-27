@@ -29,8 +29,14 @@ export default async function UsersPage() {
       profilePicture: true,
       isLocked: true,
       hwidLockEnabled: true,
+      apiAccessEnabled: true,
       createdAt: true,
       createdBy: true,
+      _count: {
+        select: {
+          uids: { where: { status: "ACTIVE" } }
+        }
+      }
     },
     orderBy: { id: "desc" }
   });

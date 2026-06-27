@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +41,8 @@ export default function UsersClient({
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+  const [initialFetchDone, setInitialFetchDone] = useState(false);
 
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");
@@ -72,8 +74,18 @@ export default function UsersClient({
       if (res.ok) setUsers(data.users);
     } catch (err) {
       console.error(err);
+    } finally {
+      setInitialFetchDone(true);
     }
   };
+
+  useEffect(() => {
+    if (initialUsers.length === 0) {
+      fetchUsers();
+    } else {
+      setInitialFetchDone(true);
+    }
+  }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -306,15 +318,22 @@ export default function UsersClient({
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {filteredUsers.length === 0 ? (
+              {!initialFetchDone ? (
+                <tr><td colSpan={6} className="px-6 py-8 text-center text-slate-400"><Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />Loading users...</td></tr>
+              ) : filteredUsers.length === 0 ? (
                 <tr><td colSpan={6} className="px-6 py-8 text-center text-slate-400">No users found.</td></tr>
               ) : filteredUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-white/[0.02] transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      {user.profilePicture ? (
+                      {user.profilePicture && !imageErrors[user.id] ? (
                         /* eslint-disable-next-line @next/next/no-img-element */
-                        <img src={user.profilePicture} alt={user.username} className="w-9 h-9 rounded-full object-cover border border-white/10" />
+                        <img 
+                          src={user.profilePicture} 
+                          alt={user.username} 
+                          className="w-9 h-9 rounded-full object-cover border border-white/10" 
+                          onError={() => setImageErrors(prev => ({...prev, [user.id]: true}))}
+                        />
                       ) : (
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500/30 to-violet-500/30 flex items-center justify-center border border-blue-500/30 text-xs font-bold text-blue-300">
                           {user.username.replace(/[^a-zA-Z0-9]/g, '').slice(0, 2).toUpperCase() || '?'}
