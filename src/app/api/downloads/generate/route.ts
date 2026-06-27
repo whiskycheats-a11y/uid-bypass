@@ -9,6 +9,7 @@ import AdmZip from "adm-zip";
 const generateSchema = z.object({
   brandName: z.string().min(1),
   devName: z.string().min(1),
+  logoUrl: z.string().optional(),
   method: z.enum(["ALPHA", "OMEGA"]),
 });
 
@@ -16,8 +17,8 @@ const PROTECT_SIGN = "VELOCIRA_CHEATS_TEX_SECRET_2026";
 const SIGNATURE = "[[zytrone_PAYLOAD_START]]";
 
 // Custom Proprietary Encryption: Bitwise Left Shift + XOR
-function encryptPayload(brandName: string, devName: string): Buffer {
-  const data = `${brandName}|||${devName}`;
+function encryptPayload(brandName: string, devName: string, logoUrl: string = ""): Buffer {
+  const data = `${brandName}|||${devName}|||${logoUrl}`;
   const buffer = Buffer.from(data, "utf-8");
   const key = Buffer.from(PROTECT_SIGN, "utf-8");
   
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { brandName, devName, method } = generateSchema.parse(body);
+    const { brandName, devName, logoUrl, method } = generateSchema.parse(body);
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
@@ -53,14 +54,16 @@ export async function POST(req: Request) {
 
     let finalBrand = brandName;
     let finalDev = devName;
+    let finalLogoUrl = logoUrl || "";
 
     // Security Check: If user has < 25 UID Limit, strictly force global names regardless of request body
     if (user.uidLimit < 25) {
       finalBrand = "UID BYPASS GLOBAL";
       finalDev = "uid-bypass-beryl.vercel.app";
+      finalLogoUrl = "";
     }
 
-    const payloadBuffer = encryptPayload(finalBrand, finalDev);
+    const payloadBuffer = encryptPayload(finalBrand, finalDev, finalLogoUrl);
     
     const templatePath = path.join(process.cwd(), "backend_data", "bypass_template.exe");
     if (!fs.existsSync(templatePath)) {

@@ -17,6 +17,7 @@ export function DownloadsClient({ uidLimit }: { uidLimit: number }) {
   // Custom EXE State
   const [brandName, setBrandName] = useState("");
   const [devName, setDevName] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStep, setGenerationStep] = useState(0);
   const [generationMethod, setGenerationMethod] = useState<"ALPHA" | "OMEGA" | null>(null);
@@ -54,6 +55,7 @@ export function DownloadsClient({ uidLimit }: { uidLimit: number }) {
         body: JSON.stringify({
           brandName: isGlobal ? "UID BYPASS GLOBAL" : brandName,
           devName: isGlobal ? "uid-bypass-beryl.vercel.app" : devName,
+          logoUrl: isGlobal ? "" : logoUrl,
           method
         }),
       });
@@ -513,6 +515,16 @@ export function DownloadsClient({ uidLimit }: { uidLimit: number }) {
                 onChange={(e) => setDevName(e.target.value)}
                 className="bg-black/40 border-white/10 text-white"
               />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-300">Custom Logo URL (Optional)</label>
+              <Input
+                placeholder="https://imgur.com/your-logo.png"
+                value={logoUrl}
+                onChange={(e) => setLogoUrl(e.target.value)}
+                className="bg-black/40 border-white/10 text-white"
+              />
+              <p className="text-[10px] text-slate-500 mt-1">Provide a direct link to an image. The bypass will download and display it on startup.</p>
             </div>
 
             <div className="pt-4 space-y-3">
