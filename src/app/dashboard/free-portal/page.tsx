@@ -38,6 +38,7 @@ export default async function FreePortalPage() {
       <FreePortalClient 
         freeUidLimit={freeUidLimitDisplay} 
         initialPortals={user.portals} 
+        baseUrl=""
       />
     </div>
   );
