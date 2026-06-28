@@ -186,7 +186,7 @@ export function Sidebar({ initialSession, apiAccessEnabled = true }: { initialSe
 
       {/* PREMIUM GLASSMORPHISM */}
       <div className={cn(
-        "fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col glass-premium border-r border-white/[0.08] transition-transform duration-300 md:relative md:translate-x-0 shadow-[4px_0_24px_rgba(0,0,0,0.4)]",
+        "fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col bg-[#06060f] md:bg-transparent glass-premium border-r border-white/[0.08] transition-transform duration-300 md:relative md:translate-x-0 shadow-[4px_0_24px_rgba(0,0,0,0.8)]",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="p-6 border-b border-white/[0.08] hidden md:block">
