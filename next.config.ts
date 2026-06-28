@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/api/**/*': ['./backend_data/**/*'],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api.php',
+        destination: '/api',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
