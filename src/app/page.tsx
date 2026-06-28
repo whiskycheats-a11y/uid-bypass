@@ -23,11 +23,12 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a1a] selection:bg-violet-500/30">
-      {/* OPTIMIZED: Reduced blur from 150px/120px to 80px, removed external noise SVG, removed animate-pulse on bg blobs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-violet-600/15 rounded-full blur-[80px]" style={{ willChange: 'transform' }} />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-amber-500/8 rounded-full blur-[80px]" style={{ willChange: 'transform' }} />
-        <div className="absolute top-[40%] left-[40%] w-[30%] h-[30%] bg-blue-500/8 rounded-full blur-[60px]" style={{ willChange: 'transform' }} />
+      {/* PREMIUM BACKGROUND EFFECTS */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none bg-[#06060f]">
+        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-violet-600/30 rounded-full blur-[120px] mix-blend-screen animate-float-slow" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-fuchsia-600/20 rounded-full blur-[120px] mix-blend-screen animate-float" style={{ animationDelay: '-2s' }} />
+        <div className="absolute top-[30%] left-[30%] w-[40%] h-[40%] bg-blue-500/20 rounded-full blur-[100px] mix-blend-screen animate-float-slow" style={{ animationDelay: '-5s' }} />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
       </div>
 
       {/* Navbar */}
@@ -61,9 +62,9 @@ export default function LandingPage() {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="flex flex-col items-center max-w-4xl mx-auto"
+            className="flex flex-col items-center max-w-4xl mx-auto relative z-10"
           >
-            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-violet-500/30 text-violet-300 text-sm font-medium mb-8">
+            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-violet-500/30 text-violet-300 text-sm font-medium mb-8 shadow-[0_0_20px_rgba(139,92,246,0.2)]">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>

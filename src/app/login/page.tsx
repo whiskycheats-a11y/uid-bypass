@@ -53,20 +53,21 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-500/10 rounded-full blur-[120px]" />
+      {/* PREMIUM BACKGROUND EFFECTS */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none bg-[#06060f]">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/30 rounded-full blur-[120px] mix-blend-screen animate-float-slow" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-violet-600/20 rounded-full blur-[120px] mix-blend-screen animate-float" style={{ animationDelay: '-3s' }} />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
       </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
         className="w-full max-w-md relative z-10"
       >
-        <div className="glass-premium rounded-2xl p-8 sm:p-10 relative overflow-hidden">
-          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+        <div className="glass-premium rounded-2xl p-8 sm:p-10 relative overflow-hidden shadow-[0_0_40px_rgba(139,92,246,0.1)]">
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
           <div className="flex flex-col items-center mb-8">
             <motion.div
               initial={{ scale: 0 }}
