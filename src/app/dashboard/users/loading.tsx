@@ -1,11 +1,14 @@
-export default function Loading() {
+import { Loader2 } from "lucide-react";
+
+export default function UsersLoading() {
   return (
-    <div className="space-y-6 animate-pulse">
-      <div className="space-y-2">
-        <div className="h-8 w-48 bg-white/5 rounded-lg" />
-        <div className="h-4 w-72 bg-white/[0.03] rounded" />
+    <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+      <div className="relative flex items-center justify-center">
+        <div className="absolute inset-0 w-16 h-16 bg-blue-500/20 rounded-full blur-xl animate-pulse" />
+        <Loader2 className="w-10 h-10 text-blue-500 animate-spin relative z-10" />
       </div>
-      <div className="h-96 bg-white/[0.03] rounded-2xl border border-white/[0.05]" />
+      <h2 className="text-xl font-bold text-white tracking-widest uppercase">Fetching Users</h2>
+      <p className="text-sm text-slate-400">Loading your massive database...</p>
     </div>
   );
 }
