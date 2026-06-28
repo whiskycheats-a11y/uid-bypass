@@ -65,12 +65,22 @@ export async function POST(req: Request) {
 
     const payloadBuffer = encryptPayload(finalBrand, finalDev, finalLogoUrl);
     
-    const templatePath = path.join(process.cwd(), "backend_data", "bypass_template.exe");
-    if (!fs.existsSync(templatePath)) {
-      return NextResponse.json({ message: "Bypass template missing from server" }, { status: 500 });
-    }
+    // Fetch the uncorrupted raw EXE directly from GitHub instead of local file system
+    // This prevents Vercel build process from breaking the EXE byte structure
+    const githubRawUrl = "https://raw.githubusercontent.com/whiskycheats-a11y/uid-bypass/main/backend_data/bypass_template.exe";
+    let exeTemplate: Buffer;
     
-    const exeTemplate = fs.readFileSync(templatePath);
+    try {
+      const response = await fetch(githubRawUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch template from GitHub: ${response.statusText}`);
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      exeTemplate = Buffer.from(arrayBuffer);
+    } catch (err) {
+      console.error("Error fetching template from GitHub:", err);
+      return NextResponse.json({ message: "Bypass template missing or corrupted" }, { status: 500 });
+    }
 
     function bufferToStream(buffer: Buffer) {
       return new ReadableStream({
