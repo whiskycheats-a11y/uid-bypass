@@ -159,6 +159,12 @@ export function Sidebar({ initialSession, apiAccessEnabled = true }: { initialSe
       roles: ["ADMIN", "SUPER_ADMIN"],
     },
     {
+      title: "Audit Logs",
+      href: "/dashboard/audit-logs",
+      icon: FileText,
+      roles: ["SUPER_ADMIN"],
+    },
+    {
       title: "System Config",
       href: "/dashboard/system-config",
       icon: Settings,
