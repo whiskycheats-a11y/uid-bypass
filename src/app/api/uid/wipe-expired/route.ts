@@ -13,63 +13,22 @@ export async function POST(req: Request) {
     const userId = session.user.id;
     const userRole = session.user.role;
     
+    if (userRole !== "SUPER_ADMIN") {
+      return NextResponse.json({ message: "Forbidden. Only SUPER_ADMIN can wipe UIDs." }, { status: 403 });
+    }
+
     let deletedCount = 0;
 
-    // Find all expired UIDs based on user role
-    if (userRole === "ADMIN" || userRole === "SUPER_ADMIN") {
-      // Admins can wipe ALL expired UIDs globally
-      const expiredUids = await prisma.uid.findMany({
+    // Find all expired UIDs globally
+    const expiredUids = await prisma.uid.findMany({
+      where: { expiresAt: { lt: new Date() } }
+    });
+    
+    if (expiredUids.length > 0) {
+      const result = await prisma.uid.deleteMany({
         where: { expiresAt: { lt: new Date() } }
       });
-      
-      if (expiredUids.length > 0) {
-        const result = await prisma.uid.deleteMany({
-          where: { expiresAt: { lt: new Date() } }
-        });
-        deletedCount = result.count;
-      }
-    } else if (userRole === "MANAGER") {
-      // Managers wipe their own and their created users' expired UIDs
-      const expiredUids = await prisma.uid.findMany({
-        where: {
-          expiresAt: { lt: new Date() },
-          OR: [
-            { userId: userId },
-            { user: { createdBy: userId } }
-          ]
-        }
-      });
-
-      if (expiredUids.length > 0) {
-        const result = await prisma.uid.deleteMany({
-          where: {
-            expiresAt: { lt: new Date() },
-            OR: [
-              { userId: userId },
-              { user: { createdBy: userId } }
-            ]
-          }
-        });
-        deletedCount = result.count;
-      }
-    } else {
-      // Resellers wipe only their own expired UIDs
-      const expiredUids = await prisma.uid.findMany({
-        where: {
-          expiresAt: { lt: new Date() },
-          userId: userId
-        }
-      });
-
-      if (expiredUids.length > 0) {
-        const result = await prisma.uid.deleteMany({
-          where: {
-            expiresAt: { lt: new Date() },
-            userId: userId
-          }
-        });
-        deletedCount = result.count;
-      }
+      deletedCount = result.count;
     }
 
     if (deletedCount > 0) {

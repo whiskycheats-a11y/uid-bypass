@@ -122,14 +122,16 @@ export function DatabaseClient({ currentUserRole }: { currentUserRole: string })
             Global view of all UIDs registered on the platform.
           </p>
         </div>
-        <Button 
-          onClick={handleWipeExpired}
-          variant="outline" 
-          className="border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300"
-        >
-          <Trash2 className="w-4 h-4 mr-2" />
-          Wipe Expired UIDs
-        </Button>
+        {currentUserRole === "SUPER_ADMIN" && (
+          <Button 
+            onClick={handleWipeExpired}
+            variant="outline" 
+            className="border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Wipe Expired UIDs
+          </Button>
+        )}
       </div>
 
       {error && <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 mb-6">{error}</div>}
@@ -265,9 +267,9 @@ export function DatabaseClient({ currentUserRole }: { currentUserRole: string })
                             variant="ghost" 
                             size="icon"
                             onClick={() => handleRemove(record.id, record.uidValue)} 
-                            disabled={removingId === record.id}
+                            disabled={removingId === record.id || currentUserRole !== "SUPER_ADMIN"}
                             className="h-8 w-8 text-slate-400 hover:text-red-400 hover:bg-red-400/10"
-                            title="Remove UID permanently"
+                            title={currentUserRole === "SUPER_ADMIN" ? "Remove UID permanently" : "Only SUPER_ADMIN can remove UIDs here"}
                           >
                             {removingId === record.id ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
