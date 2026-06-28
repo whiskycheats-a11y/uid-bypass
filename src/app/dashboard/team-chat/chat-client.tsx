@@ -23,13 +23,18 @@ interface ChatMessage {
 function ChatAvatar({ src, username }: { src?: string | null, username: string }) {
   const [error, setError] = useState(false);
   
-  if (src && !error) {
+  const hasValidSrc = src && (src.startsWith('http') || src.startsWith('data:image'));
+  
+  if (hasValidSrc && !error) {
     return (
       <img 
         src={src} 
         alt={username} 
         className="w-full h-full object-cover" 
-        onError={() => setError(true)} 
+        onError={(e) => {
+          setError(true);
+          e.currentTarget.style.display = 'none';
+        }} 
       />
     );
   }

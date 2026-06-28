@@ -35,7 +35,11 @@ export async function middleware(request: NextRequest) {
     }
 
     if (isAuthPath && verified) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+      // User explicitly visited login/register while authenticated. 
+      // Force them to log in again by destroying the existing session.
+      const response = NextResponse.next();
+      response.cookies.delete("auth_token");
+      return response;
     }
   }
 
