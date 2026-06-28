@@ -247,8 +247,8 @@ export function ChatClient({ currentUsername }: { currentUsername: string }) {
                     <div className={`flex flex-col ${isMe ? "items-end" : "items-start"} max-w-[85%] md:max-w-[75%]`}>
                       <div className={`flex items-baseline gap-2 mb-1 px-1 ${isMe ? "flex-row-reverse" : "flex-row"}`}>
                         <span className="text-xs font-medium text-slate-300">{msg.user.username}</span>
-                        <Badge variant={msg.user.role.toLowerCase() as "admin" | "manager" | "reseller" | "default"} className="text-[10px] px-1 py-0 h-4">
-                          {msg.user.role}
+                        <Badge variant={msg.user.role.toLowerCase() as any} className="text-[9px] px-1.5 py-0 h-4 uppercase tracking-wider">
+                          {msg.user.role.replace("_", " ")}
                         </Badge>
                         <span className="text-[10px] text-slate-500">
                           {format(msgDate, "HH:mm")}
@@ -304,8 +304,8 @@ export function ChatClient({ currentUsername }: { currentUsername: string }) {
                           <ChatAvatar src={u.profilePicture} username={u.username} />
                         </div>
                         <span className="text-sm text-slate-200 font-medium truncate flex-1">{u.username}</span>
-                        <Badge variant={u.role.toLowerCase() as "admin" | "manager" | "reseller" | "default"} className="text-[9px] px-1 py-0 h-3">
-                          {u.role}
+                        <Badge variant={u.role.toLowerCase() as any} className="text-[9px] px-1.5 py-0 h-3 uppercase tracking-wider">
+                          {u.role.replace("_", " ")}
                         </Badge>
                       </button>
                     ))}
