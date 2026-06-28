@@ -252,7 +252,29 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ message: "Forbidden. You cannot delete a SUPER_ADMIN." }, { status: 403 });
     }
 
-    await prisma.user.delete({ where: { id: targetId } });
+    // Manual Cascade Delete for MongoDB since Prisma blocks native Cascade for self-relations
+    await prisma.$transaction([
+      // 1. Delete all user's UIDs
+      prisma.uid.deleteMany({ where: { userId: targetId } }),
+      
+      // 2. Delete all user's Activity Logs
+      prisma.activityLog.deleteMany({ where: { userId: targetId } }),
+      
+      // 3. Delete all user's Free Portals
+      prisma.freePortal.deleteMany({ where: { userId: targetId } }),
+      
+      // 4. Delete all user's Chat Messages
+      prisma.chatMessage.deleteMany({ where: { userId: targetId } }),
+      
+      // 5. Unlink created users (set createdBy to null)
+      prisma.user.updateMany({
+        where: { createdBy: targetId },
+        data: { createdBy: null }
+      }),
+      
+      // 6. Finally, delete the User
+      prisma.user.delete({ where: { id: targetId } })
+    ]);
 
     await sendUserManagementWebhook(
       "delete",

@@ -178,10 +178,15 @@ export default function UsersClient({
     if (!confirm("Are you sure you want to delete this user? This cannot be undone.")) return;
     try {
       const res = await fetch(`/api/users?id=${id}`, { method: "DELETE" });
-      if (res.ok) fetchUsers();
-      else alert("Failed to delete user.");
+      if (res.ok) {
+        fetchUsers();
+      } else {
+        const json = await res.json();
+        alert(json.message || "Failed to delete user.");
+      }
     } catch (err) {
       console.error(err);
+      alert("Network error. Failed to delete user.");
     }
   };
 
