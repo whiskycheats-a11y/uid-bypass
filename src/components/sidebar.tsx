@@ -34,12 +34,15 @@ export function Sidebar({ initialSession, apiAccessEnabled = true }: { initialSe
   // We need to fetch the session from an API or pass it as a prop since we removed next-auth
   const [session, setSession] = useState<any>(initialSession);
 
-  // Still keep an effect to update session if it changes or initialSession wasn't provided for some reason
   useEffect(() => {
-    if (!initialSession) {
+    if (initialSession) {
+      setSession(initialSession);
+      setImageError(false);
+    } else {
       fetch("/api/auth/session").then(res => res.json()).then(data => setSession(data)).catch(() => {});
     }
   }, [initialSession]);
+
   const [isOpen, setIsOpen] = useState(false);
   const [hasUnreadMentions, setHasUnreadMentions] = useState(false);
   const [imageError, setImageError] = useState(false);

@@ -18,9 +18,14 @@ export default async function DashboardLayout({
   if (session?.user?.id) {
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { apiAccessEnabled: true }
+      select: { apiAccessEnabled: true, profilePicture: true }
     });
     apiAccessEnabled = user?.apiAccessEnabled ?? true;
+    
+    // Inject the freshest profile picture from the database into the session for the sidebar
+    if (session.user && user?.profilePicture) {
+      session.user.profilePicture = user.profilePicture;
+    }
   }
 
   return (
