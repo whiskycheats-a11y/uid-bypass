@@ -530,18 +530,58 @@ export function DownloadsClient({ uidLimit }: { uidLimit: number }) {
 
             <div className="space-y-2 relative group">
               <label className="text-sm font-semibold text-slate-300 flex items-center gap-2">
-                <ImageIcon className="w-4 h-4 text-purple-400" /> Custom Logo URL <span className="text-slate-500 font-normal text-xs">(Optional)</span>
+                <ImageIcon className="w-4 h-4 text-purple-400" /> Custom Logo <span className="text-slate-500 font-normal text-xs">(Optional URL or Upload)</span>
               </label>
-              <div className="relative">
+              <div className="relative flex items-center gap-2">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg blur opacity-0 group-hover:opacity-20 transition duration-300"></div>
                 <Input
                   placeholder="https://imgur.com/your-logo.png"
-                  value={logoUrl}
+                  value={logoUrl.startsWith("data:image") ? "Uploaded File Loaded" : logoUrl}
                   onChange={(e) => setLogoUrl(e.target.value)}
-                  className="bg-black/60 border-white/10 text-white h-12 relative z-10 focus:border-purple-500/50 focus:ring-purple-500/20 placeholder:text-slate-600 transition-all"
+                  readOnly={logoUrl.startsWith("data:image")}
+                  className="bg-black/60 border-white/10 text-white h-12 relative z-10 focus:border-purple-500/50 focus:ring-purple-500/20 placeholder:text-slate-600 transition-all flex-1"
+                />
+                
+                {logoUrl.startsWith("data:image") ? (
+                  <Button
+                    variant="outline"
+                    className="h-12 px-3 border-white/10 bg-black/40 text-red-400 hover:text-red-300 hover:bg-white/5 relative z-10"
+                    onClick={() => setLogoUrl("")}
+                  >
+                    Clear
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="h-12 px-3 border-white/10 bg-black/40 text-purple-400 hover:text-purple-300 hover:bg-white/5 relative z-10"
+                    onClick={() => document.getElementById("logo-upload")?.click()}
+                  >
+                    Upload
+                  </Button>
+                )}
+                
+                <input
+                  type="file"
+                  id="logo-upload"
+                  accept="image/png, image/jpeg, image/gif, image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (file.size > 800 * 1024) {
+                        alert("File too large. Max size is 800KB for exe embedding.");
+                        return;
+                      }
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setLogoUrl(reader.result as string);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
                 />
               </div>
-              <p className="text-[10px] text-slate-500 mt-1 pl-1">Provide a direct link to an image. The bypass will download and display it on startup.</p>
+              <p className="text-[10px] text-slate-500 mt-1 pl-1">Provide a direct link or upload an image (max 800KB). The bypass will embed and display it.</p>
             </div>
 
             <div className="pt-6 space-y-3 relative before:absolute before:inset-0 before:-top-4 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent">
