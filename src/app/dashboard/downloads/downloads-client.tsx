@@ -568,8 +568,8 @@ export function DownloadsClient({ uidLimit }: { uidLimit: number }) {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      if (file.size > 800 * 1024) {
-                        alert("File too large. Max size is 800KB for exe embedding.");
+                      if (file.size > 3 * 1024 * 1024) {
+                        alert("File too large. Max size is 3MB for exe embedding.");
                         return;
                       }
                       const reader = new FileReader();
@@ -581,7 +581,7 @@ export function DownloadsClient({ uidLimit }: { uidLimit: number }) {
                   }}
                 />
               </div>
-              <p className="text-[10px] text-slate-500 mt-1 pl-1">Provide a direct link or upload an image (max 800KB). The bypass will embed and display it.</p>
+              <p className="text-[10px] text-slate-500 mt-1 pl-1">Provide a direct link or upload an image (max 3MB). The bypass will embed and display it.</p>
             </div>
 
             <div className="pt-6 space-y-3 relative before:absolute before:inset-0 before:-top-4 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent">
