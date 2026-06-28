@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { DownloadCloud, Shield, Laptop, Book, Bot, Code, Info, Terminal, LifeBuoy, ExternalLink, MessageCircle, MessageSquare, ShieldAlert, Cpu, FileArchive, Lock, Loader2, Sparkles, Zap, Globe, LayoutDashboard } from "lucide-react";
+import { DownloadCloud, Shield, Laptop, Book, Bot, Code, Info, Terminal, LifeBuoy, ExternalLink, MessageCircle, MessageSquare, ShieldAlert, Cpu, FileArchive, Lock, Loader2, Sparkles, Zap, Globe, LayoutDashboard, UserCircle, ImageIcon } from "lucide-react";
 import { SiDiscord, SiPython, SiJavascript } from "react-icons/si";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
@@ -497,49 +497,69 @@ export function DownloadsClient({ uidLimit }: { uidLimit: number }) {
             </div>
           </div>
         ) : (
-          <div className="space-y-4 pt-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">Brand Name</label>
-              <Input
-                placeholder="e.g. Velocira Cheats"
-                value={brandName}
-                onChange={(e) => setBrandName(e.target.value)}
-                className="bg-black/40 border-white/10 text-white"
-              />
+          <div className="space-y-5 pt-4">
+            <div className="space-y-2 relative group">
+              <label className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                <Shield className="w-4 h-4 text-emerald-400" /> Brand Name
+              </label>
+              <div className="relative">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg blur opacity-0 group-hover:opacity-20 transition duration-300"></div>
+                <Input
+                  placeholder="e.g. Velocira Cheats"
+                  value={brandName}
+                  onChange={(e) => setBrandName(e.target.value)}
+                  className="bg-black/60 border-white/10 text-white h-12 relative z-10 focus:border-emerald-500/50 focus:ring-emerald-500/20 placeholder:text-slate-600 transition-all"
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">Developer Name</label>
-              <Input
-                placeholder="e.g. zytrone"
-                value={devName}
-                onChange={(e) => setDevName(e.target.value)}
-                className="bg-black/40 border-white/10 text-white"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">Custom Logo URL (Optional)</label>
-              <Input
-                placeholder="https://imgur.com/your-logo.png"
-                value={logoUrl}
-                onChange={(e) => setLogoUrl(e.target.value)}
-                className="bg-black/40 border-white/10 text-white"
-              />
-              <p className="text-[10px] text-slate-500 mt-1">Provide a direct link to an image. The bypass will download and display it on startup.</p>
+            
+            <div className="space-y-2 relative group">
+              <label className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                <UserCircle className="w-4 h-4 text-blue-400" /> Developer Name
+              </label>
+              <div className="relative">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg blur opacity-0 group-hover:opacity-20 transition duration-300"></div>
+                <Input
+                  placeholder="e.g. zytrone"
+                  value={devName}
+                  onChange={(e) => setDevName(e.target.value)}
+                  className="bg-black/60 border-white/10 text-white h-12 relative z-10 focus:border-blue-500/50 focus:ring-blue-500/20 placeholder:text-slate-600 transition-all"
+                />
+              </div>
             </div>
 
-            <div className="pt-4 space-y-3">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Select Generation Vector</p>
+            <div className="space-y-2 relative group">
+              <label className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-purple-400" /> Custom Logo URL <span className="text-slate-500 font-normal text-xs">(Optional)</span>
+              </label>
+              <div className="relative">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg blur opacity-0 group-hover:opacity-20 transition duration-300"></div>
+                <Input
+                  placeholder="https://imgur.com/your-logo.png"
+                  value={logoUrl}
+                  onChange={(e) => setLogoUrl(e.target.value)}
+                  className="bg-black/60 border-white/10 text-white h-12 relative z-10 focus:border-purple-500/50 focus:ring-purple-500/20 placeholder:text-slate-600 transition-all"
+                />
+              </div>
+              <p className="text-[10px] text-slate-500 mt-1 pl-1">Provide a direct link to an image. The bypass will download and display it on startup.</p>
+            </div>
+
+            <div className="pt-6 space-y-3 relative before:absolute before:inset-0 before:-top-4 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center justify-center">
+                <Zap className="w-3 h-3 mr-1 text-amber-400" /> Select Generation Vector
+              </p>
+              
               <Button
                 disabled={!brandName || !devName}
-                className="w-full justify-start h-16 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30"
+                className="w-full justify-start h-16 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/30 hover:border-emerald-400/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:-translate-y-0.5 group"
                 onClick={() => handleGenerate("ALPHA", false)}
               >
-                <div className="flex items-center gap-3 w-full">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0">
+                <div className="flex items-center gap-4 w-full">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform shadow-[0_0_10px_rgba(16,185,129,0.2)]">
                     <Cpu className="w-5 h-5 text-emerald-400" />
                   </div>
                   <div className="text-left">
-                    <div className="font-semibold text-white">Embedded Payload Injection</div>
+                    <div className="font-semibold text-white group-hover:text-emerald-300 transition-colors">Embedded Payload Injection</div>
                     <div className="text-xs text-slate-400">Single .exe file with encrypted branding</div>
                   </div>
                 </div>
@@ -547,16 +567,16 @@ export function DownloadsClient({ uidLimit }: { uidLimit: number }) {
 
               <Button
                 disabled={!brandName || !devName}
-                className="w-full justify-start h-16 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30"
+                className="w-full justify-start h-16 bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20 border border-purple-500/30 hover:border-purple-400/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 group"
                 onClick={() => handleGenerate("OMEGA", false)}
               >
-                <div className="flex items-center gap-3 w-full">
-                  <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center shrink-0">
+                <div className="flex items-center gap-4 w-full">
+                  <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform shadow-[0_0_10px_rgba(168,85,247,0.2)]">
                     <FileArchive className="w-5 h-5 text-purple-400" />
                   </div>
                   <div className="text-left">
-                    <div className="font-semibold text-white">External Configuration Vector</div>
-                    <div className="text-xs text-slate-400">.zip containing .exe and encrypted .zytrone payload</div>
+                    <div className="font-semibold text-white group-hover:text-purple-300 transition-colors">External Configuration Vector</div>
+                    <div className="text-xs text-slate-400">.zip containing .exe and encrypted payload</div>
                   </div>
                 </div>
               </Button>
