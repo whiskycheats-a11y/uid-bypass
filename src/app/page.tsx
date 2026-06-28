@@ -82,13 +82,13 @@ export default function LandingPage() {
 
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
               <Link href="/register" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full h-14 px-8 text-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 border-0 shadow-xl shadow-violet-500/25 group">
+                <Button size="lg" className="w-full h-14 px-8 text-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 border-0 shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_35px_rgba(139,92,246,0.5)] hover:-translate-y-1 transition-all duration-300 group">
                   Become a Reseller
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
               <a href="/login" className="w-full sm:w-auto">
-                <Button size="lg" variant="outline" className="w-full h-14 px-8 text-lg glass hover:bg-white/10 group">
+                <Button size="lg" variant="outline" className="w-full h-14 px-8 text-lg glass hover:bg-white/10 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] transition-all duration-300 group">
                   Panel Login
                   <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform text-slate-400" />
                 </Button>
@@ -97,13 +97,26 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
-        {/* Features Section — OPTIMIZED: Reduced from whileInView to simple CSS transitions */}
-        <section className="max-w-7xl mx-auto px-6 py-24 relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-900/5 to-transparent pointer-events-none" />
-
+        {/* Features Section */}
+        <section className="max-w-7xl mx-auto px-6 py-24 relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Engineered for Dominance</h2>
-            <p className="text-slate-400 max-w-2xl mx-auto">Stop worrying about bans. Focus on your sales while we handle the heavy lifting.</p>
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-3xl md:text-4xl font-bold text-white mb-4"
+            >
+              Engineered for Dominance
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-slate-400 max-w-2xl mx-auto"
+            >
+              Stop worrying about bans. Focus on your sales while we handle the heavy lifting.
+            </motion.p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 relative z-10">
@@ -124,27 +137,38 @@ export default function LandingPage() {
                 desc: "Monitor your bypass usage, active injections, and customer statistics in real-time."
               }
             ].map((feature, i) => (
-              <div
+              <motion.div
                 key={i}
-                className="glass-card p-8 hover:bg-white/[0.03] transition-colors duration-200 border-t border-t-white/10"
-                style={{ animationDelay: `${i * 100}ms` }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15, duration: 0.5, ease: "easeOut" }}
+                whileHover={{ y: -8, transition: { duration: 0.2 } }}
+                className="glass-card p-8 bg-white/[0.01] hover:bg-white/[0.03] transition-colors duration-300 border border-white/5 hover:border-violet-500/30 hover:shadow-[0_0_30px_rgba(139,92,246,0.15)] group rounded-2xl relative overflow-hidden"
               >
-                <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-6 border border-white/10">
+                <div className="absolute top-0 right-0 p-32 bg-gradient-to-bl from-white/[0.02] to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-6 border border-white/10 group-hover:scale-110 group-hover:bg-white/10 transition-all duration-300">
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
-                <p className="text-slate-400 leading-relaxed">
+                <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-violet-300 transition-colors">{feature.title}</h3>
+                <p className="text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
                   {feature.desc}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </section>
 
-        {/* Stats/Social Proof — OPTIMIZED: Reduced blur from 50px to 30px */}
-        <section className="max-w-7xl mx-auto px-6 py-20">
-          <div className="glass rounded-3xl p-8 md:p-12 border border-white/10 overflow-hidden relative">
-            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-violet-500/15 rounded-full blur-[30px]" />
+        {/* Stats/Social Proof */}
+        <section className="max-w-7xl mx-auto px-6 py-20 relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="glass rounded-3xl p-8 md:p-12 border border-white/10 overflow-hidden relative shadow-[0_0_40px_rgba(139,92,246,0.1)] hover:border-violet-500/20 transition-colors"
+          >
+            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-violet-500/20 rounded-full blur-[60px] animate-pulse" />
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 relative z-10">
               {[
                 { label: "Status", value: "Undetected" },
@@ -152,13 +176,20 @@ export default function LandingPage() {
                 { label: "Uptime", value: "99.9%" },
                 { label: "Delivery", value: "Instant API" },
               ].map((stat, i) => (
-                <div key={i} className="text-center">
-                  <div className="text-3xl md:text-4xl font-black text-white mb-2">{stat.value}</div>
-                  <div className="text-sm font-medium text-slate-400 uppercase tracking-wider">{stat.label}</div>
-                </div>
+                <motion.div 
+                  key={i} 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 + 0.3 }}
+                  className="text-center group"
+                >
+                  <div className="text-3xl md:text-4xl font-black text-white mb-2 group-hover:scale-110 transition-transform group-hover:text-violet-400">{stat.value}</div>
+                  <div className="text-sm font-medium text-slate-400 uppercase tracking-wider group-hover:text-slate-300 transition-colors">{stat.label}</div>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
         </section>
 
       </main>
