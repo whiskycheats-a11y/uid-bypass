@@ -77,7 +77,16 @@ export function UidClient({ initialUids }: UidClientProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      const json = await res.json();
+      
+      const text = await res.text();
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch (e) {
+        setResult({ type: "error", message: text ? `Server Error: ${text.substring(0, 60)}` : "Empty response from server. Please try again." });
+        setLoading(false);
+        return;
+      }
 
       if (res.ok) {
         setResult({ type: "success", message: json.message, data: json.data });

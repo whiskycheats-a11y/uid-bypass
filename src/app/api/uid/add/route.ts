@@ -112,8 +112,15 @@ async function handleAddUid(req: Request, isGet: boolean) {
         }
       }, { status: 200 });
     } else {
-      await sendUidActionWebhook({ action: "Add UID", username: user.username, uid, days, response: response.message || "Failed", status: "error" });
-      return NextResponse.json({ success: false, message: response.message || "Failed to add UID" }, { status: 400 });
+      let errorMsg = response.message || "Failed to add UID";
+      const lowerMsg = errorMsg.toLowerCase();
+      
+      if (lowerMsg.includes("already") || lowerMsg.includes("active") || lowerMsg.includes("exist")) {
+        errorMsg = "Your UID is already whitelisted.";
+      }
+
+      await sendUidActionWebhook({ action: "Add UID", username: user.username, uid, days, response: errorMsg, status: "error" });
+      return NextResponse.json({ success: false, message: errorMsg }, { status: 400 });
     }
   } catch (error: unknown) {
     if ((error as Error).name === "ZodError") return NextResponse.json({ message: (error as unknown as { issues: { message: string }[] }).issues[0].message }, { status: 400 });
