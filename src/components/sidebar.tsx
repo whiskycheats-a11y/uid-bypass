@@ -165,7 +165,7 @@ export function Sidebar({ initialSession, apiAccessEnabled = true }: { initialSe
 
   return (
     <>
-      <div className="md:hidden flex items-center justify-between p-4 bg-[#0a0a1a] border-b border-white/[0.08] sticky top-0 z-40">
+      <div className="md:hidden flex items-center justify-between p-4 glass-premium border-b border-white/[0.08] sticky top-0 z-40">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-blue-500/20">
             <ShieldCheck className="h-4 w-4 text-white" />
@@ -181,9 +181,9 @@ export function Sidebar({ initialSession, apiAccessEnabled = true }: { initialSe
         <div className="fixed inset-0 bg-black/60 z-40 md:hidden" onClick={() => setIsOpen(false)} />
       )}
 
-      {/* OPTIMIZED: Removed backdrop-blur-xl from sidebar, using solid bg instead */}
+      {/* PREMIUM GLASSMORPHISM */}
       <div className={cn(
-        "fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col bg-[#0a0a1a] md:bg-[#060610] border-r border-white/[0.08] transition-transform duration-300 md:relative md:translate-x-0",
+        "fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col glass-premium border-r border-white/[0.08] transition-transform duration-300 md:relative md:translate-x-0 shadow-[4px_0_24px_rgba(0,0,0,0.4)]",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="p-6 border-b border-white/[0.08] hidden md:block">
@@ -201,7 +201,7 @@ export function Sidebar({ initialSession, apiAccessEnabled = true }: { initialSe
         </div>
 
         <div className="p-4 border-b border-white/[0.08]">
-          <div className="flex items-center gap-3 p-2 rounded-xl bg-gradient-to-br from-white/[0.02] to-white/[0.05] border border-white/[0.05] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] transition-colors hover:bg-white/[0.06]">
+          <div className="flex items-center gap-3 p-2 rounded-xl bg-white/[0.03] border border-white/[0.08] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] transition-all hover:bg-white/[0.08] hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]">
             <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-white/10 shrink-0 shadow-sm">
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {(session?.user as any)?.profilePicture && !imageError ? (
