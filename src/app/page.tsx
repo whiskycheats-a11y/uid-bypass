@@ -42,12 +42,12 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-4">
             <a href="/login">
-              <Button variant="ghost" className="hidden sm:inline-flex text-slate-300 hover:text-white">
+              <Button variant="ghost" className="hidden sm:inline-flex text-slate-300 hover:text-white hover:bg-white/5 transition-all duration-300 rounded-full px-6">
                 Reseller Login
               </Button>
             </a>
             <Link href="/register">
-              <Button className="bg-white/10 hover:bg-white/20 text-white border border-white/10 backdrop-blur-sm">
+              <Button className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 border-0 shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] hover:-translate-y-0.5 transition-all duration-300 text-white font-medium rounded-full px-6">
                 Apply Now
               </Button>
             </Link>
