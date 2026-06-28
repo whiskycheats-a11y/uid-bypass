@@ -20,6 +20,28 @@ interface ChatMessage {
   };
 }
 
+function ChatAvatar({ src, username }: { src?: string | null, username: string }) {
+  const [error, setError] = useState(false);
+  
+  if (src && !error) {
+    return (
+      <img 
+        src={src} 
+        alt={username} 
+        className="w-full h-full object-cover" 
+        onError={() => setError(true)} 
+      />
+    );
+  }
+  
+  const initials = username.replace(/[^a-zA-Z0-9]/g, '').slice(0, 2).toUpperCase() || '?';
+  return (
+    <span className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/40 to-violet-500/40 text-[10px] md:text-xs font-bold text-blue-300">
+      {initials}
+    </span>
+  );
+}
+
 export function ChatClient({ currentUsername }: { currentUsername: string }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -198,11 +220,7 @@ export function ChatClient({ currentUsername }: { currentUsername: string }) {
                     className={`flex gap-2 md:gap-3 ${isMe ? "flex-row-reverse" : "flex-row"} mb-2`}
                   >
                     <div className="w-6 h-6 md:w-8 md:h-8 rounded-full overflow-hidden bg-slate-800 flex-shrink-0 border border-white/10 flex items-center justify-center mt-1">
-                      {msg.user.profilePicture ? (
-                        <img src={msg.user.profilePicture} alt={msg.user.username} className="w-full h-full object-cover" />
-                      ) : (
-                        <UserCircle className="w-5 h-5 md:w-6 md:h-6 text-slate-500" />
-                      )}
+                      <ChatAvatar src={msg.user.profilePicture} username={msg.user.username} />
                     </div>
 
                     <div className={`flex flex-col ${isMe ? "items-end" : "items-start"} max-w-[85%] md:max-w-[75%]`}>
@@ -262,11 +280,7 @@ export function ChatClient({ currentUsername }: { currentUsername: string }) {
                         className="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-white/10 rounded-lg text-left transition-colors group"
                       >
                         <div className="w-6 h-6 rounded-full overflow-hidden bg-slate-800 flex-shrink-0 border border-white/10">
-                          {u.profilePicture ? (
-                            <img src={u.profilePicture} alt={u.username} className="w-full h-full object-cover" />
-                          ) : (
-                            <UserCircle className="w-full h-full text-slate-500 group-hover:text-slate-300" />
-                          )}
+                          <ChatAvatar src={u.profilePicture} username={u.username} />
                         </div>
                         <span className="text-sm text-slate-200 font-medium truncate flex-1">{u.username}</span>
                         <Badge variant={u.role.toLowerCase() as "admin" | "manager" | "reseller" | "default"} className="text-[9px] px-1 py-0 h-3">
