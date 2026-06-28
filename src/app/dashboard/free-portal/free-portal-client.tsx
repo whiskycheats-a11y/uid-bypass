@@ -42,7 +42,6 @@ interface PortalType {
 interface FreePortalClientProps {
   freeUidLimit: number | "Unlimited";
   initialPortals: PortalType[];
-  baseUrl: string;
 }
 
 export function FreePortalClient({ freeUidLimit, initialPortals }: FreePortalClientProps) {
