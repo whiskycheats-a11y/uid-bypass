@@ -23,7 +23,7 @@ export default async function TeamChatPage() {
         </p>
       </div>
 
-      <ChatClient currentUsername={user.username} />
+      <ChatClient currentUserId={userId} currentUsername={user.username} />
     </div>
   );
 }

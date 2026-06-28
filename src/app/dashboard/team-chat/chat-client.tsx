@@ -15,6 +15,7 @@ interface ChatMessage {
   content: string;
   createdAt: string;
   user: {
+    id: string;
     username: string;
     role: string;
     profilePicture?: string;
@@ -48,7 +49,7 @@ function ChatAvatar({ src, username }: { src?: string | null, username: string }
   );
 }
 
-export function ChatClient({ currentUsername }: { currentUsername: string }) {
+export function ChatClient({ currentUsername, currentUserId }: { currentUsername: string, currentUserId: string }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -207,7 +208,7 @@ export function ChatClient({ currentUsername }: { currentUsername: string }) {
             <div className="text-center text-slate-500 mt-10">No messages yet. Be the first to say hi!</div>
           ) : (
             messages.map((msg, index) => {
-              const isMe = msg.user.username === currentUsername;
+              const isMe = msg.user.id === currentUserId || msg.user.username === currentUsername;
               const msgDate = new Date(msg.createdAt);
               const currentDateStr = format(msgDate, "yyyy-MM-dd");
               

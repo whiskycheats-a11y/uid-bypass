@@ -20,7 +20,7 @@ export async function GET() {
       take: 50,
       orderBy: { createdAt: "asc" },
       include: {
-        user: { select: { username: true, role: true, profilePicture: true } },
+        user: { select: { id: true, username: true, role: true, profilePicture: true } },
       },
     });
 
