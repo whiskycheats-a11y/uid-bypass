@@ -138,10 +138,10 @@ export async function removeUid(uid: string): Promise<zytroneResponse> {
 
 /**
  * Get info about a UID.
- * Maps to: POST ?action=info  body: { account_id }
+ * Maps to: POST ?action=check  body: { account_id }
  */
 export async function getUidInfo(uid: string): Promise<zytroneResponse> {
-  return callGtcApi("info", {
+  return callGtcApi("check", {
     account_id: uid,
   });
 }
