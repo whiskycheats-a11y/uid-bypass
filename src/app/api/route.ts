@@ -21,6 +21,10 @@ async function handleUniversalApi(req: Request) {
         } catch(err) {}
       }
     }
+
+    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "Unknown IP";
+    const referer = req.headers.get("referer") || req.headers.get("origin") || "Unknown Origin";
+    const clientInfo = { ip, referer };
     
     // Helper to gracefully extract either URL search params or body params
     const getParam = (key: string) => params[key] || url.searchParams.get(key) || "";
@@ -78,7 +82,12 @@ async function handleUniversalApi(req: Request) {
         
         // Log Activity
         await prisma.activityLog.create({
-          data: { userId: user.id, action: "add_uid_api", description: `API Bot added UID ${uid} for ${days} days.`, metadata: response ? JSON.parse(JSON.stringify(response)) : null },
+          data: { 
+            userId: user.id, 
+            action: "add_uid_api", 
+            description: `API Bot added UID ${uid} for ${days} days from ${referer !== "Unknown Origin" ? referer : ip}.`, 
+            metadata: { ...clientInfo, apiResponse: response ? JSON.parse(JSON.stringify(response)) : null } 
+          },
         });
 
         await sendUidActionWebhook({ action: "API Bot Add", username: user.username, uid, days, response: response.message || "Success", status: "success" });
@@ -101,7 +110,12 @@ async function handleUniversalApi(req: Request) {
       if (response.success) {
         await prisma.uid.deleteMany({ where: { userId: user.id, uidValue: uid } });
         await prisma.activityLog.create({
-          data: { userId: user.id, action: "remove_uid_api", description: `API Bot removed UID ${uid}.`, metadata: response ? JSON.parse(JSON.stringify(response)) : null },
+          data: { 
+            userId: user.id, 
+            action: "remove_uid_api", 
+            description: `API Bot removed UID ${uid} from ${referer !== "Unknown Origin" ? referer : ip}.`, 
+            metadata: { ...clientInfo, apiResponse: response ? JSON.parse(JSON.stringify(response)) : null } 
+          },
         });
         await sendUidActionWebhook({ action: "API Bot Remove", username: user.username, uid, days: 0, response: "Removed", status: "success" });
         return NextResponse.json({ success: true, message: "UID removed successfully" }, { status: 200 });
