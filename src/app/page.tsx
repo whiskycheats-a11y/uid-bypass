@@ -40,11 +40,11 @@ export default function LandingPage() {
             <span className="text-xl font-bold tracking-tight text-white">UID<span className="text-violet-400">Bypass</span></span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login">
+            <a href="/login">
               <Button variant="ghost" className="hidden sm:inline-flex text-slate-300 hover:text-white">
                 Reseller Login
               </Button>
-            </Link>
+            </a>
             <Link href="/register">
               <Button className="bg-white/10 hover:bg-white/20 text-white border border-white/10 backdrop-blur-sm">
                 Apply Now
@@ -86,12 +86,12 @@ export default function LandingPage() {
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Link href="/login" className="w-full sm:w-auto">
+              <a href="/login" className="w-full sm:w-auto">
                 <Button size="lg" variant="outline" className="w-full h-14 px-8 text-lg glass hover:bg-white/10 group">
                   Panel Login
                   <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform text-slate-400" />
                 </Button>
-              </Link>
+              </a>
             </motion.div>
           </motion.div>
         </section>
