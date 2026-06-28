@@ -45,7 +45,7 @@ interface FreePortalClientProps {
   baseUrl: string;
 }
 
-export function FreePortalClient({ freeUidLimit, initialPortals, baseUrl }: FreePortalClientProps) {
+export function FreePortalClient({ freeUidLimit, initialPortals }: FreePortalClientProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -257,6 +257,7 @@ export function FreePortalClient({ freeUidLimit, initialPortals, baseUrl }: Free
                   {initialPortals.map((portal) => {
                     const isExhausted = portal.usedUids >= portal.maxUids;
                     const isExpired = portal.expiresAt && new Date(portal.expiresAt) < new Date();
+                    const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
                     const portalLink = `${baseUrl}/portal/${portal.token}`;
                     
                     return (

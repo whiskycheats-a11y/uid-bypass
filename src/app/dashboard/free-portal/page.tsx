@@ -24,9 +24,6 @@ export default async function FreePortalPage() {
 
   const freeUidLimitDisplay = (user.role === "ADMIN" || user.role === "SUPER_ADMIN") ? "Unlimited" : user.freeUidLimit;
 
-  // Assuming APP_URL from env or using a placeholder if not set
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://uid-bypass-beryl.vercel.app");
-
   return (
     <div className="space-y-8">
       <div>
@@ -41,7 +38,6 @@ export default async function FreePortalPage() {
       <FreePortalClient 
         freeUidLimit={freeUidLimitDisplay} 
         initialPortals={user.portals} 
-        baseUrl={baseUrl} 
       />
     </div>
   );
