@@ -10,6 +10,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    let deletedCount = 0;
     // Find all expired UIDs globally
     const expiredUids = await prisma.uid.findMany({
       where: { expiresAt: { lt: new Date() } }
@@ -20,7 +21,7 @@ export async function GET(req: Request) {
         where: { expiresAt: { lt: new Date() } }
       });
       
-      const deletedCount = result.count;
+      deletedCount = result.count;
       
       const adminUser = await prisma.user.findFirst({ where: { role: "SUPER_ADMIN" } });
       
@@ -42,11 +43,20 @@ export async function GET(req: Request) {
         response: `Successfully automatically wiped ${deletedCount} expired UIDs permanently.`, 
         status: "success" 
       });
-
-      return NextResponse.json({ success: true, message: `Successfully auto-deleted ${deletedCount} expired UIDs.` }, { status: 200 });
-    } else {
-      return NextResponse.json({ success: true, message: "No expired UIDs found to auto-delete." }, { status: 200 });
     }
+
+    // --- CHAT MESSAGE CLEANUP (Older than 4 days) ---
+    const fourDaysAgo = new Date();
+    fourDaysAgo.setDate(fourDaysAgo.getDate() - 4);
+    
+    const deletedChats = await prisma.chatMessage.deleteMany({
+      where: { createdAt: { lt: fourDaysAgo } }
+    });
+
+    return NextResponse.json({ 
+      success: true, 
+      message: `Cron executed. Wiped ${deletedCount} expired UIDs. Wiped ${deletedChats.count} old chat messages.` 
+    }, { status: 200 });
 
   } catch (error) {
     console.error("Cron wipe expired UIDs error:", error);
