@@ -4,10 +4,11 @@ import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Loader2, UserCircle, MessageCircle } from "lucide-react";
+import { Send, Loader2, UserCircle, MessageCircle, Smile } from "lucide-react";
 import { format, isToday, isYesterday } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
+import EmojiPicker, { Theme } from "emoji-picker-react";
 
 interface ChatMessage {
   id: string;
@@ -60,6 +61,10 @@ export function ChatClient({ currentUsername }: { currentUsername: string }) {
   const [cursorPosition, setCursorPosition] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Emoji Picker State
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+
   const fetchMessages = async () => {
     try {
       const res = await fetch("/api/chat");
@@ -86,7 +91,18 @@ export function ChatClient({ currentUsername }: { currentUsername: string }) {
       })
       .catch(console.error);
 
-    return () => clearInterval(interval);
+    // Close emoji picker on outside click
+    const handleClickOutside = (event: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   useEffect(() => {
@@ -300,21 +316,53 @@ export function ChatClient({ currentUsername }: { currentUsername: string }) {
               </motion.div>
             )}
           </AnimatePresence>
-          <form onSubmit={handleSend} className="flex gap-2">
-            <Input
-              ref={inputRef}
-              value={newMessage}
-              onChange={handleInputChange}
-              placeholder="Type your message... use @ to ping"
-              className="flex-1 bg-white/[0.03] border-white/[0.08]"
-              disabled={loading}
-              maxLength={500}
-              icon={<MessageCircle className="w-4 h-4" />}
-            />
-            <Button type="submit" disabled={loading || !newMessage.trim()}>
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            </Button>
-          </form>
+          <div ref={emojiPickerRef} className="relative">
+            <AnimatePresence>
+              {showEmojiPicker && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute bottom-full right-0 mb-4 z-50 shadow-2xl"
+                >
+                  <EmojiPicker 
+                    theme={Theme.DARK} 
+                    onEmojiClick={(emojiData) => {
+                      setNewMessage(prev => prev + emojiData.emoji);
+                      inputRef.current?.focus();
+                    }}
+                    autoFocusSearch={false}
+                    lazyLoadEmojis={true}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <form onSubmit={handleSend} className="flex gap-2">
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="icon" 
+                className={`bg-white/[0.03] border-white/[0.08] hover:bg-white/10 flex-shrink-0 ${showEmojiPicker ? 'text-yellow-400 bg-white/10' : 'text-slate-400'}`}
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              >
+                <Smile className="w-5 h-5" />
+              </Button>
+              <Input
+                ref={inputRef}
+                value={newMessage}
+                onChange={handleInputChange}
+                placeholder="Type your message... use @ to ping"
+                className="flex-1 bg-white/[0.03] border-white/[0.08]"
+                disabled={loading}
+                maxLength={500}
+                icon={<MessageCircle className="w-4 h-4" />}
+              />
+              <Button type="submit" disabled={loading || !newMessage.trim()}>
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              </Button>
+            </form>
+          </div>
         </div>
       </CardContent>
     </Card>
