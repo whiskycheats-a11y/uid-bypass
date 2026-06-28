@@ -42,6 +42,7 @@ interface PortalType {
 interface FreePortalClientProps {
   freeUidLimit: number | "Unlimited";
   initialPortals: PortalType[];
+  baseUrl?: string; // Optional to fix Vercel type cache issue
 }
 
 export function FreePortalClient({ freeUidLimit, initialPortals }: FreePortalClientProps) {
