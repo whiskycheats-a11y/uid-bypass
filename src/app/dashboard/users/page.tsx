@@ -10,8 +10,8 @@ export default async function UsersPage() {
   const userId = session.user.id;
   const userRole = session.user.role;
 
-  // Only Admin and Manager can access
-  if (userRole === "RESELLER") {
+  // Only Admin can access
+  if (userRole === "RESELLER" || userRole === "MANAGER") {
     redirect("/dashboard");
   }
 

@@ -132,13 +132,13 @@ export function Sidebar({ initialSession, apiAccessEnabled = true }: { initialSe
       title: "User Management",
       href: "/dashboard/users",
       icon: Users,
-      roles: ["MANAGER", "ADMIN", "SUPER_ADMIN"],
+      roles: ["ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "Limit Management",
       href: "/dashboard/limit-management",
       icon: Settings,
-      roles: ["MANAGER", "ADMIN", "SUPER_ADMIN"],
+      roles: ["ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "UID Database",
