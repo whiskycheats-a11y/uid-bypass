@@ -10,9 +10,7 @@ export async function GET() {
     }
 
     const adminRole = session.user.role;
-    if (adminRole !== "ADMIN" && adminRole !== "SUPER_ADMIN" && adminRole !== "MANAGER") {
-      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
-    }
+    // Allow everyone to access their relevant UIDs
 
     let uids;
     if (adminRole === "ADMIN" || adminRole === "SUPER_ADMIN") {
@@ -25,7 +23,7 @@ export async function GET() {
         },
         orderBy: { createdAt: 'desc' }
       });
-    } else {
+    } else if (adminRole === "MANAGER") {
       // Manager sees UIDs of users they created, plus their own UIDs
       uids = await prisma.uid.findMany({
         where: {
@@ -34,6 +32,17 @@ export async function GET() {
             { user: { createdBy: session.user.id } }
           ]
         },
+        include: {
+          user: {
+            select: { username: true, email: true }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+    } else {
+      // Reseller only sees their own UIDs
+      uids = await prisma.uid.findMany({
+        where: { userId: session.user.id },
         include: {
           user: {
             select: { username: true, email: true }

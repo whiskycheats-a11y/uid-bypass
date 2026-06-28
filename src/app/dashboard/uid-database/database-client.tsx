@@ -98,6 +98,19 @@ export function DatabaseClient({ currentUserRole }: { currentUserRole: string })
     }
   };
 
+  const handleWipeExpired = async () => {
+    if (!confirm("Are you sure you want to permanently delete all expired UIDs from the database to free up space?")) return;
+    
+    try {
+      const res = await fetch("/api/uid/wipe-expired", { method: "POST" });
+      const data = await res.json();
+      alert(data.message);
+      if (res.ok) fetchUids();
+    } catch (err) {
+      alert("An error occurred while wiping expired UIDs.");
+    }
+  };
+
   return (
     <PageWrapper className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -109,6 +122,14 @@ export function DatabaseClient({ currentUserRole }: { currentUserRole: string })
             Global view of all UIDs registered on the platform.
           </p>
         </div>
+        <Button 
+          onClick={handleWipeExpired}
+          variant="outline" 
+          className="border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+        >
+          <Trash2 className="w-4 h-4 mr-2" />
+          Wipe Expired UIDs
+        </Button>
       </div>
 
       {error && <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 mb-6">{error}</div>}
@@ -244,9 +265,9 @@ export function DatabaseClient({ currentUserRole }: { currentUserRole: string })
                             variant="ghost" 
                             size="icon"
                             onClick={() => handleRemove(record.id, record.uidValue)} 
-                            disabled={removingId === record.id || (currentUserRole !== "ADMIN" && currentUserRole !== "SUPER_ADMIN")}
+                            disabled={removingId === record.id}
                             className="h-8 w-8 text-slate-400 hover:text-red-400 hover:bg-red-400/10"
-                            title={(currentUserRole !== "ADMIN" && currentUserRole !== "SUPER_ADMIN") ? "Only ADMIN can remove UIDs here" : "Remove UID"}
+                            title="Remove UID permanently"
                           >
                             {removingId === record.id ? (
                               <Loader2 className="w-4 h-4 animate-spin" />

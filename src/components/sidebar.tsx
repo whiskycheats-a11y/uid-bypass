@@ -141,7 +141,7 @@ export function Sidebar({ initialSession, apiAccessEnabled = true }: { initialSe
       title: "UID Database",
       href: "/dashboard/uid-database",
       icon: Database,
-      roles: ["MANAGER", "ADMIN", "SUPER_ADMIN"],
+      roles: ["RESELLER", "MANAGER", "ADMIN", "SUPER_ADMIN"],
     },
     {
       title: "Manage Portals",
