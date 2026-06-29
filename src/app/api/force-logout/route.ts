@@ -19,7 +19,7 @@ export async function GET() {
     "__Secure-next-auth.csrf-token",
   ];
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  const baseUrl = "https://uid-bypass-beryl.vercel.app";
   const response = NextResponse.redirect(new URL("/login", baseUrl));
 
   for (const name of cookieNames) {

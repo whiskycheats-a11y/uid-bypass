@@ -22,7 +22,7 @@ export default async function ApiAccessPage() {
   }
 
   // Base URL for API
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://uid-bypass-beryl.vercel.app");
+  const baseUrl = "https://uid-bypass-beryl.vercel.app";
 
   return (
     <div className="space-y-8">
